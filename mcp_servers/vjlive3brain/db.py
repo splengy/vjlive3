@@ -101,8 +101,12 @@ class ConceptDB:
 
     @contextmanager
     def _connect(self) -> Generator[sqlite3.Connection, None, None]:
-        conn = sqlite3.connect(str(self._path))
+        conn = sqlite3.connect(str(self._path), timeout=30)
         conn.row_factory = sqlite3.Row
+        # WAL mode: readers never block writers, writers never block readers.
+        # This fixes concurrent access issues when multiple agents/tools hit the DB.
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
         try:
             yield conn
             conn.commit()
