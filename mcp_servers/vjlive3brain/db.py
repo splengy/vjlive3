@@ -1,4 +1,4 @@
-"""SQLite persistence layer for the vjlive-brain knowledge base."""
+"""SQLite persistence layer for the vjlive3brain knowledge base."""
 from __future__ import annotations
 
 import json
@@ -8,14 +8,14 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Generator
 
-from mcp_servers.vjlive_brain.schema import (
+from mcp_servers.vjlive3brain.schema import (
     ConceptEntry,
     DreamerVerdict,
     LogicPurity,
     RoleAssignment,
 )
 
-_logger = logging.getLogger("vjlive3.mcp.brain.db")
+_logger = logging.getLogger("vjlive3.mcp.vjlive3brain.db")
 
 _CREATE_TABLE = """
 CREATE TABLE IF NOT EXISTS concepts (
@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS concepts (
 );
 """
 
+# FTS5 content-table — kept in sync via triggers below.
 _CREATE_FTS = """
 CREATE VIRTUAL TABLE IF NOT EXISTS concepts_fts USING fts5(
     concept_id,
@@ -47,6 +48,26 @@ CREATE VIRTUAL TABLE IF NOT EXISTS concepts_fts USING fts5(
     content='concepts',
     content_rowid='rowid'
 );
+"""
+
+# Triggers to keep FTS index in sync with the base table.
+_CREATE_TRIGGERS = """
+CREATE TRIGGER IF NOT EXISTS concepts_ai AFTER INSERT ON concepts BEGIN
+    INSERT INTO concepts_fts(rowid, concept_id, name, description, tags)
+    VALUES (new.rowid, new.concept_id, new.name, new.description, new.tags);
+END;
+
+CREATE TRIGGER IF NOT EXISTS concepts_ad AFTER DELETE ON concepts BEGIN
+    INSERT INTO concepts_fts(concepts_fts, rowid, concept_id, name, description, tags)
+    VALUES ('delete', old.rowid, old.concept_id, old.name, old.description, old.tags);
+END;
+
+CREATE TRIGGER IF NOT EXISTS concepts_au AFTER UPDATE ON concepts BEGIN
+    INSERT INTO concepts_fts(concepts_fts, rowid, concept_id, name, description, tags)
+    VALUES ('delete', old.rowid, old.concept_id, old.name, old.description, old.tags);
+    INSERT INTO concepts_fts(rowid, concept_id, name, description, tags)
+    VALUES (new.rowid, new.concept_id, new.name, new.description, new.tags);
+END;
 """
 
 
@@ -89,14 +110,26 @@ class ConceptDB:
             conn.close()
 
     def initialize(self) -> None:
-        """Create tables if they don't exist."""
+        """Create tables and triggers if they don't exist, then rebuild FTS."""
         with self._connect() as conn:
             conn.execute(_CREATE_TABLE)
             conn.execute(_CREATE_FTS)
+            # Execute each trigger statement individually
+            for stmt in _CREATE_TRIGGERS.strip().split("END;"):
+                stmt = stmt.strip()
+                if stmt:
+                    conn.execute(stmt + " END;")
+        self.rebuild_fts()
         _logger.debug("Database initialized at %s", self._path)
 
+    def rebuild_fts(self) -> None:
+        """Rebuild (or backfill) the FTS index from the concepts table."""
+        with self._connect() as conn:
+            conn.execute("INSERT INTO concepts_fts(concepts_fts) VALUES('rebuild')")
+        _logger.debug("FTS index rebuilt.")
+
     def upsert(self, entry: ConceptEntry) -> None:
-        """Insert or update a concept."""
+        """Insert or update a concept (triggers keep FTS in sync)."""
         with self._connect() as conn:
             conn.execute(
                 """
@@ -170,9 +203,12 @@ class ConceptDB:
 
         if query:
             clauses.append(
-                "concept_id IN (SELECT concept_id FROM concepts_fts WHERE concepts_fts MATCH ?)"
+                "concept_id IN ("
+                "  SELECT concept_id FROM concepts_fts"
+                "  WHERE concepts_fts MATCH ?"
+                ")"
             )
-            params.append(query)
+            params.append(query + "*")  # prefix search
         if role:
             clauses.append("role_assignment = ?")
             params.append(role)
@@ -192,7 +228,7 @@ class ConceptDB:
             rows = conn.execute(sql, params).fetchall()
         results = [_row_to_entry(dict(r)) for r in rows]
 
-        # Tag filtering (post-query since tags are stored as JSON)
+        # Tag filtering (post-query — tags stored as JSON array)
         if tags:
             results = [
                 r for r in results if all(t in r.tags for t in tags)

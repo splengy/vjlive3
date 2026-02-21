@@ -24,7 +24,7 @@ Legacy references:
 ### MCP Server Startup
 ```bash
 # Knowledge base
-python mcp_servers/vjlive_brain/server.py &
+python mcp_servers/vjlive3brain/server.py &
 
 # Agent switchboard
 python mcp_servers/vjlive_switchboard/server.py &

@@ -63,6 +63,5 @@ The VJLive architecture must be **Autonomous** and **Offline-First**.
 
 ## COMMAND HIERARCHY
 1.  **User** (Vision Holder)
-2.  **Antigravity** (Architect / Core)
-3.  **Roo / Copilot** (Feature Implementation / Depth Mosh Battalion)
-
+2.  **Roo / Copilot** (manager)
+3.  **Antigravity** (Feature Implementation)
