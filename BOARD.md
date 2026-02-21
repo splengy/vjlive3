@@ -58,7 +58,7 @@
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-R1 | OpenGL rendering context (ModernGL) | P0 | 🔨 In Progress | VJlive-2 arch |
+| P1-R1 | OpenGL rendering context (ModernGL) | P0 | ⏚️ Todo | VJlive-2 arch |
 | P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ✅ Spec Ready | VJlive-2 |
 | P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ✅ Spec Ready | `docs/specs/P1-R3_shader_compiler.md` — by Antigravity (Agent 3) |
 | P1-R4 | Texture manager (pooled, leak-free) | P0 | ✅ Spec Ready | `docs/specs/P1-R4_texture_manager.md` — by Antigravity (Agent 3) |

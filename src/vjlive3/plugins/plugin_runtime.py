@@ -116,7 +116,7 @@ class PluginRuntime:
         if stats.instance is not None:
             return stats.instance
 
-        cls = self._registry.get_plugin(plugin_name)
+        cls = self._registry.get(plugin_name)
         if cls is None:
             return None
 

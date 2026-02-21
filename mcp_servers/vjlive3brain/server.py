@@ -49,9 +49,21 @@ _DB_PATH = _os.environ.get(
     ),
 )
 
-# ─── Initialise DB once at import time ────────────────────────────────────────
-_db = ConceptDB(_DB_PATH)
-_db.initialize()
+# ─── Lazy DB accessor ────────────────────────────────────────────────────────
+# IMPORTANT: Do NOT initialise at import time.
+# Importing this module (e.g. for testing or scripting) must never open a
+# SQLite connection — that would acquire a write lock and deadlock any other
+# process that also imports the server. DB is created on first tool call.
+_db: ConceptDB | None = None
+
+
+def _get_db() -> ConceptDB:
+    """Return the singleton ConceptDB, initialising it on first call."""
+    global _db
+    if _db is None:
+        _db = ConceptDB(_DB_PATH)
+        _db.initialize()
+    return _db
 
 # ─── FastMCP server ───────────────────────────────────────────────────────────
 mcp = FastMCP(
@@ -85,7 +97,7 @@ def get_concept(concept_id: str) -> str:
     Returns:
         JSON-serialised ConceptEntry, or '{}' if not found.
     """
-    entry = _db.get(concept_id)
+    entry = _get_db().get(concept_id)
     if entry is None:
         return "{}"
     return json.dumps(_entry_to_dict(entry), indent=2)
@@ -115,7 +127,7 @@ def search_concepts(
         JSON array of matching ConceptEntry objects.
     """
     tag_list = [t.strip() for t in tags.split(",") if t.strip()] if tags else []
-    results = _db.search(
+    results = _get_db().search(
         query=query,
         tags=tag_list,
         role=role or None,
@@ -149,7 +161,7 @@ def list_concepts(
     elif ported.lower() == "no":
         ported_bool = False
 
-    results = _db.list_all(
+    results = _get_db().list_all(
         category=category or None,
         role=role or None,
         ported=ported_bool,
@@ -165,7 +177,7 @@ def get_stats() -> str:
     Returns:
         JSON with keys: total, ported, unported, dreamer.
     """
-    return json.dumps(_db.stats(), indent=2)
+    return json.dumps(_get_db().stats(), indent=2)
 
 
 @mcp.tool()
@@ -184,18 +196,19 @@ def reseed_brain(mode: str = "docs") -> str:
         JSON with status and new stats.
     """
     try:
+        db = _get_db()
         if mode == "docs":
             from mcp_servers.vjlive3brain.seeder import run_doc_seed
-            run_doc_seed(_db)
+            run_doc_seed(db)
         elif mode == "enrich":
             from mcp_servers.vjlive3brain.enricher import run_enrichment
-            run_enrichment(_db)
+            run_enrichment(db)
         elif mode == "full":
             from mcp_servers.vjlive3brain.seeder import run_full_seed
-            run_full_seed(_db)
+            run_full_seed(db)
         else:
             return json.dumps({"status": "error", "message": f"Unknown mode '{mode}'. Use: docs | enrich | full"})
-        stats = _db.stats()
+        stats = db.stats()
         return json.dumps({"status": "ok", "mode": mode, "stats": stats})
     except Exception as exc:  # noqa: BLE001
         _logger.warning("reseed_brain failed: %s", exc)
@@ -221,7 +234,7 @@ def add_concept(entry_json: str) -> str:
     try:
         data = json.loads(entry_json)
         entry = ConceptEntry(**data)
-        _db.upsert(entry)
+        _get_db().upsert(entry)
         _logger.info("Concept added/updated: %s", entry.concept_id)
         return json.dumps({"status": "ok", "concept_id": entry.concept_id})
     except Exception as exc:  # noqa: BLE001
@@ -243,13 +256,13 @@ def update_concept(concept_id: str, fields_json: str) -> str:
     Returns:
         Status JSON.
     """
-    existing = _db.get(concept_id)
+    existing = _get_db().get(concept_id)
     if existing is None:
         return json.dumps({"status": "error", "message": f"Not found: {concept_id}"})
     try:
         fields = json.loads(fields_json)
         updated = existing.model_copy(update=fields)
-        _db.upsert(updated)
+        _get_db().upsert(updated)
         _logger.info("Concept %s updated: %s", concept_id, list(fields.keys()))
         return json.dumps({"status": "ok", "concept_id": concept_id})
     except Exception as exc:  # noqa: BLE001
@@ -274,7 +287,7 @@ def flag_dreamer(
     Returns:
         Status JSON.
     """
-    existing = _db.get(concept_id)
+    existing = _get_db().get(concept_id)
     if existing is None:
         return json.dumps({"status": "error", "message": f"Not found: {concept_id}"})
 
@@ -290,7 +303,7 @@ def flag_dreamer(
         "dreamer_verdict": dv,
         "logic_purity": purity,
     })
-    _db.upsert(updated)
+    _get_db().upsert(updated)
     _logger.info("Dreamer flag set on %s — verdict: %s", concept_id, verdict)
     return json.dumps({"status": "ok", "concept_id": concept_id, "verdict": verdict})
 
@@ -298,29 +311,45 @@ def flag_dreamer(
 # ─── Smoke test ───────────────────────────────────────────────────────────────
 
 def _smoke_test() -> bool:
-    """Quick round-trip to verify DB and serialisation are functional."""
-    test_entry = ConceptEntry(
-        concept_id="__smoke_test__",
-        name="Smoke Test Concept",
-        description="Temporary entry for server health check.",
-        origin_ref="none",
-        source_files=[],
-        dreamer_flag=False,
-        dreamer_analysis="",
-        logic_purity=LogicPurity.CLEAN,
-        role_assignment=RoleAssignment.WORKER,
-        kitten_status=False,
-        tags=["test"],
-        category="test",
-        ported_to="",
-    )
-    _db.upsert(test_entry)
-    retrieved = _db.get("__smoke_test__")
-    assert retrieved is not None, "Retrieved entry is None"
-    assert retrieved.name == "Smoke Test Concept"
-    _db.delete("__smoke_test__")
-    _logger.info("vjlive3brain smoke test: PASS")
-    return True
+    """Quick round-trip to verify DB and serialisation are functional.
+
+    Uses an ISOLATED temp database — never touches production brain.db.
+    This prevents the smoke test from competing for SQLite write locks
+    with any other process that has the production DB open.
+    """
+    import tempfile, os as _os2
+    tmp = tempfile.mktemp(suffix="_vjlive3brain_smoke.db")
+    try:
+        test_db = ConceptDB(tmp)
+        test_db.initialize()
+        test_entry = ConceptEntry(
+            concept_id="__smoke_test__",
+            name="Smoke Test Concept",
+            description="Temporary entry for server health check.",
+            origin_ref="none",
+            source_files=[],
+            dreamer_flag=False,
+            dreamer_analysis="",
+            logic_purity=LogicPurity.CLEAN,
+            role_assignment=RoleAssignment.WORKER,
+            kitten_status=False,
+            tags=["test"],
+            category="test",
+            ported_to="",
+        )
+        test_db.upsert(test_entry)
+        retrieved = test_db.get("__smoke_test__")
+        assert retrieved is not None, "Retrieved entry is None"
+        assert retrieved.name == "Smoke Test Concept"
+        test_db.delete("__smoke_test__")
+        _logger.info("vjlive3brain smoke test: PASS")
+        return True
+    finally:
+        for suffix in ("", "-wal", "-shm"):
+            try:
+                _os2.unlink(tmp + suffix)
+            except FileNotFoundError:
+                pass
 
 
 # ─── Entrypoint ───────────────────────────────────────────────────────────────
@@ -337,10 +366,12 @@ def main() -> None:
         sys.exit(0 if ok else 1)
 
     # Serve via stdio (Claude Desktop / Roo MCP protocol)
+    # DB is lazy — initialise now so we can log stats before entering the event loop
+    db = _get_db()
     _logger.info(
         "vjlive3brain starting — DB: %s — Stats: %s",
         _DB_PATH,
-        json.dumps(_db.stats()),
+        json.dumps(db.stats()),
     )
     mcp.run(transport="stdio")
 

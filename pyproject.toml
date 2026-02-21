@@ -24,79 +24,116 @@ classifiers = [
 ]
 keywords = ["vj", "live", "visual", "performance", "graphics"]
 dependencies = [
-    # Core scientific & image processing
-    # NOTE: opencv-python and opencv-python-headless both provide the cv2 module
-    # and CANNOT be installed together. Headless is the default for server/CI use.
-    # For desktop/display use, install with the [display] extra instead.
+    # ─── NUMERICAL + VISION ───────────────────────────────────────────────────
+    # Backbone for all frame processing. numpy is the lingua franca.
+    # cv2 handles video/motion; PIL handles static image assets. Never swap roles.
+    # opencv-python-headless: no GUI/display deps — correct for server + CI.
+    # NEVER install opencv-python alongside opencv-python-headless.
     "numpy>=1.24.0",
+    "scipy>=1.11.0",
     "opencv-python-headless>=4.8.0",
     "pillow>=10.0.0",
-    "scipy>=1.11.0",
-    "matplotlib>=3.8.0",
-    
-    # Real-time GPU rendering (OpenGL)
+
+    # ─── GPU RENDERING ────────────────────────────────────────────────────────
+    # moderngl: high-level OpenGL wrapper — use this for all render pipeline code.
+    # PyOpenGL: raw GL calls (FBO, VAO extensions) that moderngl doesn't surface.
+    # glfw: window + context creation. Required by moderngl standalone context.
+    # LAZY-LOAD THESE: import inside class methods, not at module top-level.
+    # Each adds 100-500ms to startup if imported eagerly. Effect engine loads them.
+    "moderngl>=5.8.0",
     "PyOpenGL>=3.1.6",
     "glfw>=2.5.0",
-    "moderngl>=5.8.0",
-    
-    # Audio processing & analysis
+
+    # ─── AUDIO ────────────────────────────────────────────────────────────────
+    # sounddevice: real-time I/O via PortAudio. Python 3.12 compatible.
+    #   Returns numpy arrays natively. Replaces pyaudio forever.
+    # librosa: BPM detection, onset, spectral — NOT for real-time callback.
+    #   LAZY-LOAD: import librosa inside analysis functions, not at module level.
+    #   It pulls in numba on first use — that compile step (2-5s) must be deferred.
     "sounddevice>=0.4.0",
     "librosa>=0.10.0",
-    
-    # Video streaming & output
-    "py-ndi>=1.2.0",
+
+    # ─── VIDEO CODEC ──────────────────────────────────────────────────────────
+    # av (PyAV): wraps libavcodec — H.264, ProRes, frame-accurate seeking.
+    # NDI is NOT here: system SDK only, use conditional import with fallback.
     "av>=10.0.0",
-    
-    # Hardware integration (MIDI, OSC, DMX)
-    "python-rtmidi>=1.5.0",
+
+    # ─── HARDWARE (MIDI / OSC / DMX / USB) ───────────────────────────────────
+    # mido: pure-Python MIDI message routing. python-rtmidi is its fast backend.
+    # python-osc: OSC protocol for TouchDesigner, VCV Rack, Ableton Link.
+    # pyusb: direct USB DMX access (Enttec OpenDMX). No kernel driver needed.
     "mido>=1.3.0",
+    "python-rtmidi>=1.5.0",
     "python-osc>=1.8.0",
     "pyusb>=1.2.0",
-    
-    # Web API & real-time communication
+
+    # ─── WEB API & REAL-TIME COMMS ────────────────────────────────────────────
+    # FastAPI + uvicorn: async-first REST + WebSocket. The ONLY web framework
+    #   in VJLive3. Flask is installed for legacy research only — never in src/.
+    # websockets: low-level WS for node graph real-time updates.
+    # httpx: async HTTP client (replaces blocking requests in async contexts).
+    #   requests stays for sync CLI/script use. httpx for FastAPI route handlers.
+    # python-multipart: required by FastAPI for form/file upload parsing.
     "fastapi>=0.104.0",
     "uvicorn>=0.24.0",
-    "python-multipart>=0.0.6",
     "websockets>=12.0.0",
-    "flask>=3.0.0",
-    "flask-socketio>=5.3.0",
-    "eventlet>=0.33.0",
-    
-    # Configuration & validation
+    "httpx>=0.25.0",
+    "requests>=2.31.0",
+    "python-multipart>=0.0.6",
+
+    # ─── CONFIGURATION & VALIDATION ───────────────────────────────────────────
+    # pydantic v2 (Rust core): all data validation, MCP schema, plugin manifests.
+    #   pydantic-settings handles .env + environment variable loading.
+    #   python-dotenv is REMOVED — pydantic-settings does this natively.
+    # PyYAML: node graph save/load, plugin config files.
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
-    "python-dotenv>=1.0.0",
     "PyYAML>=6.0",
-    
-    # System & utilities
+
+    # ─── PERFORMANCE ──────────────────────────────────────────────────────────
+    # orjson: Rust-based JSON. 10x faster than stdlib json.
+    #   Use for hot-path serialization: WebSocket frames, node graph export,
+    #   plugin manifest bulk loading. Drop-in: json.dumps → orjson.dumps.
+    # uvloop: C-based asyncio event loop replacement. 2-4x faster on Linux.
+    #   Single line activation in main(): import uvloop; uvloop.install()
+    "orjson>=3.9.0",
+    "uvloop>=0.19.0",
+
+    # ─── SYSTEM & NODE GRAPH ─────────────────────────────────────────────────
+    # psutil: CPU/memory/GPU monitoring for FPS governor and health checks.
+    # watchdog: filesystem events for plugin hot-reload.
+    # networkx: DAG representation of the effect chain. Not in hot render path.
     "psutil>=5.9.0",
-    "mss>=9.0.0",
-    "requests>=2.31.0",
-    "tqdm>=4.65.0",
     "watchdog>=3.0.0",
     "networkx>=3.1",
-    "SQLAlchemy>=2.0.0",
-    
-    # Logging & debugging
-    "loguru>=0.7.0",
+
+    # ─── OBSERVABILITY & CLI ──────────────────────────────────────────────────
+    # structlog: structured JSON logging — agent-parseable, searchable by field.
+    #   Wraps stdlib logging. Agents can grep log output as newline-delimited JSON.
+    # rich: formatted terminal output for seeder/CLI tools.
+    # click: CLI argument parsing for seeder, enricher, quality scripts.
+    "structlog>=23.0.0",
     "rich>=13.0.0",
     "click>=8.1.0",
-    
-    # Game/controller support
-    "pygame>=2.5.0",
+
+    # ─── MCP SERVER SDK ───────────────────────────────────────────────────────
+    # Powers vjlive3brain (knowledge base) and vjlive_switchboard (agent comms).
+    "mcp>=1.0",
 ]
 
 [project.optional-dependencies]
 dev = [
+    # Testing
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "pytest-asyncio>=0.21.0",
     "pytest-mock>=3.12.0",
     "pytest-xdist>=3.2.0",
     "pytest-benchmark>=4.0.0",
-    "pytest-qt>=4.2.0",
     "pytest-timeout>=2.1.0",
     "hypothesis>=6.70.0",
+    "httpx>=0.25.0",    # async test client for FastAPI endpoints
+    # Code quality
     "black>=23.0.0",
     "isort>=5.12.0",
     "ruff>=0.1.0",
@@ -104,18 +141,49 @@ dev = [
     "bandit>=1.7.0",
     "safety>=2.3.0",
     "pre-commit>=3.4.0",
+    # Dev utilities (not in production runtime)
+    "matplotlib>=3.8.0",  # debug visualization — dev only
+    "tqdm>=4.65.0",       # progress bars for batch tooling — dev only
     "tox>=4.0.0",
     "tox-gh-actions>=3.0.0",
 ]
 
-# Optional: ZeroMQ multi-node distribution (offline-first; not required for single-machine)
+# Optional: ZeroMQ multi-node distribution (not required for single-machine)
+# Install: pip install vjlive3[distributed]
 distributed = [
     "pyzmq>=25.0",
 ]
 
-# Optional: desktop/display capable OpenCV (replaces headless; do NOT install both)
+# Optional: desktop/display capable OpenCV.
+# Replaces headless — do NOT install both. Use only for dev machines with display.
+# Install: pip install vjlive3[display]
 display = [
     "opencv-python>=4.8.0",
+]
+
+# Optional: Dreamer-tier AI/ML libraries — NEVER in production hot-path.
+# Every import from this group MUST be gated: try/except ImportError.
+# Install: pip install vjlive3[dreamer]
+dreamer = [
+    "torch",              # Neural effects, VQGAN (2GB+ install)
+    "qiskit",             # Quantum algorithm effects [DREAMER_LOGIC]
+    "scikit-learn",       # ML clustering for color palette generation
+    "mediapipe",          # Pose/hand tracking for audience interaction
+    "openai>=1.0",        # GPT/DALL-E calls for generative effects
+    "anthropic",          # Claude API — agent bridge
+    "langgraph",          # Agent graph orchestration
+    "imgui",              # Debug overlay GUI (dev tool only)
+    "gputil",             # GPU metrics (use psutil instead in production)
+]
+
+# Optional: legacy reference packages — research only, NEVER import in src/
+# Installed for reading legacy v1/v2 source code, NOT for VJLive3 production use.
+# Install: pip install vjlive3[legacy]
+legacy = [
+    "flask>=3.0.0",
+    "flask-socketio>=5.3.0",
+    "eventlet>=0.33.0",
+    "SQLAlchemy>=2.0.0",
 ]
 
 

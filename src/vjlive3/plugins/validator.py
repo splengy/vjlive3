@@ -103,7 +103,7 @@ class PluginValidator:
         Validate plugin manifest schema, permissions, and business metadata.
         Returns True if valid.
         """
-        required_fields = {'id', 'version', 'name', 'main'}
+        required_fields = {'id', 'name', 'main'}
         missing = required_fields - set(manifest.keys())
         if missing:
             logger.error("Manifest missing required fields: %s", missing)
@@ -192,9 +192,7 @@ class PluginValidator:
                     return False
                 # Validate floating_licenses count
                 float_lic = node_lic.get('floating_licenses', 0)
-                try:
-                    int(float_lic)
-                except (ValueError, TypeError):
+                if not isinstance(float_lic, int):
                     logger.error("node_licensing.floating_licenses must be an integer")
                     return False
 

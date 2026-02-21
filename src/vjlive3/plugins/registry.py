@@ -11,7 +11,7 @@ import importlib
 import logging
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Type
 
@@ -45,17 +45,18 @@ class PluginInfo:
     Source: VJlive-2/core/plugins/plugin_api.py:PluginInfo
     """
     name: str
-    class_path: str
     version: str
     description: str
     author: str
-    dependencies: List[str]
+    category: str
+    tags: List[str]
     status: PluginStatus
-    error_message: Optional[str] = None
-    load_time: Optional[float] = None
-    instance_count: int = 0
+    parameters: List[Dict[str, Any]] = field(default_factory=list)
+    inputs: List[Dict[str, Any]] = field(default_factory=list)
+    outputs: List[Dict[str, Any]] = field(default_factory=list)
     raw_manifest: Optional[Dict[str, Any]] = None
-
+    error_message: Optional[str] = None
+    instance_count: int = 0
 
 # ---------------------------------------------------------------------------
 # Registry
@@ -80,19 +81,19 @@ class PluginRegistry:
 
     # ── Registration / unload / reload ──────────────────────────────────────
 
-    def register_plugin(
+    def register(
         self,
         name: str,
-        plugin_class: Type,
-        metadata: Optional[Dict[str, Any]] = None,
+        cls: Type,
+        manifest: Dict[str, Any]
     ) -> bool:
         """
-        Register a plugin with validation and error handling.
+        Register a plugin with validation and error handling as per P1-P1 spec.
 
         Args:
             name: Plugin name / identifier.
-            plugin_class: Plugin class or factory callable.
-            metadata: Optional manifest dict.
+            cls: Plugin class or factory callable.
+            manifest: Manifest dict (required by spec).
 
         Returns:
             True if registration succeeded.
@@ -101,31 +102,29 @@ class PluginRegistry:
             with self._lock:
                 if not isinstance(name, str) or not name.strip():
                     raise ValueError(f"Invalid plugin name: {name!r}")
-                if not callable(plugin_class):
-                    raise ValueError(f"Plugin must be callable: {plugin_class}")
+                if not callable(cls):
+                    raise ValueError(f"Plugin must be callable: {cls}")
 
                 if name in self._plugins:
                     logger.warning("Plugin %s already registered — overwriting", name)
 
-                self._plugins[name] = plugin_class
+                self._plugins[name] = cls
 
                 default: Dict[str, Any] = {
                     'name': name,
-                    'class_path': f"{plugin_class.__module__}.{plugin_class.__qualname__}",
-                    'version': '1.0.0',
-                    'description': f'Plugin: {name}',
-                    'author': 'Unknown',
-                    'dependencies': [],
+                    'version': manifest.get('version', '1.0.0'),
+                    'description': manifest.get('description', f'Plugin: {name}'),
+                    'author': manifest.get('author', 'Unknown'),
+                    'category': manifest.get('category', 'plugin'),
+                    'tags': manifest.get('tags', []),
                     'status': PluginStatus.REGISTERED,
+                    'parameters': manifest.get('parameters', []),
+                    'inputs': manifest.get('inputs', []),
+                    'outputs': manifest.get('outputs', []),
+                    'raw_manifest': manifest,
                     'error_message': None,
-                    'load_time': None,
                     'instance_count': 0,
                 }
-                if metadata:
-                    # Only pull keys that PluginInfo actually has
-                    valid_fields = {f for f in PluginInfo.__dataclass_fields__}
-                    default.update({k: v for k, v in metadata.items() if k in valid_fields})
-                    default['raw_manifest'] = metadata
 
                 self._metadata[name] = PluginInfo(**default)
                 logger.info("Registered plugin: %s", name)
@@ -135,18 +134,18 @@ class PluginRegistry:
             logger.error("Failed to register plugin %s: %s", name, exc)
             self._metadata[name] = PluginInfo(
                 name=name,
-                class_path=str(plugin_class) if plugin_class else 'Unknown',
                 version='1.0.0',
                 description=f'Plugin: {name}',
                 author='Unknown',
-                dependencies=[],
+                category='plugin',
+                tags=[],
                 status=PluginStatus.ERROR,
                 error_message=str(exc),
             )
             self._notify_error_callbacks(f"Plugin registration failed for {name}: {exc}")
             return False
 
-    def unload_plugin(self, name: str) -> bool:
+    def unregister(self, name: str) -> bool:
         """Unload a registered plugin by name."""
         try:
             with self._lock:
@@ -173,31 +172,28 @@ class PluginRegistry:
                 info = self._metadata.get(name)
                 if not info:
                     return False
-                module_path = info.class_path
-                if '.' in module_path:
-                    module_name = module_path.rsplit('.', 1)[0]
-                    try:
-                        importlib.reload(importlib.import_module(module_name))
-                        logger.info("Reloaded plugin module: %s", module_name)
-                        return True
-                    except Exception as exc:
-                        logger.error("Failed to reload %s: %s", module_name, exc)
-                        return False
-                return False
+                module_name = info.raw_manifest.get("main", "").replace('.py', '') or name
+                try:
+                    importlib.reload(importlib.import_module(module_name))
+                    logger.info("Reloaded plugin module: %s", module_name)
+                    return True
+                except Exception as exc:
+                    logger.error("Failed to reload %s: %s", module_name, exc)
+                    return False
         except Exception as exc:
             logger.error("Failed to reload plugin %s: %s", name, exc)
             return False
 
-    def cleanup_all_plugins(self) -> None:
+    def clear(self) -> None:
         """Unload all plugins (for clean shutdown)."""
         with self._lock:
             for name in list(self._plugins.keys()):
-                self.unload_plugin(name)
-        logger.info("All plugins cleaned up")
+                self.unregister(name)
+        logger.info("All plugins cleared")
 
     # ── Instantiation ────────────────────────────────────────────────────────
 
-    def get_plugin(self, name: str) -> Optional[Type]:
+    def get(self, name: str) -> Optional[Type]:
         """Return the plugin class for *name*, or None."""
         try:
             with self._lock:
@@ -220,7 +216,7 @@ class PluginRegistry:
         """Create and return a new instance of plugin *name*."""
         try:
             with self._lock:
-                cls = self.get_plugin(name)
+                cls = self.get(name)
                 if cls is None:
                     return None
                 instance = cls(*args, **kwargs)
@@ -240,20 +236,20 @@ class PluginRegistry:
 
     # ── Queries ───────────────────────────────────────────────────────────────
 
-    def list_plugins(self) -> List[str]:
+    def list_names(self) -> List[str]:
         """Return names of all registered plugins."""
         with self._lock:
             return list(self._plugins.keys())
 
-    def get_plugin_info(self, name: str) -> Optional[PluginInfo]:
+    def get_info(self, name: str) -> Optional[PluginInfo]:
         """Return detailed info for a plugin, or None."""
         with self._lock:
             return self._metadata.get(name)
 
-    def get_all_plugin_info(self) -> Dict[str, PluginInfo]:
+    def list_all(self) -> List[PluginInfo]:
         """Return info for all registered plugins."""
         with self._lock:
-            return dict(self._metadata)
+            return list(self._metadata.values())
 
     def get_plugins_by_status(self, status: PluginStatus) -> List[str]:
         """Return plugin names filtered by status."""
@@ -269,9 +265,10 @@ class PluginRegistry:
         try:
             with self._lock:
                 info = self._metadata.get(name)
-                if not info:
+                if not info or not info.raw_manifest:
                     return {}
-                return {dep: (dep in self._plugins) for dep in info.dependencies}
+                deps = info.raw_manifest.get('dependencies', [])
+                return {dep: (dep in self._plugins) for dep in deps}
         except Exception as exc:
             logger.error("Failed to validate dependencies for %s: %s", name, exc)
             return {}
@@ -379,7 +376,7 @@ def create_plugin_instance(name: str, *args, **kwargs) -> Optional[Any]:
 
 def unload_plugin(name: str) -> bool:
     """Module-level shim — delegates to global plugin_registry."""
-    return plugin_registry.unload_plugin(name)
+    return plugin_registry.unregister(name)
 
 
 def reload_plugin(name: str) -> bool:

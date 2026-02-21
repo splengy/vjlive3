@@ -1,144 +1,66 @@
-# AGENT IDENTIFICATION SYSTEM
+# AGENT_IDENTIFICATION SYSTEM
 
-**Purpose:** Uniquely identify agents when multiple instances of the same role exist.
-
-**Owner:** ROO CODE (Manager)
+**Owner:** User (Happy) + ROO CODE (Manager)
 **Last Updated:** 2026-02-21
 
----
-
-## The Problem
-
-When multiple agents share the same role (e.g., "Roo Coder" or "Antigravity"), we need a way to:
-- Distinguish which agent is which in LOCKS.md, AGENT_SYNC.md, and BOARD.md
-- Track individual agent performance and compliance
-- Assign tasks to specific agents, not just roles
-- Prevent confusion and task ownership ambiguity
+> [!CAUTION]
+> **THIS IS STEP ZERO. EVERY AGENT READS THIS BEFORE ANYTHING ELSE.**
+> Agents that skip this and assume a role have caused project damage.
 
 ---
 
-## Solution: Agent Naming Convention
+## The 4-Agent Structure
 
-All agents must use a **unique identifier** consisting of:
+| Agent | Model | Role | Decides? |
+|-------|-------|------|----------|
+| **ROO CODE (Manager)** | Roo Code 1 | Manager — assigns tasks, owns BOARD/DISPATCH/DECISIONS | ✅ YES (with User) |
+| **Roo Code (Worker)** | Roo Code 2 | Worker — executes assigned tasks | ❌ No |
+| **Antigravity (Agent 2)** | Claude | Worker — executes assigned tasks | ❌ No |
+| **Antigravity (Agent 3)** | Claude | Worker — executes assigned tasks | ❌ No |
+| **Gemini Antigravity** | Gemini | Worker variant — currently inactive | ❌ No |
+
+**Decision authority:** User (Happy) → ROO CODE (Manager) → everyone else executes.
+
+---
+
+## Claim Protocol — How to Identify Yourself
+
+### If you are Claude (Antigravity):
+Both Antigravity agents are Claude. Both read `claude.md`. To find your slot:
+1. Check `WORKSPACE/COMMS/LOGS/antigravity_agent_2.md` — does it have a session-start entry from today?
+2. If **no** → you are **Antigravity (Agent 2)**. Read `WORKSPACE/AGENTS/antigravity_agent_2.md`.
+3. If **yes** → you are **Antigravity (Agent 3)**. Read `WORKSPACE/AGENTS/antigravity_agent_3.md`.
+4. Write your claim to your log file immediately.
+
+### If you are Roo Code (Worker):
+Read `WORKSPACE/AGENTS/roo_code_worker.md`. Your log: `WORKSPACE/COMMS/LOGS/roo_code_worker.md`.
+
+### If you are ROO CODE (Manager):
+You already know who you are. You don't need to claim a slot.
+
+### If you are Gemini:
+You are an inactive Antigravity variant. Read `gemini.md`. Check with user before starting work.
+
+---
+
+## Agent Cards
+
+| Agent | Card File | Log File |
+|-------|-----------|----------|
+| ROO CODE (Manager) | `AGENTS/roo_code_manager.md` | Edits BOARD/DISPATCH directly |
+| Roo Code (Worker) | `AGENTS/roo_code_worker.md` | `COMMS/LOGS/roo_code_worker.md` |
+| Antigravity (Agent 2) | `AGENTS/antigravity_agent_2.md` | `COMMS/LOGS/antigravity_agent_2.md` |
+| Antigravity (Agent 3) | `AGENTS/antigravity_agent_3.md` | `COMMS/LOGS/antigravity.md` |
+
+---
+
+## Naming Convention (use exactly — copy-paste these)
 
 ```
-<Role> (<Agent Number>)
+ROO CODE (Manager)
+Roo Code (Worker)
+Antigravity (Agent 2)
+Antigravity (Agent 3)
 ```
 
-### Examples:
-- `Roo Coder (1)`
-- `Roo Coder (2)`
-- `Antigravity (Agent 2)`
-- `Antigravity (Agent 3)`
-- `ROO CODE (Manager)` - unique, only one manager
-
----
-
-## Agent Registry
-
-### Manager
-| ID | Display Name | Status | Notes |
-|----|--------------|--------|-------|
-| ROO-001 | ROO CODE (Manager) | Active | Only one manager, absolute authority |
-
-### Roo Coders
-| ID | Display Name | Status | Current Assignment |
-|----|--------------|--------|-------------------|
-| ROO-002 | Roo Coder (1) | Active | Hardware integration (P2-H3, P2-H4) |
-| ROO-003 | Roo Coder (2) | Joining | TBD by Manager |
-
-### Antigravity Agents
-| ID | Display Name | Status | Current Assignment |
-|----|--------------|--------|-------------------|
-| AG-002 | Antigravity (Agent 2) | Active | Distributed architecture (P2-X1/X2 ✅ Complete) |
-| AG-003 | Antigravity (Agent 3) | Joining | TBD by Manager |
-
----
-
-## Usage Rules
-
-### 1. LOCKS.md
-Always use the full display name:
-
-```markdown
-| File Path | Locked By | Since | ETA |
-|-----------|-----------|-------|-----|
-| src/vjlive3/plugins/registry.py | Roo Coder (1) | 2026-02-21 10:30 | 2hr |
-```
-
-### 2. DISPATCH.md
-Assign tasks to specific agents:
-
-```markdown
-| Task ID | Assigned To | Status | Spec Written? | Notes |
-|---------|-------------|--------|---------------|-------|
-| P2-H3 | Roo Coder (1) | 🔨 In Progress | ✅ docs/specs/P2-H3_astra.md | OpenNI2→PyUSB→Null |
-```
-
-### 3. AGENT_SYNC.md
-Tag agents with their full identifier:
-
-```markdown
-## 2026-02-21 10:45 — Roo Coder (1)
-- P2-H3: AstraCamera factory implemented
-- Tests: 12/12 passing
-- FPS: 60 stable
-- Blocked on: None
-```
-
-### 4. BOARD.md
-Reference specific agents in notes:
-
-```markdown
-| P2-H3 | Roo Coder (1) | 🔨 In Progress | ✅ docs/specs/P2-H3_astra.md | |
-```
-
----
-
-## Agent Onboarding
-
-When a new agent joins:
-1. **Assign an Agent Number** (next available in sequence)
-2. **Create agent profile** in this document
-3. **Define initial assignment** in WORKER_MANIFEST.md
-4. **Set expectations** via their instruction file (gemini.md, claude.md, or custom)
-5. **Brief on identification** — they must use their full name in all communications
-
----
-
-## Enforcement
-
-ROO CODE will:
-- Monitor all communications for proper agent identification
-- Flag ambiguous references (e.g., "Antigravity" without number)
-- Request clarification if agent identity is unclear
-- Reassign tasks if agent confusion causes conflicts
-
----
-
-## Quick Reference
-
-**Manager:** ROO CODE (Manager) — only one, absolute authority
-
-**Roo Coders:**
-- Roo Coder (1) — hardware integration specialist
-- Roo Coder (2) — hardware integration specialist (backup)
-
-**Antigravity Agents:**
-- Antigravity (Agent 2) — distributed architecture specialist
-- Antigravity (Agent 3) — distributed architecture specialist (backup)
-
-**Other Workers:**
-- Any future agents will receive numbered identifiers
-- Pattern: `<Role> (<Agent Number>)` or `<Name> (Agent <Number>)`
-
----
-
-## Final Directive
-
-**Always use the full agent identifier.**
-Never assume context is clear. Always be explicit.
-
-Example: "Roo Coder (1)" not "Roo Coder" or "the first Roo Coder"
-
-This eliminates ambiguity and ensures clear accountability.
+Use the full name in: LOCKS.md, your log file header, and any status files.

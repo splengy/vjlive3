@@ -103,3 +103,40 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [push]
+
+      # ── VJLive3 Hardening Enforcement Hooks ───────────────────────────────
+      - id: vjlive3-spec-compliance
+        name: VJLive3 Spec-First Policy
+        entry: python scripts/verify_spec_exists.py
+        language: system
+        types: [python]
+        description: >
+          Enforces spec-first development by requiring spec references in code.
+          Rejects files without proper spec documentation.
+
+      - id: vjlive3-test-coverage-gate
+        name: VJLive3 Test Coverage Gate
+        entry: python scripts/verify_test_coverage.py
+        language: system
+        types: [python]
+        description: >
+          Enforces minimum 80% test coverage for all Python files.
+          Rejects files with insufficient test coverage.
+
+      - id: vjlive3-performance-regression
+        name: VJLive3 Performance Regression Check
+        entry: python scripts/check_performance_regression.py
+        language: system
+        types: [python]
+        description: >
+          Detects performance regressions by comparing current performance
+          against baseline benchmarks.
+
+      - id: vjlive3-security-scan
+        name: VJLive3 Security Scan
+        entry: python scripts/security_scan.py
+        language: system
+        types: [python]
+        description: >
+          Scans for security vulnerabilities, hardcoded secrets, and unsafe
+          code patterns. Rejects files with security issues.
