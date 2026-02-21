@@ -98,25 +98,27 @@ def main() -> int:
             BlurEffect(kernel_size=5),
         ]
 
-        # Create pipeline
-        pipeline = VideoPipeline(
-            source=source,
-            effects=effects,
-        )
+        # Create pipeline (requires PipelineConfig wrapper)
+        from vjlive3.core.pipeline import PipelineConfig
+        config = PipelineConfig(source=source, effects=effects)
+        pipeline = VideoPipeline(config=config)
 
-        # Process a few frames as demo
+        # Process frames and measure FPS
+        import time
         print("\nProcessing demo frames...")
         frame_count = 0
-        max_frames = 10
+        max_frames = 60  # 2 seconds at 30fps
+        t_start = time.perf_counter()
 
-        for frame in source.stream():
-            processed = pipeline.process(frame)
+        for frame in pipeline.stream():
             frame_count += 1
-            print(f"  Processed frame {frame_count}/{max_frames} "
-                  f"(shape: {processed.shape})")
-
             if frame_count >= max_frames:
                 break
+
+        elapsed = time.perf_counter() - t_start
+        fps = frame_count / elapsed if elapsed > 0 else 0
+
+        print(f"  Processed {frame_count} frames in {elapsed:.2f}s → {fps:.1f} FPS")
 
         print(f"\n✅ Successfully processed {frame_count} frames")
         print("=" * 60)

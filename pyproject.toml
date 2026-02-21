@@ -106,6 +106,12 @@ dev = [
     "tox-gh-actions>=3.0.0",
 ]
 
+# Optional: ZeroMQ multi-node distribution (offline-first; not required for single-machine)
+distributed = [
+    "pyzmq>=25.0",
+]
+
+
 [tool.black]
 line-length = 88
 target-version = ['py39']

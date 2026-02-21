@@ -7,7 +7,7 @@ path sanitization, and safe operations.
 import os
 import re
 from pathlib import Path
-from typing import Optional, Set
+from typing import List, Optional, Set
 
 
 def sanitize_filename(filename: str, max_length: int = 255) -> str:
