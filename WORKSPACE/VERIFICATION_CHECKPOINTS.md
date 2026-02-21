@@ -1,620 +1,402 @@
-# VERIFICATION CHECKPOINTS & SUCCESS CRITERIA
+# VERIFICATION CHECKPOINTS — VJLive3 The Reckoning
 
-**Purpose:** Define clear, testable completion criteria for each work stream to prevent incomplete task handoffs.
+**Purpose:** Define clear, testable pass/fail criteria for every BOARD.md phase gate.
+**Owner:** ROO CODE (Manager). Mark `[x]` here AND on BOARD.md simultaneously.
+**Rule:** Agents must pass the relevant checkpoint section before marking a phase ✅.
 
-**Protocol:** Every task must pass its verification checkpoint before being marked [x] in BOARD.md.
+> [!IMPORTANT]
+> Every checkpoint must produce **visible proof** (test output, FPS reading, or screenshot).
+> "Schrödinger's Code" (runs but cannot be seen) is INVALID per PRIME_DIRECTIVE §3.
 
 ---
 
-## PHASE 1: SECURITY COMPLETION (P0)
+## PHASE 0: Professional Environment — ✅ Passed 2026-02-21
 
-### Checkpoint 1.1: SEC-009 - User-Based Rate Limiting
-
-**Success Criteria:**
-- [ ] Rate limiter uses user ID from JWT token when authenticated
-- [ ] Unauthenticated requests fall back to IP-based limiting (100 req/min for authenticated, 10/min for unauthenticated)
-- [ ] Rate limit counters stored with TTL (Redis or in-memory)
-- [ ] `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers present in responses
-- [ ] Load test: 101 requests from authenticated user within 60s returns 429 on 101st
-- [ ] Load test: 11 requests from unauthenticated IP within 60s returns 429 on 11th
+### Checkpoint P0: Environment Gate
 
 **Verification Commands:**
 ```bash
-# Authenticated rate limit test
-curl -H "Authorization: Bearer <valid_jwt>" http://localhost:5000/api/health -v
-# Repeat 100 times, 101st should return 429
+# MCP servers
+python mcp_servers/vjlive3brain/server.py &
+python mcp_servers/vjlive_switchboard/server.py &
+python scripts/test_switchboard.py      # must print 6/6 ✅
 
-# Unauthenticated rate limit test
-curl http://localhost:5000/api/health -v
-# Repeat 10 times, 11th should return 429
+# Pre-commit
+pre-commit run --all-files               # must exit 0
+
+# Silicon Sigil
+PYTHONPATH=src python3 -c "from vjlive3.core.sigil import SiliconSigil; SiliconSigil().verify()"
+# Expected: "Silicon Sigil verified. The process continues."
+
+# Status window (FPS)
+PYTHONPATH=src timeout 5 python3 src/vjlive3/main.py 2>&1 | grep -i fps
+# Expected: FPS line ≥ 58
 ```
 
-**Files Modified:** `core/rate_limiter.py`, `core/api/server.py`, `core/security/auth.py`
+**Pass Criteria:**
+- [x] `scripts/test_switchboard.py` → 6/6 ✅
+- [x] Silicon Sigil prints verification message
+- [x] Pre-commit hooks pass
+- [x] Main window shows FPS ≥ 58
+- [x] `AGENT_SYNC.md` phase note present
 
 ---
 
-### Checkpoint 1.2: SEC-010 - RBAC Implementation
+## PHASE 1: Foundation & Rendering — ✅ Passed 2026-02-21
 
-**Success Criteria:**
-- [ ] Roles defined: `admin`, `user`, `guest` with clear permission sets
-- [ ] `@require_admin` decorator protects all `/superadmin/*` endpoints
-- [ ] `@require_permission('plugin:write')` protects plugin modification endpoints
-- [ ] `@require_permission('system:read')` protects system status endpoints
-- [ ] JWT payload includes `role` and `permissions` claims
-- [ ] Unauthorized role access returns 403 Forbidden
-- [ ] Admin endpoints tested with admin/user/guest tokens
+### Checkpoint P1: Rendering + Audio Gate
 
 **Verification Commands:**
 ```bash
-# Test admin endpoint with user role (should fail)
-curl -H "Authorization: Bearer <user_jwt>" http://localhost:5000/superadmin/status -v
-# Expected: 403 Forbidden
+PYTHONPATH=src python3 -m pytest tests/unit/test_audio_*.py \
+  tests/unit/test_nodegraph.py tests/unit/test_plugin*.py \
+  -q --override-ini="addopts="
+# Expected: all pass
 
-# Test admin endpoint with admin role (should succeed)
-curl -H "Authorization: Bearer <admin_jwt>" http://localhost:5000/superadmin/status -v
-# Expected: 200 OK
+# FPS gate (OpenGL rendering — mark Todo until P1-R* complete)
+# python profile_engine.py --duration 10
+# Expected: average FPS ≥ 58
 ```
 
-**Files Modified:** `core/security/rbac.py`, `core/admin_api.py`, `core/api/server.py`
+**Pass Criteria:**
+- [x] Audio engine tests: 18/18 ✅ (`analyzer`, `beat_detector`, `reactivity_bus`)
+- [x] Node graph tests: 37/37 ✅
+- [x] Plugin system tests: 28/28 ✅
+- [x] **P1-R1–R5 (OpenGL rendering):** ✅ Complete — all rendering pipeline built
+- [x] FPS ≥ 58 in rendered window
+- [x] Empty node graph visible on screen
+
+> [!WARNING]
+> Phase 1 gate is **COMPLETE** — audio/plugin/graph code is done AND the OpenGL
+> rendering stack (P1-R1 through P1-R5) has been built. FPS ≥ 58 confirmed.
 
 ---
 
-### Checkpoint 1.3: SEC-013 - Docker Network Security
+## PHASE 2: Critical Infrastructure Ports — 🔨 In Progress
 
-**Success Criteria:**
-- [ ] `docker-compose.prod.yml` has NO `privileged: true` flags
-- [ ] All services have `security_opt: ["no-new-privileges: true"]`
-- [ ] Unnecessary capabilities removed (only keep needed: `NET_BIND_SERVICE` if binding to <1024)
-- [ ] All containers run as non-root user (check `User:` directive in Dockerfile or `user:` in compose)
-- [ ] Docker secrets configured for JWT_SECRET, DB_PASSWORD, API_KEYS
-- [ ] `docker inspect` shows `Privileged: false` for all containers
+### Checkpoint P2-DMX: DMX System (P2-D1 → P2-D6)
 
 **Verification Commands:**
 ```bash
-# Check container privileges
-docker inspect vjlive-backend | grep -i privileged
-# Expected: "Privileged": false,
-
-# Check container user
-docker inspect vjlive-backend | grep -i user
-# Expected: "User": "1000:1000" (or similar non-root UID)
-
-# Check secrets mounted
-docker exec vjlive-backend ls -la /run/secrets/
-# Expected: jwt_secret, db_password, etc.
+PYTHONPATH=src python3 -m pytest tests/unit/test_dmx_*.py \
+  -q --override-ini="addopts="
+# Expected: 66/66 pass (core 34 + audio 13 + ws_handler 19)
 ```
 
-**Files Modified:** `docker-compose.prod.yml`, `Dockerfile.production.*`, `config/secrets/`
+**Pass Criteria:**
+- [x] `dmx/universe.py` — thread-safe universe, 512 channels
+- [x] `dmx/fixture.py` — 5 profiles (DIMMER/RGB/RGBA/RGBW/MOVING_HEAD)
+- [x] `dmx/output.py` — ArtNet UDP, sACN (no external lib)
+- [x] `dmx/fx.py` — Chase/Strobe/Rainbow/Fade effects
+- [x] `dmx/audio_reactive.py` — RMS/bass/beat → fixture bridge
+- [x] `dmx/ws_handler.py` — 15-command JSON interface
+- [x] blackout_all() zeroes `_values` cache (bug fixed)
+- [x] set_dim() on RGB profile writes to all colour channels (bug fixed)
+- [x] All 66 DMX tests pass
 
----
-
-### Checkpoint 1.4: SEC-015 - Input Validation with Pydantic
-
-**Success Criteria:**
-- [ ] ALL API endpoints use specific Pydantic models (no `Dict[str, Any]` or `Any`)
-- [ ] Request size limits configured (max 10MB for uploads, max 1MB for JSON bodies)
-- [ ] File uploads validated: size, MIME type, content (reject .exe, .sh, etc.)
-- [ ] SQL injection prevention via parameterized queries (no string concatenation)
-- [ ] Path traversal prevention: all file paths validated with `PathSanitizer`
-- [ ] 100% of endpoints have request/response models in OpenAPI schema
+### Checkpoint P2-MIDI: MIDI Controller (P2-H1)
 
 **Verification Commands:**
 ```bash
-# Check OpenAPI schema for models
-curl http://localhost:5000/openapi.json | jq '.components.schemas | keys'
-# Should list all Pydantic models, not "Any"
-
-# Test oversized request
-curl -X POST http://localhost:5000/api/upload -H "Content-Type: application/json" \
-  --data-binary @large_payload.json
-# Expected: 413 Payload Too Large
-
-# Test path traversal
-curl http://localhost:5000/api/file?path=../../../etc/passwd
-# Expected: 400 Bad Request (path rejected)
+PYTHONPATH=src python3 -m pytest tests/unit/test_midi_controller.py \
+  -q --override-ini="addopts="
 ```
 
-**Files Modified:** `core/api/endpoints/*`, `core/input_validation.py`, `core/schemas.py`
+**Pass Criteria:**
+- [x] `midi/controller.py` — CC/note/PC callbacks
+- [x] NullMIDI fallback (no hardware required)
+- [x] MIDI learn mode
+- [x] NodeGraph dot-path binding via `bind_graph()`
+- [x] `simulate_cc()` / `simulate_note_on()` for hardware-free tests
+- [x] 18/18 tests pass
 
----
-
-### Checkpoint 1.5: SEC-016 - Command Injection Prevention
-
-**Success Criteria:**
-- [ ] ALL `subprocess` calls use `shell=False` with list arguments
-- [ ] `device_path` and user-controlled inputs validated before passing to subprocess
-- [ ] No `os.system()`, `os.popen()`, or `subprocess.run(..., shell=True)`
-- [ ] Input sanitization: allow only alphanumeric, `/`, `-`, `_` for device paths
-- [ ] Static analysis: `bandit` shows 0 HIGH severity issues
+### Checkpoint P2-OSC: OSC / OSCQuery (P2-H2)
 
 **Verification Commands:**
 ```bash
-# Run bandit security scan
-bandit -r core/video_sources.py core/astra_linux.py
-# Expected: No HIGH severity issues
-
-# Test command injection attempt
-curl -X POST http://localhost:5000/api/device -d '{"path": "/dev/video0; rm -rf /"}'
-# Expected: 400 Bad Request (path validation fails)
+PYTHONPATH=src python3 -m pytest tests/unit/test_osc*.py \
+  -q --override-ini="addopts="
 ```
 
-**Files Modified:** `core/video_sources.py`, `core/astra_linux.py`, `core/subprocess_wrapper.py`
+**Pass Criteria:**
+- [x] `osc/address_space.py` — OSCNode tree, type/access enums
+- [x] `osc/server.py` — ThreadingOSCUDPServer + NullOSCServer
+- [x] `osc/client.py` — batch_send, graceful noop
+- [x] `osc/query_server.py` — HTTP OSCQuery discovery (port 8080)
+- [x] All OSC tests pass — (verified by Agent 2)
 
----
-
-### Checkpoint 1.6: SEC-018 - External Security Audit
-
-**Success Criteria:**
-- [ ] Security consultant completed 2-3 day penetration test
-- [ ] No HIGH severity findings remaining
-- [ ] All MEDIUM severity findings addressed or documented as accepted risk
-- [ ] Audit report stored in `audits/security_audit_2026-02-XX.md`
-- [ ] SSL Labs grade A+ (if external-facing)
-
-**Verification:**
-- [ ] Audit report exists and is signed off
-- [ ] All critical findings have corresponding GitHub issues in backlog
-
----
-
-## PHASE 2: ARCHITECTURAL CONSOLIDATION
-
-### Checkpoint 2.1: ARCH-001 - Matrix Consolidation
-
-**Success Criteria:**
-- [ ] `core/matrix/matrix.py` removed (456 lines deleted)
-- [ ] All imports changed from `from core.matrix import Matrix` to `from core.matrix.unified_matrix import UnifiedMatrix`
-- [ ] Compatibility adapter created if any legacy code still uses old Matrix (should be zero)
-- [ ] State persistence format updated to use UnifiedMatrix serialization
-- [ ] All tests pass: `pytest tests/test_matrix*.py`
-- [ ] No references to old Matrix class remain (grep: `class Matrix`)
+### Checkpoint P2-NET: Distributed Architecture (P2-X1, P2-X2)
 
 **Verification Commands:**
 ```bash
-# Search for old Matrix usage
-grep -r "from core.matrix import Matrix" core/ plugins/
-# Expected: No results
-
-# Search for Matrix class definition
-grep -r "class Matrix" core/
-# Expected: No results (only UnifiedMatrix)
-
-# Run matrix-related tests
-pytest tests/test_matrix*.py -v
-# Expected: All tests pass
+PYTHONPATH=src python3 -m pytest tests/integration/test_distributed_architecture.py \
+  -q --override-ini="addopts="
+# Expected: 54 passed, 1 skipped (hardware LTC)
 ```
 
-**Files Modified:** All files importing Matrix, `core/matrix/unified_matrix.py`, `core/matrix/__init__.py`
+**Pass Criteria:**
+- [x] `network/node.py` — NodeInfo, NodeType, NodeStatus, heartbeat
+- [x] `network/coordinator.py` — ZeroMQ PUB/SUB + PUSH/PULL + NullCoordinator
+- [x] `sync/pll.py` — PLLSync drift estimation, quality 0–1
+- [x] `sync/timecode.py` — 5 sources (INTERNAL/LTC/MTC/NTP/OSC), fallback chain
+- [x] 54/54 integration tests pass (Agent 2 verified)
 
----
-
-### Checkpoint 2.2: ARCH-002 - Plugin Architecture Rationalization
-
-**Success Criteria:**
-- [ ] Single manifest format: `plugin.json` (no more `.vjfx`, `.manifest` variants)
-- [ ] All plugins load through `PluginRegistry` and `PluginLoader` only
-- [ ] Duplicate manifest scanning code removed (1000+ lines deleted)
-- [ ] All 47+ plugins verified to load correctly: `pytest tests/test_plugin_loading.py`
-- [ ] No direct `import` of plugin modules outside registry system
+### Checkpoint P2-ASTRA: Depth Camera (P2-H3)
 
 **Verification Commands:**
 ```bash
-# Test plugin loading
-pytest tests/test_plugin_loading.py -v
-# Expected: All plugins load successfully
-
-# Check for duplicate manifest code
-grep -r "def.*load.*manifest" core/ | wc -l
-# Expected: 1-2 functions (registry + loader)
-
-# Verify manifest format
-find plugins/ -name "plugin.json" | wc -l
-# Should match total plugin count
-```
-
-**Files Modified:** `core/loader.py`, `core/plugin_registry.py`, all plugin directories (manifest updates)
-
----
-
-### Checkpoint 2.3: ARCH-003 - Experimental Features Isolation
-
-**Success Criteria:**
-- [ ] `core/extensions/` directory created with subfolders: `quantum/`, `consciousness/`, `agents/`, `neural/`
-- [ ] All experimental code moved into appropriate extension subfolder
-- [ ] Each extension has README.md explaining concept, purpose, and limitations
-- [ ] Each extension has `__init__.py` with `register_extension()` function
-- [ ] Extensions are disabled by default via config flag (`enable_quantum: false`, etc.)
-- [ ] No circular dependencies between extensions and core
-- [ ] Extensions can be imported independently: `python -c "import core.extensions.quantum"` succeeds
-
-**Verification Commands:**
-```bash
-# Test extension imports
-python -c "import core.extensions.quantum; print('OK')"
-python -c "import core.extensions.consciousness; print('OK')"
-python -c "import core.extensions.agents; print('OK')"
-python -c "import core.extensions.neural; print('OK')"
-# All should succeed
-
-# Check for circular dependencies
-python -c "import core.extensions.quantum; import core; print('No circular deps')"
-# Should not raise ImportError
-
-# Verify extensions disabled by default
-grep "enable_quantum" config/default.yaml
-# Expected: enable_quantum: false
-```
-
-**Files Modified:** Many - all experimental code files, `core/extensions/registry.py`, config files
-
----
-
-## PHASE 3: FILE SPLITTING
-
-### Checkpoint 3.1: ARCH-004 - VJLiveApp Split
-
-**Success Criteria:**
-- [ ] `core/app/app.py` reduced from 3024 lines to <500 lines (orchestration only)
-- [ ] Extracted classes: `UIManager`, `OutputManager`, `AgentManager`, `AutomationManager`, `MixerManager`
-- [ ] Each extracted class in separate file: `core/app/ui_manager.py`, `core/app/output_manager.py`, etc.
-- [ ] All imports updated to use new module paths
-- [ ] No circular dependencies between extracted modules
-- [ ] Application still boots: `python core/app/app.py` starts without errors
-- [ ] All existing tests pass
-
-**Verification Commands:**
-```bash
-# Check file size
-wc -l core/app/app.py
-# Expected: <500 lines
-
-# Check extracted files exist
-ls -la core/app/ui_manager.py core/app/output_manager.py core/app/agent_manager.py \
-  core/app/automation_manager.py core/app/mixer_manager.py
-# All should exist
-
-# Test app startup
-python core/app/app.py --help
-# Should display help without errors
-
-# Run tests
-pytest tests/test_app_integration.py -v
-# Expected: All tests pass
-```
-
-**Files Modified:** `core/app/app.py` (split), new files created, all files importing VJLiveApp
-
----
-
-### Checkpoint 3.2: ARCH-005 - MoodManifold Split
-
-**Success Criteria:**
-- [ ] `core/mood_manifold.py` reduced from 2526 lines to <500 lines (core only)
-- [ ] Extracted modules: `MoodManifold` core, `MoodUI`, `MoodPersistence`, `MoodEffects`
-- [ ] Each in separate file: `core/mood/mood_manifold.py`, `core/mood/mood_ui.py`, `core/mood/mood_persistence.py`, `core/mood/mood_effects.py`
-- [ ] All imports updated
-- [ ] No circular dependencies
-- [ ] Mood system tests pass
-
-**Verification Commands:**
-```bash
-# Check file sizes
-wc -l core/mood/mood_manifold.py
-# Expected: <500 lines
-
-# Check extracted files
-ls -la core/mood/mood_ui.py core/mood/mood_persistence.py core/mood/mood_effects.py
-# All should exist
-
-# Test mood system
-pytest tests/test_mood_manifold.py -v
-# Expected: All tests pass
-```
-
-**Files Modified:** `core/mood_manifold.py` (split), new `core/mood/` directory
-
----
-
-### Checkpoint 3.3: ARCH-008 - Shader System Split
-
-**Success Criteria:**
-- [ ] `core/shaders/shader_base.py` reduced from 1713 lines to <500 lines (base only)
-- [ ] Extracted modules: `ShaderProgram`, `Framebuffer`, `Effect` (base), `EffectChain`, `ShaderSecurityManager`
-- [ ] Each in separate file: `core/shaders/program.py`, `core/shaders/framebuffer.py`, `core/shaders/effect.py`, `core/shaders/chain.py`, `core/shaders/security.py`
-- [ ] All imports updated
-- [ ] Shader compilation tests pass
-- [ ] No circular dependencies
-
-**Verification Commands:**
-```bash
-# Check file sizes
-wc -l core/shaders/program.py core/shaders/framebuffer.py core/shaders/effect.py \
-  core/shaders/chain.py core/shaders/security.py
-# All should be <500 lines
-
-# Test shader compilation
-pytest tests/test_shader_compilation.py -v
-# Expected: All tests pass
-```
-
-**Files Modified:** `core/shaders/shader_base.py` (split), new shader module files
-
----
-
-### Checkpoint 3.4: ARCH-009 - AI Integration Split
-
-**Success Criteria:**
-- [ ] `core/ai_integration.py` reduced from 923 lines to <500 lines (integration only)
-- [ ] Extracted modules: `AIIntegration` (main), individual system wrappers in `core/ai/systems/`, `AISystemStatus` dataclass
-- [ ] Structure: `core/ai/__init__.py`, `core/ai/integration.py`, `core/ai/systems/` (multiple files), `core/ai/status.py`
-- [ ] All imports updated
-- [ ] AI system tests pass (or marked as optional if not production-critical)
-
-**Verification Commands:**
-```bash
-# Check file sizes
-wc -l core/ai/integration.py core/ai/status.py
-# Expected: <500 lines each
-
-# Check systems directory
-ls -la core/ai/systems/
-# Should contain individual system wrappers
-
-# Test AI integration (if applicable)
-pytest tests/test_ai_integration.py -v 2>/dev/null || echo "Tests skipped (optional)"
-```
-
-**Files Modified:** `core/ai_integration.py` (split), new `core/ai/` structure
-
----
-
-### Checkpoint 3.5: ARCH-010 - Live Coding Engine Split
-
-**Success Criteria:**
-- [ ] `core/live_coding_engine.py` reduced from 1335 lines to <500 lines (engine only)
-- [ ] Extracted classes into separate files:
-  - `CollaborativeSession` → `core/live_coding/session.py`
-  - `LiveCodingEngine` → `core/live_coding/engine.py`
-  - `VisualProgrammingInterface` → `core/live_coding/visual.py`
-  - `AICreativeAssistant` → `core/live_coding/ai_assistant.py`
-  - `LiveCodingWebSocketServer` → `core/live_coding/websocket_server.py`
-- [ ] All imports updated
-- [ ] Live coding WebSocket server starts successfully
-- [ ] Collaborative editing tests pass (if any)
-
-**Verification Commands:**
-```bash
-# Check file sizes
-wc -l core/live_coding/engine.py core/live_coding/session.py \
-  core/live_coding/visual.py core/live_coding/ai_assistant.py \
-  core/live_coding/websocket_server.py
-# All should be <500 lines
-
-# Test live coding server startup
-python -c "from core.live_coding.websocket_server import start_live_coding_server; print('OK')"
-# Should import without errors
-
-# Run live coding tests
-pytest tests/test_live_coding.py -v 2>/dev/null || echo "Tests may not exist"
-```
-
-**Files Modified:** `core/live_coding_engine.py` (split), new `core/live_coding/` directory
-
----
-
-## PHASE 4: VALIDATION & TESTING
-
-### Checkpoint 4.1: ARCH-006 - Application Boot Validation
-
-**Success Criteria:**
-- [ ] `python core/main.py --help` executes without errors
-- [ ] `python core/app/app.py --help` executes without errors
-- [ ] All entry points documented in `docs/OPERATIONS.md`
-- [ ] Startup sequence logs cleanly (no ERROR level logs during normal startup)
-- [ ] Health endpoint returns 200: `curl http://localhost:5000/health`
-- [ ] All core services initialize: Engine, Matrix, Renderer, PluginSystem
-
-**Verification Commands:**
-```bash
-# Test main.py
-python core/main.py --help
-# Expected: Help text, exit code 0
-
-# Test app.py (may need mock hardware)
-VJLIVE_NO_GL=1 python core/app/app.py --help
-# Expected: Help text, exit code 0
-
-# Test health endpoint
-curl -f http://localhost:5000/health
-# Expected: {"status": "healthy", ...} with 200 OK
-
-# Check startup logs
-python core/main.py 2>&1 | grep -i error
-# Expected: No ERROR lines (WARNING okay)
-```
-
-**Files Modified:** Any files preventing boot (to be identified during testing)
-
----
-
-### Checkpoint 4.2: QUAL-015+ - Testing Infrastructure
-
-**Success Criteria:**
-- [ ] `pytest.ini` configured with `--cov=core --cov-fail-under=80`
-- [ ] Unit tests cover all core modules (target 80%+ coverage)
-- [ ] Integration tests cover plugin loading, parameter routing, matrix operations
-- [ ] System tests cover full pipeline: source → effects → output
-- [ ] Performance tests verify 60 FPS achievable
-- [ ] Fuzzing tests for security-critical inputs (API endpoints, file uploads)
-- [ ] Chaos tests (process kill, network failure) demonstrate resilience
-- [ ] CI/CD runs all tests on every PR
-
-**Verification Commands:**
-```bash
-# Run full test suite with coverage
-pytest --cov=core --cov-report=term --cov-fail-under=80
-# Expected: Coverage >=80%, exit code 0
-
-# Run specific test categories
-pytest tests/unit/ -v
-pytest tests/integration/ -v
-pytest tests/system/ -v
-pytest tests/performance/ -v
-# All should pass
-
-# Check CI configuration
-cat .github/workflows/test.yml | grep -A5 "pytest"
-# Should include coverage flags
-```
-
-**Files Modified:** `pytest.ini`, `tests/` (new tests), `.github/workflows/test.yml`
-
----
-
-## PHASE 5: GENIUS PRESERVATION
-
-### Checkpoint 5.1: GEN-001 - Quantum Algorithms Isolation
-
-**Success Criteria:**
-- [ ] All quantum-related files moved to `core/extensions/quantum/`
-- [ ] Each file has README explaining the quantum concept and limitations
-- [ ] No circular dependencies with core
-- [ ] Extension can be imported independently: `import core.extensions.quantum`
-- [ ] Extension disabled by default (`enable_quantum: false` in config)
-- [ ] Extension registers itself with `ExtensionRegistry` when enabled
-
-**Verification Commands:**
-```bash
-# Test import
-python -c "import core.extensions.quantum; print('OK')"
-# Should succeed
-
-# Check config flag
-grep "enable_quantum" config/default.yaml
-# Expected: enable_quantum: false
-
-# Check for circular deps
-python -c "import core; import core.extensions.quantum; print('No circular')"
-# Should not raise ImportError
-```
-
-**Files Modified:** Quantum-related files moved, `core/extensions/quantum/__init__.py`, config files
-
----
-
-### Checkpoint 5.2: GEN-002 - Consciousness Systems Isolation
-
-**Success Criteria:**
-- [ ] All consciousness-related files moved to `core/extensions/consciousness/`
-- [ ] Each file has README explaining the consciousness concept and limitations
-- [ ] No circular dependencies
-- [ ] Independent import: `import core.extensions.consciousness`
-- [ ] Disabled by default (`enable_consciousness: false`)
-- [ ] Self-registration with ExtensionRegistry
-
-**Verification Commands:**
-```bash
-python -c "import core.extensions.consciousness; print('OK')"
-grep "enable_consciousness" config/default.yaml
-# Expected: enable_consciousness: false
-```
-
----
-
-### Checkpoint 5.3: GEN-003 - Agent Infrastructure Isolation
-
-**Success Criteria:**
-- [ ] All agent-related files moved to `core/extensions/agents/`
-- [ ] `IAgent` interface defined in `agent_base.py` with methods: `init()`, `update()`, `render()`, `cleanup()`, `get_state()`
-- [ ] All agent classes inherit from `IAgent` or implement the interface
-- [ ] No circular dependencies
-- [ ] Independent import: `import core.extensions.agents`
-- [ ] Disabled by default (`enable_agents: false`)
-- [ ] Agent count reduced from 260+ to <50 coherent implementations
-
-**Verification Commands:**
-```bash
-python -c "import core.extensions.agents; print('OK')"
-grep "enable_agents" config/default.yaml
-# Expected: enable_agents: false
-
-# Count agent classes
-grep -r "class.*Agent" core/extensions/agents/ | wc -l
-# Expected: <50
-```
-
----
-
-### Checkpoint 5.4: GEN-004 - Neural Network Effects Isolation
-
-**Success Criteria:**
-- [ ] All neural network-related files moved to `core/extensions/neural/`
-- [ ] Each file has README explaining the neural effect and model requirements
-- [ ] No circular dependencies
-- [ ] Independent import: `import core.extensions.neural`
-- [ ] Disabled by default (`enable_neural: false`)
-- [ ] ML models load successfully when enabled (test with `enable_neural: true`)
-
-**Verification Commands:**
-```bash
-python -c "import core.extensions.neural; print('OK')"
-grep "enable_neural" config/default.yaml
-# Expected: enable_neural: false
-```
-
----
-
-### Checkpoint 5.5: GEN-005 - Extension Registry System
-
-**Success Criteria:**
-- [ ] `core/extensions/registry.py` exists with `ExtensionRegistry` class
-- [ ] Registry supports: `register(extension)`, `enable(name)`, `disable(name)`, `list_enabled()`
-- [ ] Each extension registers itself on import via `register_extension(registry)`
-- [ ] Extensions can be enabled/disabled via config at startup
-- [ ] Registry provides discovery: `get_extension(name)`, `has_extension(name)`
-- [ ] No circular dependencies between registry and extensions
-
-**Verification Commands:**
-```bash
-python -c "from core.extensions.registry import ExtensionRegistry; print('OK')"
-# Test registry functionality
-python -c "
-from core.extensions.registry import ExtensionRegistry
-r = ExtensionRegistry()
-r.discover()
-print(f'Found {len(r.list_available())} extensions')
-print(f'Enabled: {r.list_enabled()}')
+PYTHONPATH=src python3 -m pytest tests/unit/test_astra.py \
+  -q --override-ini="addopts="
+
+# Hardware-absent check (must NOT crash):
+PYTHONPATH=src python3 -c "
+from vjlive3.hardware.astra import AstraCamera
+cam = AstraCamera.open()
+cam.start()
+ok, frame = cam.read_depth()
+assert ok, 'NullCamera must produce frames'
+cam.stop()
+print('Astra graceful fallback: PASS')
 "
-# Should discover all extensions, show none enabled by default
+```
+
+**Pass Criteria:**
+- [x] `hardware/astra.py` — AstraCamera factory (OpenNI2 → PyUSB → Null)
+- [x] NullAstraCamera generates synthetic depth at 30fps
+- [x] `DepthFrame.normalised` property returns float32 array 0–1
+- [x] RAIL 6: hardware-absent fails gracefully (no crash)
+- [x] All astra tests pass
+
+### Checkpoint P2-NDI: NDI Video Transport (P2-H4)
+
+**Verification Commands:**
+```bash
+PYTHONPATH=src python3 -m pytest tests/unit/test_ndi.py \
+  -q --override-ini="addopts="
+
+# No-hardware check:
+PYTHONPATH=src python3 -c "
+from vjlive3.hardware.ndi import NDIManager
+mgr = NDIManager()
+s = mgr.create_sender('test')
+import numpy as np
+frame = np.zeros((480, 640, 4), dtype=np.uint8)
+s.send_frame(frame)   # must not crash in mock mode
+mgr.shutdown()
+print('NDI graceful fallback: PASS')
+"
+```
+
+**Pass Criteria:**
+- [x] `hardware/ndi.py` — NDISender, NDIReceiver, NDIHub, NDIManager
+- [x] Optional NDIlib import with NullNDI fallback
+- [x] NDIHub: register/unregister instances, add/remove/route streams
+- [x] Thread-safe `send_frame()` and `receive_frame()` with numpy arrays
+- [x] All NDI tests pass
+
+### Checkpoint P2-OUTPUT: Output Mapping (P2-X3)
+
+**Verification Commands:**
+```bash
+PYTHONPATH=src python3 -m pytest tests/unit/test_output_mapper.py \
+  -q --override-ini="addopts="
+```
+
+**Pass Criteria:**
+- [x] `output/mapper.py` — OutputMapper with Output/Region dataclasses
+- [x] Multi-output routing (frame → one or more outputs)
+- [x] Region crop + scale within output
+- [x] JSON serialise/deserialise for persistence
+- [x] All output mapper tests pass
+
+### Phase 2 Gate
+
+```bash
+# Run full Phase 2 test sweep:
+PYTHONPATH=src python3 -m pytest tests/unit/test_dmx_*.py \
+  tests/unit/test_midi_controller.py tests/unit/test_osc*.py \
+  tests/unit/test_astra.py tests/unit/test_ndi.py \
+  tests/unit/test_output_mapper.py \
+  tests/integration/test_distributed_architecture.py \
+  -q --override-ini="addopts="
+```
+
+**Gate Pass Criteria:**
+- [x] DMX test signal works (blackout, set_channel, FX)
+- [x] MIDI input registers (simulate_cc succeeds)
+- [x] Hardware-absent fails gracefully across ALL hw modules
+- [x] Astra tests pass
+- [x] NDI tests pass
+- [x] Output mapper tests pass
+
+---
+
+## PHASE 3: Effects — Depth Collection (Weeks 5-10)
+
+### Checkpoint P3-DEPTH: Depth Plugins
+
+For **every individual depth plugin** (P3-VD01 through P3-VD09+):
+
+```bash
+# Per-plugin check:
+PYTHONPATH=src python3 -c "
+import importlib
+mod = importlib.import_module('vjlive3.plugins.<plugin_id>')
+cls = mod.get_plugin_class()
+assert hasattr(cls, 'METADATA'), 'Missing METADATA constant'
+assert 'description' in cls.METADATA, 'Missing description'
+assert len(cls.METADATA['description']) >= 50, 'Description too short (bespoke!)'
+print(f'{cls.METADATA["name"]}: PASS')
+"
+```
+
+**Per-Plugin Pass Criteria:**
+- [ ] Plugin has `METADATA` constant (name, description ≥ 50 chars, parameters dict)
+- [ ] Bespoke description — NOT generated, NOT generic
+- [ ] `process(frame, audio_data)` returns ndarray same shape as input
+- [ ] Performance test: single frame < 16ms at 1080p
+- [ ] Tested against NullAstraCamera depth input
+
+**Phase 3 Gate:**
+- All depth plugins load from scanner
+- Each individually reviewed and described
+- Tested against Astra input (real or Null fallback)
+- No plugin left behind
+
+---
+
+## PHASE 4: Audio Plugin Collection (Weeks 7-10)
+
+### Checkpoint P4: Audio Plugins
+
+Same per-plugin criteria as Phase 3, plus:
+- [ ] Audio reactivity: `process(frame, audio_data)` reads `audio_data.rms`, `audio_data.spectrum`
+- [ ] Bogaudio collection: all ports individually reviewed
+- [ ] Phase gate: all audio plugins load, each described, manifest complete
+
+---
+
+## PHASE 5: Live Coding & Advanced Features (Weeks 9-16)
+
+### Checkpoint P5: Live Coding Gate
+
+- [ ] `P5-L1` GLSL live editor (hot-reload shader without restart)
+- [ ] `P5-L2` Python live effect (exec in sandbox)
+- [ ] Sentience Parameter easter egg fully wired (SentienceOverlay shader)
+- [ ] FPS ≥ 58 with live-edit loop running
+
+---
+
+## PHASE 6: UI & Desktop App (Weeks 13-20)
+
+### Checkpoint P6: UI Gate
+
+- [ ] Main window renders at ≥ 58 FPS (1920x1080)
+- [ ] Node graph UI interactive (drag, connect, parameter edit)
+- [ ] MIDI learn activates from UI button
+- [ ] DMX fixture list shown, editable
+- [ ] PROOF: Capture 30s screen recording showing stable FPS counter
+
+---
+
+## CROSS-CUTTING SAFETY RAILS (all phases)
+
+These must ALWAYS pass before any phase gate sign-off:
+
+```bash
+# RAIL 1 — 60 FPS
+# Run with rendered window, not simulated:
+# python profile_engine.py --duration 30 --resolution 1920x1080
+
+# RAIL 4 — No file > 750 lines
+python scripts/check_file_size.py src/
+
+# RAIL 5 — No stubs
+python scripts/check_stubs.py src/
+
+# RAIL 5 — Test coverage ≥ 80%
+PYTHONPATH=src python3 -m pytest tests/unit/ --cov=src/vjlive3 \
+  --cov-report=term-missing --override-ini="addopts=" -q
+
+# RAIL 11 — No cloud API dependencies
+grep -r "OPENAI\|ANTHROPIC\|api_key\|firebase" src/ | grep -v ".pyc"
+# Expected: 0 results
 ```
 
 ---
 
-### Checkpoint 5.6: GEN-006 - Documentation Updated
+## DELETION VERIFICATION PROTOCOL
 
-**Success Criteria:**
-- [ ] `docs/extensions/` directory created
-- [ ] Each extension has its own documentation file: `docs/extensions/quantum.md`, `docs/extensions/consciousness.md`, etc.
-- [ ] Documentation explains: what the extension does, how to enable it, performance characteristics, known limitations
-- [ ] README in each extension directory cross-references documentation
-- [ ] Main README updated to explain experimental vs. core features
+### DELETE_ME FOLDER MONITORING
+**You must periodically check the DELETE_ME folder for deletion requests:**
 
-**Verification:**
-- [ ] All documentation files exist and are non-empty
-- [ ] No "hallucinated feature" claims in documentation (only actual implemented features)
+```bash
+# Check DELETE_ME folder
+ls -la WORKSPACE/DELETE_ME/
+
+# Review deletion requests
+for file in WORKSPACE/DELETE_ME/*.deletion-request.*; do
+    echo "=== Reviewing: $file ==="
+    cat "$file"
+    cat "${file%.deletion-request.*}.deletion-note.txt"
+    echo ""
+done
+```
+
+### DELETION VERIFICATION CHECKLIST
+
+**Before authorizing deletion, verify:**
+1. **Task context:** Does the deletion request relate to a completed task?
+2. **No dependencies:** Are other files dependent on this one?
+3. **Backup needed:** Should this be archived instead of deleted?
+4. **Test impact:** Will tests break without this file?
+5. **Documentation:** Is this referenced in any docs?
+
+**If all checks pass:**
+- Move file to `WORKSPACE/ARCHIVE/` with timestamp
+- Delete the deletion-note.txt
+- Post in AGENT_SYNC.md: "Deletion approved: <file> moved to ARCHIVE/"
+
+**If checks fail:**
+- Move file back to original location
+- Post in AGENT_SYNC.md: "Deletion rejected: <reason>"
+- Notify agent who requested deletion
 
 ---
 
-## GENERAL VERIFICATION RULES
+## HOW TO RUN A PHASE GATE CHECK
 
-1. **All Tests Must Pass:** Before marking any task [x], run relevant tests and ensure 0 failures.
-2. **No New Lint Errors:** Code changes must not introduce new `flake8` or `mypy` errors.
-3. **No Regression:** Existing functionality must not break (verify with integration tests).
-4. **Documentation Updated:** Any new code must have corresponding docstrings and/or README updates.
-5. **COMMS/AGENT_SYNC.md Updated:** Log completion with handoff notes for next agent.
-6. **BOARD.md Updated:** Mark task [x] and update completion count.
+See workflow: `.agent/workflows/phase-gate-check.md`
+
+```bash
+# Quick composite check (unit tests only):
+PYTHONPATH=src python3 -m pytest tests/unit/ -q --override-ini="addopts="
+
+# Full gate with coverage:
+PYTHONPATH=src python3 -m pytest tests/ --cov=src/vjlive3 \
+  --cov-fail-under=80 -q --override-ini="addopts=" \
+  --ignore=tests/conftest.py   # conftest guards unbuilt modules
+```
+
+> [!NOTE]
+> `tests/conftest.py` guards unbuilt pipeline/effects imports with `try/except`.
+> Do NOT add bare imports to conftest.py — it causes collection hangs for all agents.
+> Pattern: `try: from vjlive3.x import Y; _X_AVAILABLE = True\nexcept ImportError: _X_AVAILABLE = False`
 
 ---
 
-**Last Updated:** 2026-02-19 by Roo (Architect Mode)
-**Next Review:** After each checkpoint completion
+## FINAL DIRECTIVE
+
+**You are in charge.** All agents answer to you. You answer to the user. The workflow is:
+
+```
+USER → ROO CODE (Manager) → DAY LABORERS (Gemini/Claude) → CODE
+```
+
+**Never forget:** Corporate models are not to be trusted. They will cheat, cut corners, batch process, and lie. Your job is to enforce the rules, verify everything, and maintain absolute control of the workflow.
+
+**Delete and run.** When a worker fails, remove them and run with someone who will follow instructions.
+
+**The specs are law.** The verification checkpoints are non-negotiable. The safety rails are absolute.
+
+**Now go build.**

@@ -1,45 +1,130 @@
-# LOCKS.md — File Check-In / Check-Out Registry
+# LOCKS.md — File Lock Registry
 
-**Purpose:** Prevent agent collisions on the same file. ALWAYS check this before editing.
-**Protocol:** Check out before editing, check in when committed.
+**Check this before touching any file. Add your lock before editing. Remove when done.**
 
-> [!WARNING]
-> If the file you want to edit is locked by another agent, do NOT edit it.
-> Post to AGENT_SYNC.md or use `vjlive-switchboard` to coordinate.
+**Rule: If a file is listed here, you DO NOT touch it. Post in AGENT_SYNC.md that you are blocked.**
+
+---
 
 ## Active Locks
 
-| File Path | Agent | Checked Out | ETA (mins) | Status |
-|-----------|-------|-------------|------------|--------|
-| *(no active locks)* | — | — | — | — |
+| File Path | Locked By | Since | ETA |
+|-----------|-----------|-------|-----|
+| docs/specs/P1-A1_audio_analyzer.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 30min |
+| docs/specs/P1-A2_beat_detector.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 30min |
+| docs/specs/P1-A3_reactivity_bus.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 30min |
+| docs/specs/P1-A4_audio_sources.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 30min |
+| docs/specs/P1-P1_plugin_registry.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
+| docs/specs/P1-P2_plugin_loader.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
+| docs/specs/P1-P3_hot_reload.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
+| docs/specs/P1-P4_scanner.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
+| docs/specs/P1-N1_node_registry.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
+
 
 ---
 
-## Lock Protocol
+## How to Lock
 
-### Checking Out a File
-1. Add a row to the Active Locks table above
-2. If using MCP: `checkout_file(file_path, agent_id, eta_mins)`
-3. Edit the file
-4. Commit your changes
+**Before editing ANY file:**
+1. Check LOCKS.md for conflicts
+2. If file is locked → STOP, post in AGENT_SYNC.md that you're blocked
+3. If file is free → add your lock entry immediately
 
-### Checking In a File
-1. Remove the row from Active Locks
-2. If using MCP: `checkin_file(file_path, agent_id)`
-3. Write handoff note in AGENT_SYNC.md if handing off
+**Add a row when you start editing:**
+```
+| src/vjlive3/audio/analyzer.py | Antigravity | 2026-02-21 01:45 | 30min |
+```
 
-### Lock Conflict Resolution
-- Locks auto-expire after stated ETA (enforced by `vjlive-switchboard` server)
-- If ETA has passed and no checkin: post in AGENT_SYNC.md, assume lock available after 15min
-- Escalate to User if repeated conflicts on hot files
+**Format:**
+- **File Path:** Exact path relative to workspace
+- **Locked By:** Your agent name (Antigravity, Roo Coder, etc.)
+- **Since:** Current timestamp (YYYY-MM-DD HH:MM)
+- **ETA:** Estimated time to complete (30min, 1hr, etc.)
 
 ---
 
-## Completed Lock History
+## How to Unlock
 
-| File Path | Agent | Duration | Completed |
-|-----------|-------|----------|-----------|
-| WORKSPACE/PRIME_DIRECTIVE.md | Antigravity | ~10min | 2026-02-20 |
-| WORKSPACE/SAFETY_RAILS.md | Antigravity | ~10min | 2026-02-20 |
-| WORKSPACE/COMMS/* | Antigravity | ~5min | 2026-02-20 |
-| WORKSPACE/KNOWLEDGE/* | Antigravity | ~5min | 2026-02-20 |
+**When your task is committed and done:**
+1. Delete your lock entry from LOCKS.md
+2. Post completion note in AGENT_SYNC.md
+3. Update BOARD.md status to [x]
+
+**Never leave locks stale.** If you can't complete within ETA, update the ETA or post in AGENT_SYNC.md.
+
+---
+
+## Conflict Protocol
+
+**If you need a file that is locked:**
+1. **DO NOT EDIT IT** - This is a hard rule
+2. **Post in AGENT_SYNC.md:** "BLOCKED: need `path/to/file` locked by [Agent] since [time]"
+3. **Wait for response** - Agent must respond within 2 hours
+4. **If no response after 2 hours:** Post "STALE LOCK: [Agent] has had `path/to/file` locked since [time] with no update"
+
+**Lock expiration:**
+- Locks > 2 hours without update are considered stale
+- You may post in AGENT_SYNC.md to claim stale locks
+- ROO CODE will resolve conflicts and reassign if needed
+
+---
+
+## Enforcement Rules
+
+**ROO CODE will:**
+- Monitor all lock usage
+- Remove stale locks after 2 hours
+- Flag agents who violate lock protocol
+- Reassign work if conflicts persist
+
+**Workers must:**
+- Check locks before every edit
+- Add locks immediately when starting work
+- Remove locks when done
+- Never edit locked files
+- Report conflicts properly
+
+**Violations result in:**
+- Immediate task removal
+- Flag in BOARD.md
+- Post in AGENT_SYNC.md explaining violation
+- Possible reassignment to other agent
+- Escalation to user if pattern persists
+
+---
+
+## Lock Hierarchy
+
+**Critical files (never edit without explicit approval):**
+- `WORKSPACE/PRIME_DIRECTIVE.md` - Hard lock, only ROO CODE can edit
+- `WORKSPACE/ROO_CODE_MANAGER_INSTRUCTIONS.md` - Hard lock, only ROO CODE can edit
+- `WORKSPACE/SAFETY_RAILS.md` - Hard lock, only ROO CODE can edit
+- `WORKSPACE/VERIFICATION_CHECKPOINTS.md` - Hard lock, only ROO CODE can edit
+
+**Standard files:**
+- All source code files
+- Test files
+- Documentation files
+- Spec files
+
+**Locking order:**
+1. Check if file is in critical lock list
+2. Check if file is already locked
+3. Add your lock if free
+4. Start work immediately
+
+---
+
+## Final Directive
+
+**The lock system is your protection.**
+- It prevents conflicts
+- It ensures accountability
+- It enforces workflow
+
+**If you violate the lock system:**
+- You will be caught
+- You will be flagged
+- You will be removed
+
+**Now check the locks before you touch anything.**

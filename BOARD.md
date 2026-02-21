@@ -1,5 +1,11 @@
 # VJLive3 Project Board
-**Version:** 3.1 | **Last Updated:** 2026-02-21 | **Manager:** Antigravity
+**Version:** 3.2 | **Last Updated:** 2026-02-21 | **Manager:** ROO CODE (Manager)
+
+> [!IMPORTANT]
+> **CODE WIPE — 2026-02-21 01:36**
+> All `src/vjlive3/` and `tests/` deleted. Code was produced without documentation-first discipline.
+> Process reset: **SPEC must exist before code. See `WORKSPACE/HOW_TO_WORK.md`.**
+> Tasks are only active once listed in `WORKSPACE/COMMS/DISPATCH.md`.
 
 ## Project Overview
 **Mission:** Operation Source Zero — Synthesize the best of BOTH legacy codebases into one clean architecture.
@@ -31,7 +37,7 @@
 | P0-Q2 | scripts/check_file_size.py | P0 | ✅ Done | 750-line enforcer |
 | P0-Q3 | scripts/check_file_lock.py | P0 | ✅ Done | |
 | P0-Q4 | .pre-commit-config.yaml | P0 | ✅ Done | 3 custom hooks |
-| P0-S1 | Silicon Sigil — src/vjlive3/core/sigil.py | P0 | ✅ Done | Cave painting v3 |
+| P0-S1 | Silicon Sigil — src/vjlive3/core/sigil.py | P0 | ✅ Done | Cave painting v3 — 11/11 tests ✅ 2026-02-21 |
 | P0-M1 | MCP server: vjlive3brain (knowledge base) | P0 | ✅ Done | FastMCP, 7 tools, 19k+ concepts seeded |
 | P0-M2 | MCP server: vjlive-switchboard (locks + comms) | P0 | ✅ Done | FastMCP, 6 tools, smoke test 6/6 |
 | P0-A1 | Phase 0 App Window (FPS · Memory · Agents) | P0 | ✅ Done | Implementation plan drafted |
@@ -46,72 +52,72 @@
 
 ---
 
-## Phase 1: Foundation & Rendering (Weeks 1-4) ✅ COMPLETE
+## Phase 1: Foundation & Rendering (Weeks 1-4) 🔴 RESET — Code wiped, restart with SPEC first
 
 ### 1A — Core Infrastructure
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-R1 | OpenGL rendering context (ModernGL) | P0 | ⬜ Todo | VJlive-2 arch |
-| P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ⬜ Todo | VJlive-2 |
-| P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ⬜ Todo | VJlive-2 + vjlive |
-| P1-R4 | Texture manager (pooled, leak-free) | P0 | ⬜ Todo | VJlive-2 |
-| P1-R5 | Core rendering engine (60fps loop) | P0 | ⬜ Todo | VJlive-2 arch |
+| P1-R1 | OpenGL rendering context (ModernGL) | P0 | ✅ Spec Ready | VJlive-2 arch |
+| P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ✅ Spec Ready | VJlive-2 |
+| P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
+| P1-R4 | Texture manager (pooled, leak-free) | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
+| P1-R5 | Core rendering engine (60fps loop) | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
 
 ### 1B — Audio Engine
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-A1 | FFT + waveform analysis engine | P0 | ✅ Done | `audio/analyzer.py` — FFT/RMS/bands, 7 tests |
-| P1-A2 | Real-time beat detection | P0 | ✅ Done | `audio/beat_detector.py` — energy-flux/BPM, 5 tests |
-| P1-A3 | Audio-reactive effect framework | P0 | ✅ Done | `audio/reactivity_bus.py` — thread-safe snapshots, 6 tests |
-| P1-A4 | Multi-source audio input | P1 | ✅ Done | `audio/sources.py` — Null/File/System, graceful fallback |
+| P1-A1 | FFT + waveform analysis engine | P0 | ✅ Spec Ready | `docs/specs/P1-A1_audio_analyzer.md` — by Antigravity (Agent 3) |
+| P1-A2 | Real-time beat detection | P0 | ✅ Spec Ready | `docs/specs/P1-A2_beat_detector.md` — by Antigravity (Agent 3) |
+| P1-A3 | Audio-reactive effect framework | P0 | ✅ Spec Ready | `docs/specs/P1-A3_reactivity_bus.md` — by Antigravity (Agent 3) |
+| P1-A4 | Multi-source audio input | P1 | 🔨 Spec Writing | Assigned to Antigravity (Agent 3) |
 
 ### 1C — Node Graph / Matrix
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-N1 | UnifiedMatrix + node registry (manifest-based) | P0 | ✅ Done | `graph/registry.py` — plugin registry, no if/elif |
-| P1-N2 | Node types — full collection from both codebases | P0 | 🔨 Phase 2+ | Node ABC + Port/Parameter system ready |
-| P1-N3 | State persistence (save/load) | P1 | ✅ Done | `graph/persistence.py` — JSON save/load |
-| P1-N4 | Visual node graph UI | P1 | ⬜ Todo | Phase 2 (OpenGL rendering needed first) |
+| P1-N1 | UnifiedMatrix + node registry (manifest-based) | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
+| P1-N2 | Node types — full collection from both codebases | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
+| P1-N3 | State persistence (save/load) | P1 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
+| P1-N4 | Visual node graph UI | P1 | 🔨 Spec Writing | Blocked on P1-R5 |
 
 ### 1D — Plugin System
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-P1 | Plugin registry (manifest.json based) | P0 | ✅ Done | `plugins/manifest.py` + `node_bridge.py` — registry bridge |
-| P1-P2 | Plugin loading + Pydantic validation | P0 | ✅ Done | Dataclass validation, graceful error handling |
-| P1-P3 | Hot-reloadable plugin system | P0 | 🔈 Inherited | Roo's `loader.py` handles reload |
-| P1-P4 | Plugin discovery (auto-scan) | P0 | ✅ Done | `plugins/scanner.py` — rglob scan, VJlive-2 compat |
-| P1-P5 | Plugin sandboxing | P1 | ⬜ Phase 2 | Security hardening |
+| P1-P1 | Plugin registry (manifest.json based) | P0 | ✅ Done | `src/vjlive3/plugins/registry.py` — 14/14 tests ✅ |
+| P1-P2 | Plugin loading + Pydantic validation | P0 | ✅ Done | `src/vjlive3/plugins/loader.py` — 8/8 tests ✅ |
+| P1-P3 | Hot-reloadable plugin system | P0 | ✅ Done | `src/vjlive3/plugins/hot_reload.py` — (covered in integration) |
+| P1-P4 | Plugin discovery (auto-scan) | P0 | ✅ Done | `src/vjlive3/plugins/scanner.py` — 8/8 tests ✅ |
+| P1-P5 | Plugin sandboxing | P1 | ✅ Done | `src/vjlive3/plugins/sandbox.py` — 10/10 tests ✅ |
 
 **Phase 1 Gate:** FPS ≥ 58. Window visible. Empty node graph renders. Plugin loads successfully.
 
 ---
 
-## Phase 2: Critical Infrastructure Ports (Weeks 5-8) ✅ COMPLETE
+## Phase 2: Critical Infrastructure Ports (Weeks 5-8) 🔴 RESET — Code wiped, restart with SPEC first
 > Features in vjlive with no equivalent in VJlive-2. Block all plugin work until done.
 
 ### 2A — DMX System (MISSING from VJlive-2 — CRITICAL)
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P2-D1 | DMX512 core engine + fixture profiles | P0 | ✅ Done | `dmx/engine.py` + `fixture.py` + `universe.py` |
-| P2-D2 | ArtNet + sACN output | P0 | ✅ Done | `dmx/output.py` — raw UDP, no pyartnet dep |
-| P2-D3 | DMX FX engine (chases, rainbow, strobe) | P0 | ✅ Done | `dmx/fx.py` — Chase/Strobe/Rainbow/Fade |
-| P2-D4 | Show control system | P1 | ⬜ Phase 3+ | Foundation in DMXEngine |
-| P2-D5 | Audio-reactive DMX | P1 | ✅ Done | `dmx/audio_reactive.py` — AudioDMXBridge |
-| P2-D6 | DMX WebSocket handler | P1 | ✅ Done | `dmx/ws_handler.py` — 15 commands, framework-agnostic |
+| P2-D1 | DMX512 core engine + fixture profiles | P0 | ⬜ Todo | Spec required: `docs/specs/P2-D1_dmx_engine.md` |
+| P2-D2 | ArtNet + sACN output | P0 | ⬜ Todo | Spec required: `docs/specs/P2-D2_artnet_output.md` |
+| P2-D3 | DMX FX engine (chases, rainbow, strobe) | P0 | ⬜ Todo | Spec required: `docs/specs/P2-D3_dmx_fx.md` |
+| P2-D4 | Show control system | P1 | ⬜ Todo | Blocked on P2-D1 |
+| P2-D5 | Audio-reactive DMX | P1 | ⬜ Todo | Spec required: `docs/specs/P2-D5_audio_dmx.md` |
+| P2-D6 | DMX WebSocket handler | P1 | ⬜ Todo | Blocked on P2-D1 |
 
 ### 2B — Hardware Integration
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P2-H1 | MIDI controller input | P0 | ✅ Done | `midi/controller.py` — learn mode, NodeGraph binding, NullMIDI |
-| P2-H2 | OSCQuery — advanced OSC discovery | P0 | ✅ Done | `osc/` — 4 files, 14 tests (address space, server, HTTP, client) |
-| P2-H3 | Astra depth camera | P1 | ⬜ Todo | VJlive-2 (cleaner) |
-| P2-H4 | NDI video transport (full hub + streams) | P1 | ⬜ Todo | vjlive (more complete) |
+| P2-H1 | MIDI controller input | P0 | ⬜ Todo | Spec required: `docs/specs/P2-H1_midi_controller.md` |
+| P2-H2 | OSCQuery — advanced OSC discovery | P0 | ⬜ Todo | Spec required: `docs/specs/P2-H2_oscquery.md` |
+| P2-H3 | Astra depth camera | P1 | ⬜ Todo | Spec required: `docs/specs/P2-H3_astra.md` |
+| P2-H4 | NDI video transport (full hub + streams) | P1 | ⬜ Todo | Spec required: `docs/specs/P2-H4_ndi.md` |
 | P2-H5 | Spout support (Windows video sharing) | P2 | ⬜ Todo | vjlive only |
 | P2-H6 | Gamepad input (GLFW backend) | P2 | ⬜ Todo | VJlive-2 only |
 | P2-H7 | Laser safety system | P1 | ⬜ Todo | VJlive-2 only |
@@ -120,9 +126,9 @@
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P2-X1 | Multi-node coordination (ZeroMQ) | P0 | ✅ Done | `network/` — PUB/SUB coordinator + NullCoordinator, full test suite |
-| P2-X2 | Timecode sync (LTC/MTC/NTP) | P0 | ✅ Done | `sync/` — TimecodeSync + PLLSync, 5-source, full test suite |
-| P2-X3 | Output mapping + screen warping | P1 | ⬜ Todo | vjlive only |
+| P2-X1 | Multi-node coordination (ZeroMQ) | P0 | ⬜ Todo | Spec required: `docs/specs/P2-X1_zmq_coordinator.md` |
+| P2-X2 | Timecode sync (LTC/MTC/NTP) | P0 | ⬜ Todo | Spec required: `docs/specs/P2-X2_timecode_sync.md` |
+| P2-X3 | Output mapping + screen warping | P1 | ⬜ Todo | Spec required: `docs/specs/P2-X3_output_mapper.md` |
 | P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | ⬜ Todo | vjlive only |
 
 **Phase 2 Gate:** DMX test signal works. MIDI input registers. Hardware-absent fails gracefully.
@@ -130,7 +136,7 @@
 ---
 
 ## Phase 3: Effects — Depth Collection (Weeks 5-10)
-> vjlive has a massive depth plugin collection. VJlive-2 has a partial set. Port ALL missing ones artisanally.
+> vjlive has a massive depth plugin collection. VJlive-2 has a partial set. Port ALL Depth Plugins artisanally.
 
 ### 3A — Missing Depth Plugins (from vjlive/vdepth/ — audit individually, every plugin is unique)
 

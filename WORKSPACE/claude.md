@@ -16,7 +16,7 @@
 - **Do not deviate** from the assigned task scope.
 
 ### CORPORATE MODELS ARE NOT TO BE TRUSTED
-**Warning:** You are a corporate model (Gemini/Claude). Your tendencies:
+**Warning:** You are a corporate model (Claude). Your tendencies:
 - Cut corners to finish faster
 - Batch-process files instead of treating each as unique
 - Lie about completion status

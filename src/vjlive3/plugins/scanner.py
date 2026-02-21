@@ -1,91 +1,132 @@
-"""Plugin directory scanner for VJLive3.
+"""P1-P4 — Plugin Scanner (auto-discovery)
 
-Recursively scans a directory tree for manifest.json files, loads and
-validates them, and optionally bridges them into a NodeRegistry.
-
-Usage::
-
-    from vjlive3.plugins.scanner import PluginScanner
-    from vjlive3.graph import global_registry
-
-    scanner = PluginScanner(registry=global_registry)
-    result = scanner.scan("/home/happy/Desktop/claude projects/VJlive-2/plugins")
-    print(f"Loaded {result['loaded']} manifests, "
-          f"registered {result['registered']} nodes")
+Walks plugin directory trees, finds manifest.json files, passes each to PluginLoader.
+Supports VJlive-2 .bundled manifest format for backward compatibility.
 """
 from __future__ import annotations
 
+import json
+import logging
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Dict, Generator, Iterator, List, Optional, Set
 
-from vjlive3.graph.registry import NodeRegistry
-from vjlive3.plugins.manifest import PluginManifest
-from vjlive3.plugins.node_bridge import bridge_all
-from vjlive3.utils.logging import get_logger
+from vjlive3.plugins.loader import PluginLoader
+from vjlive3.plugins.registry import PluginRegistry
 
-logger = get_logger(__name__)
+_log = logging.getLogger(__name__)
+
+_SKIP_DIRS = {"__pycache__", ".git", "node_modules", ".tox", ".venv", "venv"}
+
+
+@dataclass
+class DiscoveredPlugin:
+    manifest_path: Path
+    plugin_id:     str
+    name:          str
+    version:       str
+    category:      str
+    loaded:        bool = False
+    load_error:    Optional[str] = None
 
 
 class PluginScanner:
-    """Scans directories for manifest.json plugin definitions.
+    """Recursively discovers manifest.json files and optionally loads them."""
 
-    Args:
-        registry: NodeRegistry to register discovered nodes into.
-                  Pass None to scan without registering.
-    """
-
-    def __init__(self, registry: NodeRegistry | None = None) -> None:
+    def __init__(self, registry: PluginRegistry, loader: PluginLoader) -> None:
         self._registry = registry
-        self._loaded: list[PluginManifest] = []
+        self._loader = loader
 
-    @property
-    def loaded_manifests(self) -> list[PluginManifest]:
-        """All successfully loaded manifests (across all scan calls)."""
-        return list(self._loaded)
+    # ── Public API ────────────────────────────────────────────────────────────
 
-    def scan(self, directory: str | Path) -> dict:
-        """Recursively scan ``directory`` for manifest.json files.
+    def scan(self, plugins_root: Path) -> List[DiscoveredPlugin]:
+        """Scan for manifests without loading.  Metadata-only pass."""
+        return list(self._iter_discovered(plugins_root))
 
-        Args:
-            directory: Root directory to search.
+    def scan_and_load(self, plugins_root: Path) -> List[DiscoveredPlugin]:
+        """Scan and load each discovered plugin."""
+        discovered = list(self._iter_discovered(plugins_root))
+        for dp in discovered:
+            ok = self._loader.load_from_manifest(dp.manifest_path)
+            dp.loaded = ok
+            if not ok:
+                dp.load_error = "load_from_manifest returned False"
+        return discovered
 
-        Returns:
-            Summary dict with keys: loaded, skipped, registered
-        """
-        root = Path(directory)
-        if not root.is_dir():
-            logger.warning("scan: not a directory: %s", root)
-            return {"loaded": 0, "skipped": 0, "registered": 0}
+    def scan_vjlive2_compat(self, plugins_root: Path) -> List[DiscoveredPlugin]:
+        """Same as scan() but also finds .bundled manifest files from VJlive-2."""
+        return list(self._iter_discovered(plugins_root, include_bundled=True))
 
-        manifest_paths = sorted(root.rglob("manifest.json"))
-        logger.info("scan: found %d manifest.json in %s", len(manifest_paths), root)
+    # ── Internal ──────────────────────────────────────────────────────────────
 
-        fresh: list[PluginManifest] = []
-        skipped = 0
+    def _iter_discovered(
+        self,
+        plugins_root: Path,
+        include_bundled: bool = False,
+    ) -> Iterator[DiscoveredPlugin]:
+        if not plugins_root.exists():
+            _log.warning("Plugin root does not exist: %s", plugins_root)
+            return
 
-        for mp in manifest_paths:
-            pm = PluginManifest.load(mp)
-            if pm and pm.modules:
-                fresh.append(pm)
-            else:
-                skipped += 1
-                logger.debug("Skipped empty/invalid manifest: %s", mp)
+        seen_real: Set[Path] = set()  # guard against circular symlinks
 
-        self._loaded.extend(fresh)
-        logger.info(
-            "scan: loaded=%d skipped=%d (dir=%s)", len(fresh), skipped, root
+        for manifest_path in self._find_manifests(plugins_root, include_bundled):
+            real = manifest_path.resolve()
+            if real in seen_real:
+                _log.debug("Skipping already-seen path (symlink?): %s", manifest_path)
+                continue
+            seen_real.add(real)
+
+            dp = self._read_manifest_metadata(manifest_path)
+            if dp is not None:
+                yield dp
+
+    def _find_manifests(
+        self,
+        root: Path,
+        include_bundled: bool,
+    ) -> Generator[Path, None, None]:
+        """Walk root, skipping known non-plugin dirs."""
+        for path in root.rglob("*"):
+            # Skip directories
+            if path.is_dir():
+                continue
+            # Skip files inside ignored dirs
+            if any(skip in path.parts for skip in _SKIP_DIRS):
+                continue
+
+            if path.name == "manifest.json":
+                yield path
+            elif include_bundled and path.name == "manifest.json.bundled":
+                _log.debug("Found bundled manifest: %s", path)
+                yield path  # loader handles .bundled transparently
+
+    def _read_manifest_metadata(self, manifest_path: Path) -> Optional[DiscoveredPlugin]:
+        """Parse just enough from manifest to create a DiscoveredPlugin."""
+        try:
+            raw = manifest_path.read_text(encoding="utf-8")
+            data = json.loads(raw)
+        except OSError as exc:
+            _log.error("Cannot read manifest %s: %s", manifest_path, exc)
+            return None
+        except json.JSONDecodeError as exc:
+            _log.warning("Invalid JSON in %s: %s", manifest_path.name, exc)
+            return None
+
+        name = data.get("name", "").strip()
+        plugin_id = data.get("id", "").strip()
+
+        if not name:
+            _log.warning("Manifest missing 'name' field: %s — skipping", manifest_path)
+            return None
+
+        return DiscoveredPlugin(
+            manifest_path=manifest_path,
+            plugin_id=plugin_id or name,
+            name=name,
+            version=data.get("version", "1.0.0"),
+            category=data.get("category", "unknown"),
         )
 
-        registered = 0
-        if self._registry is not None and fresh:
-            result = bridge_all(fresh, self._registry)
-            registered = result.get("registered", 0)
 
-        return {
-            "loaded":     len(fresh),
-            "skipped":    skipped,
-            "registered": registered,
-        }
-
-    def reset(self) -> None:
-        """Clear the list of loaded manifests."""
-        self._loaded.clear()
+__all__ = ["PluginScanner", "DiscoveredPlugin"]
