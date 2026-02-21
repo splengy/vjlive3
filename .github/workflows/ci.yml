@@ -1,0 +1,392 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run nightly tests on main branch
+    - cron: '0 0 * * *'
+
+env:
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  # Job 1: Linting and Formatting
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Check formatting with Black
+        run: black --check src/
+
+      - name: Check imports with isort
+        run: isort --check-only src/
+
+      - name: Lint with Ruff
+        run: ruff check src/
+
+      - name: Check docstrings with pydocstyle
+        run: pydocstyle src/
+
+  # Job 2: Type Checking
+  type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run mypy
+        run: mypy src/
+
+  # Job 3: Security Scanning
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Scan with Bandit
+        run: bandit -r src/ -f json -o bandit-report.json
+
+      - name: Check dependencies with Safety
+        run: safety check --json --output safety-report.json
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+
+  # Job 4: Unit Tests
+  test-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run unit tests with coverage
+        run: |
+          pytest tests/unit/ \
+            --cov=src/vjlive3 \
+            --cov-report=xml \
+            --cov-report=term-missing \
+            --junitxml=unit-test-results.xml
+
+      - name: Upload unit test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: unit-test-results
+          path: |
+            unit-test-results.xml
+            coverage.xml
+
+  # Job 5: Integration Tests
+  test-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run integration tests
+        run: |
+          pytest tests/integration/ \
+            --cov=src/vjlive3 \
+            --cov-report=xml \
+            --cov-append \
+            --junitxml=integration-test-results.xml
+
+      - name: Upload integration test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: integration-test-results
+          path: |
+            integration-test-results.xml
+            coverage.xml
+
+  # Job 6: End-to-End Tests
+  test-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run E2E tests
+        run: |
+          pytest tests/e2e/ \
+            --junitxml=e2e-test-results.xml
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-test-results
+          path: e2e-test-results.xml
+
+  # Job 7: Performance Tests (run on schedule or manually)
+  test-performance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Run performance benchmarks
+        run: |
+          pytest tests/performance/ \
+            --benchmark-only \
+            --benchmark-storage=file://.benchmarks/ \
+            --junitxml=performance-results.xml
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: benchmark-results
+          path: |
+            .benchmarks/
+            performance-results.xml
+
+  # Job 8: Coverage Aggregation and Reporting
+  coverage:
+    runs-on: ubuntu-latest
+    needs: [test-unit, test-integration]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+          cache-dependency-path: pyproject.toml
+
+      - name: Install dependencies
+        run: |
+          pip install -e ".[dev]"
+
+      - name: Download coverage reports
+        uses: actions/download-artifact@v3
+        with:
+          path: coverage-reports/
+
+      - name: Combine coverage reports
+        run: |
+          pip install coverage[toml]
+          coverage combine coverage-reports/**/coverage.xml
+          coverage report
+          coverage html
+          coverage xml -o coverage/coverage.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: |
+            htmlcov/
+            coverage/
+
+      - name: Check coverage threshold
+        run: |
+          coverage report --fail-under=80
+
+  # Job 9: Quality Gate (Final Check)
+  quality-gate:
+    runs-on: ubuntu-latest
+    needs: [lint, type-check, security, test-unit, test-integration, coverage]
+    steps:
+      - name: Check all required jobs succeeded
+        run: |
+          echo "All quality gates passed!"
+          echo "Lint: ${{ needs.lint.result }}"
+          echo "Type-check: ${{ needs.type-check.result }}"
+          echo "Security: ${{ needs.security.result }}"
+          echo "Unit tests: ${{ needs.test-unit.result }}"
+          echo "Integration tests: ${{ needs.test-integration.result }}"
+          echo "Coverage: ${{ needs.coverage.result }}"
+
+      - name: Fail if any job failed
+        if: |
+          needs.lint.result != 'success' ||
+          needs.type-check.result != 'success' ||
+          needs.security.result != 'success' ||
+          needs.test-unit.result != 'success' ||
+          needs.test-integration.result != 'success' ||
+          needs.coverage.result != 'success'
+        run: |
+          echo "One or more quality gates failed!"
+          exit 1
+
+  # Job 10: Build Distribution (on release)
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: quality-gate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install build dependencies
+        run: |
+          pip install build twine
+
+      - name: Build package
+        run: python -m build
+
+      - name: Check package
+        run: twine check dist/*
+
+      - name: Upload distribution artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: dist/
+
+  # Job 11: Publish to PyPI (on release)
+  publish:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: [quality-gate, build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install twine
+        run: pip install twine
+
+      - name: Download distribution artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          twine upload dist/*
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 12: Notify (optional)
+  notify:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [lint, type-check, security, test-unit, test-integration, coverage, quality-gate]
+    steps:
+      - name: Check status
+        run: |
+          if [ "${{ needs.quality-gate.result }}" = "success" ]; then
+            echo "✅ All checks passed!"
+          else
+            echo "❌ Some checks failed!"
+          fi
+
+      - name: Send notification (example)
+        if: failure()
+        run: |
+          echo "CI/CD pipeline failed. Notify team via Slack/Email"
+          # Add actual notification logic here

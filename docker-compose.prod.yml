@@ -1,0 +1,100 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.production
+    container_name: vjlive-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - JWT_SECRET_FILE=/run/secrets/jwt_secret
+      - DATABASE_URL_FILE=/run/secrets/db_url
+      - REDIS_URL_FILE=/run/secrets/redis_url
+    secrets:
+      - jwt_secret
+      - db_url
+      - redis_url
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE  # Only if binding to port < 1024
+    user: "1000:1000"  # Run as non-root user
+    networks:
+      - vjlive-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    container_name: vjlive-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-}
+    secrets:
+      - redis_password
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    user: "1000:1000"
+    networks:
+      - vjlive-network
+    volumes:
+      - redis-data:/data
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: vjlive-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD_FILE=/run/secrets/db_password
+      - POSTGRES_DB=vjlive3
+      - POSTGRES_USER=vjlive
+    secrets:
+      - db_password
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    user: "1000:1000"
+    networks:
+      - vjlive-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vjlive"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  vjlive-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+secrets:
+  jwt_secret:
+    file: ./config/secrets/jwt_secret.txt
+  db_url:
+    file: ./config/secrets/db_url.txt
+  db_password:
+    file: ./config/secrets/db_password.txt
+  redis_url:
+    file: ./config/secrets/redis_url.txt
+  redis_password:
+    file: ./config/secrets/redis_password.txt
+
+volumes:
+  postgres-data:
+  redis-data:

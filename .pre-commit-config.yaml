@@ -1,0 +1,105 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: check-executables-have-shebangs
+      - id: debug-statements
+      - id: detect-private-key
+      - id: forbid-new-submodules
+
+  - repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+      - id: black
+        language_version: python3.9
+        args: [--line-length=88]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+        args: [--profile=black, --line-length=88]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.6.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [
+          "numpy",
+          "opencv-python",
+          "pillow",
+          "scipy",
+          "matplotlib",
+          "pydantic",
+        ]
+        exclude: "^tests/"
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-c, pyproject.toml]
+        files: ^src/
+
+  - repo: https://github.com/pycqa/pydocstyle
+    rev: 6.3.0
+    hooks:
+      - id: pydocstyle
+        args: [--convention=google]
+        exclude: "^tests/"
+
+  - repo: local
+    hooks:
+      # ── VJLive3 Custom Enforcement Hooks ──────────────────────────────────
+      - id: vjlive3-no-stub
+        name: VJLive3 No-Stub Policy
+        entry: python scripts/check_stubs.py
+        language: system
+        types: [python]
+        exclude: "^tests/fixtures/"
+        description: >
+          Rejects pass, NotImplementedError, ellipsis-body, and bare except:pass.
+          Use Logger.termination() for known dead-ends instead.
+          See /.agent/workflows/no-stub-policy.md
+
+      - id: vjlive3-file-size
+        name: VJLive3 750-Line Limit
+        entry: python scripts/check_file_size.py
+        language: system
+        types: [python]
+        description: >
+          Rejects Python files exceeding 750 non-blank non-comment lines.
+          Warns at 700 lines. See WORKSPACE/PRIME_DIRECTIVE.md Rule 5.
+
+      - id: vjlive3-file-lock
+        name: VJLive3 File Lock Check
+        entry: python scripts/check_file_lock.py
+        language: system
+        pass_filenames: false
+        description: >
+          Non-blocking. Warns if staged files are locked by another agent
+          in WORKSPACE/COMMS/LOCKS.md. Coordinate via AGENT_SYNC.md.
+
+      # ── Test Gate (push only) ─────────────────────────────────────────────
+      - id: pytest-check
+        name: pytest-check
+        entry: bash -c 'pytest --cov=src/vjlive3 --cov-fail-under=80 tests/'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [push]

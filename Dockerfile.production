@@ -1,0 +1,44 @@
+# Use a minimal base image for security
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Create non-root user
+RUN groupadd -r vjlive && useradd -r -g vjlive -u 1000 vjlive
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    libssl-dev \
+    libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements first for better caching
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/vjlive3/ ./src/vjlive3/
+COPY config/ ./config/
+
+# Create secrets directory
+RUN mkdir -p /run/secrets
+
+# Set ownership to non-root user
+RUN chown -R vjlive:vjlive /app
+
+# Switch to non-root user
+USER vjlive
+
+# Expose port
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:5000/health || exit 1
+
+# Start the application
+CMD ["python", "-m", "src.vjlive3.main"]
