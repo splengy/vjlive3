@@ -63,7 +63,7 @@ Always use the full display name:
 ```markdown
 | File Path | Locked By | Since | ETA |
 |-----------|-----------|-------|-----|
-| src/vjlive3/hardware/astra.py | Roo Coder (1) | 2026-02-21 10:30 | 2hr |
+| src/vjlive3/plugins/registry.py | Roo Coder (1) | 2026-02-21 10:30 | 2hr |
 ```
 
 ### 2. DISPATCH.md

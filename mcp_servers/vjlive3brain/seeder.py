@@ -1,14 +1,22 @@
 """
 vjlive3brain — Legacy Codebase Seeder
 
-Crawls vjlive (v1) and VJlive-2 (v2) to discover Python modules,
-extracts basic metadata, and upserts them into the brain.db knowledgebase.
+Crawls vjlive (v1) and VJlive-2 (v2) to discover Python modules AND
+markdown documents (architecture, business model, governance, specs,
+worker instructions), and upserts them into the brain.db knowledgebase.
 
-Also watches for file changes and re-seeds incrementally.
+Seeds:
+  - Python modules from both legacy codebases
+  - Markdown docs from VJLive3 WORKSPACE/, docs/, root governance files
+  - Markdown docs from vjlive legacy codebase
+  - Markdown docs from VJlive-2 legacy codebase
 
 Usage:
-    # One-shot seed:
+    # One-shot seed (Python + Markdown):
     python -m mcp_servers.vjlive3brain.seeder --seed
+
+    # Markdown docs only:
+    python -m mcp_servers.vjlive3brain.seeder --seed-docs
 
     # Continuous watch + seed:
     python -m mcp_servers.vjlive3brain.seeder --watch
@@ -58,6 +66,36 @@ _IGNORE_DIRS = {
 }
 _IGNORE_SUFFIXES = {".pyc", ".pyo"}
 
+# ─── Markdown classification patterns ────────────────────────────────────────
+_MD_SPEC_RE    = re.compile(r"spec|P\d+-[A-Z]\d+", re.IGNORECASE)
+_MD_ARCH_RE    = re.compile(r"architect|design|adr|decision|pipeline|gpu|render", re.IGNORECASE)
+_MD_BIZ_RE     = re.compile(r"business|license|burst|credit|market|monetiz|revenue", re.IGNORECASE)
+_MD_GOV_RE     = re.compile(r"prime.directive|safety.rail|board|prime_directive", re.IGNORECASE)
+_MD_WORKER_RE  = re.compile(r"worker|dispatch|manifest|alignment|phase|comms|sync", re.IGNORECASE)
+
+# Root-level markdown files to always include (relative to repo root)
+_ROOT_GOVERNANCE_FILES = [
+    "BOARD.md",
+    "PRIME_DIRECTIVE.md",
+    "SAFETY_RAILS.md",
+    "ARCHITECTURE.md",
+    "README.md",
+    "CHANGELOG.md",
+    "MODULE_MANIFEST.md",
+    "DEFINITION_OF_DONE.md",
+    "TESTING_STRATEGY.md",
+    "QUICK_REFERENCE.md",
+    "STYLE_GUIDE.md",
+    "PROJECT_SUMMARY.md",
+    "GETTING_STARTED.md",
+]
+
+# Dirs inside VJLive3 repo to crawl for markdown
+_VJL3_MD_DIRS: list[tuple[str, str]] = [
+    ("WORKSPACE", "vjlive3-workspace"),
+    ("docs", "vjlive3-docs"),
+]
+
 
 def _classify_category(path: Path, src: str) -> str:
     name = path.stem + " " + str(path)
@@ -70,6 +108,22 @@ def _classify_category(path: Path, src: str) -> str:
     if _AUDIO_RE.search(name):
         return "engine"
     return "engine"
+
+
+def _classify_md_category(path: Path, text: str) -> str:
+    """Classify a markdown file into a brain category."""
+    name = path.name + " " + str(path)
+    if _MD_SPEC_RE.search(name):
+        return "spec"
+    if _MD_ARCH_RE.search(name) or _MD_ARCH_RE.search(text[:500]):
+        return "architecture"
+    if _MD_BIZ_RE.search(name) or _MD_BIZ_RE.search(text[:500]):
+        return "business"
+    if _MD_GOV_RE.search(name):
+        return "governance"
+    if _MD_WORKER_RE.search(name):
+        return "worker"
+    return "doc"
 
 
 def _performance_impact(src: str) -> str:
@@ -148,6 +202,57 @@ def _path_to_entry(
     )
 
 
+def _md_to_entry(path: Path, origin_ref: str, text: str) -> Optional[ConceptEntry]:
+    """Convert a Markdown file into a ConceptEntry."""
+    lines = text.splitlines()
+    # Use the first H1 as name, fallback to stem
+    name = path.stem.replace("_", " ").replace("-", " ").title()
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("# "):
+            name = stripped[2:].strip()[:120]
+            break
+
+    # Description = first non-heading, non-empty paragraph
+    desc = ""
+    for line in lines:
+        stripped = line.strip()
+        if stripped and not stripped.startswith("#") and not stripped.startswith("|") and not stripped.startswith(">"):
+            desc = stripped[:500]
+            break
+    if not desc:
+        desc = f"Documentation: {name}"
+
+    concept_id = _make_concept_id(origin_ref, path)
+    category   = _classify_md_category(path, text)
+    dreamer    = _has_dreamer(text)
+
+    tags: list[str] = [origin_ref, category, "markdown"]
+    if dreamer:
+        tags.append("dreamer")
+
+    # Governance + spec docs are manager-relevant
+    is_manager = category in ("governance", "spec", "architecture", "business", "worker")
+
+    return ConceptEntry(
+        concept_id=concept_id,
+        name=name,
+        description=desc,
+        origin_ref=origin_ref,
+        source_files=[str(path)],
+        dreamer_flag=dreamer,
+        dreamer_analysis="" if not dreamer else "[DREAMER_LOGIC] detected in doc — analysis pending",
+        dreamer_verdict=DreamerVerdict.PENDING,
+        logic_purity=LogicPurity.UNKNOWN,
+        role_assignment=RoleAssignment.MANAGER if is_manager else RoleAssignment.WORKER,
+        kitten_status=False,
+        tags=tags,
+        category=category,
+        performance_impact="low",
+        ported_to="",
+    )
+
+
 def seed_directory(db: ConceptDB, root: Path, origin_ref: str) -> int:
     """
     Walk `root`, parse each .py file, upsert into DB.
@@ -183,11 +288,102 @@ def seed_directory(db: ConceptDB, root: Path, origin_ref: str) -> int:
     return count
 
 
+def seed_md_directory(
+    db: ConceptDB,
+    root: Path,
+    origin_ref: str,
+    skip_dirs: set[str] | None = None,
+) -> int:
+    """
+    Walk `root`, parse each .md file, upsert into DB.
+
+    Returns:
+        Number of docs upserted.
+    """
+    if not root.exists():
+        _logger.warning("MD path does not exist, skipping: %s", root)
+        return 0
+
+    ignore = (skip_dirs or set()) | _IGNORE_DIRS
+    count = 0
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d not in ignore]
+        for fname in filenames:
+            if not fname.endswith(".md"):
+                continue
+            fpath = Path(dirpath) / fname
+            try:
+                text = fpath.read_text(encoding="utf-8", errors="replace")
+            except OSError as exc:
+                _logger.debug("Cannot read %s: %s", fpath, exc)
+                continue
+            entry = _md_to_entry(fpath, origin_ref, text)
+            if entry:
+                db.upsert(entry)
+                count += 1
+    _logger.info("Seeded %d markdown docs from %s [%s]", count, root, origin_ref)
+    return count
+
+
+def seed_root_governance(db: ConceptDB, repo_root: Path, origin_ref: str) -> int:
+    """Seed the specific root-level governance/architecture markdown files."""
+    count = 0
+    for fname in _ROOT_GOVERNANCE_FILES:
+        fpath = repo_root / fname
+        if not fpath.exists():
+            continue
+        try:
+            text = fpath.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        entry = _md_to_entry(fpath, origin_ref, text)
+        if entry:
+            db.upsert(entry)
+            count += 1
+    _logger.info("Seeded %d root governance docs from %s", count, repo_root)
+    return count
+
+
+def run_doc_seed(db: ConceptDB) -> None:
+    """
+    Seed all markdown documentation:
+    - VJLive3 root governance files
+    - VJLive3 WORKSPACE/ and docs/ trees
+    - vjlive legacy markdown (architecture, business, worker docs, contracts)
+    - VJlive-2 legacy markdown
+    """
+    total = 0
+
+    # ── VJLive3 repo itself ───────────────────────────────────────────────────
+    total += seed_root_governance(db, _REPO_ROOT, "vjlive3")
+    for subdir, origin in _VJL3_MD_DIRS:
+        total += seed_md_directory(db, _REPO_ROOT / subdir, f"vjlive3-{subdir}")
+
+    # ── vjlive (v1) legacy markdown ───────────────────────────────────────────
+    total += seed_md_directory(db, _LEGACY_V1, "vjlive-v1-docs")
+
+    # ── VJlive-2 legacy markdown ──────────────────────────────────────────────
+    total += seed_md_directory(db, _LEGACY_V2, "vjlive-v2-docs")
+
+    stats = db.stats()
+    _logger.info(
+        "Doc seed complete. +%d docs. Total DB: %d concepts (%d ported, %d dreamer)",
+        total, stats["total"], stats["ported"], stats["dreamer"],
+    )
+
+
 def run_full_seed(db: ConceptDB) -> None:
-    """Seed both legacy codebases."""
+    """Seed both legacy Python codebases, all markdown docs, then run enrichment."""
     total = 0
     total += seed_directory(db, _LEGACY_V1, "vjlive-v1")
     total += seed_directory(db, _LEGACY_V2, "vjlive-v2")
+    run_doc_seed(db)
+    # Enrichment: porting maps, nav guides, plugin manifests
+    try:
+        from mcp_servers.vjlive3brain.enricher import run_enrichment
+        run_enrichment(db)
+    except Exception as exc:  # noqa: BLE001
+        _logger.warning("Enrichment step failed (non-fatal): %s", exc)
     stats = db.stats()
     _logger.info(
         "Full seed complete. Total DB: %d concepts (%d ported, %d dreamer)",
@@ -258,9 +454,11 @@ def main() -> None:
         format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
     )
     parser = argparse.ArgumentParser(description="vjlive3brain seeder")
-    parser.add_argument("--seed",  action="store_true", help="One-shot seed of both legacy codebases")
-    parser.add_argument("--watch", action="store_true", help="Seed then watch for changes")
-    parser.add_argument("--db",    default=_DB_PATH,    help="Override DB path")
+    parser.add_argument("--seed",      action="store_true", help="Full seed: Python + markdown + enrichment")
+    parser.add_argument("--seed-docs", action="store_true", help="Markdown docs only (fast)")
+    parser.add_argument("--enrich",    action="store_true", help="Enrichment only: porting maps + nav guides + manifests")
+    parser.add_argument("--watch",     action="store_true", help="Full seed then watch for changes")
+    parser.add_argument("--db",        default=_DB_PATH,    help="Override DB path")
     args = parser.parse_args()
 
     db = ConceptDB(args.db)
@@ -271,6 +469,11 @@ def main() -> None:
         run_watch(db)
     elif args.seed:
         run_full_seed(db)
+    elif getattr(args, "seed_docs"):
+        run_doc_seed(db)
+    elif getattr(args, "enrich"):
+        from mcp_servers.vjlive3brain.enricher import run_enrichment
+        run_enrichment(db)
     else:
         parser.print_help()
         sys.exit(1)

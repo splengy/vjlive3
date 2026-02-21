@@ -10,15 +10,7 @@
 
 | File Path | Locked By | Since | ETA |
 |-----------|-----------|-------|-----|
-| docs/specs/P1-A1_audio_analyzer.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 30min |
-| docs/specs/P1-A2_beat_detector.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 30min |
-| docs/specs/P1-A3_reactivity_bus.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 30min |
-| docs/specs/P1-A4_audio_sources.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 30min |
-| docs/specs/P1-P1_plugin_registry.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
-| docs/specs/P1-P2_plugin_loader.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
-| docs/specs/P1-P3_hot_reload.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
-| docs/specs/P1-P4_scanner.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
-| docs/specs/P1-N1_node_registry.md | Antigravity (Agent 3) | 2026-02-21 02:59 | 1hr |
+| *(none)* | — | — | — |
 
 
 ---

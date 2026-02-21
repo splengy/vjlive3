@@ -25,8 +25,10 @@ classifiers = [
 keywords = ["vj", "live", "visual", "performance", "graphics"]
 dependencies = [
     # Core scientific & image processing
+    # NOTE: opencv-python and opencv-python-headless both provide the cv2 module
+    # and CANNOT be installed together. Headless is the default for server/CI use.
+    # For desktop/display use, install with the [display] extra instead.
     "numpy>=1.24.0",
-    "opencv-python>=4.8.0",
     "opencv-python-headless>=4.8.0",
     "pillow>=10.0.0",
     "scipy>=1.11.0",
@@ -109,6 +111,11 @@ dev = [
 # Optional: ZeroMQ multi-node distribution (offline-first; not required for single-machine)
 distributed = [
     "pyzmq>=25.0",
+]
+
+# Optional: desktop/display capable OpenCV (replaces headless; do NOT install both)
+display = [
+    "opencv-python>=4.8.0",
 ]
 
 
@@ -234,6 +241,12 @@ exclude_lines = [
     "if TYPE_CHECKING:",
 ]
 
-[setuptools]
+[tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["vjlive3"]
+
+[tool.setuptools.packages.find]
+# Automatically discover all packages and sub-packages under src/
+# This ensures vjlive3.plugins, vjlive3.osc, vjlive3.sync etc. are all
+# included in wheel builds without needing to list them manually.
+where = ["src"]
+exclude = ["tests*", "*.egg-info"]

@@ -1,7 +1,7 @@
 # WORKER_MANIFEST.md — Active Worker Assignments
 
 **Owner:** ROO CODE (Manager)
-**Updated:** 2026-02-21
+**Updated:** 2026-02-21 — reconciled against actual file tree after code wipe
 
 ---
 
@@ -27,15 +27,22 @@
 
 ---
 
-## Priority Queue (Phase 2 Remaining)
+## Priority Queue (Current Active Tasks)
 
-| Task ID | Description | Priority | Assigned To |
-|---------|-------------|----------|-------------|
-| P2-H3 | Astra depth camera (`hardware/astra.py`) | P1 | Antigravity |
-| P2-H4 | NDI video transport (`hardware/ndi.py`) | P1 | Antigravity |
-| P2-X3 | Output mapping (`output/mapper.py`) | P1 | Antigravity |
-| P1-R1–R5 | OpenGL rendering pipeline | P0 | Roo Coder |
-| P3-VD01+ | Depth plugins (bespoke, one at a time) | P0 | Roo (when P1-R* done) |
+> **Source of truth is always BOARD.md.** Paths below use BOARD.md Task IDs only.
+> Do NOT invent file paths — the directory structure is rebuilt spec-by-spec.
+
+| Task ID | Description | Spec | Priority | Assigned To |
+|---------|-------------|------|----------|-------------|
+| P1-R1 | OpenGL rendering context | `docs/specs/P1-R1_opengl_context.md` | P0 | Roo Coder |
+| P1-R2 | GPU pipeline + framebuffer | `docs/specs/P1-R2_gpu_pipeline.md` | P0 | Roo Coder |
+| P1-R3 | Shader compilation system | `docs/specs/P1-R3_shader_compiler.md` | P0 | TBD |
+| P1-A1 | Audio analyser (FFT) | `docs/specs/P1-A1_audio_analyzer.md` | P0 | TBD |
+| P1-N1 | Node registry | `docs/specs/P1-N1_node_registry.md` | P0 | TBD |
+| P2-H3 | Astra depth camera | `docs/specs/P2-H3_astra.md` (spec needed) | P1 | TBD |
+| P2-H4 | NDI video transport | `docs/specs/P2-H4_ndi.md` (spec needed) | P1 | TBD |
+| P2-X3 | Output mapping | `docs/specs/P2-X3_output_mapper.md` (spec needed) | P1 | TBD |
+| P3-VD01+ | Depth plugins | Bespoke one at a time (see BOARD.md Phase 3) | P0 | When P1-R* done |
 
 ---
 
@@ -52,15 +59,19 @@
 
 ## Phase Roadmap Summary
 
+> **Source of truth: BOARD.md.** This table is a summary only.
+
 | Phase | Content | Status |
 |-------|---------|--------|
 | 0 | Governance, MCP servers, tooling | ✅ Done |
-| 1 | Audio engine, node graph, plugin system | 🔨 Partial (P1-R* OpenGL missing) |
-| 2 | DMX, MIDI, OSC, ZeroMQ, Timecode, Astra, NDI, Output | 🔨 In Progress |
-| 3 | Depth plugin collection (artisanal, all unique) | ⬜ Next |
-| 4 | Audio plugin collection | ⬜ Future |
-| 5 | Live coding, GLSL editor, Sentience Parameter | ⬜ Future |
-| 6 | Desktop UI | ⬜ Future |
+| 1 | Rendering (R1–R5), Audio (A1–A4), Node graph (N1–N4), Plugin system (P1–P5) | 🔴 RESET — only plugins/ package survived code wipe. All others need rebuilding from specs. |
+| 2 | DMX, MIDI, OSC, ZeroMQ, Timecode, Astra, NDI, Output mapping | ⬜ Todo (specs needed first) |
+| 3 | Depth plugin collection (artisanal, all unique) | ⬜ Todo (blocked on P1-R* rendering) |
+| 4 | Audio plugin collection | ⬜ Todo |
+| 5 | V-* visual effects, Modulators, Datamosh family | ⬜ Todo |
+| 6 | AI/Neural, Quantum, Agent system, Generators | ⬜ Todo |
+| 7 | Desktop GUI, Web remote, Business/Licensing | ⬜ Todo |
+| 8 | Integration, performance, security, deployment | ⬜ Todo |
 
 ---
 

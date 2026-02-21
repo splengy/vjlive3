@@ -1,195 +1,313 @@
-"""P1-P5 — Plugin Sandbox
-
-Wraps plugin process() calls in safety boundaries so misbehaving plugins
-cannot crash the engine.  14ms frame budget, 5-error auto-disable.
 """
-from __future__ import annotations
+Plugin Sandbox and Security for VJLive3.
 
+Ported from two complementary legacy implementations:
+  - VJlive-2/core/plugin_sandbox.py  (restricted exec + import guard)
+  - VJlive-2/core/plugins/sandbox.py (PluginPermissions, context manager, PluginSecurityManager)
+
+These two have been merged for maximum robustness.
+"""
+
+import builtins
 import logging
-import time
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+import shutil
+import sys
+import tempfile
+import threading
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, Optional, Set
 
-import numpy as np
-
-from vjlive3.plugins.registry import PluginRegistry
-
-_log = logging.getLogger(__name__)
-
-_DEFAULT_BUDGET_MS = 14.0   # must finish in < 14ms for stable 60fps
-_DEFAULT_MAX_ERRORS = 5
+logger = logging.getLogger(__name__)
 
 
-@dataclass
-class SandboxResult:
-    success:    bool
-    output:     Optional[np.ndarray]   # None on failure
-    error:      Optional[str]          # None on success
-    elapsed_ms: float
-
+# ---------------------------------------------------------------------------
+# Permissions
+# ---------------------------------------------------------------------------
 
 @dataclass
-class _PluginStats:
-    error_count:  int = 0
-    disabled:     bool = False
-    total_calls:  int = 0
-    total_ms:     float = 0.0
-    instance:     Optional[Any] = None   # cached instance
+class PluginPermissions:
+    """
+    Defines what a plugin is allowed to do.
 
-    @property
-    def avg_ms(self) -> float:
-        return (self.total_ms / self.total_calls) if self.total_calls else 0.0
+    Source: VJlive-2/core/plugins/sandbox.py:PluginPermissions
+    """
+    can_access_filesystem: bool = False
+    can_access_network: bool = False
+    can_access_hardware: bool = False
+    can_load_external_modules: bool = False
+    max_memory_mb: int = 512
+    max_cpu_percent: float = 50.0
+    allowed_paths: Set[str] = None
+    blocked_paths: Set[str] = None
 
+    def __post_init__(self) -> None:
+        if self.allowed_paths is None:
+            self.allowed_paths = set()
+        if self.blocked_paths is None:
+            self.blocked_paths = set()
+
+
+# ---------------------------------------------------------------------------
+# Sandbox
+# ---------------------------------------------------------------------------
 
 class PluginSandbox:
-    """Safe call wrapper for plugin process() execution.
+    """
+    Sandbox environment for plugin execution with restricted permissions.
 
-    >>> import numpy as np
-    >>> reg = _make_registry()   # doctest: +SKIP
+    Provides isolation by:
+    - Restricting file system access to declared allowed_paths
+    - Limiting network access
+    - Controlling module imports via strict allowlist
+    - Monitoring resource usage (memory/CPU limits recorded for future enforcement)
+    - Context manager support for scope-based restrictions
+
+    Also supports direct code execution via execute() (from plugin_sandbox.py).
+
+    Limitations:
+    - Python-level AST/import restrictor only — not an OS-level sandbox.
+      Determined attackers using C-extensions or ctypes may bypass restrictions.
+
+    Source: VJlive-2/core/plugins/sandbox.py + VJlive-2/core/plugin_sandbox.py
     """
 
-    def __init__(
-        self,
-        registry: PluginRegistry,
-        frame_budget_ms: float = _DEFAULT_BUDGET_MS,
-        max_errors: int = _DEFAULT_MAX_ERRORS,
-    ) -> None:
-        self._registry = registry
-        self._budget_ms = frame_budget_ms
-        self._max_errors = max_errors
-        self._stats: Dict[str, _PluginStats] = {}
+    # Builtins safe to expose to plugins (union of both legacy lists)
+    ALLOWED_BUILTINS = [
+        'abs', 'all', 'any', 'bin', 'bool', 'chr', 'dict', 'enumerate',
+        'filter', 'float', 'int', 'isinstance', 'len', 'list', 'map',
+        'max', 'min', 'ord', 'range', 'round', 'sorted', 'str', 'sum',
+        'tuple', 'zip', 'getattr', 'setattr', 'hasattr', 'print', 'type',
+    ]
 
-    # ── Public API ────────────────────────────────────────────────────────────
+    # Allowlist for import restriction in execute() mode
+    ALLOWED_MODULES = {
+        'math', 'random', 'json', 'time', 'datetime', 'itertools',
+        'functools', 'collections', 'struct', 're', 'typing',
+        'dataclasses', 'logging', 'binascii', 'base64', 'hashlib',
+        'string', 'vjlive3.plugins.api',
+    }
 
-    def call(
-        self,
-        plugin_name: str,
-        frame: np.ndarray,
-        audio_data: Any = None,
-        **kwargs: Any,
-    ) -> SandboxResult:
-        """Call plugin safely.  Never raises."""
-        stats = self._get_stats(plugin_name)
+    # Optional 3rd-party libs allowed for GPU/vision plugins
+    ALLOWED_THIRD_PARTY = {'numpy', 'cv2'}
 
-        if stats.disabled:
-            return SandboxResult(
-                success=False,
-                output=None,
-                error=f"Plugin '{plugin_name}' is disabled",
-                elapsed_ms=0.0,
-            )
+    def __init__(self, permissions: Optional[PluginPermissions] = None) -> None:
+        self.permissions = permissions or PluginPermissions()
+        self._original_path = list(sys.path)
+        self._temp_dir: Optional[str] = None
+        self._lock = threading.RLock()
 
-        cls = self._registry.get(plugin_name)
-        if cls is None:
-            return SandboxResult(
-                success=False,
-                output=None,
-                error=f"Plugin '{plugin_name}' not in registry",
-                elapsed_ms=0.0,
-            )
-
-        # Lazy-instantiate
-        if stats.instance is None:
-            try:
-                stats.instance = cls()
-                self._registry.increment_instance_count(plugin_name)
-            except Exception as exc:
-                return self._record_error(plugin_name, stats, frame, str(exc))
-
-        # Call process()
-        t0 = time.perf_counter()
-        try:
-            output: np.ndarray = stats.instance.process(frame, audio_data, **kwargs)
-        except Exception as exc:
-            elapsed = (time.perf_counter() - t0) * 1000
-            stats.total_calls += 1
-            return self._record_error(plugin_name, stats, frame, str(exc), elapsed)
-
-        elapsed_ms = (time.perf_counter() - t0) * 1000
-
-        # Validate output shape
-        if not isinstance(output, np.ndarray) or output.shape != frame.shape:
-            _log.warning(
-                "Plugin '%s' returned wrong shape %s (expected %s) — using input",
-                plugin_name,
-                getattr(output, "shape", type(output)),
-                frame.shape,
-            )
-            output = frame
-
-        stats.total_calls += 1
-        stats.total_ms += elapsed_ms
-
-        if elapsed_ms > self._budget_ms:
-            _log.warning(
-                "Plugin '%s' exceeded frame budget: %.1fms > %.1fms",
-                plugin_name, elapsed_ms, self._budget_ms,
-            )
-
-        return SandboxResult(success=True, output=output, error=None, elapsed_ms=elapsed_ms)
-
-    def disable(self, plugin_name: str) -> None:
-        """Manually disable a plugin."""
-        self._get_stats(plugin_name).disabled = True
-        _log.info("Plugin '%s' manually disabled", plugin_name)
-
-    def enable(self, plugin_name: str) -> None:
-        """Re-enable a disabled plugin.  Clears error count."""
-        stats = self._get_stats(plugin_name)
-        stats.disabled = False
-        stats.error_count = 0
-        _log.info("Plugin '%s' re-enabled", plugin_name)
-
-    def is_disabled(self, plugin_name: str) -> bool:
-        return self._get_stats(plugin_name).disabled
-
-    def error_count(self, plugin_name: str) -> int:
-        return self._get_stats(plugin_name).error_count
-
-    def get_stats(self) -> Dict[str, Dict[str, Any]]:
-        """Return per-plugin stats dict."""
-        return {
-            name: {
-                "error_count": s.error_count,
-                "avg_ms":      round(s.avg_ms, 2),
-                "total_calls": s.total_calls,
-                "disabled":    s.disabled,
-            }
-            for name, s in self._stats.items()
+        # Build restricted builtins dict for execute() mode
+        self._restricted_builtins = {
+            name: getattr(builtins, name)
+            for name in self.ALLOWED_BUILTINS
+            if hasattr(builtins, name)
         }
+        # Allow Exception hierarchy (required for plugin error handling)
+        for name in dir(builtins):
+            if name.endswith('Error') or name.endswith('Exception') or name == 'Exception':
+                self._restricted_builtins[name] = getattr(builtins, name)
 
-    # ── Internal ──────────────────────────────────────────────────────────────
+    # ── Context manager ─────────────────────────────────────────────────────
 
-    def _get_stats(self, name: str) -> _PluginStats:
-        if name not in self._stats:
-            self._stats[name] = _PluginStats()
-        return self._stats[name]
+    def __enter__(self) -> "PluginSandbox":
+        self._enter_sandbox()
+        return self
 
-    def _record_error(
-        self,
-        name: str,
-        stats: _PluginStats,
-        frame: np.ndarray,
-        error_msg: str,
-        elapsed_ms: float = 0.0,
-    ) -> SandboxResult:
-        stats.error_count += 1
-        _log.error("Plugin '%s' error (%d/%d): %s", name, stats.error_count, self._max_errors, error_msg)
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self._exit_sandbox()
 
-        if stats.error_count >= self._max_errors:
-            stats.disabled = True
-            stats.instance = None  # release instance
-            _log.warning(
-                "Plugin '%s' disabled after %d consecutive errors",
-                name, self._max_errors,
+    def _enter_sandbox(self) -> None:
+        """Set up sandbox restrictions."""
+        with self._lock:
+            self._temp_dir = tempfile.mkdtemp(prefix="vjlive3_plugin_")
+            # Restrict sys.path to only safe directories
+            safe_paths = [p for p in self._original_path if 'site-packages' in p or 'lib' in p]
+            sys.path = safe_paths
+            logger.debug("Sandbox entered: %s", self._temp_dir)
+
+    def _exit_sandbox(self) -> None:
+        """Clean up sandbox restrictions."""
+        with self._lock:
+            sys.path = self._original_path
+            if self._temp_dir and Path(self._temp_dir).exists():
+                try:
+                    shutil.rmtree(self._temp_dir)
+                except Exception as exc:
+                    logger.warning("Failed to clean temp dir: %s", exc)
+            logger.debug("Sandbox exited")
+
+    # ── Execute mode (restricted exec + import) ─────────────────────────────
+
+    def execute(self, code: str, globals_dict: dict = None, filename: str = "<plugin>") -> None:
+        """
+        Execute *code* inside the sandbox with restricted builtins and imports.
+
+        Args:
+            code: Python source code to execute.
+            globals_dict: Optional namespace; will be modified in-place.
+            filename: Label used in tracebacks.
+
+        Raises:
+            ImportError: If the plugin attempts to import a disallowed module.
+            Exception: Any exception raised by the plugin code itself.
+
+        Source: VJlive-2/core/plugin_sandbox.py:PluginSandbox.execute
+        """
+        if globals_dict is None:
+            globals_dict = {}
+
+        globals_dict['__builtins__'] = self._restricted_builtins
+        original_import = builtins.__import__
+
+        def restricted_import(name, globals=None, locals=None, fromlist=(), level=0):
+            root = name.split('.')[0]
+            if root in self.ALLOWED_MODULES or root in self.ALLOWED_THIRD_PARTY:
+                return original_import(name, globals, locals, fromlist, level)
+            raise ImportError(
+                f"Import of '{name}' is not allowed in the VJLive3 plugin sandbox"
             )
 
-        return SandboxResult(
-            success=False,
-            output=None,
-            error=error_msg,
-            elapsed_ms=elapsed_ms,
-        )
+        self._restricted_builtins['__import__'] = restricted_import
+
+        try:
+            code_obj = compile(code, filename, 'exec')
+            exec(code_obj, globals_dict)  # noqa: S102
+        except Exception as exc:
+            logger.error("Sandbox execution error in %s: %s", filename, exc)
+            raise
+
+    # ── Permission checks ────────────────────────────────────────────────────
+
+    def check_file_access(self, path: str) -> bool:
+        """Return True if *path* is accessible under current permissions."""
+        if not self.permissions.can_access_filesystem:
+            return False
+
+        path_obj = Path(path).resolve()
+
+        for blocked in self.permissions.blocked_paths:
+            if path_obj.is_relative_to(Path(blocked).resolve()):
+                return False
+
+        if self.permissions.allowed_paths:
+            for allowed in self.permissions.allowed_paths:
+                if path_obj.is_relative_to(Path(allowed).resolve()):
+                    return True
+            return False
+
+        return True
+
+    def check_network_access(self, host: str, port: int = None) -> bool:
+        """Return True if network access to *host* is permitted."""
+        return self.permissions.can_access_network
+
+    def validate_import(self, module_name: str) -> bool:
+        """Return True if importing *module_name* is permitted."""
+        if not self.permissions.can_load_external_modules:
+            return False
+
+        root = module_name.split('.')[0]
+        if root in self.ALLOWED_MODULES or root in self.ALLOWED_THIRD_PARTY:
+            return True
+
+        logger.warning("Sandbox blocked unauthorized import: %s", module_name)
+        return False
 
 
-__all__ = ["PluginSandbox", "SandboxResult"]
+# ---------------------------------------------------------------------------
+# Security Manager
+# ---------------------------------------------------------------------------
+
+class PluginSecurityManager:
+    """
+    Manages sandbox instances and security policies for all plugins.
+
+    Source: VJlive-2/core/plugins/sandbox.py:PluginSecurityManager
+    """
+
+    def __init__(self) -> None:
+        self.sandboxes: Dict[str, PluginSandbox] = {}
+        self.permissions: Dict[str, PluginPermissions] = {}
+        self._lock = threading.RLock()
+
+    def create_sandbox(
+        self,
+        plugin_id: str,
+        permissions: Optional[PluginPermissions] = None,
+    ) -> PluginSandbox:
+        """Create and register a sandbox for *plugin_id*."""
+        with self._lock:
+            if permissions is None:
+                permissions = PluginPermissions()
+            self.permissions[plugin_id] = permissions
+            sandbox = PluginSandbox(permissions)
+            self.sandboxes[plugin_id] = sandbox
+            return sandbox
+
+    def get_sandbox(self, plugin_id: str) -> Optional[PluginSandbox]:
+        """Return the sandbox for *plugin_id*, or None."""
+        return self.sandboxes.get(plugin_id)
+
+    def destroy_sandbox(self, plugin_id: str) -> None:
+        """Destroy a plugin's sandbox and clean up temp files."""
+        with self._lock:
+            sandbox = self.sandboxes.pop(plugin_id, None)
+            if sandbox and sandbox._temp_dir and Path(sandbox._temp_dir).exists():
+                try:
+                    shutil.rmtree(sandbox._temp_dir)
+                except Exception as exc:
+                    logger.warning("destroy_sandbox cleanup failed for %s: %s", plugin_id, exc)
+            self.permissions.pop(plugin_id, None)
+
+    def validate_plugin_manifest(self, manifest: dict) -> bool:
+        """
+        Security-scan a plugin manifest for suspicious patterns.
+
+        Returns True if manifest passes all checks.
+        """
+        suspicious_patterns = [
+            'eval(', 'exec(', 'compile(', '__import__',
+            'subprocess', 'socket', 'multiprocessing',
+            'os.system', 'os.popen', 'commands.',
+        ]
+        if 'entry_point' in manifest:
+            entry = manifest['entry_point']
+            if any(p in entry for p in suspicious_patterns):
+                logger.warning(
+                    "Suspicious entry_point in plugin %s", manifest.get('name')
+                )
+                return False
+
+        dangerous_deps = {'pycrypto', 'cryptography', 'paramiko', 'scapy'}
+        for dep in manifest.get('dependencies', []):
+            if dep in dangerous_deps:
+                logger.warning(
+                    "Dangerous dependency '%s' in plugin %s", dep, manifest.get('name')
+                )
+                return False
+
+        return True
+
+
+# ---------------------------------------------------------------------------
+# Singleton
+# ---------------------------------------------------------------------------
+
+_security_manager: Optional[PluginSecurityManager] = None
+
+
+def get_security_manager() -> PluginSecurityManager:
+    """Return the global PluginSecurityManager instance."""
+    global _security_manager
+    if _security_manager is None:
+        _security_manager = PluginSecurityManager()
+    return _security_manager
+
+
+__all__ = [
+    "PluginPermissions",
+    "PluginSandbox",
+    "PluginSecurityManager",
+    "get_security_manager",
+]

@@ -283,20 +283,28 @@ You MUST comply with all SAFETY_RAILS.md constraints:
 
 ### Important Commands
 ```bash
-# Testing
+# Testing (correct src layout path)
 pytest tests/ -v
-pytest --cov=core --cov=plugins
+pytest --cov=src/vjlive3 --cov-report=term-missing
+
+# Quality gate (lint + type check + custom hooks + tests)
+make quality
 
 # Performance profiling
-python profile_engine.py --duration 30
-python test_fps_impact.py
+# NOTE: profile_engine.py and test_fps_impact.py do not yet exist.
+# They will be built as part of Phase 1 rendering (P1-R2).
+# Check BOARD.md status before using.
 
-# Safety validation
-python plugins/_verify.py
-python fix_gl_leaks.py --check
+# Plugin manifest validation
+# NOTE: plugins/_verify.py does not yet exist.
+# Plugin validation is handled by src/vjlive3/plugins/validator.py
+python -c "from vjlive3.plugins.validator import PluginValidator; print('Validator OK')"
 
-# Build and deployment
-./deploy.sh
+# Resource leak checking
+# NOTE: fix_gl_leaks.py does not yet exist (Phase 1-R2 deliverable).
+make quality  # static analysis is the current substitute.
+
+# Docker (for when Docker stack is needed)
 docker-compose -f docker-compose.prod.yml up
 ```
 

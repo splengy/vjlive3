@@ -168,6 +168,40 @@ def get_stats() -> str:
     return json.dumps(_db.stats(), indent=2)
 
 
+@mcp.tool()
+def reseed_brain(mode: str = "docs") -> str:
+    """
+    Re-populate the brain database without restarting the server.
+    MANAGER AGENT ONLY.
+
+    Args:
+        mode: What to re-seed:
+              'docs'   — re-index all markdown docs (WORKSPACE, specs, legacy) [fast ~5s]
+              'enrich' — re-run porting maps, nav guides, plugin manifests [fast ~5s]
+              'full'   — full Python + docs + enrichment [slow ~60s]
+
+    Returns:
+        JSON with status and new stats.
+    """
+    try:
+        if mode == "docs":
+            from mcp_servers.vjlive3brain.seeder import run_doc_seed
+            run_doc_seed(_db)
+        elif mode == "enrich":
+            from mcp_servers.vjlive3brain.enricher import run_enrichment
+            run_enrichment(_db)
+        elif mode == "full":
+            from mcp_servers.vjlive3brain.seeder import run_full_seed
+            run_full_seed(_db)
+        else:
+            return json.dumps({"status": "error", "message": f"Unknown mode '{mode}'. Use: docs | enrich | full"})
+        stats = _db.stats()
+        return json.dumps({"status": "ok", "mode": mode, "stats": stats})
+    except Exception as exc:  # noqa: BLE001
+        _logger.warning("reseed_brain failed: %s", exc)
+        return json.dumps({"status": "error", "message": str(exc)})
+
+
 # ─── WRITE tools (Manager Agent only) ────────────────────────────────────────
 
 @mcp.tool()

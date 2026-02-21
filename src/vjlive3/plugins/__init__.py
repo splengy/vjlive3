@@ -1,15 +1,94 @@
-"""Plugin package for VJLive3.
-
-Import order: registry → loader → scanner → hot_reload → sandbox
 """
-from vjlive3.plugins.registry import PluginRegistry, PluginInfo, PluginStatus
-from vjlive3.plugins.loader import PluginLoader
-from vjlive3.plugins.scanner import PluginScanner, DiscoveredPlugin
-from vjlive3.plugins.sandbox import PluginSandbox, SandboxResult
+vjlive3.plugins — Plugin system package.
+
+Unified plugin infrastructure ported from VJlive-2:
+
+  api.py        — PluginBase, PluginContext, EffectPlugin, ModifierPlugin, AgentPlugin
+  registry.py   — PluginRegistry (thread-safe, status tracking, get_all_modules)
+  loader.py     — PluginLoader (plugin.json manifest discovery + importlib loading)
+  sandbox.py    — PluginSandbox, PluginPermissions, PluginSecurityManager
+  validator.py  — PluginValidator (AST static analysis)
+  hot_reload.py — PluginHotReloadWatcher (watchdog-based, debounced)
+
+Sources: VJlive-2/core/plugin_api.py, plugin_loader.py, vjlivest_plugin_system.py,
+         plugin_sandbox.py, plugins/plugin_api.py, plugins/sandbox.py,
+         plugins/plugin_validator.py, hot_reload_watcher.py
+"""
+
+from vjlive3.plugins.api import (
+    PluginContext,
+    PluginBase,
+    EffectPlugin,
+    ModifierPlugin,
+    AgentPlugin,
+    UIPlugin,
+)
+from vjlive3.plugins.registry import (
+    PluginStatus,
+    PluginInfo,
+    PluginRegistry,
+    plugin_registry,
+    register_plugin,
+    get_plugin,
+    list_plugins,
+    get_plugin_info,
+    create_plugin_instance,
+    unload_plugin,
+    reload_plugin,
+    get_all_plugins,
+)
+from vjlive3.plugins.sandbox import (
+    PluginPermissions,
+    PluginSandbox,
+    PluginSecurityManager,
+    get_security_manager,
+)
+from vjlive3.plugins.validator import (
+    SecurityViolation,
+    PluginValidator,
+)
+from vjlive3.plugins.loader import (
+    PluginManifest,
+    PluginLoader,
+)
+from vjlive3.plugins.hot_reload import (
+    PluginFileHandler,
+    PluginHotReloadWatcher,
+)
 
 __all__ = [
-    "PluginRegistry", "PluginInfo", "PluginStatus",
+    # api
+    "PluginContext",
+    "PluginBase",
+    "EffectPlugin",
+    "ModifierPlugin",
+    "AgentPlugin",
+    "UIPlugin",
+    # registry
+    "PluginStatus",
+    "PluginInfo",
+    "PluginRegistry",
+    "plugin_registry",
+    "register_plugin",
+    "get_plugin",
+    "list_plugins",
+    "get_plugin_info",
+    "create_plugin_instance",
+    "unload_plugin",
+    "reload_plugin",
+    "get_all_plugins",
+    # sandbox
+    "PluginPermissions",
+    "PluginSandbox",
+    "PluginSecurityManager",
+    "get_security_manager",
+    # validator
+    "SecurityViolation",
+    "PluginValidator",
+    # loader
+    "PluginManifest",
     "PluginLoader",
-    "PluginScanner", "DiscoveredPlugin",
-    "PluginSandbox", "SandboxResult",
+    # hot reload
+    "PluginFileHandler",
+    "PluginHotReloadWatcher",
 ]

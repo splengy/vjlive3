@@ -32,26 +32,62 @@
 
 ## Active Assignments
 
-| Task ID | Assigned To | Status | Spec Written? | Notes |
-|---------|-------------|--------|---------------|-------|
-| P1-R1 | Roo Coder (1) | 🔨 In Progress | ✅ docs/specs/P1-R1_opengl_context.md | ModernGL + GLFW context |
-| SPEC-P1-R3 | Roo Coder (1) | 🔨 Spec Writing | ❌ | Shader compilation system spec |
-| SPEC-P1-R4 | Roo Coder (1) | 🔨 Spec Writing | ❌ | Texture manager spec |
-| SPEC-P1-R5 | Roo Coder (1) | 🔨 Spec Writing | ❌ | Core rendering engine spec |
-| SPEC-P1-N1 | Roo Coder (1) | 🔨 Spec Writing | ❌ | UnifiedMatrix node registry spec |
-| SPEC-P1-N2 | Roo Coder (1) | 🔨 Spec Writing | ❌ | Node types spec |
-| SPEC-P1-N3 | Roo Coder (1) | 🔨 Spec Writing | ❌ | State persistence spec |
-| SPEC-P1-N4 | Roo Coder (1) | 🔨 Spec Writing | ❌ | Visual node graph UI spec |
-| SPEC-P1-A4 | Antigravity (Agent 3) | 🔨 Spec Writing | ❌ | Multi-source audio input spec |
-| SPEC-P1-P1 | Antigravity (Agent 2) | ✅ Done | ✅ docs/specs/P1-P1_plugin_registry.md | Plugin registry spec |
-| SPEC-P1-P2 | Antigravity (Agent 2) | ✅ Done | ✅ docs/specs/P1-P2_plugin_loader.md | Plugin loader spec |
-| SPEC-P1-P3 | Antigravity (Agent 2) | ✅ Done | ✅ docs/specs/P1-P3_plugin_hot_reload.md | Hot-reload system spec |
-| SPEC-P1-P4 | Antigravity (Agent 2) | ✅ Done | ✅ docs/specs/P1-P4_plugin_scanner.md | Plugin scanner spec |
-| SPEC-P1-P5 | Antigravity (Agent 2) | ✅ Done | ✅ docs/specs/P1-P5_plugin_sandbox.md | Plugin sandboxing spec |
-| SPEC-P1-A1 | Antigravity (Agent 3) | ✅ Done | ✅ docs/specs/P1-A1_audio_analyzer.md | FFT + waveform analysis spec |
-| SPEC-P1-A2 | Antigravity (Agent 3) | ✅ Done | ✅ docs/specs/P1-A2_beat_detector.md | Beat detection spec |
-| SPEC-P1-A3 | Antigravity (Agent 3) | ✅ Done | ✅ docs/specs/P1-A3_reactivity_bus.md | Audio-reactive framework spec |
-| P1-R2 | TBD | ⬜ Todo | ✅ docs/specs/P1-R2_gpu_pipeline.md | Framebuffer · ShaderProgram · EffectChain (ping-pong FBO + async PBO readback). Depends on P1-R1. |
+> 🚨 **RULE: Every coding task has a RESEARCH prerequisite. Complete RESEARCH:P1-XX before starting P1-XX.**
+> Run `/legacy-research` workflow for every RESEARCH task. No exceptions.
+
+### Rendering Chain (Roo Coder 1)
+
+| Task ID | Assigned To | Status | Notes |
+|---------|-------------|--------|-------|
+| RESEARCH:P1-R1 | Roo Coder (1) | ✅ Done (assume — P1-R1 in progress) | Read VJlive-2/core/opengl_raii.py, renderer.py, gl_wrapper.py, gl_utils.py |
+| P1-R1 | Roo Coder (1) | 🔨 In Progress | ModernGL + GLFW context — spec at docs/specs/P1-R1_opengl_context.md |
+| RESEARCH:P1-R2 | Roo Coder (1) | ⬜ Todo | Read VJlive-2/core/shader_program.py, render_pipeline.py, opengl_raii.py |
+| P1-R2 | Roo Coder (1) | ⏸️ Blocked (needs RESEARCH:P1-R2 + P1-R1) | docs/specs/P1-R2_gpu_pipeline.md |
+| RESEARCH:P1-R3 | Roo Coder (1) | ⬜ Todo | Read VJlive-2/core/shader_compiler.py, shader_manager.py, core/shaders/ |
+| P1-R3 | Roo Coder (1) | ⏸️ Blocked (needs RESEARCH:P1-R3 + P1-R2) | docs/specs/P1-R3_shader_compiler.md |
+| RESEARCH:P1-R4 | Roo Coder (1) | ⬜ Todo | Read VJlive-2/core/texture_manager.py, texture3d.py, opengl_raii.py |
+| P1-R4 | Roo Coder (1) | ⏸️ Blocked (needs RESEARCH:P1-R4 + P1-R3) | docs/specs/P1-R4_texture_manager.md |
+| RESEARCH:P1-R5 | Roo Coder (1) | ⬜ Todo | Read VJlive-2/core/engine.py, frame_budget.py, safety_loop.py |
+| P1-R5 | Roo Coder (1) | ⏸️ Blocked (needs RESEARCH:P1-R5 + P1-R4) | docs/specs/P1-R5_render_engine.md |
+
+### Node Graph (Roo Coder 1)
+
+| Task ID | Assigned To | Status | Notes |
+|---------|-------------|--------|-------|
+| RESEARCH:P1-N1 | Roo Coder (1) | ⬜ Todo | Read VJlive-2/core/matrix/, graph/, graph_renderer.py, node_*.py |
+| P1-N1 | Roo Coder (1) | ⏸️ Blocked (needs RESEARCH:P1-N1 + P1-R5) | docs/specs/P1-N1_node_registry.md |
+| RESEARCH:P1-N2 | Roo Coder (1) | ⬜ Todo | Read VJlive-2/core/matrix/matrix_nodes.py, modifier_nodes.py, modifiers/ |
+| P1-N2 | Roo Coder (1) | ⏸️ Blocked (needs RESEARCH:P1-N2 + P1-N1) | docs/specs/P1-N2_node_types.md |
+| RESEARCH:P1-N3 | Roo Coder (1) | ⬜ Todo | Read VJlive-2/core/state_persistence.py, save_system.py, patch_manager.py |
+| P1-N3 | Roo Coder (1) | ⏸️ Blocked (needs RESEARCH:P1-N3 + P1-N1) | docs/specs/P1-N3_state_persistence.md |
+| RESEARCH:P1-N4 | Roo Coder (1) | ⬜ Todo | Read VJlive-2/core/graph_renderer.py (71KB!), gui/, patcher/ |
+| P1-N4 | Roo Coder (1) | ⏸️ Blocked (needs RESEARCH:P1-N4 + P1-N1 + P1-R5) | docs/specs/P1-N4_node_graph_ui.md |
+
+### Audio Engine (Roo Coder 2)
+
+| Task ID | Assigned To | Status | Notes |
+|---------|-------------|--------|-------|
+| P1-A1 | Roo Coder (2) | ✅ Done | 17/17 tests ✅ — VERIFY legacy check was done |
+| P1-A2 | Roo Coder (2) | ✅ Done | 18/18 tests ✅, 94% coverage |
+| RESEARCH:P1-A3 | Roo Coder (2) | ⬜ Todo | Read VJlive-2/core/audio_reactor.py, rhythm_consciousness.py, rhythm_visual_effects.py, modulation_matrix.py |
+| P1-A3 | Roo Coder (2) | ⏸️ Blocked (needs RESEARCH:P1-A3) | docs/specs/P1-A3_reactivity_bus.md — update spec with actual class names from legacy |
+| RESEARCH:P1-A4 | Roo Coder (2) | ⬜ Todo | Read VJlive-2/core/audio/*, audio_analyzer.py, pipeline.py |
+| P1-A4 | Roo Coder (2) | ⏸️ Blocked (needs RESEARCH:P1-A4 + P1-A3) | docs/specs/P1-A4_audio_sources.md |
+
+### Plugin System (Antigravity Agent 3)
+
+| Task ID | Assigned To | Status | Notes |
+|---------|-------------|--------|-------|
+| RESEARCH:P1-P1 | Antigravity (Agent 3) | ✅ Done | Read plugin_loader.py, vjlivest_plugin_system.py, plugins/plugin_api.py, plugins/sandbox.py, plugin_validator.py |
+| P1-P1 | Antigravity (Agent 3) | 🔨 In Progress | Porting registry.py, api.py, sandbox.py, validator.py, loader.py from VJlive-2 directly |
+| RESEARCH:P1-P2 | Antigravity (Agent 3) | ✅ Done | Same research as P1-P1 |
+| P1-P2 | Antigravity (Agent 3) | ⏸️ Blocked (needs P1-P1) | docs/specs/P1-P2_plugin_loader.md |
+| RESEARCH:P1-P3 | Antigravity (Agent 3) | ✅ Done | Read VJlive-2/core/hot_reload_watcher.py |
+| P1-P3 | Antigravity (Agent 3) | ⏸️ Blocked (needs P1-P2) | docs/specs/P1-P3_plugin_hot_reload.md |
+| RESEARCH:P1-P4 | Antigravity (Agent 3) | ✅ Done | Same research as P1-P1 (discover_plugins in plugin_loader.py) |
+| P1-P4 | Antigravity (Agent 3) | ⏸️ Blocked (needs P1-P3) | docs/specs/P1-P4_plugin_scanner.md |
+| RESEARCH:P1-P5 | Antigravity (Agent 3) | ✅ Done | Read VJlive-2/core/plugins/sandbox.py (full) |
+| P1-P5 | Antigravity (Agent 3) | ⏸️ Blocked (needs P1-P1) | docs/specs/P1-P5_plugin_sandbox.md |
 
 ---
 
@@ -71,11 +107,11 @@
 | P1-N2 | Node types — full collection from both codebases | P0 | Roo Coder (1) after P1-N1 |
 | P1-N3 | State persistence (save/load) | P1 | Roo Coder (1) after P1-N1 |
 | P1-N4 | Visual node graph UI | P1 | Roo Coder (1) after P1-N1 |
-| P1-P1 | Plugin registry (manifest.json based) | P0 | Roo Coder (2) |
-| P1-P2 | Plugin loading + Pydantic validation | P0 | Roo Coder (2) after P1-P1 |
-| P1-P3 | Hot-reloadable plugin system | P0 | Roo Coder (2) after P1-P2 |
-| P1-P4 | Plugin discovery (auto-scan) | P0 | Roo Coder (2) after P1-P3 |
-| P1-P5 | Plugin sandboxing | P1 | Roo Coder (2) after P1-P1 |
+| P1-P1 | Plugin registry (manifest.json based) | P0 | Antigravity (Agent 2) |
+| P1-P2 | Plugin loading + Pydantic validation | P0 | Antigravity (Agent 2) after P1-P1 |
+| P1-P3 | Hot-reloadable plugin system | P0 | Antigravity (Agent 2) after P1-P2 |
+| P1-P4 | Plugin discovery (auto-scan) | P0 | Antigravity (Agent 2) after P1-P3 |
+| P1-P5 | Plugin sandboxing | P1 | Antigravity (Agent 2) after P1-P1 |
 
 ---
 
@@ -102,13 +138,16 @@
 ## How Workers Accept a Task
 
 1. **Confirm assignment:** Your name must be in "Assigned To" column
-2. **Read the spec:** Open `docs/specs/<task-id>_<name>.md`
-3. **Check locks:** Open `WORKSPACE/COMMS/LOCKS.md`
+2. **Check if task is a RESEARCH task** (`RESEARCH:P1-XX`):
+   - If YES → run `/legacy-research` workflow exactly as written — then mark Done
+   - If NO → verify the matching `RESEARCH:P1-XX` task is ✅ Done before proceeding
+3. **Read the spec:** Open `docs/specs/<task-id>_<name>.md` AND the legacy files it references
+4. **Check locks:** Open `WORKSPACE/COMMS/LOCKS.md`
    - If files locked by others → post blocker in AGENT_SYNC.md, STOP
    - If free → add your lock entry immediately
-4. **Change status:** Update DISPATCH.md status to `🔨 In Progress`
-5. **Execute workflow:** SPEC → CODE → TEST → VERIFY → COMMIT → UPDATE BOARD
-6. **Mark complete:** Update DISPATCH.md status to `✅ Done` after ALL verification passes
+5. **Change status:** Update DISPATCH.md status to `🔨 In Progress`
+6. **Execute workflow:** (RESEARCH → SPEC REWRITE →) CODE → TEST → VERIFY → COMMIT → UPDATE BOARD
+7. **Mark complete:** Update DISPATCH.md status to `✅ Done` after ALL verification passes
 
 ---
 

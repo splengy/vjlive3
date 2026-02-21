@@ -52,45 +52,45 @@
 
 ---
 
-## Phase 1: Foundation & Rendering (Weeks 1-4) 🔴 RESET — Code wiped, restart with SPEC first
+## Phase 1: Foundation & Rendering (Weeks 1-4) 🔴 RESET — Code wiped. Must read legacy FIRST before rewriting.
 
 ### 1A — Core Infrastructure
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-R1 | OpenGL rendering context (ModernGL) | P0 | ✅ Spec Ready | VJlive-2 arch |
+| P1-R1 | OpenGL rendering context (ModernGL) | P0 | 🔨 In Progress | VJlive-2 arch |
 | P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ✅ Spec Ready | VJlive-2 |
-| P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
-| P1-R4 | Texture manager (pooled, leak-free) | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
-| P1-R5 | Core rendering engine (60fps loop) | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
+| P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ✅ Spec Ready | `docs/specs/P1-R3_shader_compiler.md` — by Antigravity (Agent 3) |
+| P1-R4 | Texture manager (pooled, leak-free) | P0 | ✅ Spec Ready | `docs/specs/P1-R4_texture_manager.md` — by Antigravity (Agent 3) |
+| P1-R5 | Core rendering engine (60fps loop) | P0 | ✅ Spec Ready | `docs/specs/P1-R5_render_engine.md` — by Antigravity (Agent 3) |
 
 ### 1B — Audio Engine
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-A1 | FFT + waveform analysis engine | P0 | ✅ Spec Ready | `docs/specs/P1-A1_audio_analyzer.md` — by Antigravity (Agent 3) |
-| P1-A2 | Real-time beat detection | P0 | ✅ Spec Ready | `docs/specs/P1-A2_beat_detector.md` — by Antigravity (Agent 3) |
-| P1-A3 | Audio-reactive effect framework | P0 | ✅ Spec Ready | `docs/specs/P1-A3_reactivity_bus.md` — by Antigravity (Agent 3) |
-| P1-A4 | Multi-source audio input | P1 | 🔨 Spec Writing | Assigned to Antigravity (Agent 3) |
+| P1-A1 | FFT + waveform analysis engine | P0 | ✅ Spec Ready | `docs/specs/P1-A1_audio_analyzer.md` — READ LEGACY BEFORE REWRITING |
+| P1-A2 | Real-time beat detection | P0 | ✅ Spec Ready | `docs/specs/P1-A2_beat_detector.md` — READ LEGACY BEFORE REWRITING |
+| P1-A3 | Audio-reactive effect framework | P0 | ✅ Spec Ready | `docs/specs/P1-A3_reactivity_bus.md` — READ LEGACY BEFORE REWRITING |
+| P1-A4 | Multi-source audio input | P1 | ✅ Spec Ready | `docs/specs/P1-A4_audio_sources.md` — READ LEGACY BEFORE REWRITING |
 
 ### 1C — Node Graph / Matrix
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-N1 | UnifiedMatrix + node registry (manifest-based) | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
-| P1-N2 | Node types — full collection from both codebases | P0 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
-| P1-N3 | State persistence (save/load) | P1 | 🔨 Spec Writing | Assigned to Roo Coder (1) |
-| P1-N4 | Visual node graph UI | P1 | 🔨 Spec Writing | Blocked on P1-R5 |
+| P1-N1 | UnifiedMatrix + node registry (manifest-based) | P0 | ✅ Spec Ready | `docs/specs/P1-N1_node_registry.md` — by Antigravity (Agent 3) |
+| P1-N2 | Node types — full collection from both codebases | P0 | ✅ Spec Ready | `docs/specs/P1-N2_node_types.md` — by Antigravity (Agent 3) |
+| P1-N3 | State persistence (save/load) | P1 | ✅ Spec Ready | `docs/specs/P1-N3_state_persistence.md` — by Antigravity (Agent 3) |
+| P1-N4 | Visual node graph UI | P1 | ✅ Spec Ready | `docs/specs/P1-N4_node_graph_ui.md` — by Antigravity (Agent 3) |
 
 ### 1D — Plugin System
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-P1 | Plugin registry (manifest.json based) | P0 | ✅ Done | `src/vjlive3/plugins/registry.py` — 14/14 tests ✅ |
-| P1-P2 | Plugin loading + Pydantic validation | P0 | ✅ Done | `src/vjlive3/plugins/loader.py` — 8/8 tests ✅ |
-| P1-P3 | Hot-reloadable plugin system | P0 | ✅ Done | `src/vjlive3/plugins/hot_reload.py` — (covered in integration) |
-| P1-P4 | Plugin discovery (auto-scan) | P0 | ✅ Done | `src/vjlive3/plugins/scanner.py` — 8/8 tests ✅ |
-| P1-P5 | Plugin sandboxing | P1 | ✅ Done | `src/vjlive3/plugins/sandbox.py` — 10/10 tests ✅ |
+| P1-P1 | Plugin registry (manifest.json based) | P0 | ✅ Done | `src/vjlive3/plugins/registry.py` — 108 tests @ 81.62% cov — 2026-02-21 |
+| P1-P2 | Plugin loading + Pydantic validation | P0 | ✅ Done | `src/vjlive3/plugins/loader.py` — included in test suite |
+| P1-P3 | Hot-reloadable plugin system | P0 | ✅ Done | `src/vjlive3/plugins/hot_reload.py` — watchdog + polling fallback |
+| P1-P4 | Plugin discovery (auto-scan) | P0 | ✅ Done | `PluginLoader.discover_plugins()` + `load_all()` — boot-time sweep |
+| P1-P5 | Plugin sandboxing | P1 | ✅ Done | `src/vjlive3/plugins/plugin_runtime.py` — per-frame wrapper, error budget, auto-disable |
 
 **Phase 1 Gate:** FPS ≥ 58. Window visible. Empty node graph renders. Plugin loads successfully.
 
@@ -115,7 +115,7 @@
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
 | P2-H1 | MIDI controller input | P0 | ⬜ Todo | Spec required: `docs/specs/P2-H1_midi_controller.md` |
-| P2-H2 | OSCQuery — advanced OSC discovery | P0 | ⬜ Todo | Spec required: `docs/specs/P2-H2_oscquery.md` |
+| P2-H2 | OSCQuery — advanced OSC discovery | P0 | ✅ Done | `src/vjlive3/osc/server.py` — OscServer + OscClient, 20/20 tests ✅ 2026-02-21 |
 | P2-H3 | Astra depth camera | P1 | ⬜ Todo | Spec required: `docs/specs/P2-H3_astra.md` |
 | P2-H4 | NDI video transport (full hub + streams) | P1 | ⬜ Todo | Spec required: `docs/specs/P2-H4_ndi.md` |
 | P2-H5 | Spout support (Windows video sharing) | P2 | ⬜ Todo | vjlive only |
@@ -127,7 +127,7 @@
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
 | P2-X1 | Multi-node coordination (ZeroMQ) | P0 | ⬜ Todo | Spec required: `docs/specs/P2-X1_zmq_coordinator.md` |
-| P2-X2 | Timecode sync (LTC/MTC/NTP) | P0 | ⬜ Todo | Spec required: `docs/specs/P2-X2_timecode_sync.md` |
+| P2-X2 | Timecode sync (LTC/MTC/NTP) | P0 | ✅ Done | `src/vjlive3/sync/timecode.py` — TimecodeEngine + sources, 28/28 tests ✅ 2026-02-21 |
 | P2-X3 | Output mapping + screen warping | P1 | ⬜ Todo | Spec required: `docs/specs/P2-X3_output_mapper.md` |
 | P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | ⬜ Todo | vjlive only |
 

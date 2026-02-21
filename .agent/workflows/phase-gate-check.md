@@ -24,8 +24,12 @@ python -m vjlive3.main
 
 ### 2. FPS Validation
 ```bash
-# 60-second FPS test
-python scripts/test_fps.py --duration 60 --resolution 1920x1080
+# 60-second FPS test (runs via Makefile target)
+make phase-gate
+
+# If running manually:
+python -m vjlive3.core.fps_test --duration 60 --resolution 1920x1080
+# NOTE: fps_test module must exist; check BOARD.md for status.
 
 # Acceptance criteria:
 # ✅ Average FPS ≥ 58 (2-frame GC buffer)
@@ -33,7 +37,8 @@ python scripts/test_fps.py --duration 60 --resolution 1920x1080
 # ✅ No dropped frame runs longer than 100ms
 # ✅ Memory usage stable (no upward trend over 60s)
 ```
-> **FAIL CONDITION:** Average below 58 FPS → open `COMMS/PERFORMANCE_DEBUG.md` root cause
+> **FAIL CONDITION:** Average below 58 FPS → open `WORKSPACE/COMMS/PERFORMANCE_DEBUG.md` root cause
+> **NOTE:** FPS test only applies once Phase 1 rendering (P1-R1–R5) is implemented.
 
 ### 3. Quality Gate
 ```bash
@@ -43,6 +48,9 @@ make quality
 ```
 
 ### 4. Silicon Sigil Verification
+> **⚠️ STATUS:** `vjlive3.core.sigil` was part of the Phase 0 code and is currently in `WORKSPACE/DELETE_ME/`.
+> This check is **BLOCKED** until `src/vjlive3/core/sigil.py` is restored/rebuilt as part of Phase 1 core infrastructure.
+> When the module exists, run:
 ```bash
 python -c "from vjlive3.core.sigil import sigil; sigil.verify()"
 # Must output: "Silicon Sigil verified. The process continues."

@@ -110,7 +110,11 @@ class ConceptDB:
             conn.close()
 
     def initialize(self) -> None:
-        """Create tables and triggers if they don't exist, then rebuild FTS."""
+        """Create tables and triggers if they don't exist.
+
+        FTS rebuild is ONLY run on a fresh/empty database.
+        For existing DBs the upsert/delete triggers keep FTS in sync.
+        """
         with self._connect() as conn:
             conn.execute(_CREATE_TABLE)
             conn.execute(_CREATE_FTS)
@@ -119,7 +123,14 @@ class ConceptDB:
                 stmt = stmt.strip()
                 if stmt:
                     conn.execute(stmt + " END;")
-        self.rebuild_fts()
+            # Use concepts row count (not FTS virtual table) to detect fresh DB.
+            # FTS5 content-rowid tables can be slow/deadlock on COUNT(*).
+            row_count = conn.execute(
+                "SELECT COUNT(*) FROM concepts"
+            ).fetchone()[0]
+        if row_count == 0:
+            self.rebuild_fts()
+            _logger.info("FTS index rebuilt (fresh database).")
         _logger.debug("Database initialized at %s", self._path)
 
     def rebuild_fts(self) -> None:
