@@ -191,6 +191,7 @@
 | P3-VD21 | Depth Temporal Echo | P1 | ✅ Done | `src/vjlive3/plugins/depth_temporal_echo.py` — DepthTemporalEchoPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD22 | Depth Temporal Stratification | P1 | ✅ Done | `src/vjlive3/plugins/depth_temporal_strat.py` — DepthTemporalStratPlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD23 | Depth Vector Field Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_vector_field_datamosh.py` — DepthVectorFieldDatamoshPlugin, 7/7 tests ✅ 2026-02-22 |
+| P3-VD24+ | P3-VD29 Depth Camera Splitter | P1 | ✅ Done | `src/vjlive3/plugins/depth_camera_splitter.py` — DepthCameraSplitterEffect, 6/6 tests ✅ 2026-02-22 |
 | P3-VD24+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 
 | P3-VD26 | Depth Acid Fractal (DepthAcidFractalDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
@@ -285,7 +286,6 @@ Depth Feedback Matrix, Depth Holographic, and any others present — **every one
 | P4-AU07 | raymarched_scenes (AudioReactiveRaymarchedScenes) | P0 | ◯ Todo | VJlive-2 |
 | P4-AU08 | vcv_video_generators (ByteBeatGen) | P0 | ◯ Todo | VJlive-2 |
 
-
 ### 4B — Befaco Modulators (MISSING from VJlive-2)
 
 | Task ID | Plugin | Status |
@@ -364,11 +364,16 @@ Unicorn Farts, Void Swirl, Volumetric — **plus all others found in both codeba
 
 | Task ID | Description | Status | Source |
 |---------|-------------|--------|--------|
-| P6-Q1 | Quantum Nexus / Consciousness system | ⬜ Todo | VJlive-2 |
-| P6-Q2 | Quantum Explorer | ⬜ Todo | VJlive-2 |
-| P6-Q3 | Quantum Tunnel | ⬜ Todo | vjlive |
-| P6-Q4 | Living Fractal Consciousness [DREAMER] | ⬜ Todo | VJlive-2 |
 
+| P6-QC06 | agent_avatar (TravelingAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-QC07 | agent_avatar (AgentAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-QC08 | ml_gpu_effects (MLBaseAsyncEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-QC09 | ml_gpu_effects (MLStyleGLEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-QC10 | ml_gpu_effects (MLSegmentationBlurGLEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-QC11 | neural_rave_nexus (NeuralRaveNexus) | P0 | ◯ Todo | VJlive-2 |
+| P6-QC12 | quantum_consciousness_explorer (QuantumConsciousnessExplorer) | P0 | ◯ Todo | VJlive-2 |
+| P6-QC13 | trails (TrailsEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-QC14 | tunnel_vision_3 (QuantumConsciousnessSingularityEffect) | P0 | ◯ Todo | VJlive-2 |
 | P6-QC06 | agent_avatar (TravelingAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
 | P6-QC07 | agent_avatar (AgentAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
 | P6-QC08 | ml_gpu_effects (MLBaseAsyncEffect) | P0 | ◯ Todo | VJlive-2 |
@@ -400,11 +405,21 @@ Unicorn Farts, Void Swirl, Volumetric — **plus all others found in both codeba
 
 | Task ID | Description | Status |
 |---------|-------------|--------|
-| P6-G1 | Morphagene Generator (granular synthesis) | ⬜ Todo |
-| P6-G2 | Path Generator (procedural) | ⬜ Todo |
-| P6-G3 | Vox Sequencers (3D sequencing) | ⬜ Todo |
-| P6-G4 | Spectraphon | ⬜ Todo |
 
+| P6-GE06 | fractal_generator (FractalGenerator) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE07 | generators (OscEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE08 | generators (NoiseEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE09 | generators (VoronoiEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE10 | generators (GradientEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE11 | generators (MandalaEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE12 | generators (PlasmaEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE13 | generators (PerlinEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE14 | silver_visions (PathGeneratorEffect) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE15 | vcv_video_generators (HarmonicPatternsGen) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE16 | vcv_video_generators (FMCoordinatesGen) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE17 | vcv_video_generators (MacroShapeGen) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE18 | vcv_video_generators (GranularVideoGen) | P0 | ◯ Todo | VJlive-2 |
+| P6-GE19 | vcv_video_generators (ResonantGeometryGen) | P0 | ◯ Todo | VJlive-2 |
 | P6-GE06 | fractal_generator (FractalGenerator) | P0 | ◯ Todo | VJlive-2 |
 | P6-GE07 | generators (OscEffect) | P0 | ◯ Todo | VJlive-2 |
 | P6-GE08 | generators (NoiseEffect) | P0 | ◯ Todo | VJlive-2 |
