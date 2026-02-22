@@ -106,7 +106,7 @@
 | P2-D1 | DMX512 core engine + fixture profiles | P0 | ✅ Done | Spec ready: `docs/specs/P2-D1_dmx_engine.md` |
 | P2-D2 | ArtNet + sACN output | P0 | ✅ Done | Spec ready: `docs/specs/P2-D2_artnet_output.md` |
 | P2-D3 | DMX FX engine (chases, rainbow, strobe) | P0 | ✅ Done | Spec ready: `docs/specs/P2-D3_dmx_fx.md` |
-| P2-D4 | Show control system | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-D4_show_control.md` |
+| P2-D4 | Show control system | P1 | ✅ Done | Spec ready: `docs/specs/P2-D4_show_control.md` |
 | P2-D5 | Audio-reactive DMX | P1 | ✅ Done | `src/vjlive3/core/dmx/audio_dmx.py` — AudioDmxLink, 5/5 tests ✅ 2026-02-22 |
 | P2-D6 | DMX WebSocket handler | P1 | ✅ Done | `src/vjlive3/core/dmx/websocket.py` — DmxWebSocketHandler, 7/7 tests ✅ 2026-02-22 |
 
@@ -117,8 +117,8 @@
 | P2-H1 | MIDI controller input | P0 | ⏳ Queued | Spec ready: `docs/specs/P2-H1_midi_controller.md` |
 | P2-H2 | OSCQuery — advanced OSC discovery | P0 | ✅ Done | `src/vjlive3/osc/server.py` — OscServer + OscClient, 20/20 tests ✅ 2026-02-21 |
 | P2-H3 | Astra depth camera | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H3_astra.md` |
-| P2-H4 | NDI video transport (full hub + streams) | P1 | ⬜ Todo | Spec required: `docs/specs/P2-H4_ndi.md` |
-| P2-H5 | Spout support (Windows video sharing) | P2 | ⬜ Todo | vjlive only |
+| P2-H4 | NDI video transport (full hub + streams) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H4_ndi.md` |
+| P2-H5 | Spout support (Windows video sharing) | P2 | ⏳ Queued | Spec ready: `docs/specs/P2-H5_spout.md` |
 | P2-H6 | Gamepad input (GLFW backend) | P2 | ⬜ Todo | VJlive-2 only |
 | P2-H7 | Laser safety system | P1 | ⬜ Todo | VJlive-2 only |
 

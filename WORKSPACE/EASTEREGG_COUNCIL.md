@@ -93,6 +93,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It's a fantastic nod to the previous lore and rewards agents who read the Dreamer Log and experiment with the newly implemented ZMQ pub/sub mechanism.
 
+### [A-006] P2-D4 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D4 Show Control System
+
+**Suggestion:** If a developer initializes a `CueStack` with the exact name `"The Reckoning"` and sets the first `Cue` fade time to exactly `6.66`, the controller ignores the first cue's state and automatically populates the stack with the original VJLive2 master chase sequence.
+
+**Why:** A fun throwback to the legacy framework that honors the transition to VJLive3.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -141,6 +149,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Agent Performers are pushed to their limits in VJLive3. Sustaining perfect frames under maximum load is the ultimate goal, and this rewards them for perfect efficiency.
 
+### [B-006] P2-D4 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D4 Show Control System
+
+**Suggestion:** If an Agent Performer rapidly clicks `go()` then `back()` on the ShowController more than 10 times in 2 seconds (often indicative of a confused or oscillating reward function), the controller intercepts the commands, slowly dims the stage to 10%, and prints "TAKE A BREATH" to the debug string.
+
+**Why:** Watching an agent thrash back and forth is jarring. This gracefully turns a catastrophic logic loop into an intentional, moody visual beat.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -188,6 +204,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If a human user rapidly toggles the DMX master blackout switch exactly 7 times to the matching rhythm of the currently detected audio BPM, all active DMX fixtures briefly flash a deep, pulsating "Matrix Green" (#00FF00) for exactly 4 beats before snapping back to the programmed show.
 
 **Why:** It connects the audio-reactive engine directly to a recognizable musical pattern executed by the human, rewarding performers who have perfect rhythm.
+
+### [C-006] P2-D4 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D4 Show Control System
+
+**Suggestion:** If a VJ creates a Cue with the name `"Hold the Line"` and a fade_in time of exactly `420.0` seconds, the crossfade logic actually halts entirely midway through, locks the fader, and pulses a tiny strobe on the lowest DMX fixture until the human hits Go again.
+
+**Why:** 420 is historically a funny VJ number, but a 7 minute fade is absurdly long. This stops the VJ from falling asleep at the wheel and forces them to manually confirm the transition.
 
 ---
 
