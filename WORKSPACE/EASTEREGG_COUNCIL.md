@@ -181,6 +181,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Depth blur implies seeing the world through a lens; pushing the focal distance to the absolute mathematical limit should shift the lens to a microscope.
 
+### [A-022] P3-VD12 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD12 Depth Contour Datamosh
+
+**Suggestion:** The "Topographic God" curve. If an Agent Programmer manually sets the `contour_intervals` parameter mathematically to exactly `1` (which the UI normally prevents as minimum is 2), the entire video frame flattens into a stark, single-color 1-bit dithering map based purely on depth values.
+
+**Why:** A contour map with only 1 interval implies the world is entirely flat. The system should literally flatten the render pipeline to 1-bit to match.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -398,6 +406,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Forcing a delicate cinematic effect like DoF to jitter at gabber speeds fundamentally misreads its purpose; visually weaponizing the bokeh shapes rewards this aggressive parameter mapping.
 
+### [B-022] P3-VD12 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD12 Depth Contour Datamosh
+
+**Suggestion:** The "Layer Cake". If an Agent Performer maps the `mosh_intensity` directly to the `depth_in` luminosity output via the reactive matrix (effectively telling the depth to glitch itself based on itself), the datamosh spills sideways, fracturing the video into 3D isometric layers that drift off-axis.
+
+**Why:** True datamoshing requires breaking the motion vectors; feeding the contour maps back into the motion drivers essentially un-stacks the reality topological map.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -606,6 +622,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Astigmatism Protocol". If a human user clicks the 'bypass' toggle on the plugin while holding down the spacebar over the canvas, the video feed snaps to crystal clear focus, but violently splits the RED and BLUE color channels sideways across the screen simulating severe astigmatism, lasting until bypassed again.
 
 **Why:** "Bypassing" a focus blur technically means taking your glasses off. If the human forces the engine to remove the blur manually, they receive the uncorrected optical displacement.
+
+### [C-022] P3-VD12 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD12 Depth Contour Datamosh
+
+**Suggestion:** The "Laser Grid". If a human zeroes out the `video_in` and `video_b_in` entirely (sending pure black) while turning `contour_glow` up to exactly `1.0`, the system renders the raw contour geometry but paints it dynamically cycling neon green/pink like a 1980s synth-wave terrain grid.
+
+**Why:** Humans love using complex shader nodes just to generate cool lines on black. This recognizes that intent and automatically makes the lines highly stylized synth-wave topology.
 
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
