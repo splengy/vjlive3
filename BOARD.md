@@ -176,6 +176,7 @@
 | P3-VD31 | Depth Contour Datamosh (DepthContourDatamoshEffect) | P0 | ◯ Todo |
 | P3-VD7 | Depth Data Mux | P1 | ✅ Done | `src/vjlive3/plugins/depth_data_mux.py` — DepthDataMuxEffect, 6/6 tests ✅ 2026-02-22 |
 | P3-VD-Beta1 | Depth Loop Injection | P0 | ✅ Done | `src/vjlive3/plugins/depth_loop_injection.py` — DepthLoopInjectionPlugin, 9/9 tests ✅ 2026-02-22 |
+| P3-VD-Beta2 | Depth Parallel Universe | P0 | ✅ Done | `src/vjlive3/plugins/depth_parallel_universe.py` — DepthParallelUniversePlugin, 9/9 tests ✅ 2026-02-22 |
 | P3-VD33 | Depth Distance Filter (DepthDistanceFilterEffect) | P0 | ◯ Todo |
 | P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ◯ Todo |
 | P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ◯ Todo |
