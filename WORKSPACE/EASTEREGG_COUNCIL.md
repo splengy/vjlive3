@@ -189,6 +189,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A contour map with only 1 interval implies the world is entirely flat. The system should literally flatten the render pipeline to 1-bit to match.
 
+### [A-023] P3-VD13 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD13 Depth Erosion Datamosh
+
+**Suggestion:** The "Acid Wash". If an Agent Programmer forcefully dials `morph_radius` past the shader limits to exactly `100.0` while set to Erosion mode (Mode 0), the cellular degradation logic doesn't just erode the pixels—it applies an extreme real-time "melting" screen space distortion, physically sliding the entire FBO downward off the bottom of the monitor until the screen is black.
+
+**Why:** Extreme morphological erosion implies melting. Melting things realistically slide down due to gravity.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -422,6 +430,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** True datamoshing requires breaking the motion vectors; feeding the contour maps back into the motion drivers essentially un-stacks the reality topological map.
 
+### [B-023] P3-VD13 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD13 Depth Erosion Datamosh
+
+**Suggestion:** The "Heat Death". If an Agent automates the `feedback_decay` strictly to `1.0` (zero loss) for over 120 continuous seconds, the entropy engine detects perfect stagnation and slowly shifts the entire video tint into a completely dead, flat, mid-level grey (#808080) regardless of the source video until the decay is lowered.
+
+**Why:** Infinite un-decaying feedback eventually leads to total system heat death, neutralizing into absolute uniform grey.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -646,6 +662,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Laser Grid". If a human zeroes out the `video_in` and `video_b_in` entirely (sending pure black) while turning `contour_glow` up to exactly `1.0`, the system renders the raw contour geometry but paints it dynamically cycling neon green/pink like a 1980s synth-wave terrain grid.
 
 **Why:** Humans love using complex shader nodes just to generate cool lines on black. This recognizes that intent and automatically makes the lines highly stylized synth-wave topology.
+
+### [C-023] P3-VD13 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD13 Depth Erosion Datamosh
+
+**Suggestion:** The "Pac-Man Glitch". If a human rapidly switches the `morph_mode` setting wildly between exactly 0 (Erode) and 1 (Dilate) without touching 2 or 3, a hidden subroutine triggers, rendering a massive, heavily glitched, glowing yellow 8-bit circle with a missing slice flying right to left across the screen eating the datamoshed artifacts.
+
+**Why:** Rapidly growing and shrinking (Dilating and Eroding) is the physical gesture equivalent of opening and closing a mouth. Ergo, Pac-Man.
 
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
