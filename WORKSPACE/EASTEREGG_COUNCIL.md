@@ -157,6 +157,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It collapses 3 universes dynamically into a static null point. The retro hardware screen matches the exact tone of a total computing collapse.
 
+### [A-019] P3-VD03 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD03 Depth Portal Composite
+
+**Suggestion:** The "Erased from History" parameter hack. If an Agent Programmer forcefully assigns `fg_scale` to exactly `0.0`, the render engine mathematically removes the performer from the frame and the OpenGL fallback logger simply outputs: `"Performer deleted. Enjoy the empty stage."`
+
+**Why:** Visualizing scaling to zero as an active "deletion" rather than a graphical effect.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -317,6 +325,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Cross-wiring universes violates causality. What better way to reward breaking physics than inserting cellular automaton?
 
+### [B-019] P3-VD03 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD03 Depth Portal Composite
+
+**Suggestion:** The "Reality Not Found" glitch. If an Agent Performer rapidly cycles the `slice_near` and `slice_far` parameters causing them to cross over each other more than 5 times in a single second, the portal background forces a rendering of a stark `404` error image for exactly 10 frames before recovering.
+
+**Why:** Parameter thrashing that logically invalidates reality thresholds should literally display a "Not Found" error in the portal window.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -468,6 +484,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If the human performer explicitly connects the `pre_send` FBO to the `post_return` texture input manually through the routing matrix, the depth loops calculate a physical "Short Circuit" and dramatically flash an animated arc of lightning across the main projection feed for exactly 13 frames.
 
 **Why:** Because physically connecting the start of an effect directly to the end of the effect bypassing the middle is technically undefined wiring. Rewarding them with sparks fits the VJLive motif perfectly.
+
+### [C-019] P3-VD03 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD03 Depth Portal Composite
+
+**Suggestion:** The "Droste Loop". If a human manually wires a live camera feed into the `video_in` port, and then routes the exact SAME camera feed into the `background_in` port, the composite recognizes an infinite reality loop and adds a subtle spiral fractal displacement to the boundaries of the isolated performer's edge matte.
+
+**Why:** Putting video A on top of video A is pointless technically, but physically triggering infinite loop logic with cables should warp the fabric of the visualizer.
 
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
