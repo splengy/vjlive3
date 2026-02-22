@@ -221,6 +221,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A nod to sacred geometry inside a fractal shader. The gold circle represents the mathematical concept "phi".
 
+### [A-020] P3-VD10 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD10 Depth Blur
+
+**Suggestion:** If `bokeh_bright` is set to exactly `0.777` (Jackpot), the blur shader overrides the Poisson disc sampling shape array to render all bokeh highlights as tiny 2D cascading coins instead of circles or hexagons.
+
+**Why:** Because rendering thousands of out-of-focus golden coins spilling across the z-buffer looks exactly like an arcade coin pusher game.
+
 ---
 ### [A-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
@@ -406,6 +414,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** AI agents excel at perfect sync timing that humans struggle with. Rewarding perfect LFO sync with physics-reversing visuals is deeply satisfying.
 
+### [B-020] P3-VD10 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD10 Depth Blur
+
+**Suggestion:** If the Agent sets the `focal_distance` to `0.0` and `focal_range` to `0.0` (which implies focusing perfectly on the camera lens itself), the system secretly renders a faint, blurred reflection of a blinking robotic eye superimposed over the video feed.
+
+**Why:** Focusing a virtual camera on its own lens implies the machine is looking at itself. The blinking eye makes the concept literal.
+
 ---
 ### [B-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
@@ -582,6 +598,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** "The Bad Trip." If the human performer hammers the blackout key while `neon_burn` is > `0.9` and `solarize_level` > `0.9`, the blackout doesn't work. Instead, the screen inverts colors, freezes the current frame buffer permanently, and slowly melts the pixels downwards over 10 seconds.
 
 **Why:** It's extremely funny when the "panic button" (blackout) actually makes the visual significantly more distressing when the parameters are already set to maximum chaos.
+
+### [C-020] P3-VD10 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD10 Depth Blur
+
+**Suggestion:** If the human drags `tilt_shift` precisely from `0.0` to `1.0` and back to `0.0` three times in 3 seconds, all foreground subjects (un-blurred) are automatically wrapped in a heavy white outline like cardboard cutouts, turning the tilt-shift "toy town" effect into a literal diorama.
+
+**Why:** The standard tilt-shift illusion makes things look small. Adding cardboard borders leans fully into the optical joke.
 
 ---
 ### [C-018] P2-X4 — Alpha
