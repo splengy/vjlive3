@@ -128,7 +128,7 @@
 |---------|-------------|----------|--------|--------|
 | P2-X1 | Multi-node coordination (ZeroMQ) | P0 | ✅ Done | `src/vjlive3/sync/zmq_coordinator.py` — ZmqCoordinator, 4/4 tests ✅ 2026-02-22 |
 | P2-X2 | Timecode sync (LTC/MTC/NTP) | P0 | ✅ Done | `src/vjlive3/sync/timecode.py` — TimecodeEngine + sources, 28/28 tests ✅ 2026-02-21 |
-| P2-X3 | Output mapping + screen warping | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-X3_output_mapper.md` |
+| P2-X3 | Output mapping + screen warping | P1 | ✅ Done | `src/vjlive3/video/output_mapper.py` — OutputMapper, 6/6 tests ✅ 2026-02-22 |
 | P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-X4_projection_mapping.md` |
 
 **Phase 2 Gate:** DMX test signal works. MIDI input registers. Hardware-absent fails gracefully.
@@ -146,10 +146,10 @@
 | P3-VD02 | Depth Parallel Universe | P0 | ⏳ Queued |
 | P3-VD03 | Depth Portal Composite | P0 | ⏳ Queued |
 | P3-VD04 | Depth Reverb | P0 | ⏳ Queued |
-| P3-VD05 | Depth Slice Effect | P0 | ⬜ Todo |
-| P3-VD06 | Depth Neural Quantum Hyper Tunnel | P0 | ⬜ Todo |
-| P3-VD07 | Depth Reality Distortion | P0 | ⬜ Todo |
-| P3-VD08 | Depth R16 Wave | P0 | ⬜ Todo |
+| P3-VD05 | Depth Slice Effect | P0 | ⏳ Queued |
+| P3-VD06 | Depth Neural Quantum Hyper Tunnel | P0 | ⏳ Queued |
+| P3-VD07 | Depth Reality Distortion | P0 | ⏳ Queued |
+| P3-VD08 | Depth R16 Wave | P0 | ⏳ Queued |
 | P3-VD09+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 
 ### 3B — Existing Depth Plugins (in VJlive-2 — verify quality, keep or improve)

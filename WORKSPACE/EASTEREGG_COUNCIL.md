@@ -125,7 +125,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Lasers and pentagrams are classic heavy metal tropes. The safety system shouldn't judge the shape of your safe zones, but it can absolutely comment on them.
 
-### [A-010] P2-H6 — Beta
+### [A-010] P2-X3 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-X3 Output Mapper
+
+**Suggestion:** If a user names a `ScreenSlice` exactly `"Hologram"`, the metadata secretly flags the renderer to dynamically apply a 2-pixel chromatic aberration effect across the warped quad.
+
+**Why:** People love using projection mapping on scrims to create faux-holograms. This gives them an automatic, stylistic "glitch" that makes it instantly pop.
+
+### [A-011] P2-H6 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-H6 Gamepad Input
 
@@ -213,7 +221,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** AI agents shouldn't play fast and loose with class 4 lasers. If it's panic-stopping repeatedly, it needs Adult Supervision.
 
-### [B-010] P2-H6 — Beta
+### [B-010] P2-X3 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-X3 Output Mapper
+
+**Suggestion:** If an autonomous AI agent rapidly twitches the corner warp points of a slice back and forth by less than 0.1 normalized units continuously (a common failure mode for AI spatial algorithms), the `MeshWarper` applies a low-pass smoothing filter and prints `"Agent micro-jitter detected. Calm your synthetic nerves."`
+
+**Why:** Visualizing AI indecision on a 4K projector makes the entire building vibrate. Stabilizing their microscopic wobbles makes the mapping inherently watchable.
+
+### [B-011] P2-H6 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-H6 Gamepad Input
 
@@ -301,7 +317,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A human might frantically try to reset a misaligned laser. This gives them a secret, powerful way to do it, turning a panic into a ritual.
 
-### [C-010] P2-H6 — Beta
+### [C-010] P2-X3 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-X3 Output Mapper
+
+**Suggestion:** If a VJ drags the corner pins of a mesh so violently that they cross the screen's literal boundaries into negative infinity, the mesh violently snaps back to the center and the UI displays heavily deep-fried text reading: `"DO NOT PERCEIVE THE MACROVERSE."`
+
+**Why:** Projection warps that turn inside-out inherently look horrifying and break framebuffers. We lean into the Lovecraftian horror aesthetics of impossible geometry.
+
+### [C-011] P2-H6 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-H6 Gamepad Input
 
