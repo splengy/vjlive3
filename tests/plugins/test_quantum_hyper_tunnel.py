@@ -17,7 +17,7 @@ def test_quantum_tunnel_manifest():
 def test_quantum_tunnel_fbo_cleanup():
     """Ensures no textures are left dangling after on_unload/cleanup."""
     plugin = DepthNeuralQuantumHyperTunnelPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock()
     
     plugin.initialize(context)
     assert plugin._fbo_a_active is True
@@ -30,7 +30,7 @@ def test_quantum_tunnel_fbo_cleanup():
 def test_quantum_tunnel_bypass():
     """Works cleanly when depth_in is not provided."""
     plugin = DepthNeuralQuantumHyperTunnelPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock()
     
     def get_texture_mock(name):
         if name == "video_in":
@@ -48,7 +48,7 @@ def test_quantum_tunnel_bypass():
 def test_quantum_tunnel_processing_ping_pong():
     """Validates the FBO ping pong logic works with valid textures and clamps parameters."""
     plugin = DepthNeuralQuantumHyperTunnelPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock()
     
     def get_texture_mock(name):
         if name == "video_in": return 100
@@ -84,7 +84,7 @@ def test_quantum_tunnel_processing_ping_pong():
 
 def test_quantum_tunnel_missing_video():
     plugin = DepthNeuralQuantumHyperTunnelPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock()
     context.get_texture.return_value = None
     
     plugin.initialize(context)
