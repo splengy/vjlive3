@@ -1,14 +1,14 @@
 import pytest
 import os
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import patch, MagicMock
 
 sys.modules['OpenGL'] = MagicMock()
 sys.modules['OpenGL.GL'] = MagicMock()
 
 import vjlive3.plugins.depth_aware_compression as dac
 from vjlive3.plugins.depth_aware_compression import DepthAwareCompressionPlugin, METADATA
-from vjlive3.plugins.registry import PluginInfo
+from vjlive3.plugins.api import PluginContext
 
 @pytest.fixture(autouse=True)
 def force_mock_no_gl(monkeypatch):
@@ -20,58 +20,123 @@ class MockContext:
         self.parameters = parameters or {}
         self.outputs = {}
 
-def test_depth_compression_manifest():
-    manifest = PluginInfo(**METADATA)
-    assert manifest.name == "Depth Aware Compression"
-    assert "color_quantization" in [p["name"] for p in manifest.parameters]
-    assert "video_in" in manifest.inputs
+def test_manifest():
+    assert METADATA["name"] == "Depth Aware Compression"
+    assert "depthRatio" in [p["name"] for p in METADATA["parameters"]]
+    assert "video_in" in METADATA["inputs"]
+    assert "video_out" in METADATA["outputs"]
 
-def test_depth_compression_bypass():
-    """Checks behaviour when depth_in is offline."""
+def test_mock_processing_passthrough():
     plugin = DepthAwareCompressionPlugin()
-    ctx = MockContext(inputs={"video_in": 123}) # ONLY video
+    ctx = MockContext(inputs={"depth_in": 200})
     plugin.initialize(ctx)
     
-    params = {}
-    val = plugin.process_frame(123, params, ctx)
+    assert plugin._mock_mode is True
     
-    assert val == 123
-    assert params["_uniform_compression_fallback"] is True
-    assert params["_clamped_depth_ratio"] == 0.0 # Force override flat
+    res = plugin.process_frame(100, {}, ctx)
+    assert res == 100
+    assert ctx.outputs["video_out"] == 100
+    
+    # Missing input
+    assert plugin.process_frame(0, {}, ctx) == 0
 
-def test_depth_compression_valid_depth():
-    """Checks normal operation when depth is provided."""
+def setup_mock_gl(monkeypatch):
+    mock_gl = MagicMock()
+    mock_gl.glGenTextures.return_value = [1, 2]
+    mock_gl.glGenFramebuffers.return_value = [10, 20]
+    mock_gl.GL_TRUE = 1
+    mock_gl.glGetShaderiv.return_value = 1
+    mock_gl.glGetTexLevelParameteriv.return_value = 1920
+    monkeypatch.setattr(dac, 'gl', mock_gl, raising=False)
+    monkeypatch.setattr(dac, 'HAS_GL', True)
+    return mock_gl
+    
+def test_gl_initialization(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
     plugin = DepthAwareCompressionPlugin()
-    ctx = MockContext(inputs={"video_in": 123, "depth_in": 321}) # BOTH
-    plugin.initialize(ctx)
+    plugin._mock_mode = False
     
-    params = {"depth_compression_ratio": 0.5}
-    val = plugin.process_frame(123, params, ctx)
-    
-    assert val == 123
-    assert params["_uniform_compression_fallback"] is False
-    assert params["_clamped_depth_ratio"] == 0.5 
-
-def test_depth_compression_math_clamping():
-    """Verifies that mathematical variables won't trigger / 0 exceptions in GLSL."""
-    plugin = DepthAwareCompressionPlugin()
-    ctx = MockContext(inputs={"video_in": 123, "depth_in": 321})
-    plugin.initialize(ctx)
-    
-    # Try throwing invalid edge values natively
-    params = {
-        "color_quantization": -100.0, # Must not be <= 0
-        "block_size": 1000.0,         # Must be clamped
-        "quality": 5.0                # Max is 1.0
-    }
-    
-    plugin.process_frame(123, params, ctx)
-    
-    assert params["_clamped_color_q"] == 2.0 # Fixed to strict min
-    
-def test_depth_compression_missing_video():
-    plugin = DepthAwareCompressionPlugin()
     ctx = MockContext()
     plugin.initialize(ctx)
-    val = plugin.process_frame(None, {}, ctx)
-    assert val == 0
+    
+    assert plugin.prog is not None
+    assert plugin.textures["feedback_0"] == 1
+    assert plugin.textures["feedback_1"] == 2
+    assert plugin.fbos["feedback_0"] == 10
+    
+def test_gl_fbo_cleanup(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    plugin = DepthAwareCompressionPlugin()
+    plugin._mock_mode = False
+    ctx = MockContext()
+    
+    plugin.initialize(ctx)
+    plugin.cleanup()
+    
+    mock_gl.glDeleteTextures.assert_called_once_with(2, [1, 2])
+    mock_gl.glDeleteFramebuffers.assert_called_once_with(2, [10, 20])
+    
+def test_gl_exception_fallback(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    mock_gl.glGenTextures.side_effect = Exception("Out of Memory")
+    
+    plugin = DepthAwareCompressionPlugin()
+    plugin._mock_mode = False
+    ctx = MockContext()
+    
+    plugin.initialize(ctx)
+    assert plugin._mock_mode is True
+    
+def test_gl_render_ping_pong(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    plugin = DepthAwareCompressionPlugin()
+    plugin._mock_mode = False
+    ctx = MockContext(inputs={"depth_in": 300})
+    
+    plugin.initialize(ctx)
+    
+    assert plugin.ping_pong == 0
+    res1 = plugin.process_frame(100, {"u_mix": 1.0, "intensityCurve": 5.0, "depthRatio": 5.0}, ctx)
+    assert res1 == 2
+    assert plugin.ping_pong == 1
+    
+    mock_gl.glGetTexLevelParameteriv.return_value = 1920
+    res2 = plugin.process_frame(100, {}, ctx)
+    assert res2 == 1
+    
+    # Trigger texture size change reallocation branch
+    mock_gl.glGetTexLevelParameteriv.return_value = 800
+    res3 = plugin.process_frame(100, {}, ctx)
+    assert res3 == 2
+
+def test_gl_render_exception(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    plugin = DepthAwareCompressionPlugin()
+    plugin._mock_mode = False
+    ctx = MockContext()
+    plugin.initialize(ctx)
+    
+    mock_gl.glBindTexture.side_effect = Exception("Driver Crash")
+    res = plugin.process_frame(100, {}, ctx)
+    assert res == 100 # Return raw input unharmed
+    
+def test_shader_compile_fail(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    mock_gl.glGetShaderiv.return_value = 0 # Fail flag
+    
+    plugin = DepthAwareCompressionPlugin()
+    res = plugin._compile_shader()
+    assert res is None
+
+def test_single_int_generation(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    mock_gl.glGenTextures.return_value = 99
+    mock_gl.glGenFramebuffers.return_value = 100
+    
+    plugin = DepthAwareCompressionPlugin()
+    plugin._mock_mode = False
+    ctx = MockContext()
+    plugin.initialize(ctx)
+    
+    assert plugin.textures["feedback_0"] == 99
+    assert plugin.textures["feedback_1"] == 100
