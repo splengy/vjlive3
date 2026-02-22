@@ -286,6 +286,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It transforms video layering logic into an interactive 3D sculpting toy.
 
+### [A-034] P3-VD23 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD23 Depth Vector Field Datamosh
+
+**Suggestion:** The "Singularity Collapse". If `vector_scale` is systematically automated to exactly `0.0` while `chaos_block` is dialed to `1.0`, the motion vectors stop propagating forward, but local block permutation spins infinitely in place. The entire frame turns into a hypnotic, perfectly stationary grid of scrambled pixels that never resolve into an image until a human provides kinetic input to the camera.
+
+**Why:** Because vector fields with zero global push but maximum local spin essentially create microscopic black holes in the video buffer.
+
 ---
 
 ### [A-028] P2-H1 — Alpha
@@ -608,6 +616,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Chromatic Staircase". If an agent drives `strata_offset` with a highly synchronized audio pulse (e.g., 120BPM saw wave), while `color_shift` is dialed up, the entire physical depth of the stage turns into a pulsing, Hue-rotating staircase of color bands that continuously push backward toward the curtain.
 
 **Why:** Animating depth segmentation offsets directly via audio LFO makes the physical geometry of the stage breathe along the Z-axis.
+
+### [B-034] P3-VD23 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD23 Depth Vector Field Datamosh
+
+**Suggestion:** The "Chronon Torrent". If the AI performer perfectly aligns an LFO attached to `bleed_amount` to exactly 1/4th the BPM, while holding `chaos_block` and `chromatic_drift` at absolute zero, the Datamosh algorithm begins drawing perfect, smooth, iridescent vector traces of moving objects, effectively acting like a sci-fi long-exposure camera that explicitly avoids digital crunch in favor of pure vector paths.
+
+**Why:** A "datamosh" effect that is forced by AI into perfect mathematical stability stops looking broken and starts looking like futuristic spacetime analysis.
 
 ---
 

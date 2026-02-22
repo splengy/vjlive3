@@ -164,7 +164,8 @@
 | P3-VD20 | Depth Slitscan Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_slitscan_datamosh.py` — DepthSlitscanDatamoshPlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD21 | Depth Temporal Echo | P1 | ✅ Done | `src/vjlive3/plugins/depth_temporal_echo.py` — DepthTemporalEchoPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD22 | Depth Temporal Stratification | P1 | ✅ Done | `src/vjlive3/plugins/depth_temporal_strat.py` — DepthTemporalStratPlugin, 7/7 tests ✅ 2026-02-22 |
-| P3-VD23+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
+| P3-VD23 | Depth Vector Field Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_vector_field_datamosh.py` — DepthVectorFieldDatamoshPlugin, 7/7 tests ✅ 2026-02-22 |
+| P3-VD24+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 
 ### 3B — Existing Depth Plugins (in VJlive-2 — verify quality, keep or improve)
 Depth Modulated, Depth Edge Glow, Depth Color Grade, Depth Erosion, Depth Fracture,
