@@ -62,6 +62,17 @@ class Message:
     timestamp: str = field(default_factory=lambda: datetime.now(tz=timezone.utc).isoformat())
 
 
+@dataclass
+class TaskEntry:
+    task_id: str
+    spec_path: str
+    status: str = "queued"  # "queued", "in_progress", "completed"
+    assigned_worker: Optional[str] = None
+    created_at: str = field(default_factory=lambda: datetime.now(tz=timezone.utc).isoformat())
+    started_at: Optional[str] = None
+    completed_at: Optional[str] = None
+
+
 # Channels supported by the Switchboard
 CHANNELS = {"general", "decisions", "dreamer", "blockers"}
 
@@ -83,8 +94,49 @@ class VJLiveSwitchboard:
     def __init__(self) -> None:
         self._active_locks: dict[str, LockEntry] = {}
         self._messages: dict[str, list[Message]] = {ch: [] for ch in CHANNELS}
+        self._tasks: dict[str, TaskEntry] = {}
         self._load_locks_from_markdown()
+        self._load_tasks_from_disk()
         _logger.info("VJLive Switchboard initialized. Agent communication hub is open.")
+
+    def _persist_tasks_to_disk(self) -> None:
+        queue_file = Path("WORKSPACE/COMMS/QUEUE.json")
+        try:
+            data = [
+                {
+                    "task_id": t.task_id,
+                    "spec_path": t.spec_path,
+                    "status": t.status,
+                    "assigned_worker": t.assigned_worker,
+                    "created_at": t.created_at,
+                    "started_at": t.started_at,
+                    "completed_at": t.completed_at
+                }
+                for t in self._tasks.values()
+            ]
+            queue_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+        except OSError as e:
+            _logger.warning("Could not persist tasks: %s", e)
+
+    def _load_tasks_from_disk(self) -> None:
+        queue_file = Path("WORKSPACE/COMMS/QUEUE.json")
+        if not queue_file.exists():
+            return
+        try:
+            data = json.loads(queue_file.read_text(encoding="utf-8"))
+            for item in data:
+                task = TaskEntry(
+                    task_id=item["task_id"],
+                    spec_path=item["spec_path"],
+                    status=item.get("status", "queued"),
+                    assigned_worker=item.get("assigned_worker"),
+                    created_at=item.get("created_at"),
+                    started_at=item.get("started_at"),
+                    completed_at=item.get("completed_at")
+                )
+                self._tasks[task.task_id] = task
+        except Exception as e:
+            _logger.warning("Could not load tasks: %s", e)
 
     # ─────────────────────────────────────────────────────────────────────────
     #  File Lock Management
@@ -303,6 +355,79 @@ class VJLiveSwitchboard:
         return list(reversed(msgs[-limit:]))
 
     # ─────────────────────────────────────────────────────────────────────────
+    #  Orchestrator Task Queue
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def queue_task(self, task_id: str, spec_path: str) -> bool:
+        """Manager uses this to push a new task to the global queue."""
+        self._load_tasks_from_disk()
+        if task_id in self._tasks and self._tasks[task_id].status != "completed":
+            _logger.warning("Task %s is already %s", task_id, self._tasks[task_id].status)
+            return False
+
+        task = TaskEntry(task_id=task_id, spec_path=spec_path)
+        self._tasks[task_id] = task
+        self._persist_tasks_to_disk()
+        _logger.info("Queued task: %s (Spec: %s)", task_id, spec_path)
+        
+        # Also post a message so it appears in the logs
+        self.post_message("Manager", f"Queued newly specificied task: {task_id}", channel="general")
+        return True
+
+    def request_work(self, worker_name: str) -> Optional[TaskEntry]:
+        """Worker uses this to pull the next available task from the queue."""
+        self._load_tasks_from_disk()
+        # Check if worker already has an active task assigned to them
+        for task in self._tasks.values():
+            if task.assigned_worker == worker_name and task.status == "in_progress":
+                _logger.info("%s requested work, but already has active task: %s", worker_name, task.task_id)
+                return task
+                
+        # Find oldest queued task
+        queued_tasks = [t for t in self._tasks.values() if t.status == "queued"]
+        if not queued_tasks:
+            return None
+            
+        # Sort by creation time (FIFO)
+        queued_tasks.sort(key=lambda x: x.created_at)
+        next_task = queued_tasks[0]
+        
+        # Assign to worker
+        next_task.status = "in_progress"
+        next_task.assigned_worker = worker_name
+        next_task.started_at = datetime.now(tz=timezone.utc).isoformat()
+        
+        self._persist_tasks_to_disk()
+        _logger.info("Assigned task %s to %s", next_task.task_id, worker_name)
+        return next_task
+
+    def complete_task(self, task_id: str) -> bool:
+        """Worker uses this to mark a task as finished."""
+        self._load_tasks_from_disk()
+        if task_id not in self._tasks:
+            _logger.warning("Cannot complete unknown task: %s", task_id)
+            return False
+            
+        task = self._tasks[task_id]
+        if task.status != "in_progress":
+            _logger.warning("Cannot complete task %s from status: %s", task_id, task.status)
+            return False
+            
+        task.status = "completed"
+        task.completed_at = datetime.now(tz=timezone.utc).isoformat()
+        self._persist_tasks_to_disk()
+        _logger.info("Task %s completed by %s", task_id, task.assigned_worker)
+        return True
+
+    def get_queued_tasks(self) -> list[TaskEntry]:
+        """Return all tasks currently sitting in the queue."""
+        return [t for t in self._tasks.values() if t.status == "queued"]
+
+    def get_active_tasks(self) -> list[TaskEntry]:
+        """Return all tasks currently being worked on."""
+        return [t for t in self._tasks.values() if t.status == "in_progress"]
+
+    # ─────────────────────────────────────────────────────────────────────────
     #  Smoke test
     # ─────────────────────────────────────────────────────────────────────────
 
@@ -325,13 +450,40 @@ class VJLiveSwitchboard:
         msgs = self.get_messages("general", limit=1)
         assert msgs and msgs[0].content == "Hello from smoke test"
 
-        # Clean up test message
+        # Test Task Queue Orchestrator
+        assert self.queue_task("SMOKE-1", "docs/specs/smoke.md"), "queue_task failed"
+        assert len(self.get_queued_tasks()) == 1, "task didn't enqueue"
+        
+        task = self.request_work("WorkerAlpha")
+        assert task is not None and task.task_id == "SMOKE-1", "Worker didn't get task"
+        assert task.assigned_worker == "WorkerAlpha", "Task wasn't assigned properly"
+        assert task.status == "in_progress"
+        
+        assert len(self.get_queued_tasks()) == 0, "task shouldn't be queued anymore"
+        assert len(self.get_active_tasks()) == 1, "task should be active"
+        
+        # Worker requests again -> should get same task they are working on
+        repeat_task = self.request_work("WorkerAlpha")
+        assert repeat_task is not None and repeat_task.task_id == "SMOKE-1"
+        
+        # Complete task
+        assert self.complete_task("SMOKE-1"), "complete_task failed"
+        assert len(self.get_active_tasks()) == 0, "task should not be active"
+        
+        # Check queue is empty for other worker
+        assert self.request_work("WorkerBeta") is None, "Queue should be empty"
+
+        # Clean up test message and test task
         self._messages["general"] = [
             m for m in self._messages["general"]
             if m.agent_id != "SmokeTest"
         ]
+        if "SMOKE-1" in self._tasks:
+            del self._tasks["SMOKE-1"]
+            
         _logger.info("Switchboard smoke test: PASS")
         return True
+
 
 
 def main() -> None:

@@ -109,7 +109,5 @@ customModes:
       1. Identify the top `⬜ Todo` task from `BOARD.md`.
       2. Research the codebase and draft a comprehensive specification for that task in the `docs/specs/` folder.
       3. Present the spec to me for approval. **Do not proceed until you receive my explicit "Approved".**
-      4. Once I approve, assign the spec to an Implementation Engineer by overwriting `WORKSPACE/INBOXES/inbox_alpha.md` with the task details.
-      5. Immediately dispatch the Implementation Engineer to execute it. Do this by running the following bash command in your terminal and waiting for it to return:
-         `antigravity chat "You are an Implementation Engineer. Orient yourself by reading WORKSPACE/ROLES/WORKER.md. Then, read your assignment in WORKSPACE/INBOXES/inbox_alpha.md and implement the specification exactly in the current codebase. Run pytest. Do not stop until the 60fps and pytest gates are passed."`
-      6. When the bash command finishes, verify their work against the spec and tests. If successful, mark the task `[x]` complete in `BOARD.md`.
+      4. Once I approve, use the `queue_task` MCP tool from the `vjlive_switchboard` server to push your new spec into the global orchestrator queue. Provide the task ID and the path to the spec you just wrote.
+      5. Inform the user that the task has been queued for a worker to pick up via the Switchboard.

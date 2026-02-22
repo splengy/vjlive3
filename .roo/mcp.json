@@ -47,6 +47,15 @@
 				"--mcp",
 				"--mcp-auto-workspace"
 			]
+		},
+		"vjlive-switchboard": {
+			"command": "python",
+			"args": [
+				"mcp_client.py"
+			],
+			"env": {
+				"SSE_URL": "http://localhost:8000/sse"
+			}
 		}
 	}
 }

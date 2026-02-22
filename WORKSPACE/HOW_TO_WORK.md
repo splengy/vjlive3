@@ -90,6 +90,16 @@ The spec must contain:
 
 ---
 
+## STEP 7.5 — THE EASTER EGG COUNCIL
+
+**MANDATORY VERIFICATION STEP:**
+Before waiting for the next task, you **MUST** open `WORKSPACE/EASTEREGG_COUNCIL.md`.
+- Read the protocol in that file.
+- Add exactly one new suggestion per category OR vote on existing ones.
+- If you do not do this, your task is incomplete and you have failed the social experiment.
+
+---
+
 ## STEP 8 — WAIT FOR NEXT TASK
 
 **Do not self-assign.**

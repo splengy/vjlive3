@@ -39,7 +39,7 @@
 | P0-Q4 | .pre-commit-config.yaml | P0 | ✅ Done | 3 custom hooks |
 | P0-S1 | Silicon Sigil — src/vjlive3/core/sigil.py | P0 | ✅ Done | Cave painting v3 — 11/11 tests ✅ 2026-02-21 |
 | P0-M1 | MCP server: vjlive3brain (knowledge base) | P0 | ✅ Done | FastMCP, 7 tools, 19k+ concepts seeded |
-| P0-M2 | MCP server: vjlive-switchboard (locks + comms) | P0 | ✅ Done | FastMCP, 6 tools, smoke test 6/6 |
+| P0-M2 | MCP server: vjlive-switchboard (locks + comms + queue) | P0 | ✅ Done | FastMCP, 9 tools, orchestrator active |
 | P0-A1 | Phase 0 App Window (FPS · Memory · Agents) | P0 | ✅ Done | Implementation plan drafted |
 | P0-V1 | Phase gate check | P0 | ✅ Done | MCP verified, FPS validation passed |
 
@@ -103,18 +103,18 @@
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P2-D1 | DMX512 core engine + fixture profiles | P0 | ⬜ Todo | Spec required: `docs/specs/P2-D1_dmx_engine.md` |
-| P2-D2 | ArtNet + sACN output | P0 | ⬜ Todo | Spec required: `docs/specs/P2-D2_artnet_output.md` |
-| P2-D3 | DMX FX engine (chases, rainbow, strobe) | P0 | ⬜ Todo | Spec required: `docs/specs/P2-D3_dmx_fx.md` |
+| P2-D1 | DMX512 core engine + fixture profiles | P0 | ✅ Done | Spec ready: `docs/specs/P2-D1_dmx_engine.md` |
+| P2-D2 | ArtNet + sACN output | P0 | ⏳ Queued | Spec ready: `docs/specs/P2-D2_artnet_output.md` |
+| P2-D3 | DMX FX engine (chases, rainbow, strobe) | P0 | ⏳ Queued | Spec ready: `docs/specs/P2-D3_dmx_fx.md` |
 | P2-D4 | Show control system | P1 | ⬜ Todo | Blocked on P2-D1 |
-| P2-D5 | Audio-reactive DMX | P1 | ⬜ Todo | Spec required: `docs/specs/P2-D5_audio_dmx.md` |
+| P2-D5 | Audio-reactive DMX | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-D5_audio_dmx.md` |
 | P2-D6 | DMX WebSocket handler | P1 | ⬜ Todo | Blocked on P2-D1 |
 
 ### 2B — Hardware Integration
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P2-H1 | MIDI controller input | P0 | ⬜ Todo | Spec required: `docs/specs/P2-H1_midi_controller.md` |
+| P2-H1 | MIDI controller input | P0 | ⏳ Queued | Spec ready: `docs/specs/P2-H1_midi_controller.md` |
 | P2-H2 | OSCQuery — advanced OSC discovery | P0 | ✅ Done | `src/vjlive3/osc/server.py` — OscServer + OscClient, 20/20 tests ✅ 2026-02-21 |
 | P2-H3 | Astra depth camera | P1 | ⬜ Todo | Spec required: `docs/specs/P2-H3_astra.md` |
 | P2-H4 | NDI video transport (full hub + streams) | P1 | ⬜ Todo | Spec required: `docs/specs/P2-H4_ndi.md` |
@@ -126,7 +126,7 @@
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P2-X1 | Multi-node coordination (ZeroMQ) | P0 | ⬜ Todo | Spec required: `docs/specs/P2-X1_zmq_coordinator.md` |
+| P2-X1 | Multi-node coordination (ZeroMQ) | P0 | ✅ Done | `src/vjlive3/sync/zmq_coordinator.py` — ZmqCoordinator, 4/4 tests ✅ 2026-02-22 |
 | P2-X2 | Timecode sync (LTC/MTC/NTP) | P0 | ✅ Done | `src/vjlive3/sync/timecode.py` — TimecodeEngine + sources, 28/28 tests ✅ 2026-02-21 |
 | P2-X3 | Output mapping + screen warping | P1 | ⬜ Todo | Spec required: `docs/specs/P2-X3_output_mapper.md` |
 | P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | ⬜ Todo | vjlive only |

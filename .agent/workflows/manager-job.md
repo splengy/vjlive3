@@ -12,21 +12,21 @@ This workflow defines the exact steps the Antigravity Manager Agent follows at t
 2. Read `BOARD.md` — current phase, task status, blockers
 3. Read `WORKSPACE/SAFETY_RAILS.md` — check which rails are active
 4. Read `WORKSPACE/COMMS/AGENT_SYNC.md` (top 3 entries) — last handoff note
-5. Verify that all INBOXES (`WORKSPACE/INBOXES/`) are clear of locked, unfinished tasks.
+5. Verify the state of the Switchboard orchestrator queue.
 6. Identify current priority: highest-priority Todo item in current phase on BOARD.md
 
 ## Task Execution Protocol
 
-1. Check the target Typography worker's Inbox (e.g., `inbox_alpha.md`) — is it empty and ready for a task?
-2. Check `WORKSPACE/KNOWLEDGE/` — does a concept entry exist? Consult `vjlive-brain` MCP
-3. Write spec document FIRST (in `docs/` or as inline docstring)
-4. Push Spec to the chosen Worker's INBOX.
-5. Implement to spec
-6. Write tests
+1. Check `WORKSPACE/KNOWLEDGE/` — does a concept entry exist? Consult `vjlive-brain` MCP.
+2. Write spec document FIRST (in `docs/` or as inline docstring).
+3. Present spec to the User for approval.
+4. Once approved, use the `queue_task` MCP tool from `vjlive_switchboard`. Give it the Task ID and the path to your spec.
+5. Inform the User: "Task queued to the Switchboard. The Antigravity workers will pick it up automatically."
+6. Update `BOARD.md` task status (to Assigned/In Progress).
 7. Run: `make quality` — all checks must pass
 8. Phase gate? Run: `make phase-gate` — includes FPS test
 9. Commit: `git commit -m "[Phase-X] feat: description"`
-10. Clear the completed task from the Worker's INBOX.
+10. Track the task as completed.
 11. Update `BOARD.md` task status
 
 ## Session End Protocol
@@ -41,7 +41,7 @@ This workflow defines the exact steps the Antigravity Manager Agent follows at t
    **Blockers:** [None or description]
    **Notes:** [Critical info for next agent]
    ```
-3. Ensure all Typist INBOXES are cleared of active tasks.
+3. Ensure the active task queue is tracked accurately.
 4. Push: `git push`
 
 ## Escalation Protocol

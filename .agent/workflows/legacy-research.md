@@ -29,7 +29,7 @@ There are **~40-50GB of working code** across these two repos. Your job is to po
 
 ### Step 1 — Identify the module to research
 
-Read your task assignment from your designated INBOX (e.g. `WORKSPACE/INBOXES/inbox_alpha.md`).
+Read your task assignment from your MCP queue pull (via `request_work`).
 Note the Task ID (e.g. `P1-A3`), the module name, and the existing spec file path.
 
 ### Step 2 — Search v1 for matching code
@@ -114,7 +114,7 @@ In `WORKSPACE/COMMS/AGENT_SYNC.md`:
 ## Rules
 
 - ❌ Do NOT write any code during this task — research only
-- ❌ Do NOT start the coding task until the Manager drops the execution task in your INBOX.
+- ❌ Do NOT start the coding task until the Manager queues the execution task via the MCP Switchboard.
 - ✅ DO quote actual code from the legacy files — copy class signatures verbatim
 - ✅ DO flag every case where legacy code is missing as `[NEW — no legacy equivalent]`
 - ✅ DO update the spec with real class/method names from the actual legacy code

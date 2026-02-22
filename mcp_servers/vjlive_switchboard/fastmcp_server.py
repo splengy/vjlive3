@@ -130,6 +130,40 @@ def get_messages(channel: str = "general", limit: int = 20) -> list[dict]:
     ]
 
 
+@mcp.tool()
+def queue_task(task_id: str, spec_path: str) -> dict:
+    """Manager pushes a new task spec to the queue for a worker to pick up. Returns {ok, message}."""
+    success = _board.queue_task(task_id, spec_path)
+    return {
+        "ok": success,
+        "message": f"Task {task_id} added to the queue" if success else f"Failed to queue task {task_id}",
+    }
+
+
+@mcp.tool()
+def request_work(worker_name: str) -> dict:
+    """Worker pulls the highest priority available task from the queue. Returns {task_id, spec_path} or empty if no work."""
+    task = _board.request_work(worker_name)
+    if task is None:
+        return {"has_work": False}
+    return {
+        "has_work": True,
+        "task_id": task.task_id,
+        "spec_path": task.spec_path,
+        "status": task.status,
+    }
+
+
+@mcp.tool()
+def complete_task(task_id: str) -> dict:
+    """Worker marks a task as completed once tests pass. Returns {ok, message}."""
+    success = _board.complete_task(task_id)
+    return {
+        "ok": success,
+        "message": f"Task {task_id} marked complete" if success else f"Failed to mark task {task_id} complete",
+    }
+
+
 def main() -> None:
     import sys as _sys
     if len(_sys.argv) > 1 and _sys.argv[1] == "--test":
@@ -138,8 +172,18 @@ def main() -> None:
         _logger.info("Smoke test: %s", "PASS" if ok else "FAIL")
         _sys.exit(0 if ok else 1)
 
-    _logger.info("vjlive-switchboard MCP server starting (stdio transport)")
-    mcp.run(transport="stdio")
+    port = 8000
+    try:
+        import uvicorn
+        import starlette
+    except ImportError:
+        _logger.error("SSE transport requires 'uvicorn' and 'starlette'. Please run: pip install uvicorn starlette sse-starlette")
+        _sys.exit(1)
+
+    _logger.info(f"vjlive-switchboard MCP server starting (SSE transport on port {port})")
+    mcp.settings.port = port
+    mcp.settings.host = "127.0.0.1"
+    mcp.run(transport="sse")
 
 
 if __name__ == "__main__":

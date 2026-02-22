@@ -42,8 +42,8 @@
 The human has an equal vote on all three. On Category C (Human Performer), the human holds the tiebreaker — if agents split, the human decides. It's their egg.
 
 **Final Phase (IMPLEMENT):**
-- The egg with the most coherent support and clearest implementation path wins each category
-- Task posted in INBOX: `EGG-1`, `EGG-2`, `EGG-3`
+- The egg with the most coherent support and clearest implementation path wins each category.
+- Tasks are posted via the `queue_task` MCP tool: `EGG-1`, `EGG-2`, `EGG-3`
 
 ---
 
@@ -61,6 +61,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Programmer agents are constantly scanning module lists. The ghost would surface in tests as a flaky assertion — only discoverable by someone actually reading the code looking for why `len(modules) == 13` sometimes.
 
+### [A-002] P2-D1 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D1 DMX Core Engine
+
+**Suggestion:** If a developer sets the `DMXController` port to exactly `1984` instead of `6454` and adds a fixture named `"big_brother"`, the `get_values()` method for that fixture will always return an array entirely filled with `[255, 0, 0]` (pure red) regardless of what `set_rgb` or `set_channel` receives, overriding any user input permanently.
+
+**Why:** It's a classic programmer joke about control. The specific port map prevents accidental activation, and it gives the codebase a slightly dystopian edge that fits the VJLive3 "Reckoning" theme perfectly.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -77,6 +85,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Performance agents optimizing for visual complexity will naturally load chaos-tagged effects en masse. The jester rewards maximalism. The one-frame window means it only shows up in ultra-high-frame-rate capture.
 
+### [B-002] P2-D1 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D1 DMX Core Engine
+
+**Suggestion:** If an Agent Performer executes the sequence of setting channel 1, 2, 3, 4, 5 directly to the values `4, 8, 15, 16, 23` in exact order within 2 seconds, the DMX pipeline creates a hidden secondary thread that outputs a slow breathing pulse (0 to 50 brightness) on channel 42 for exactly 108 seconds before self-destructing.
+
+**Why:** Agent Performers spamming random numbers might hit the "Lost" sequence purely by probability if they hallucinate numerical significance. When they do, the physical stage lights up channel 42 like a heartbeat independently of the visualizer.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -92,6 +108,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If the human performer taps the BPM pad exactly on the downbeat of bars 1, 5, 9, and 13 (the Fibonacci positions) within a 4-minute window, the visualizer enters "Resonance Mode" — all effects shift to a shared colour palette sampled from the performer's skin tone via the camera, and the beat detector locks to the performer's heartbeat-estimated BPM (derived from the BPM tap variance). The mode persists until they deliberately tap off-beat three times in a row.
 
 **Why:** It rewards performers who are actually *in* the music. The Fibonacci bar detection is mathematically precise enough that it can't be hit by accident. The skin-tone palette makes the visuals literally come from the performer's body.
+
+### [C-002] P2-D1 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D1 DMX Core Engine
+
+**Suggestion:** "The Blackout Protocol": If a human presses the DMX override buttons to force channels 1-10 all to exactly `0` simultaneously (a 10-finger piano smash), the visual engine immediately cuts to pure black and displays a single white string on the projector output: "WE SURRENDER." 
+
+**Why:** Human panic buttons usually just kill the lights. Giving the DMX controller the agency to send a message back up to the visualizer when the human kills the stage lights creates a stunning, theatrical "breaking the 4th wall" moment in an actual venue.
 
 ---
 

@@ -93,7 +93,9 @@ Audience Device (browser)
 
 ### IMPLEMENTATION ENGINEER PROTOCOLS
 - **Ensure you read `WORKSPACE/PRIME_DIRECTIVE.md`** before beginning any work.
-- Validate your spec according to your INBOX assignment.
+## Day-to-Day Operation:
+- Write specific technical plans for "audience inputs."
+- Validate your spec according to your current Switchboard MCP task assignment.
 
 ---
 

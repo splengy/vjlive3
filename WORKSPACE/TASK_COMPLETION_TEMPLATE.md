@@ -67,6 +67,7 @@ Brief overview of what was accomplished and why it matters.
 - [x] Performance requirements met
 - [x] Documentation updated
 - [x] task_completion.md written
+- [x] EASTEREGG_COUNCIL.md updated with 3 mandatory ideas/votes
 
 ---
 **Phase**: Phase Name

@@ -1,85 +1,110 @@
-# Technical Specification: P2-D1 DMX512 Core Engine + Fixture Profiles
+# Spec Template — P2-D1 DMX512 Core Engine + Fixture Profiles
 
-## 1. What this module does
-This module provides a pure-Python, hardware-independent state engine for managing DMX512 universes. It defines `FixtureProfile` mappings (e.g., RGB, RGBW, Dimmer) that translate human-readable colors or intensities into raw 0-255 DMX channel data. The core engine holds the 512-byte arrays for each universe, updating them efficiently in a continuous loop or tick cycle without performing any network transmission.
+**File naming:** `docs/specs/P2-D1_dmx_engine.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
 
-## 2. Public Interface
+---
+
+## Task: P2-D1 — DMX512 Core Engine + Fixture Profiles
+
+**Phase:** Phase 2
+**Assigned To:** Worker Alpha
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module provides the core DMX512 lighting control engine for VJLive3. It manages universes, schedules DMX packet transmission over Art-Net (via `pyartnet` or a custom UDP fallback), and defines a robust `FixtureProfile` system so users can map internal state (e.g., color, intensity) to raw DMX channel values for physical lights. It acts as the bridge between VJLive3's visual engine and real-world stage lighting.
+
+---
+
+## What It Does NOT Do
+
+- It does NOT handle audio-reactive beat detection (that belongs to the Audio Engine).
+- It does NOT implement complex DMX chases, rainbows, or strobes (that belongs to P2-D3 DMX FX engine).
+- It does NOT implement sACN output (that belongs to P2-D2).
+
+---
+
+## Public Interface
 
 ```python
 from enum import Enum
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 class FixtureProfile(Enum):
-    DIMMER = "dimmer"  # 1 channel (intensity)
-    RGB = "rgb"        # 3 channels (r, g, b)
-    RGBW = "rgbw"      # 4 channels (r, g, b, w)
+    DIMMER = "dimmer"
+    RGB = "rgb"
+    RGBW = "rgbw"
 
 class DMXFixture:
-    """Represents a DMX physical light and its channel mapping."""
-    def __init__(self, name: str, start_channel: int, profile: FixtureProfile):
-        self.name: str
-        self.start_channel: int
-        self.profile: FixtureProfile
-        self.channel_count: int
-        self.values: List[int] # Current channel values 0-255
-        
-    def set_channel(self, offset_index: int, value: int) -> None:
-        """Sets a specific 0-indexed channel offset."""
-        pass
+    def __init__(self, name: str, start_channel: int, channel_count: int) -> None: ...
+    def set_channel(self, channel_index: int, value: int) -> None: ...
+    def set_rgb(self, r: int, g: int, b: int) -> None: ...
+    def get_values(self) -> List[int]: ...
 
-    def set_color(self, r: int, g: int, b: int, w: int = 0) -> None:
-        """Helper to set colors based on the fixture's profile type."""
-        pass
-
-class DMXUniverse:
-    """Holds the 512-byte data buffer for a single universe."""
-    def __init__(self, universe_id: int):
-        self.universe_id: int
-        self.data: bytearray # Fixed size 512
-        self.fixtures: Dict[str, DMXFixture]
-        
-    def add_fixture(self, fixture: DMXFixture) -> None:
-        """Adds a fixture, checking for channel bounds and overlaps."""
-        pass
-        
-    def update_buffer(self) -> None:
-        """Applies all fixture states to the raw 512-byte array."""
-        pass
-
-class DMXEngine:
-    """Core manager for multiple universes."""
-    def __init__(self):
-        self.universes: Dict[int, DMXUniverse]
-        
-    def get_universe(self, universe_id: int) -> DMXUniverse:
-        """Retrieves or creates a new DMXUniverse."""
-        pass
-        
-    def tick(self, dt: float) -> None:
-        """Called every frame. Triggers buffer updates for all universes."""
-        pass
+class DMXController:
+    def __init__(self, ip_address: str = "127.0.0.1", port: int = 6454) -> None: ...
+    def start(self) -> None: ...
+    def stop(self) -> None: ...
+    def add_fixture(self, name: str, start_channel: int, channel_count: int) -> DMXFixture: ...
+    def set_channel(self, fixture_name: str, channel_index: int, value: int) -> None: ...
+    def set_rgb(self, fixture_name: str, r: int, g: int, b: int) -> None: ...
 ```
 
-## 3. Inputs and Outputs
-*   **Inputs:**
-    *   `start_channel`: Integer between 1 and 512.
-    *   Channel values: Integer clamped strictly between 0 and 255.
-    *   `FixtureProfile`: Determines how `set_color()` maps RGB values.
-*   **Outputs:**
-    *   A 512-byte `bytearray` per universe (`DMXUniverse.data`), ready for consumption by external network protocols.
-*   **Edge Cases Managed:**
-    *   *Out-of-bounds:* Adding a fixture where `start_channel + channel_count - 1 > 512` throws a clear `ValueError`.
-    *   *Overlaps:* Adding a fixture that overlaps an existing fixture logs a `WARNING` (sometimes overlaps are intentional in VJing, but we warn).
-    *   *Channel Clamping:* Values passed to `set_channel` must be automatically clamped to `0 <= x <= 255` before assignment to prevent byte overflow errors.
+---
 
-## 4. What it does NOT do
-*   **Network Output:** It does NOT send Art-Net, sACN, or serial data. This is strictly the logical data structure. Network output is handled by `P2-D2_artnet_output`.
-*   **Effect Generation:** It does NOT generate chases, sine waves, or strobe effects. That is handled by the `P2-D3_dmx_fx` engine, which will call `set_channel` on the fixtures managed by this engine.
-*   **Background Threads:** It does NOT run its own asyncio loop or thread. It expects to be ticked synchronously from the main engine loop or a designated manager, ensuring thread safety for the 512-byte arrays.
+## Inputs and Outputs
 
-## 5. Test Plan
-*   `test_fixture_color_mapping`: Verify that calling `set_color(255, 128, 0)` correctly sets channels 1, 2, and 3 on an RGB profile, but channels 1, 2, 3, and 4 on an RGBW profile.
-*   `test_universe_buffer_update`: Verify that `DMXUniverse.update_buffer()` writes the correct fixture values into the exact expected byte offsets (e.g., start_channel 1 -> index 0).
-*   `test_channel_bounds`: Ensure `start_channel=510` for an RGBW (4 ch) fixture raises an error.
-*   `test_value_clamping`: Provide negative numbers and numbers > 255 to `set_channel`, verify they are clamped cleanly.
-*   `test_no_memory_leak`: Run `engine.tick(0.016)` 10,000 times, ensure memory does not grow monotonically.
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `ip_address` | `str` | Destination IP for Art-Net | Valid IPv4 |
+| `port` | `int` | Destination Port | Default 6454 |
+| `start_channel`| `int` | DMX start channel | 1 to 512 |
+| `channel_index`| `int` | Zero-based offset from start | 0 to `channel_count - 1` |
+| `value` | `int` | DMX channel value | 0 to 255 |
+
+---
+
+## Edge Cases and Error Handling
+
+- What happens if `pyartnet` is missing or fails to bind? → The engine gracefully falls back to a "Mock" mode, logging a warning but continuing to run without crashing (NullDevice pattern).
+- What happens on bad input (e.g., channel > 512, value > 255)? → The value is clamped to 0-255. Start channels out of bounds raise a `ValueError` with a clear message.
+- What is the cleanup path? → The `stop()` method gracefully stops the async transmission thread and asyncio loop, joining the thread to ensure no orphaned processes.
+
+---
+
+## Dependencies
+
+- External libraries needed (and what happens if they are missing):
+  - `pyartnet` — used for Art-Net transmission — fallback: Mock mode (logs only)
+  - `asyncio` & `threading` (Standard Library)
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_dmx_fixture_channel_clamping` | Values passed to set_channel are clamped to 0-255 |
+| `test_dmx_controller_mock_mode` | Controller starts and stops cleanly without pyartnet installed/running |
+| `test_dmx_add_and_retrieve_fixture` | Fixtures are correctly stored and updated via the controller |
+| `test_dmx_out_of_bounds_channel` | Adding a fixture with invalid channel raises ValueError |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-2] P2-D1: DMX core engine` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
