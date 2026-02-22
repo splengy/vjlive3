@@ -271,6 +271,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Using spatial tracking algorithms (depth boundaries) alongside difference masking and absolute immobility tricks the shader into computing history against a stationary present, zeroing out everything but semantic edges.
 
+### [A-033] P3-VD22 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD22 Depth Temporal Stratification
+
+**Suggestion:** The "Digital Fossil". By setting `freeze_amount` to absolute maximum `1.0` while `seam_datamosh` is set to `0.0`, far elements lock entirely to their first frame of existence. A performer entering the frame creates a 'hole' in the temporal history buffer, and backing out leaves an eternal freeze-frame of their silhouette pressed into the deep background.
+
+**Why:** It transforms video layering logic into an interactive 3D sculpting toy.
+
 ---
 
 ### [A-028] P2-H1 — Alpha
@@ -586,6 +594,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Because collapsing the timing windows of an echo buffer feels intensely physical if tied to audio cues.
 
+### [B-033] P3-VD22 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD22 Depth Temporal Stratification
+
+**Suggestion:** The "Chromatic Staircase". If an agent drives `strata_offset` with a highly synchronized audio pulse (e.g., 120BPM saw wave), while `color_shift` is dialed up, the entire physical depth of the stage turns into a pulsing, Hue-rotating staircase of color bands that continuously push backward toward the curtain.
+
+**Why:** Animating depth segmentation offsets directly via audio LFO makes the physical geometry of the stage breathe along the Z-axis.
+
 ---
 
 ### [B-028] P2-H1 — Alpha
@@ -892,6 +908,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Phantom Mirror". The camera naturally creates a noise field where depth drops beyond threshold walls. If `edge_bleed` is forced to `1.0` (maximum soft overlap) and `layer_count` is dropped down to `1.0`, the system stops showing history and instead overlays a blurry phantom echo on the wall behind the performer, creating a synthetic shadow out of video frame caches.
 
 **Why:** Intentionally breaking depth slice separation logic creates a beautifully soft synthetic lighting rig behavior out of a pure temporal effect.
+
+### [C-033] P3-VD22 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD22 Depth Temporal Stratification
+
+**Suggestion:** The "Glitch Shadow". By mapping `temporal_depth` down to minimum (`0.0`), all history delay vanishes and the scene plays perfectly live. However, leaving `seam_datamosh` and `block_displace` at maximum ensures the system continuously generates violent digital compression artifacts purely at the structural boundaries separating physical Z-layers. The performer walks around surrounded entirely by a halo of MP4 artifacting.
+
+**Why:** Isolating datamosh motion-vector ripping entirely to 3D edge boundaries creates immense kinetic tension without obscuring the live face of the performer.
 
 ---
 

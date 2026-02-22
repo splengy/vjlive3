@@ -10,7 +10,8 @@
 			"alwaysAllow": [
 				"read_multiple_files",
 				"read_text_file",
-				"list_directory"
+				"list_directory",
+				"create_directory"
 			]
 		},
 		"context7": {
