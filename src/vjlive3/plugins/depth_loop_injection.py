@@ -3,7 +3,7 @@ import logging
 from typing import Dict, Any, Optional
 
 from vjlive3.plugins.api import EffectPlugin, PluginContext
-from vjlive3.plugins.registry import Manifest
+from vjlive3.plugins.registry import PluginInfo
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +22,10 @@ METADATA = {
     "name": "Depth Loop Injection",
     "description": "Routeable datamosh with explicit send/return loops.",
     "version": "1.0.0",
+    "author": "Antigravity",
+    "category": "Visual Depth",
+    "tags": ["datamosh", "loop"],
+    "status": "active",
     "parameters": [
         {"name": "pre_loop_mix", "type": "float", "min": 0.0, "max": 1.0, "default": 0.0},
         {"name": "depth_loop_mix", "type": "float", "min": 0.0, "max": 1.0, "default": 0.0},
@@ -105,8 +109,7 @@ class DepthLoopInjectionPlugin(EffectPlugin):
             
         if self._mock_mode:
             # Under headless pytest coverage we ensure 4 sends flow and returns are cleanly bypassed
-            self._mock_passthrough(context, base_video, pre_mix, depth_mix, mosh_mix, post_mix)
-            return base_video
+            return self._mock_passthrough(context, base_video, pre_mix, depth_mix, mosh_mix, post_mix)
             
         # REAL GL IMPLEMENTATION
         # 1. PRE-LOOP processing: Mix base video into pre_return (if requested and returned)
@@ -124,8 +127,27 @@ class DepthLoopInjectionPlugin(EffectPlugin):
         
         return final_tex
 
-        # context.outputs doesn't exist in PluginContext, just log or set dummy param for tests
-        pass
+    def _mock_passthrough(self, context, current_tex, pre_mx, depth_mx, mosh_mx, post_mx):
+        """Mock hardware passthrough for PyTest suite validation avoiding segfaults."""
+        # Provide dummy tracking IDs to outputs
+        context.outputs["pre_send"] = current_tex
+        mock_pre = context.inputs.get("pre_return")
+        current_tex = mock_pre if mock_pre and pre_mx > 0.0 else current_tex
+        
+        context.outputs["depth_send"] = current_tex
+        mock_depth = context.inputs.get("depth_return")
+        current_tex = mock_depth if mock_depth and depth_mx > 0.0 else current_tex
+        
+        context.outputs["mosh_send"] = current_tex
+        mock_mosh = context.inputs.get("mosh_return")
+        current_tex = mock_mosh if mock_mosh and mosh_mx > 0.0 else current_tex
+        
+        context.outputs["post_send"] = current_tex
+        mock_post = context.inputs.get("post_return")
+        current_tex = mock_post if mock_post and post_mx > 0.0 else current_tex
+        
+        context.outputs["video_out"] = current_tex
+        return current_tex
 
     def _resolve_loop_stage(self, context, stage_name: str, input_tex: int, mix: float, send_fbo_tex: int) -> int:
         """Determines the correct shader texture passthrough for a single loop send/return stage."""

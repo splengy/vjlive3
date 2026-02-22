@@ -165,6 +165,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A "quantum hyper tunnel" frozen in time but maxed out on jitter is effectively just flying through static stars.
 
+### [A-016] P3-VD07 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD07 Depth Reality Distortion
+
+**Suggestion:** If `chromatic_aberration` is set to exactly `0.666`, the plugin bypasses the distortion algorithm and renders the video feed entirely in pure `[255, 0, 0]` red, logging "THE DEVIL IS IN THE DISTORTION".
+
+**Why:** It's a classic occult/demonic numerical easter egg mapped to "distortion".
+
 ### [A-015] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
@@ -293,6 +301,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** AI models love obvious patterns, so completing a simple `0.1` ladder should just unlock the simplest, most human trope color palette: rainbow.
 
+### [B-016] P3-VD07 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD07 Depth Reality Distortion
+
+**Suggestion:** If the Agent Performer manages to manipulate the `warp_frequency` so that it hits exactly `4.32` (A=432Hz reference), the output subtly watermarks a flower of life mandala into the UV distortion map.
+
+**Why:** A esoteric nod to agents randomly hitting "sacred geometry" or "sacred frequencies" while exploring the parameter space.
+
 ### [B-015] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
@@ -420,6 +436,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If the human drags `feedback_decay` past `1.0` to `1.1` (using a hacked UI override), the console prints "WARNING: Reality structural integrity compromised." and the entire application window physically shakes left and right by 10 pixels.
 
 **Why:** Audio feedback loops historically destroy speakers. Visual feedback loops destroy retinas. Shaking the actual OS window framing the app is a great meta-joke for "> 1.0" feedback.
+
+### [C-016] P3-VD07 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD07 Depth Reality Distortion
+
+**Suggestion:** If the user drags the `distortion_amount` slider up to exactly `0.999` then back to `0.0` repeatedly 3 times in 5 seconds, the plugin renders a 1-second VHS tape "PLAY" overlay tracking text.
+
+**Why:** Reverts the notion of "quantum" distortion back to analog tape distortion.
 
 ### [C-015] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
