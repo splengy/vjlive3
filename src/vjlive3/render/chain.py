@@ -35,14 +35,13 @@ class EffectChain:
         "description": "Multi-pass ping-pong rendering pipeline via ModernGL"
     }
 
-    def __init__(self, width: int = 1920, height: int = 1080) -> None:
+    def __init__(self, ctx: moderngl.Context, dimensions: Tuple[int, int]):
+        """Initialize the processing chain."""
+        self.ctx = ctx
+        width, height = dimensions
         self.width = width
         self.height = height
         
-        ctx = moderngl.get_context()
-        if not ctx:
-            raise RuntimeError("ModernGL context missing. Initialize OpenGLContext first.")
-
         # Thread safety lock for effect list modification
         self._lock = threading.RLock()
         self.effects: List[Effect] = []

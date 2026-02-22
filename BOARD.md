@@ -303,6 +303,15 @@ Unicorn Farts, Void Swirl, Volumetric — **plus all others found in both codeba
 | P6-Q3 | Quantum Tunnel | ⬜ Todo | vjlive |
 | P6-Q4 | Living Fractal Consciousness [DREAMER] | ⬜ Todo | VJlive-2 |
 
+| - P6-QC06 | agent_avatar (TravelingAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-QC07 | agent_avatar (AgentAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-QC08 | ml_gpu_effects (MLBaseAsyncEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-QC09 | ml_gpu_effects (MLStyleGLEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-QC10 | ml_gpu_effects (MLSegmentationBlurGLEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-QC11 | neural_rave_nexus (NeuralRaveNexus) | P0 | ◯ Todo | VJlive-2 |
+| - P6-QC12 | quantum_consciousness_explorer (QuantumConsciousnessExplorer) | P0 | ◯ Todo | VJlive-2 |
+| - P6-QC13 | trails (TrailsEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-QC14 | tunnel_vision_3 (QuantumConsciousnessSingularityEffect) | P0 | ◯ Todo | VJlive-2 |
 ### 6C — Agent System
 
 | Task ID | Description | Status | Source |
@@ -321,6 +330,20 @@ Unicorn Farts, Void Swirl, Volumetric — **plus all others found in both codeba
 | P6-G3 | Vox Sequencers (3D sequencing) | ⬜ Todo |
 | P6-G4 | Spectraphon | ⬜ Todo |
 
+| - P6-GE06 | fractal_generator (FractalGenerator) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE07 | generators (OscEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE08 | generators (NoiseEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE09 | generators (VoronoiEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE10 | generators (GradientEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE11 | generators (MandalaEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE12 | generators (PlasmaEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE13 | generators (PerlinEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE14 | silver_visions (PathGeneratorEffect) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE15 | vcv_video_generators (HarmonicPatternsGen) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE16 | vcv_video_generators (FMCoordinatesGen) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE17 | vcv_video_generators (MacroShapeGen) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE18 | vcv_video_generators (GranularVideoGen) | P0 | ◯ Todo | VJlive-2 |
+| - P6-GE19 | vcv_video_generators (ResonantGeometryGen) | P0 | ◯ Todo | VJlive-2 |
 **Phase 6 Gate:** Live coding engine hot-reloads a GLSL shader at runtime. Agent responds to audio.
 
 ---
