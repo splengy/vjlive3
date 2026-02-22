@@ -168,6 +168,18 @@
 
 | Task ID | Description | Priority | Status |
 |---------|-------------|----------|--------|
+| P3-VD7 | Depth Data Mux | P1 | ✅ Done | `src/vjlive3/plugins/depth_data_mux.py` — DepthDataMuxEffect, 6/6 tests ✅ 2026-02-22 |
+| P3-VD-Beta1 | Depth Loop Injection | P0 | ✅ Done | `src/vjlive3/plugins/depth_loop_injection.py` — DepthLoopInjectionPlugin, 9/9 tests ✅ 2026-02-22 |
+| P3-VD-Beta2 | Depth Parallel Universe | P0 | ✅ Done | `src/vjlive3/plugins/depth_parallel_universe.py` — DepthParallelUniversePlugin, 9/9 tests ✅ 2026-02-22 |
+| P3-VD-Beta3 | Depth Portal Composite | P0 | ✅ Done | `src/vjlive3/plugins/depth_portal_composite.py` — DepthPortalCompositePlugin, 9/9 tests ✅ 2026-02-22 |
+| P3-VD-Beta4 | Depth Neural Quantum Hyper Tunnel | P0 | ✅ Done | `src/vjlive3/plugins/quantum_hyper_tunnel.py` — DepthNeuralQuantumHyperTunnelPlugin, 6/6 tests ✅ 2026-02-22 |
+| P3-VD-Beta5 | Depth Reality Distortion | P0 | ✅ Done | `src/vjlive3/plugins/reality_distortion.py` — RealityDistortionPlugin, 5/5 tests ✅ 2026-02-22 |
+| P3-VD33 | Depth Distance Filter | P0 | ✅ Done | `src/vjlive3/plugins/depth_distance_filter.py` — DepthDistanceFilterPlugin, 9/9 tests ✅ 2026-02-22 |
+| P3-VD34 | Depth Dual | P0 | ✅ Done | `src/vjlive3/plugins/depth_dual.py` — DepthDualPlugin, 9/9 tests ✅ 2026-02-22 |
+| P3-VD35 | Depth Edge Glow | P0 | ✅ Done | `src/vjlive3/plugins/depth_edge_glow.py` — DepthEdgeGlowPlugin, 8/8 tests ✅ 2026-02-22 |
+| P3-VD36 | Depth Effects | P0 | ✅ Done | `src/vjlive3/plugins/depth_effect.py` — DepthEffectPlugin, 8/8 tests ✅ 2026-02-22 |
+
+---------|-------------|----------|--------|
 | P3-VD26 | Depth Acid Fractal (DepthAcidFractalDatamoshEffect) | P0 | ◯ Todo |
 | P3-VD27 | Depth Aware Compression (DepthAwareCompressionEffect) | P0 | ◯ Todo |
 | P3-VD28 | Depth Blur (DepthBlurEffect) | P0 | ◯ Todo |
@@ -181,10 +193,10 @@
 | P3-VD-Beta4 | Depth Neural Quantum Hyper Tunnel | P0 | ✅ Done | `src/vjlive3/plugins/quantum_hyper_tunnel.py` — DepthNeuralQuantumHyperTunnelPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD-Beta5 | Depth Reality Distortion | P0 | ✅ Done | `src/vjlive3/plugins/reality_distortion.py` — RealityDistortionPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD33 | Depth Distance Filter | P0 | ✅ Done | `src/vjlive3/plugins/depth_distance_filter.py` — DepthDistanceFilterPlugin, 9/9 tests ✅ 2026-02-22 |
-| P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ◯ Todo |
-| P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ◯ Todo |
-| P3-VD36 | Depth Effects (DepthEffect) | P0 | ◯ Todo |
-| P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | ◯ Todo |
+| P3-VD34 | Depth Dual | P0 | ✅ Done | `src/vjlive3/plugins/depth_dual.py` — DepthDualPlugin, 9/9 tests ✅ 2026-02-22 |
+| P3-VD35 | Depth Edge Glow | P0 | ✅ Done | `src/vjlive3/plugins/depth_edge_glow.py` — DepthEdgeGlowPlugin, 8/8 tests ✅ 2026-02-22 |
+| P3-VD36 | Depth Effects | P0 | ✅ Done | `src/vjlive3/plugins/depth_effect.py` — DepthEffectPlugin, 8/8 tests ✅ 2026-02-22 |
+| P3-VD37 | Depth Effects (PointCloud) | P0 | ✅ Done | `src/vjlive3/plugins/depth_point_cloud.py` — DepthPointCloudPlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | ◯ Todo |
 | P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | ◯ Todo |
 | P3-VD40 | Depth Effects (DepthContourEffect) | P0 | ◯ Todo |
@@ -289,60 +301,26 @@ Audio Reactive 3D, Audio Waveform Distortion, Audio Kaleidoscope, Audio Particle
 
 ### 5A — Modulators (MISSING from VJlive-2)
 
-| Task ID | Plugin | Status |
-|---------|--------|--------|
+| Task ID | Description | Priority | Status | Source |
+|---------|-------------|----------|--------|--------|
+
 
 ### 5B — V-* Visual Effects (MISSING from VJlive-2)
 
-| Task ID | Plugin | Status |
-|---------|--------|--------|
+| Task ID | Description | Priority | Status | Source |
+|---------|-------------|----------|--------|--------|
+
 
 ### 5C — Modulators (already in VJlive-2 — keep)
 V-Maths, V-Frames, V-Grids, V-Harmonaig, V-LXD, V-Marbles, V-Roots, V-Stages Segment, V-Tides
 
 ### 5D — Datamosh Family (verify both sources, keep VJlive-2's cleaner impl)
-### 5D — Datamosh Family (verify both sources, keep VJlive-2's cleaner impl)
 
-| Task ID | Plugin | Status | Source |
-|---------|--------|--------|--------|
+| Task ID | Description | Priority | Status | Source |
+|---------|-------------|----------|--------|--------|
 
-| P5-DM02 | bad_trip_datamosh (BadTripDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM03 | bass_cannon_datamosh (BassCannonDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM04 | bass_therapy_datamosh (BassTherapyDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM05 | blend (GlitchEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM06 | bullet_time_datamosh (BulletTimeDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM07 | cellular_automata_datamosh (CellularAutomataDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM08 | cotton_candy_datamosh (CottonCandyDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM09 | cupcake_cascade_datamosh (CupcakeCascadeDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM10 | datamosh (CompressionEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM11 | datamosh (DatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM12 | datamosh (PixelBloomEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM13 | datamosh (MeltEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM14 | datamosh (PixelSortEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM15 | datamosh (FrameHoldEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM16 | datamosh_3d (Datamosh3DEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM17 | datamosh_3d (LayerSeparationEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM18 | datamosh_3d (ShatterEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM19 | dimension_splice_datamosh (DimensionSpliceDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM20 | dolly_zoom_datamosh (DollyZoomDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM21 | face_melt_datamosh (FaceMeltDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM22 | fracture_rave_datamosh (FractureRaveDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM23 | liquid_lsd_datamosh (LiquidLSDDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM24 | mosh_pit_datamosh (MoshPitDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM25 | neural_splice_datamosh (NeuralSpliceDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM26 | particle_datamosh_trails (ParticleDatamoshTrailsEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM27 | plasma_melt_datamosh (PlasmaMeltDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM28 | prism_realm_datamosh (PrismRealmDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM29 | sacred_geometry_datamosh (SacredGeometryDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM30 | spirit_aura_datamosh (SpiritAuraDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM31 | temporal_rift_datamosh (TemporalRiftDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM32 | tunnel_vision_datamosh (TunnelVisionDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM33 | unicorn_farts_datamosh (UnicornFartsDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM34 | void_swirl_datamosh (VoidSwirlDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM35 | volumetric_datamosh (VolumetricDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P5-DM36 | volumetric_glitch (VolumetricGlitchEffect) | P0 | ◯ Todo | VJlive-2 |
 
-**Phase 5 Gate:** Full V-* collection loaded. All modulators functional. Every plugin individually reviewed — no batch shortcuts.
+
 
 ### 6A — AI / Neural Systems (VJlive-2 leads)
 
@@ -351,27 +329,10 @@ V-Maths, V-Frames, V-Grids, V-Harmonaig, V-LXD, V-Marbles, V-Roots, V-Stages Seg
 
 ### 6B — Quantum Consciousness (VJlive-2 leads)
 
-| Task ID | Description | Status | Source |
-|---------|-------------|--------|--------|
+| Task ID | Description | Priority | Status | Source |
+|---------|-------------|----------|--------|--------|
 
-| P6-QC06 | agent_avatar (TravelingAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC07 | agent_avatar (AgentAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC08 | ml_gpu_effects (MLBaseAsyncEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC09 | ml_gpu_effects (MLStyleGLEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC10 | ml_gpu_effects (MLSegmentationBlurGLEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC11 | neural_rave_nexus (NeuralRaveNexus) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC12 | quantum_consciousness_explorer (QuantumConsciousnessExplorer) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC13 | trails (TrailsEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC14 | tunnel_vision_3 (QuantumConsciousnessSingularityEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC06 | agent_avatar (TravelingAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC07 | agent_avatar (AgentAvatarEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC08 | ml_gpu_effects (MLBaseAsyncEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC09 | ml_gpu_effects (MLStyleGLEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC10 | ml_gpu_effects (MLSegmentationBlurGLEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC11 | neural_rave_nexus (NeuralRaveNexus) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC12 | quantum_consciousness_explorer (QuantumConsciousnessExplorer) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC13 | trails (TrailsEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-QC14 | tunnel_vision_3 (QuantumConsciousnessSingularityEffect) | P0 | ◯ Todo | VJlive-2 |
+
 ### 6C — Agent System
 
 | Task ID | Description | Status | Source |
@@ -383,51 +344,9 @@ V-Maths, V-Frames, V-Grids, V-Harmonaig, V-LXD, V-Marbles, V-Roots, V-Stages Seg
 
 ### 6D — Generators (VJlive-2 unique — keep)
 
-### 6E — Particle/3D Systems (VJlive-2 unique — keep)
-
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P6-P302 | particles_3d (AdvancedParticle3DSystem) | P0 | ◯ Todo | VJlive-2 |
-| P6-P303 | particles_3d (Particle3DSystem) | P0 | ◯ Todo | VJlive-2 |
-| P6-P304 | shadertoy_particles (ShadertoyParticles) | P0 | ◯ Todo | VJlive-2 |
-| P6-P305 | vibrant_retro_styles (RadiantMeshEffect) | P0 | ◯ Todo | VJlive-2 |
 
-| Task ID | Description | Status |
-|---------|-------------|--------|
-
-| P6-GE06 | fractal_generator (FractalGenerator) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE07 | generators (OscEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE08 | generators (NoiseEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE09 | generators (VoronoiEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE10 | generators (GradientEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE11 | generators (MandalaEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE12 | generators (PlasmaEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE13 | generators (PerlinEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE14 | silver_visions (PathGeneratorEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE15 | vcv_video_generators (HarmonicPatternsGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE16 | vcv_video_generators (FMCoordinatesGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE17 | vcv_video_generators (MacroShapeGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE18 | vcv_video_generators (GranularVideoGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE19 | vcv_video_generators (ResonantGeometryGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE06 | fractal_generator (FractalGenerator) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE07 | generators (OscEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE08 | generators (NoiseEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE09 | generators (VoronoiEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE10 | generators (GradientEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE11 | generators (MandalaEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE12 | generators (PlasmaEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE13 | generators (PerlinEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE14 | silver_visions (PathGeneratorEffect) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE15 | vcv_video_generators (HarmonicPatternsGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE16 | vcv_video_generators (FMCoordinatesGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE17 | vcv_video_generators (MacroShapeGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE18 | vcv_video_generators (GranularVideoGen) | P0 | ◯ Todo | VJlive-2 |
-| P6-GE19 | vcv_video_generators (ResonantGeometryGen) | P0 | ◯ Todo | VJlive-2 |
-**Phase 6 Gate:** Live coding engine hot-reloads a GLSL shader at runtime. Agent responds to audio.
-
----
-
-## Phase 7: UI & Business Layer (Weeks 15-18)
 
 ### 7A — User Interface
 
