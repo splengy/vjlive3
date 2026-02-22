@@ -142,7 +142,7 @@
 
 | Task ID | Plugin | Priority | Status |
 |---------|--------|----------|--------|
-| P3-VD01 | Depth Loop Injection | P0 | ⏳ Queued |
+| P3-VD01 | Depth Loop Injection | P0 | ✅ Done | `src/vjlive3/plugins/depth_loop_injection.py` — DepthLoopInjectionPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD02 | Depth Parallel Universe | P0 | ⏳ Queued |
 | P3-VD03 | Depth Portal Composite | P0 | ⏳ Queued |
 | P3-VD04 | Depth Reverb | P0 | ⏳ Queued |

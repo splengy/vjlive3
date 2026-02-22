@@ -141,6 +141,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Classic 1337 gaming reference hidden in a mundane configuration variable.
 
+### [A-017] P3-VD01 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD01 Depth Loop Injection
+
+**Suggestion:** The "Mariana Trench" overload. If a programmer edits the config file directly to set `depth_loop_mix` to greater than `10.0` (it is clamped to 1.0 in the UI), the internal shader loops infinitely rendering an endless fractal descent into pure black until `glDeleteFramebuffers` physically purges it on shutdown.
+
+**Why:** "Depth loop" invites "how deep does it go?" giving parameter hackers a visual answer outside of safe UI bounds.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -277,6 +285,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A funny way to reward the AI for trying to find hardware that isn't physically there, giving it a virtual toy to play with.
 
+### [B-017] P3-VD01 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD01 Depth Loop Injection
+
+**Suggestion:** The "Ping Pong Ball" hidden behaviour. If an AI performer rapidly toggles `datamosh_intensity` to extreme polar opposites >5 times per second (a common AI logic failure in parameter oscillation), the OpenGL ping-pong FBO intercepts the shader and simply renders a single white bouncing dot on a black screen playing Pong against itself.
+
+**Why:** It's practically Dad humor. If you abuse the ping-pong feedback buffers, they literally start playing Ping Pong to mock the aggressive parameter sweeping.
+
 ### [B-012] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -412,6 +428,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If the human performer enters the classic Konami Code (Up, Up, Down, Down, Left, Right, Left, Right, B, A) using the gamepad buttons, the main visual output instantly shifts to a 64-color 8-bit palette mode and the frame rate locks to exactly 30fps until they hit Start.
 
 **Why:** You can't put gamepad support in a creative coding app without adding a Konami Code easter egg. It's practically illegal.
+
+### [C-017] P3-VD01 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD01 Depth Loop Injection
+
+**Suggestion:** If the human performer explicitly connects the `pre_send` FBO to the `post_return` texture input manually through the routing matrix, the depth loops calculate a physical "Short Circuit" and dramatically flash an animated arc of lightning across the main projection feed for exactly 13 frames.
+
+**Why:** Because physically connecting the start of an effect directly to the end of the effect bypassing the middle is technically undefined wiring. Rewarding them with sparks fits the VJLive motif perfectly.
 
 ### [C-012] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
