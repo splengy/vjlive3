@@ -54,23 +54,27 @@
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P0-INF2 | Legacy Feature Parity - 600-800+ missing features (revised) | P0 | ⬜ Todo | AST analysis of vjlive/ & VJlive-2/ |
+| P0-INF2 | Legacy Feature Parity - 218 missing plugins (comprehensive audit) | P0 | ⬜ Todo | Comprehensive audit of vjlive/ & VJlive-2/ |
 | | **Spec:** `docs/specs/P0-INF2_legacy_feature_parity.md` | | | |
 | | **Critical Collections:** | | | |
-| | - Depth Collection: 100+ missing depth plugins | | | |
-| | - Audio Families: Bogaudio (10) + Befaco (6) | | | |
-| | - V-* Effects: 14 missing visual collections | | | |
-| | - Datamosh Family: 20+ missing effects | | | |
-| | - Quantum/Agent: Advanced systems | | | |
+| | - Depth Collection: 50 missing depth plugins | | | |
+| | - Audio Families: 7 missing audio plugins | | | |
+| | - Datamosh Family: 36 missing effects | | | |
+| | - Quantum/AI: 10 missing advanced systems | | | |
+| | - V-Effects: 1 missing visual effect | | | |
+| | - Modulators: 1 missing modulator | | | |
+| | - Generators: 15 missing generators | | | |
+| | - Particle/3D: 5 missing 3D/particle systems | | | |
+| | - Other (Utilities/Effects): 93 missing plugins | | | |
 
 **Implementation Strategy:**
-- Phase 1: Critical Depth Collection (100+ plugins from both codebases)
-- Phase 2: Audio Plugin Families (16 plugins)
-- Phase 3: V-* Visual Effects (14 collections)
-- Phase 4: Datamosh Family (20+ effects)
-- Phase 5: Quantum & Agent Systems
+- Phase 3: Depth Collection (50 plugins) — P3-VD26 through P3-VD75
+- Phase 4: Audio Plugin Families (7 plugins) — P4-AU02 through P4-AU08
+- Phase 5: Datamosh (36), V-Effects (1), Modulators (1) — P5-DM02 through P5-VE02
+- Phase 6: Generators (15), Particle/3D (5), Quantum/AI (14) — P6-GE06 through P6-QC14
+- Phase 7: Other Visual Effects & Utilities (93) — P7-VE01 through P7-VE82
 
-**Verification:** All 600-800+ features ported with 60 FPS, 80%+ test coverage, zero safety rail violations.
+**Verification:** All 218 plugins ported with 60 FPS, 80%+ test coverage, zero safety rail violations. Each plugin is unique and receives bespoke treatment.
 
 ---
 
@@ -83,7 +87,7 @@
 | P1-R1 | OpenGL rendering context (ModernGL) | P0 | ✅ Done | `src/vjlive3/render/opengl_context.py` — OpenGLContext, 10/10 tests ✅ |
 | P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ✅ Done | `chain.py`, `program.py`, `framebuffer.py` - tests pass, 82% coverage ✅ |
 | P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ✅ Done | `src/vjlive3/render/shader_compiler.py` — 7 tests @ 81% cov ✅ — 2026-02-22 |
-| P1-R4 | Texture manager (pooled, leak-free) | P0 | 🔄 In Progress | `docs/specs/P1-R4_texture_manager.md` — spec approved, implementation started |
+| P1-R4 | Texture manager (pooled, leak-free) | [Agent name] | ✅ Done | 80% coverage mapped across ModernGL dictionary buffers and fallback decoded stream paths. (2026-02-22) |
 | P1-R5 | Core rendering engine (60fps loop) | P0 | 🔄 In Progress | `docs/specs/P1-R5_render_engine.md` — spec approved, implementation started |
 
 ### 1B — Audio Engine
