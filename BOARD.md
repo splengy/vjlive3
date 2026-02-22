@@ -156,7 +156,7 @@
 | P3-VD12 | Depth Contour Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_contour_datamosh.py` — DepthContourDatamoshPlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD13 | Depth Erosion Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_erosion_datamosh.py` — DepthErosionDatamoshPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD14 | Depth Fracture Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_fracture_datamosh.py` — DepthFractureDatamoshPlugin, 6/6 tests ✅ 2026-02-22 |
-| P3-VD15 | Depth Aware Compression | P1 | ⏳ Queued |
+| P3-VD15 | Depth Aware Compression | P1 | ✅ Done | `src/vjlive3/plugins/depth_aware_compression.py` — DepthAwareCompressionPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD16 | Depth Edge Glow | P1 | ⏳ Queued |
 | P3-VD17+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 

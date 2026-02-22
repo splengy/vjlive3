@@ -205,6 +205,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Negative pixel bleeding conceptually implies pulling fragments back together, freezing them into a solid web pattern.
 
+### [A-025] P3-VD15 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD15 Depth Aware Compression
+
+**Suggestion:** The "Bandwidth Death". If an Agent Programmer pushes `color_quantization` mathematically to its absolute floor `2.0` simultaneously with `block_size` hitting its `64.0` ceiling, the compression shader starts slowly shifting the entire palette toward 1990s BBS terminal colors (cyan, magenta, and amber) while emitting a fake "Buffering..." text string built physically into the pixel blocks.
+
+**Why:** Taking compression algorithms to their maximum structural limits evokes old internet tropes effortlessly.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -454,6 +462,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Instantly erasing persistent shattered glass right on a musical drop should feel like a bright, violent pop.
 
+### [B-025] P3-VD15 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD15 Depth Aware Compression
+
+**Suggestion:** The "Signal Bleed". If an Agent maps the `depth_compression_ratio` parameter to follow an audio sine wave LFO that crosses exactly through `0.5` more than four times a second (a rhythmic wobble), horizontal tracking "smear" tears logically begin sliding up the screen like an unsynced VHS tape tracking error.
+
+**Why:** Rapid modulation of compression bandwidth conceptually mimics lost analog signal syncing.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -694,6 +710,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Bullet Hole". If a human double-clicks violently on the direct center of the video canvas while the `displacement_strength` is maxed, the datamosh ripples outward radically from that specific coordinate, leaving a perfectly round, stable, undistorted circular "hole" looking strictly through to the un-moshed background layer in the middle.
 
 **Why:** Humans want to direct the chaos; pointing exactly where the glass breaks adds localized narrative structure to the noise.
+
+### [C-025] P3-VD15 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD15 Depth Aware Compression
+
+**Suggestion:** The "Unplugged Cord". If a human user dramatically rips the input video cable out of the deck during a live show while `quality` is dragged below `0.2`, rather than instantly cutting to black, the video output locks the last valid frame, turns it neon green, and slowly collapses it into a single horizontal compressed line over 3 seconds before dying.
+
+**Why:** A beautiful television turn-off animation masks the messy reality of a dropped cable.
 
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
