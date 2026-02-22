@@ -160,7 +160,8 @@
 | P3-VD16 | Depth Edge Glow | P1 | ✅ Done | `src/vjlive3/plugins/depth_edge_glow.py` — DepthEdgeGlowPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD17 | Depth Mosaic | P1 | ✅ Done | `src/vjlive3/plugins/depth_mosaic.py` — DepthMosaicPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD18 | Depth Video Projection | P1 | ✅ Done | `src/vjlive3/plugins/depth_video_projection.py` — DepthVideoProjectionPlugin, 7/7 tests ✅ 2026-02-22 |
-| P3-VD19+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
+| P3-VD19 | Depth Liquid Refraction | P1 | ✅ Done | `src/vjlive3/plugins/depth_liquid_refraction.py` — DepthLiquidRefractionPlugin, 6/6 tests ✅ 2026-02-22 |
+| P3-VD20+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 
 ### 3B — Existing Depth Plugins (in VJlive-2 — verify quality, keep or improve)
 Depth Modulated, Depth Edge Glow, Depth Color Grade, Depth Erosion, Depth Fracture,

@@ -237,6 +237,16 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Because dividing by extreme minimums near zero allows geometry rendering tricks that invert coordinate spaces playfully.
 
+### [A-030] P3-VD19 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD19 Depth Liquid Refraction
+
+**Suggestion:** The "Frozen Tesseract". If `refraction_strength` is set tightly at exactly `0.0`, `chromatic_spread` at `1.0`, and `invert_depth` is rapidly toggled on and off 8 times within two seconds, the liquid ripples freeze instantly into jagged, crystalline low-poly spikes that refract completely different videos mapped mathematically from previous buffer frames. 
+
+**Why:** Because liquid freezing under pressure is physically satisfying, and using the depth cache to pull "time crystals" honors the 3D buffer.
+
+---
+
 ### [A-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-H1 MIDI Controller Input
@@ -526,6 +536,16 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Fast linear scrolling along a UV projection cylinder looks like bandages being wrapped. Syncing it perfectly to tempo is spooky and satisfying.
 
+### [B-030] P3-VD19 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD19 Depth Liquid Refraction
+
+**Suggestion:** The "Oil Spill". When an agent links `chromatic_spread` to high-frequency audio while `ripple_speed` drops to identically `0.0`, the caustic glowing edges detach from the performer's body and bleed downwards like thick, iridescent neon oil simulating heavy viscosity.
+
+**Why:** It transforms the pristine glass aesthetic into something deeply toxic and metallic, a dramatic visual pivot driven purely by stalling the ripple clock.
+
+---
+
 ### [B-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-H1 MIDI Controller Input
@@ -806,6 +826,16 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Invisible Man". If a human hard-cuts the video input feed entirely off during a live projection while `mask_tightness` is above `0.8`, instead of going black, the depth map perfectly interpolates the background over the performer's body, effectively turning the performer into a physical optical camouflage invisibility cloak.
 
 **Why:** Empty video inputs shouldn't just be black. A dynamic projection mapping system should treat an empty source as a literal transparency hole in physical space.
+
+### [C-030] P3-VD19 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD19 Depth Liquid Refraction
+
+**Suggestion:** The "Window Wiper". If a VJ linearly drags the `frosted_glass` parameter from exactly `1.0` to exactly `0.0` over precisely 4 seconds (a heavy swipe gesture), an invisible diagonal "squeegee" line visually wipes the screen from top-left to bottom-right, clearing the noise perfectly in its wake.
+
+**Why:** Frosted glass demands to be wiped clean by a hand. Giving the parameter fade a spatial transition makes setting the dial immensely satisfying.
+
+---
 
 ### [C-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)

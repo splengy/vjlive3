@@ -87,3 +87,8 @@
 **Task:** P3-VD18 Depth Video Projection
 **Built:** `src/vjlive3/plugins/depth_video_projection.py`, `tests/plugins/test_depth_video_projection.py` with 7 tests (100% pass, 100% coverage)
 **Blocker:** None
+
+### [2026-02-22 03:10] — STATUS
+**Task:** P3-VD19 Depth Liquid Refraction
+**Built:** `src/vjlive3/plugins/depth_liquid_refraction.py`, `tests/plugins/test_depth_liquid_refraction.py` with 6 tests (100% pass, 100% coverage)
+**Blocker:** None
