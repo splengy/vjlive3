@@ -229,6 +229,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Taking mosaic cubes to extreme proportions should reveal the structural makeup of the application rendering them.
 
+### [A-029] P3-VD18 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD18 Depth Video Projection
+
+**Suggestion:** The "Inside-Out Shell". If an Agent dials the `uv_scale` down to practically nothing (`0.001`) while normal lighting is perfectly `1.0`, the projection normals invert and scale negatively. The effect stops looking like video wrapped outside the performer, and starts looking precisely like a hollow cavity carved into the background shaped like the performer, lined with video.
+
+**Why:** Because dividing by extreme minimums near zero allows geometry rendering tricks that invert coordinate spaces playfully.
+
 ### [A-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-H1 MIDI Controller Input
@@ -510,6 +518,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A slow transition to perfect low-fi quantization is a mathematical homage to the origin of digital image manipulation.
 
+### [B-029] P3-VD18 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD18 Depth Video Projection
+
+**Suggestion:** The "Mummy Wrap". If an agent drives the `uv_scroll_x` and `uv_scroll_y` identically to track an audio triangle wave at exactly 120BPM, the holographic Fresnel glow edge changes from blue to ancient sand-gold and begins extruding horizontal linen-like bandings instead of the projected video.
+
+**Why:** Fast linear scrolling along a UV projection cylinder looks like bandages being wrapped. Syncing it perfectly to tempo is spooky and satisfying.
+
 ### [B-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-H1 MIDI Controller Input
@@ -782,6 +798,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Tetris Mode". Nếu a human VJ intentionally hard-steps the `gap_width` exactly from `0` to `5` to `0` to `5` rapidly four times syncing with an aggressive audio baseline, the square tiles suddenly gain gravity physics and drop to the bottom of the screen instead of retaining their video mapping.
 
 **Why:** Adding gravity to geometric blocks is instinctively satisfying. Humans playing with blocks inevitably want them to fall down.
+
+### [C-029] P3-VD18 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD18 Depth Video Projection
+
+**Suggestion:** The "Invisible Man". If a human hard-cuts the video input feed entirely off during a live projection while `mask_tightness` is above `0.8`, instead of going black, the depth map perfectly interpolates the background over the performer's body, effectively turning the performer into a physical optical camouflage invisibility cloak.
+
+**Why:** Empty video inputs shouldn't just be black. A dynamic projection mapping system should treat an empty source as a literal transparency hole in physical space.
 
 ### [C-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)

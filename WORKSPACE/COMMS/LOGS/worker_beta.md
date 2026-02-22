@@ -82,3 +82,8 @@
 **Task:** P3-VD17 Depth Mosaic
 **Built:** `src/vjlive3/plugins/depth_mosaic.py`, `tests/plugins/test_depth_mosaic.py` with 6 tests (100% pass, 100% coverage)
 **Blocker:** None
+
+### [2026-02-22 03:05] — STATUS
+**Task:** P3-VD18 Depth Video Projection
+**Built:** `src/vjlive3/plugins/depth_video_projection.py`, `tests/plugins/test_depth_video_projection.py` with 7 tests (100% pass, 100% coverage)
+**Blocker:** None
