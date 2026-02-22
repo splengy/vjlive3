@@ -9,7 +9,7 @@ Each plugin/effect is handled as a unique work of art. No batch processing. No c
 ## Prerequisites
 
 - Read `WORKSPACE/PRIME_DIRECTIVE.md` Rule 4 (Bespoke Snowflakes)
-- Check `WORKSPACE/COMMS/LOCKS.md` — is the legacy source file available to analyze?
+- Check your designated INBOX to ensure this migration spec is assigned to you.
 - Query `vjlive-brain` MCP: `search_concepts(name="EffectName")` — is it already indexed?
 
 ## The Six-Step Migration Protocol
@@ -63,7 +63,7 @@ Full METADATA dict for the new class.
 
 ### Step 4: Artisanal Coding — Implement to Spec
 
-1. Check out the target file: add row to `WORKSPACE/COMMS/LOCKS.md`
+1. Verify you exclusively own this task via your INBOX assignment.
 2. Create `src/vjlive3/effects/<category>/<effect_name>.py`
 3. Implement the class with full `METADATA` constant (Rule 2)
 4. Port the visual logic — validate against source, do NOT copy bugs

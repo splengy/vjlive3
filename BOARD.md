@@ -5,7 +5,7 @@
 > **CODE WIPE — 2026-02-21 01:36**
 > All `src/vjlive3/` and `tests/` deleted. Code was produced without documentation-first discipline.
 > Process reset: **SPEC must exist before code. See `WORKSPACE/HOW_TO_WORK.md`.**
-> Tasks are only active once listed in `WORKSPACE/COMMS/DISPATCH.md`.
+> Tasks are only active once the Manager assigns them to a specific Worker's `WORKSPACE/INBOXES/` file.
 
 ## Project Overview
 **Mission:** Operation Source Zero — Synthesize the best of BOTH legacy codebases into one clean architecture.
@@ -58,7 +58,7 @@
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-R1 | OpenGL rendering context (ModernGL) | P0 | ⏚️ Todo | VJlive-2 arch |
+| P1-R1 | OpenGL rendering context (ModernGL) | P0 | ⏳ Assigned (Worker Alpha) | VJlive-2 arch |
 | P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ✅ Spec Ready | VJlive-2 |
 | P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ✅ Spec Ready | `docs/specs/P1-R3_shader_compiler.md` — by Antigravity (Agent 3) |
 | P1-R4 | Texture manager (pooled, leak-free) | P0 | ✅ Spec Ready | `docs/specs/P1-R4_texture_manager.md` — by Antigravity (Agent 3) |

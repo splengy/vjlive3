@@ -280,7 +280,7 @@ git checkout -b plugin/vimana-snowflake
 ## Agent Coordination — No Shared File Contention
 
 > [!CAUTION]
-> **Do NOT write to AGENT_SYNC.md or update DISPATCH.md for status.** These were single-file bottlenecks that serialized all agents.
+> **Do NOT write to AGENT_SYNC.md or update INBOXES for status.** These were single-file bottlenecks that serialized all agents.
 
 ### Log your session → your own file
 Each agent has its own log file. Only you write to it. No conflicts ever.

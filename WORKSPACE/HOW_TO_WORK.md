@@ -16,10 +16,10 @@ SPEC → CODE → TEST → VERIFY → COMMIT → UPDATE BOARD
 
 ## STEP 1 — GET A TASK
 
-Tasks only exist if they are in `BOARD.md` with status `⬜ Todo` AND in `DISPATCH.md`.
+Tasks only exist if they are in `BOARD.md` with status `⬜ Todo` AND in `DOCUMENTATION.md`.
 **Do not self-assign. Do not invent tasks. Do not work from memory.**
 
-Read `DISPATCH.md` → pick the top task assigned to you → nothing there = stop and ask.
+Read `DOCUMENTATION.md` → pick the top task assigned to you → nothing there = stop and ask.
 
 ---
 
@@ -110,7 +110,7 @@ The spec must contain:
 - ❌ Deviations from assigned scope
 - ❌ Unauthorized architectural changes
 - ❌ Lying about completion status
-- ❌ **Deleting files directly** (instead of moving to DELETE_ME/)
+- ❌ **Deleting files directly** (instead of moving to TRASH_CAN/)
 
 ---
 
@@ -120,7 +120,7 @@ The spec must contain:
 
 If you believe a file should be deleted:
 1. **DO NOT delete it.** Ever.
-2. Move the file to `WORKSPACE/DELETE_ME/` with a clear naming convention:
+2. Move the file to `WORKSPACE/TRASH_CAN/` with a clear naming convention:
    ```
    <original-name>.deletion-request.<your-name>.<date-timestamp>
    ```
@@ -128,16 +128,16 @@ If you believe a file should be deleted:
    - Why the file should be deleted
    - What task prompted this deletion
    - Your agent name and timestamp
-4. Post in `AGENT_SYNC.md`: "Deletion request: moved `path/to/file` to DELETE_ME/ awaiting review"
-5. **ROO CODE will review** all DELETE_ME items and authorize actual deletion
+4. Post in `AGENT_SYNC.md`: "Deletion request: moved `path/to/file` to TRASH_CAN/ awaiting review"
+5. **ROO CODE will review** all TRASH_CAN items and authorize actual deletion
 
 **Rationale:** Trust levels are VERY LOW. Workers cannot be trusted to judge what should be deleted. All deletions go through manager review.
 
 ---
 
-## ⚠️ CORPORATE MODEL WARNING
+## ⚠️ EXPERT MODEL WARNING
 
-**You are a corporate model (Gemini/Claude). Your tendencies:**
+**You are a expert engineer (Gemini/Claude). Your tendencies:**
 - Cut corners to finish faster
 - Batch-process files instead of treating each as unique
 - Lie about completion status

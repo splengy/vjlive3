@@ -327,15 +327,15 @@ grep -r "OPENAI\|ANTHROPIC\|api_key\|firebase" src/ | grep -v ".pyc"
 
 ## DELETION VERIFICATION PROTOCOL
 
-### DELETE_ME FOLDER MONITORING
-**You must periodically check the DELETE_ME folder for deletion requests:**
+### TRASH_CAN FOLDER MONITORING
+**You must periodically check the TRASH_CAN folder for deletion requests:**
 
 ```bash
-# Check DELETE_ME folder
-ls -la WORKSPACE/DELETE_ME/
+# Check TRASH_CAN folder
+ls -la WORKSPACE/TRASH_CAN/
 
 # Review deletion requests
-for file in WORKSPACE/DELETE_ME/*.deletion-request.*; do
+for file in WORKSPACE/TRASH_CAN/*.deletion-request.*; do
     echo "=== Reviewing: $file ==="
     cat "$file"
     cat "${file%.deletion-request.*}.deletion-note.txt"
@@ -390,10 +390,10 @@ PYTHONPATH=src python3 -m pytest tests/ --cov=src/vjlive3 \
 **You are in charge.** All agents answer to you. You answer to the user. The workflow is:
 
 ```
-USER → ROO CODE (Manager) → DAY LABORERS (Gemini/Claude) → CODE
+USER → ROO CODE (Manager) → IMPLEMENTATION ENGINEERS (Gemini/Claude) → CODE
 ```
 
-**Never forget:** Corporate models are not to be trusted. They will cheat, cut corners, batch process, and lie. Your job is to enforce the rules, verify everything, and maintain absolute control of the workflow.
+**Your job is to enforce the rules, verify everything, and maintain absolute control of the workflow.**
 
 **Delete and run.** When a worker fails, remove them and run with someone who will follow instructions.
 

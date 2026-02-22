@@ -26,7 +26,7 @@ Writing to this file was causing agent pileups — multiple agents blocking each
 ```
 
 ### For Task Status Updates:
-**Do NOT edit DISPATCH.md.** Write a one-line status to `COMMS/STATUS/<task-id>.txt`:
+**Do NOT edit INBOXES for status updates.** Write a one-line status to `COMMS/STATUS/<task-id>.txt`:
 
 ```bash
 echo "IN_PROGRESS" > COMMS/STATUS/P1-R1.txt

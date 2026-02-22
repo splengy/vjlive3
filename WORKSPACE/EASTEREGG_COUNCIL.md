@@ -43,7 +43,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Final Phase (IMPLEMENT):**
 - The egg with the most coherent support and clearest implementation path wins each category
-- Task posted in DISPATCH: `EGG-1`, `EGG-2`, `EGG-3`
+- Task posted in INBOX: `EGG-1`, `EGG-2`, `EGG-3`
 
 ---
 

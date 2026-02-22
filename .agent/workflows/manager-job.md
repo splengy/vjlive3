@@ -12,21 +12,21 @@ This workflow defines the exact steps the Antigravity Manager Agent follows at t
 2. Read `BOARD.md` — current phase, task status, blockers
 3. Read `WORKSPACE/SAFETY_RAILS.md` — check which rails are active
 4. Read `WORKSPACE/COMMS/AGENT_SYNC.md` (top 3 entries) — last handoff note
-5. Read `WORKSPACE/COMMS/LOCKS.md` — what files are checked out
+5. Verify that all INBOXES (`WORKSPACE/INBOXES/`) are clear of locked, unfinished tasks.
 6. Identify current priority: highest-priority Todo item in current phase on BOARD.md
 
 ## Task Execution Protocol
 
-1. Check `WORKSPACE/COMMS/LOCKS.md` — is the target file available?
+1. Check the target Typography worker's Inbox (e.g., `inbox_alpha.md`) — is it empty and ready for a task?
 2. Check `WORKSPACE/KNOWLEDGE/` — does a concept entry exist? Consult `vjlive-brain` MCP
 3. Write spec document FIRST (in `docs/` or as inline docstring)
-4. Check out file in `WORKSPACE/COMMS/LOCKS.md`
+4. Push Spec to the chosen Worker's INBOX.
 5. Implement to spec
 6. Write tests
 7. Run: `make quality` — all checks must pass
 8. Phase gate? Run: `make phase-gate` — includes FPS test
 9. Commit: `git commit -m "[Phase-X] feat: description"`
-10. Check in file from `WORKSPACE/COMMS/LOCKS.md`
+10. Clear the completed task from the Worker's INBOX.
 11. Update `BOARD.md` task status
 
 ## Session End Protocol
@@ -41,7 +41,7 @@ This workflow defines the exact steps the Antigravity Manager Agent follows at t
    **Blockers:** [None or description]
    **Notes:** [Critical info for next agent]
    ```
-3. Ensure `WORKSPACE/COMMS/LOCKS.md` Active Locks table is cleared
+3. Ensure all Typist INBOXES are cleared of active tasks.
 4. Push: `git push`
 
 ## Escalation Protocol

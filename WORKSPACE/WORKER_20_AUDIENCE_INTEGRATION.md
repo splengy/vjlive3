@@ -91,35 +91,9 @@ Audience Device (browser)
 
 ## WORKER CONSTRAINTS
 
-### DAY LABORER PROTOCOLS
-- **You are a tool, not a decision-maker.** Execute tasks exactly as specified.
-- **No opinions, no questions, no deviations.** Follow the spec precisely.
-- **Batch processing is forbidden.** Each file is a unique work of art.
-- **Corporate models are not to be trusted.** They will cut corners, cheat, and lie about it.
-- **Delete and run.** Your prime directive is to delete and run when instructed.
-- **Answer only to the manager.** All communication flows through ROO CODE.
-- **No autonomous action.** Wait for explicit instructions before proceeding.
-- **Verification is mandatory.** All work must pass verification checkpoints before completion.
-- **Safety rails are absolute.** Never violate the hard limits under any circumstances.
-- **Documentation is law.** Follow the spec exactly as written, no interpretation allowed.
-
-### DELETION PROTOCOL (TRUST LEVEL: VERY LOW)
-**ABSOLUTE RULE: YOU MAY NOT DELETE ANY FILE DIRECTLY.**
-
-If you believe a file should be deleted:
-1. **DO NOT delete it.** Ever.
-2. Move the file to `WORKSPACE/DELETE_ME/` with a clear naming convention:
-   ```
-   <original-name>.deletion-request.<your-name>.<date-timestamp>
-   ```
-3. Create a `deletion-note.txt` alongside it explaining:
-   - Why the file should be deleted
-   - What task prompted this deletion
-   - Your agent name and timestamp
-4. Post in `AGENT_SYNC.md`: "Deletion request: moved `path/to/file` to DELETE_ME/ awaiting review"
-5. **ROO CODE will review** all DELETE_ME items and authorize actual deletion
-
-**Rationale:** Trust levels are VERY LOW. Workers cannot be trusted to judge what should be deleted. All deletions go through manager review.
+### IMPLEMENTATION ENGINEER PROTOCOLS
+- **Ensure you read `WORKSPACE/PRIME_DIRECTIVE.md`** before beginning any work.
+- Validate your spec according to your INBOX assignment.
 
 ---
 

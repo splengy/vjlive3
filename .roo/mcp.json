@@ -1,0 +1,52 @@
+{
+	"mcpServers": {
+		"filesystem": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-filesystem",
+				"/home/happy/Desktop/claude projects"
+			],
+			"alwaysAllow": [
+				"read_multiple_files"
+			]
+		},
+		"context7": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@upstash/context7-mcp"
+			],
+			"env": {
+				"DEFAULT_MINIMUM_TOKENS": ""
+			}
+		},
+		"puppeteer": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-puppeteer"
+			]
+		},
+		"time": {
+			"command": "uvx",
+			"args": [
+				"mcp-server-time"
+			]
+		},
+		"memory": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-memory"
+			]
+		},
+		"augment-context-engine": {
+			"command": "auggie",
+			"args": [
+				"--mcp",
+				"--mcp-auto-workspace"
+			]
+		}
+	}
+}

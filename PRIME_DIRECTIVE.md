@@ -34,9 +34,9 @@
 | Role | Responsibilities |
 |------|----------------|
 | **User** | Vision Holder — final authority |
-| **Antigravity** | Architect/Manager — orchestration, specs, BOARD.md |
-| **Roo/Copilot** | Artisan/Worker — single-file implementation |
-| **Dreamer Analyst** | Any agent — flag [DREAMER_LOGIC], never discard |
+| **Manager / Architect** | Orchestration, Specs, BOARD.md, routing tasks to INBOXES |
+| **Worker / Typist** | Reading Spec from INBOX, exact code implementation, No architecture |
+| **NOTE** | All agents boot with Amnesia and must ask the User for their Role. |
 
 ## Phase 0 Deliverable
 A working windowed app displaying live: **FPS · Memory · Active Agents · Phase Status**
