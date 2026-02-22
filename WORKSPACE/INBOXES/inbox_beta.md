@@ -1,12 +1,12 @@
 # TASK ASSIGNMENT
 
 **Agent:** Worker Beta
-**Task ID:** P3-VD14
-**Task Name:** Depth Fracture Datamosh
-**Spec File:** docs/specs/P3-VD14_depth_fracture_datamosh.md
+**Task ID:** P3-VD16
+**Task Name:** Depth Edge Glow
+**Spec File:** docs/specs/P3-VD16_depth_edge_glow.md
 
 ## Instructions
-Please implement the specification defined in `docs/specs/P3-VD14_depth_fracture_datamosh.md`.
+Please implement the specification defined in `docs/specs/P3-VD16_depth_edge_glow.md`.
 Follow all `WORKSPACE/HOW_TO_WORK.md` and `WORKSPACE/PRIME_DIRECTIVE.md` guidelines.
-Ensure SAFETY RAIL #8 is strictly followed regarding the explicit teardown of FBOs and Textures.
+Ensure SAFETY RAIL #1 is strictly followed by optimizing Sobel/Gaussian tap limits.
 Do not skip any verification steps.

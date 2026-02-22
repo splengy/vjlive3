@@ -149,6 +149,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** "Depth loop" invites "how deep does it go?" giving parameter hackers a visual answer outside of safe UI bounds.
 
+### [A-018] P3-VD02 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD02 Depth Parallel Universe
+
+**Suggestion:** The "Big Crunch". If the `depth_split_near` and `depth_split_far` are both set to exactly `0.0` programmatically while all 3 intensities are exactly `1.0`, the system renders a static image of the classic "It Is Safe To Turn Off Your Computer" Windows screen.
+
+**Why:** It collapses 3 universes dynamically into a static null point. The retro hardware screen matches the exact tone of a total computing collapse.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -292,6 +300,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Ping Pong Ball" hidden behaviour. If an AI performer rapidly toggles `datamosh_intensity` to extreme polar opposites >5 times per second (a common AI logic failure in parameter oscillation), the OpenGL ping-pong FBO intercepts the shader and simply renders a single white bouncing dot on a black screen playing Pong against itself.
 
 **Why:** It's practically Dad humor. If you abuse the ping-pong feedback buffers, they literally start playing Ping Pong to mock the aggressive parameter sweeping.
+
+### [B-018] P3-VD02 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD02 Depth Parallel Universe
+
+**Suggestion:** The "Schrödinger's Datamosh". If an AI Performer routes the `universe_c_send` directly back into the `universe_a_return` (creating a cross-universe paradox), the feedback node replaces the video texture with a live rendering of standard Conway's Game of Life on a 64x64 pixel grid in bright neon cyan.
+
+**Why:** Cross-wiring universes violates causality. What better way to reward breaking physics than inserting cellular automaton?
 
 ### [B-012] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)

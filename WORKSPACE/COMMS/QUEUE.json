@@ -223,5 +223,23 @@
     "created_at": "2026-02-22T10:24:46.900555+00:00",
     "started_at": null,
     "completed_at": null
+  },
+  {
+    "task_id": "P3-VD15",
+    "spec_path": "docs/specs/P3-VD15_depth_aware_compression.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-22T10:26:36.606915+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD16",
+    "spec_path": "docs/specs/P3-VD16_depth_edge_glow.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-22T10:26:36.668069+00:00",
+    "started_at": null,
+    "completed_at": null
   }
 ]
