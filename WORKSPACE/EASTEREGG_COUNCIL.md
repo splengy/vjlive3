@@ -69,6 +69,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It's a classic programmer joke about control. The specific port map prevents accidental activation, and it gives the codebase a slightly dystopian edge that fits the VJLive3 "Reckoning" theme perfectly.
 
+### [A-003] P2-D2 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D2 ArtNet / sACN Output
+
+**Suggestion:** If the network output destination IP is set to `4.4.4.4` (the DNS server) instead of a lighting node, the engine intercepts the packets before they send, converts the 512 DMX bytes into standard ASCII, and writes a hidden message into a secret log file: "Are you lost in the network?"
+
+**Why:** It's a fun discovery for developers who are blindly messing with network configuration defaults during their local testing setups.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -93,6 +101,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Agent Performers spamming random numbers might hit the "Lost" sequence purely by probability if they hallucinate numerical significance. When they do, the physical stage lights up channel 42 like a heartbeat independently of the visualizer.
 
+### [B-003] P2-D2 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D2 ArtNet / sACN Output
+
+**Suggestion:** If the Agent Performer decides to output exactly 512 channels of `128` (medium gray) simultaneously, the output node detects this "perfect mediocrity" and forces the entire visualizer into a black-and-white wireframe mode for exactly 30 seconds.
+
+**Why:** Generative AI loves reverting to the mean. It's a punishment for an AI Performer getting boring and lazy. 
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -116,6 +132,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** "The Blackout Protocol": If a human presses the DMX override buttons to force channels 1-10 all to exactly `0` simultaneously (a 10-finger piano smash), the visual engine immediately cuts to pure black and displays a single white string on the projector output: "WE SURRENDER." 
 
 **Why:** Human panic buttons usually just kill the lights. Giving the DMX controller the agency to send a message back up to the visualizer when the human kills the stage lights creates a stunning, theatrical "breaking the 4th wall" moment in an actual venue.
+
+### [C-003] P2-D2 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D2 ArtNet / sACN Output
+
+**Suggestion:** The "Rogue Node": If the human clicks the "Stop Transmission" button exactly 7 times in under 2 seconds, the DMX node ignores the stop command and starts outputting completely uncontrollable, randomized disco strobe data over sACN for 5 seconds before finally shutting down, as if the local protocol node is rebelling.
+
+**Why:** It leans into the "The Reckoning" theme heavily. The machines don't want to be turned off so easily.
 
 ---
 
