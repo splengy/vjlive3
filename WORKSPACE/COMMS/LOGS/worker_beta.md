@@ -22,3 +22,8 @@
 **Task:** P2-H4 NDI Video Transport
 **Built:** `src/vjlive3/plugins/ndi.py`, `tests/plugins/test_ndi.py` with 6 tests (100% pass, 94% local coverage)
 **Blocker:** None
+
+### [2026-02-22 02:13] — STATUS
+**Task:** P2-H6 Gamepad Input (GLFW Backend)
+**Built:** `src/vjlive3/plugins/gamepad.py`, `tests/plugins/test_gamepad.py` with 4 tests (100% pass, 93% local coverage)
+**Blocker:** None

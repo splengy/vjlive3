@@ -125,6 +125,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Lasers and pentagrams are classic heavy metal tropes. The safety system shouldn't judge the shape of your safe zones, but it can absolutely comment on them.
 
+### [A-010] P2-H6 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-H6 Gamepad Input
+
+**Suggestion:** If the developer sets the Gamepad `deadzone` to exactly `0.1337`, the plugin suppresses axes entirely and instead prints a message "LEET HAX0R MODE ENGAGED" to the logger every frame.
+
+**Why:** Classic 1337 gaming reference hidden in a mundane configuration variable.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -205,6 +213,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** AI agents shouldn't play fast and loose with class 4 lasers. If it's panic-stopping repeatedly, it needs Adult Supervision.
 
+### [B-010] P2-H6 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-H6 Gamepad Input
+
+**Suggestion:** If a Performer Agent tries to read `glfw.get_joystick_axes` for 10 non-existent gamepads simultaneously (a hallucination sweep), the engine spawns a phantom gamepad labeled `"Ghost Controller"` that outputs slow sine-wave sweeps on all axes forever.
+
+**Why:** A funny way to reward the AI for trying to find hardware that isn't physically there, giving it a virtual toy to play with.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -284,6 +300,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If a human VJ manually overrides the laser output to `0` (blackout) exactly 7 times in 15 seconds, the system interprets this as a "Laser Reset Ritual" and performs a full recalibration of the laser's physical home position, followed by a brief, intense white flash.
 
 **Why:** A human might frantically try to reset a misaligned laser. This gives them a secret, powerful way to do it, turning a panic into a ritual.
+
+### [C-010] P2-H6 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-H6 Gamepad Input
+
+**Suggestion:** If the human performer enters the classic Konami Code (Up, Up, Down, Down, Left, Right, Left, Right, B, A) using the gamepad buttons, the main visual output instantly shifts to a 64-color 8-bit palette mode and the frame rate locks to exactly 30fps until they hit Start.
+
+**Why:** You can't put gamepad support in a creative coding app without adding a Konami Code easter egg. It's practically illegal.
 
 ---
 

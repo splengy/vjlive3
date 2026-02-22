@@ -119,7 +119,7 @@
 | P2-H3 | Orbbec Astra / Kinect 2 Depth Camera | P1 | ✅ Done | `src/vjlive3/plugins/astra.py` — AstraDepthCamera, 5/5 tests ✅ 2026-02-22 |
 | P2-H4 | NDI video transport (full hub + streams) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H4_ndi.md` |
 | P2-H5 | Spout support (Windows video sharing) | P2 | ✅ Done | `src/vjlive3/plugins/spout.py` — SpoutManager, 5/5 tests ✅ 2026-02-22 |
-| P2-H6 | Gamepad input (GLFW backend) | P2 | ⬜ Todo | VJlive-2 only | Spec ready: `docs/specs/P2-H6_gamepad.md` |
+| P2-H6 | Gamepad input (GLFW backend) | P2 | ✅ Done | `src/vjlive3/plugins/gamepad.py` — GamepadPlugin, 4/4 tests ✅ 2026-02-22 |
 | P2-H7 | Laser safety system | P1 | ✅ Done | `src/vjlive3/hardware/laser.py` — LaserSafetySystem, 8/8 tests ✅ 2026-02-22 |
 
 ### 2C — Distributed Architecture (MISSING from VJlive-2)

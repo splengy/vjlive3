@@ -1,0 +1,100 @@
+# Spec Template — P3-VD05 Depth Slice Effect
+
+**File naming:** `docs/specs/P3-VD05_depth_slice.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P3-VD05 — Depth Slice Effect
+
+**Phase:** Phase 3
+**Assigned To:** (Pending Manager Assignment)
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module ports the `Depth Slice Effect` from VJlive-2 into VJLive3. It slices the incoming video feed based on discrete depth bands, applying different visual treatments (e.g., color tinting, pixelation, glitching) to each "slice" of depth. It creates a topographical or contour-map style representation of the 3D space.
+
+---
+
+## What It Does NOT Do
+
+- It does NOT rely on physical camera hardware directly; it takes a generic depth texture as an input from the node graph.
+
+---
+
+## Public Interface
+
+```python
+from vjlive3.plugins.api import Plugin, VJLiveAPI
+
+METADATA = {
+    "name": "Depth Slice",
+    "description": "Slices video into discrete depth bands with distinct visual treatments.",
+    "version": "1.0.0",
+    "parameters": [
+        {"name": "num_slices", "type": "int", "min": 1, "max": 32, "default": 8, "description": "Number of depth bands"},
+        {"name": "slice_thickness", "type": "float", "min": 0.01, "max": 1.0, "default": 0.1, "description": "Thickness of each band"},
+        {"name": "color_shift", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5, "description": "Hue shift per slice"},
+        {"name": "glitch_amount", "type": "float", "min": 0.0, "max": 1.0, "default": 0.0, "description": "Glitch intensity applied to alternating slices"}
+    ],
+    "inputs": ["video_in", "depth_in"],
+    "outputs": ["video_out"]
+}
+
+class DepthSlicePlugin(Plugin):
+    """Topographical depth slicing effect."""
+    def __init__(self, api: VJLiveAPI) -> None: ...
+    def on_load(self) -> None: ...
+    def process(self, context) -> None: ...
+    def on_unload(self) -> None: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Port | Type | Description |
+|------|------|-------------|
+| `video_in` | GL Texture | Live RGB video feed |
+| `depth_in` | GL Texture | Grayscale depth map |
+| `video_out`| GL Texture | Sliced and treated output |
+
+---
+
+## Edge Cases and Error Handling
+
+- **Missing Depth Input**: If `depth_in` is missing, bypass the effect or pass through `video_in` directly (SAFETY RAIL #7).
+- **Performance**: High `num_slices` values must be handled efficiently in the fragment shader without exceeding the 60 FPS budget (SAFETY RAIL #1).
+
+---
+
+## Dependencies
+
+- OpenGL Context (ModernGL / PyOpenGL).
+- VJLive3 Plugin API.
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_depth_slice_manifest` | Validates plugin manifest structure and expected parameters. |
+| `test_depth_slice_bypass` | Bypasses gracefully when depth texture is absent. |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed
+- [ ] All tests pass
+- [ ] No file over 750 lines
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-3] P3-VD05: Depth Slice Effect`
+- [ ] BOARD.md updated
