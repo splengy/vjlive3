@@ -10,7 +10,10 @@ import ctypes
 import numpy as np
 import moderngl
 from typing import List, Optional, Any, Tuple
-import cv2
+try:
+    import cv2
+except Exception:
+    cv2 = None
 
 from .framebuffer import Framebuffer
 from .program import ShaderProgram, PASSTHROUGH_FRAGMENT, BASE_VERTEX_SHADER, WARP_VERTEX_SHADER, WARP_BLEND_FRAGMENT

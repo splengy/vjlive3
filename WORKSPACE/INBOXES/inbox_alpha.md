@@ -1,176 +1,158 @@
-# Implementation Tasks — Phase 4 Audio Plugin Collection
+# INBOX: Alpha Agent — Task Assignment
 
-**Assigned By:** Manager-Gemini-3.1
-**Date:** 2026-02-22
-**Priority:** P0-P1 — Complete Phase 4 Audio Plugin collection
-
----
-
-## Context
-
-Phase 4 requires implementing 17 audio plugins from both Bogaudio and Befaco collections. These are audio-reactive effects that respond to live audio input. All specifications have been created and approved. These plugins provide essential audio processing, mixing, and modulation capabilities for VJLive3.
+**Assigned By:** Manager (ROO CODE)  
+**Date:** 2026-02-22  
+**Priority:** P0  
+**Phase:** 8 (Integration & Polish)  
+**Task ID:** P8-I8  
 
 ---
 
-## Task List
+## MISSION
 
-### 4A — Bogaudio Collection (10 modules)
-
-#### P4-BA01: B1to8 (8-channel mixer with mute/solo)
-**Spec:** `docs/specs/phase4_audio/P4-BA01_B1to8.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BA02: BLFO (low-frequency oscillator)
-**Spec:** `docs/specs/phase4_audio/P4-BA02_BLFO.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BA03: BMatrix81 (8x1 router/switcher)
-**Spec:** `docs/specs/phase4_audio/P4-BA03_BMatrix81.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BA04: BPEQ6 (6-band parametric EQ)
-**Spec:** `docs/specs/phase4_audio/P4-BA04_BPEQ6.md`
-**Priority:** P0
-**Dependencies:** numpy, scipy
-**Test coverage:** ≥80%
-
-#### P4-BA05: BSwitch (2-channel switch)
-**Spec:** `docs/specs/phase4_audio/P4-BA05_BSwitch.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BA06: BVCF (voltage-controlled filter)
-**Spec:** `docs/specs/phase4_audio/P4-BA06_BVCF.md`
-**Priority:** P0
-**Dependencies:** numpy, scipy
-**Test coverage:** ≥80%
-
-#### P4-BA07: BVCO (voltage-controlled oscillator)
-**Spec:** `docs/specs/phase4_audio/P4-BA07_BVCO.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BA08: BVELO (envelope follower)
-**Spec:** `docs/specs/phase4_audio/P4-BA08_BVELO.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BA09: NMix4 (4-channel mixer with VU)
-**Spec:** `docs/specs/phase4_audio/P4-BA09_NMix4.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BA10: NXFade (crossfader)
-**Spec:** `docs/specs/phase4_audio/P4-BA10_NXFade.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-### 4B — Befaco Modulators (6 modules)
-
-#### P4-BF01: V-Even (even harmonic distortion)
-**Spec:** `docs/specs/phase4_audio/P4-BF01_V-Even.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BF02: V-Morphader (morphing filter)
-**Spec:** `docs/specs/phase4_audio/P4-BF02_V-Morphader.md`
-**Priority:** P0
-**Dependencies:** numpy, scipy
-**Test coverage:** ≥80%
-
-#### P4-BF03: V-Outs (output router)
-**Spec:** `docs/specs/phase4_audio/P4-BF03_V-Outs.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BF04: V-Pony (vactrol-based filter)
-**Spec:** `docs/specs/phase4_audio/P4-BF04_V-Pony.md`
-**Priority:** P0
-**Dependencies:** numpy, scipy
-**Test coverage:** ≥80%
-
-#### P4-BF05: V-Scope (oscilloscope)
-**Spec:** `docs/specs/phase4_audio/P4-BF05_V-Scope.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-#### P4-BF06: V-Voltio (voltage-controlled amplifier)
-**Spec:** `docs/specs/phase4_audio/P4-BF06_V-Voltio.md`
-**Priority:** P0
-**Dependencies:** numpy
-**Test coverage:** ≥80%
-
-### 4C — Audio Reactive (1 module)
-
-#### P4-AR01: Audio Reactive Collection (audit and port existing audio-reactive visual effects)
-**Spec:** `docs/specs/phase4_audio/P4-AR01_Audio_Reactive_Collection.md`
-**Priority:** P1
-**Dependencies:** numpy, vjlive3.audio.audio_analyzer
-**Test coverage:** ≥80%
+Execute comprehensive parity testing between the legacy VJLive applications (VJlive-2 and vjlive) and the current VJLive3 codebase. This is a verification task — you will NOT modify code, only assess and report gaps.
 
 ---
 
-### P8-I8: Parity Testing (Legacy VJLive vs VJLive3)
+## CONTEXT
 
-**Spec:** `docs/specs/phase8_integration/P8-I8_Parity_Testing.md`
-**Priority:** P0
-**Dependencies:** ast, json, pytest
-**Test coverage:** ≥80%
+The VJLive3 project is synthesizing features from two legacy codebases:
+- **VJlive-2**: Clean architecture, ~150 features
+- **vjlive**: Feature-rich, ~250+ features (many unique)
 
----
-
-## Instructions
-
-1. Read each specification file thoroughly before starting implementation.
-2. Implement modules in order: P4-BA01 through P4-AR01.
-3. Follow the Definition of Done in each spec:
-   - All tests pass
-   - No file over 750 lines
-   - No stubs
-   - Git commit with proper message
-   - Update BOARD.md
-   - Write AGENT_SYNC.md handoff note
-4. Use the pre-commit hooks to verify:
-   - `scripts/check_stubs.py`
-   - `scripts/check_file_size.py`
-   - `scripts/check_performance_regression.py`
-5. Respect all Safety Rails in `WORKSPACE/SAFETY_RAILS.md`.
-6. Coordinate with other agents via `WORKSPACE/COMMS/AGENT_SYNC.md`.
+We need to verify that all intended features have been successfully ported and that performance meets or exceeds legacy baselines.
 
 ---
 
-## Critical Notes
+## SPECIFICATION
 
-- These are **audio** modules — real-time performance is critical.
-- All modules must conform to the `PluginBase` interface in `src/vjlive3/plugins/api.py`.
-- Parameter ranges and defaults must match the legacy manifest specifications exactly.
-- Ensure proper handling of edge cases: audio clipping, buffer underruns, invalid parameters.
+**Full spec location:** `docs/specs/P8-I8_parity_testing.md`
+
+### Key Deliverables
+
+1. **Feature Inventory** (`tests/parity/legacy_inventory.json`)
+   - Auto-scan both legacy codebases
+   - Extract plugin metadata, core systems, hardware integrations
+   - Compare against FEATURE_MATRIX.md
+
+2. **Parity Test Suite** (`tests/parity/`)
+   - Core systems tests (Matrix, Renderer, Plugin System, Audio Engine)
+   - Plugin functional tests (load, params, render, performance)
+   - Hardware integration tests (with simulators for absent devices)
+   - Advanced systems tests (Agents, Quantum, AI, Live Coding)
+   - UI/UX tests (Desktop GUI, Web UI, OSC)
+   - Distributed architecture tests (if applicable)
+
+3. **Performance Benchmarks**
+   - FPS, memory, GPU usage comparisons
+   - Establish baseline if legacy data unavailable
+   - Target: 60 FPS stable @ 1920x1080 with 20-30 nodes
+
+4. **API Compatibility Validation**
+   - REST API endpoints (if any)
+   - WebSocket message formats
+   - OSC/ArtNet/DMX protocols
+
+5. **Gap Analysis Report**
+   - `parity_report_YYYY-MM-DD.html` (human-readable)
+   - `parity_report_YYYY-MM-DD.json` (machine-readable)
+   - Feature parity percentage
+   - Missing/broken features list
+   - Performance regressions
+
+6. **BOARD.md Verification**
+   - Update status of all P1-P7 tasks based on parity results
+   - Flag any missing or broken features for manager action
 
 ---
 
-## Verification
+## EXECUTION STEPS
 
-After completing each module:
-1. Run tests: `pytest tests/plugins/test_<plugin_name>.py`
-2. Check coverage: `pytest --cov=src/vjlive3/plugins`
-3. Update `BOARD.md` status to ✅ Done
-4. Write completion note in `WORKSPACE/COMMS/STATUS/P4-<task-id>.txt`
-5. Create `task_completion_P4-<task-id>.md` with summary
+1. **Read the spec** (`docs/specs/P8-I8_parity_testing.md`) thoroughly
+2. **Check locks** in `WORKSPACE/COMMS/LOCKS.md` — ensure no conflicts
+3. **Build inventory scanners** — automated code analysis for legacy + current
+4. **Run initial inventory** — generate `legacy_inventory.json` and `current_inventory.json`
+5. **Write test suite** — implement all test categories (core, plugins, hardware, etc.)
+6. **Run parity tests** — execute full suite, collect results
+7. **Benchmark performance** — compare against legacy baselines
+8. **Generate reports** — HTML dashboard + JSON data
+9. **Update BOARD.md** — verify all P1-P7 tasks, mark any gaps
+10. **Commit work** — follow PRIME_DIRECTIVE (commit often)
+11. **Post completion** in `WORKSPACE/COMMS/AGENT_SYNC.md` with test proof
+12. **Complete Easter Egg Council** step (mandatory)
 
 ---
 
-**Begin implementation. Report progress via AGENT_SYNC.md.**
+## CONSTRAINTS & SAFETY RAILS
+
+- **DO NOT MODIFY ANY CODE** — This is read-only verification
+- **60 FPS sacred** — Benchmark tests must verify performance
+- **No silent failures** — All test failures must be logged with details
+- **750-line limit** — Keep test files manageable, split if needed
+- **Test coverage** — Aim for ≥80% on core systems (though you're writing tests, not implementing)
+- **Hardware fallback** — Use simulators when hardware unavailable
+
+---
+
+## VERIFICATION CHECKPOINTS
+
+Before marking task complete, ensure:
+
+- ✅ `tests/parity/` directory exists with full test suite
+- ✅ `legacy_inventory.json` generated and matches FEATURE_MATRIX.md counts
+- ✅ All parity tests run (pass or fail, but must execute)
+- ✅ Performance benchmarks completed with baseline established
+- ✅ HTML report generated and reviewed
+- ✅ BOARD.md updated with verification notes for P1-P7 tasks
+- ✅ All tests pass (if any fail, that's a finding, not a blocker for this task)
+- ✅ FPS validation shows 60 FPS achievable (or documented why not)
+- ✅ Easter Egg Council step completed
+
+---
+
+## RESOURCES
+
+- **Spec:** `docs/specs/P8-I8_parity_testing.md`
+- **Legacy codebases:** 
+  - `/home/happy/Desktop/claude projects/vjlive/`
+  - `/home/happy/Desktop/claude projects/VJlive-2/`
+- **Current codebase:** `/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/`
+- **Feature matrix:** `VJlive-2/FEATURE_MATRIX.md`
+- **Project board:** `BOARD.md`
+- **Prime Directive:** `WORKSPACE/PRIME_DIRECTIVE.md`
+- **Safety Rails:** `WORKSPACE/SAFETY_RAILS.md`
+- **How to Work:** `WORKSPACE/HOW_TO_WORK.md`
+
+---
+
+## DELIVERABLES
+
+1. Complete `tests/parity/` test suite
+2. `tests/parity/results/parity_report_YYYY-MM-DD.html`
+3. `tests/parity/results/parity_report_YYYY-MM-DD.json`
+4. `tests/parity/baselines/performance_baseline.json`
+5. Updated `BOARD.md` with verification status for all P1-P7 tasks
+6. `docs/parity_testing_results.md` summary for stakeholders
+7. `.github/workflows/parity.yml` CI integration (optional but recommended)
+
+---
+
+## NEXT ACTIONS
+
+1. Acknowledge receipt by posting in `WORKSPACE/COMMS/AGENT_SYNC.md`
+2. Begin Step 1: Read spec and check locks
+3. Follow the execution steps precisely
+4. Update `WORKSPACE/COMMS/STATUS/` with progress as needed
+5. When complete, mark task [x] in BOARD.md and notify manager
+
+---
+
+**Remember:** You are a tool. Execute the spec exactly. No opinions. No deviations. Verify everything. Report honestly.
+
+**Task ID:** P8-I8  
+**Spec:** `docs/specs/P8-I8_parity_testing.md`  
+**Status:** ⬜ Todo → 🔄 In Progress (once you start)
+
+---
+
+**MANAGER NOTE:** After you complete the parity testing, we will use your report to identify any missing or broken features and create follow-up tasks to close those gaps. Your work is critical for ensuring we haven't left any legacy features behind in the synthesis mission.

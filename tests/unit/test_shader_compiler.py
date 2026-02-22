@@ -128,3 +128,37 @@ def test_missing_shader_reload(mock_obs, gl_context):
     info = sc.get_shader_info('ghost')
     assert info.status == 'error'
     sc.cleanup()
+
+@patch('vjlive3.render.shader_compiler.Observer')
+def test_watchdog_event_handling(mock_obs, gl_context):
+    from unittest.mock import MagicMock
+    sc = ShaderCompiler()
+    
+    # Register a valid mock shader to hit the reload inner logic
+    sc._info["mock_shader"] = ShaderInfo(name="mock_shader", type="glsl", path="/mock/mock_shader.glsl", status="ok")
+    sc._cache["mock_shader"] = MagicMock()
+    
+    handler = sc._handler
+    sc.reload_shader = MagicMock()
+    
+    # Ignore directory
+    evt_dir = MagicMock(is_directory=True)
+    handler.on_modified(evt_dir)
+    sc.reload_shader.assert_not_called()
+    
+    # Ignore non-shader
+    evt_txt = MagicMock(is_directory=False, src_path="/mock/test.txt")
+    handler.on_modified(evt_txt)
+    sc.reload_shader.assert_not_called()
+    
+    # Process valid shader
+    evt_shd = MagicMock(is_directory=False, src_path="/mock/mock_shader.glsl")
+    handler.on_modified(evt_shd)
+    sc.reload_shader.assert_called_with("mock_shader")
+    
+    # Test debounce
+    sc.reload_shader.reset_mock()
+    handler.on_modified(evt_shd)
+    sc.reload_shader.assert_not_called()
+    
+    sc.cleanup()

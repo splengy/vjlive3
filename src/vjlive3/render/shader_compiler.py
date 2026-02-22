@@ -103,8 +103,11 @@ class ShaderCompiler:
         if not moderngl.get_context():
             # Specification constraint fallback on missing library context
             logger.error("No active ModernGL context available for compilation.")
-            info = ShaderInfo(name=name, type='glsl', status='error', error_message="No GL context")
-            self._info[name] = info
+            if name in self._info:
+                self._info[name].status = 'error'
+                self._info[name].error_message = "No GL context"
+            else:
+                self._info[name] = ShaderInfo(name=name, type='glsl', status='error', error_message="No GL context")
             return None
 
         # Build composite. Currently P1-R2 Effect class standardizes vertex layouts.
@@ -119,21 +122,29 @@ class ShaderCompiler:
             self._cache[name] = program
             
             # Map tracking data
-            self._info[name] = ShaderInfo(
-                name=name, 
-                type='glsl', 
-                status='ok'
-            )
+            if name in self._info:
+                self._info[name].status = 'ok'
+                self._info[name].error_message = None
+            else:
+                self._info[name] = ShaderInfo(
+                    name=name, 
+                    type='glsl', 
+                    status='ok'
+                )
             return program
             
-        except RuntimeError as e:
+        except Exception as e:
             logger.error(f"GLSL Compilation Error ({name}): {e}")
-            self._info[name] = ShaderInfo(
-                name=name, 
-                type='glsl', 
-                status='error',
-                error_message=str(e)
-            )
+            if name in self._info:
+                self._info[name].status = 'error'
+                self._info[name].error_message = str(e)
+            else:
+                self._info[name] = ShaderInfo(
+                    name=name, 
+                    type='glsl', 
+                    status='error',
+                    error_message=str(e)
+                )
             return None
 
     def compile_milkdrop(self, preset: str, name: str = "unnamed") -> Optional[ShaderProgram]:
@@ -199,9 +210,6 @@ void main() {{
                 if prev:
                     prev.delete()
                 
-                # Path metadata gets wiped across the secondary inner `compile` call. Restore it.
-                self._info[shader_name].path = info.path
-                self._info[shader_name].last_modified = info.last_modified
                 return True
             else:
                 return False

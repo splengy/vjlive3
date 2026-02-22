@@ -60,7 +60,7 @@
 |---------|-------------|----------|--------|--------|
 | P1-R1 | OpenGL rendering context (ModernGL) | P0 | ✅ Done | `src/vjlive3/render/opengl_context.py` — OpenGLContext, 10/10 tests ✅ |
 | P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ✅ Done | `chain.py`, `program.py`, `framebuffer.py` - tests pass, 82% coverage ✅ |
-| P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | 🔄 In Progress | `docs/specs/P1-R3_shader_compiler.md` — spec approved, implementation started |
+| P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ✅ Done | `src/vjlive3/render/shader_compiler.py` — 7 tests @ 81% cov ✅ — 2026-02-22 |
 | P1-R4 | Texture manager (pooled, leak-free) | P0 | 🔄 In Progress | `docs/specs/P1-R4_texture_manager.md` — spec approved, implementation started |
 | P1-R5 | Core rendering engine (60fps loop) | P0 | 🔄 In Progress | `docs/specs/P1-R5_render_engine.md` — spec approved, implementation started |
 
