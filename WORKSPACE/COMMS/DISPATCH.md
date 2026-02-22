@@ -92,16 +92,16 @@
 
 | Task ID | Assigned To | Status | Notes |
 |---------|-------------|--------|-------|
-| RESEARCH:P1-P1 | Antigravity (Agent 3) | ✅ Done | Read plugin_loader.py, vjlivest_plugin_system.py, plugins/plugin_api.py, plugins/sandbox.py, plugin_validator.py |
-| P1-P1 | Antigravity (Agent 3) | ⬜ Todo | Porting registry.py, api.py, sandbox.py, validator.py, loader.py from VJlive-2 directly |
-| RESEARCH:P1-P2 | Antigravity (Agent 3) | ✅ Done | Same research as P1-P1 |
-| P1-P2 | Antigravity (Agent 3) | ⏸️ Blocked (needs P1-P1) | docs/specs/P1-P2_plugin_loader.md |
-| RESEARCH:P1-P3 | Antigravity (Agent 3) | ✅ Done | Read VJlive-2/core/hot_reload_watcher.py |
-| P1-P3 | Antigravity (Agent 3) | ⏸️ Blocked (needs P1-P2) | docs/specs/P1-P3_plugin_hot_reload.md |
-| RESEARCH:P1-P4 | Antigravity (Agent 3) | ✅ Done | Same research as P1-P1 (discover_plugins in plugin_loader.py) |
-| P1-P4 | Antigravity (Agent 3) | ⏸️ Blocked (needs P1-P3) | docs/specs/P1-P4_plugin_scanner.md |
-| RESEARCH:P1-P5 | Antigravity (Agent 3) | ✅ Done | Read VJlive-2/core/plugins/sandbox.py (full) |
-| P1-P5 | Antigravity (Agent 3) | ⏸️ Blocked (needs P1-P1) | docs/specs/P1-P5_plugin_sandbox.md |
+| RESEARCH:P1-P1 | Antigravity (Agent 2) | ✅ Done | Read plugin_loader.py, vjlivest_plugin_system.py, plugins/plugin_api.py, plugins/sandbox.py, plugin_validator.py |
+| P1-P1 | Antigravity (Agent 2) | ✅ Done | Porting registry.py, api.py, sandbox.py, validator.py, loader.py from VJlive-2 directly |
+| RESEARCH:P1-P2 | Antigravity (Agent 2) | ✅ Done | Same research as P1-P1 |
+| P1-P2 | Antigravity (Agent 2) | ✅ Done | docs/specs/P1-P2_plugin_loader.md |
+| RESEARCH:P1-P3 | Antigravity (Agent 2) | ✅ Done | Read VJlive-2/core/hot_reload_watcher.py |
+| P1-P3 | Antigravity (Agent 2) | ✅ Done | docs/specs/P1-P3_plugin_hot_reload.md |
+| RESEARCH:P1-P4 | Antigravity (Agent 2) | ✅ Done | Same research as P1-P1 (discover_plugins in plugin_loader.py) |
+| P1-P4 | Antigravity (Agent 2) | ✅ Done | docs/specs/P1-P4_plugin_scanner.md |
+| RESEARCH:P1-P5 | Antigravity (Agent 2) | ✅ Done | Read VJlive-2/core/plugins/sandbox.py (full) |
+| P1-P5 | Antigravity (Agent 2) | ✅ Done | docs/specs/P1-P5_plugin_sandbox.md |
 
 ---
 

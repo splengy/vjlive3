@@ -10,9 +10,6 @@
 
 | File Path | Locked By | Since | ETA |
 |-----------|-----------|-------|-----|
-| src/vjlive3/plugins/ | Antigravity (Agent 3) | 2026-02-21 15:43 | 1hr |
-| WORKSPACE/COMMS/DISPATCH.md | Antigravity (Agent 3) | 2026-02-21 15:43 | 10min |
-| WORKSPACE/COMMS/STATUS/P1-P1.txt | Antigravity (Agent 3) | 2026-02-21 15:43 | 1hr |
 
 
 ---

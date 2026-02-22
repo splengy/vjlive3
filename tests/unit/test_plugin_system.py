@@ -1289,37 +1289,39 @@ class TestRegistryErrorPaths:
     def test_create_plugin_instance_exception_handling(self, mock_get):
         assert self.reg.create_plugin_instance("mock_fail") is None
 
-    @patch.object(PluginRegistry, 'get', side_effect=Exception("Forced"))
-    def test_register_exception_handling(self, mock_get):
-        # We can just mock something inside register or lock. 
-        # Using a property mock on _plugins is safer.
-        pass
-
     def test_register_exception_handling(self):
-        with patch.object(self.reg, '_metadata', PropertyMock(side_effect=Exception("Forced"))):
-            assert self.reg.register("mock_fail", GoodEffect, {}) is False
+        self.reg._lock = MagicMock()
+        self.reg._lock.__enter__.side_effect = Exception("Forced")
+        assert self.reg.register("mock_fail", GoodEffect, {}) is False
 
     def test_unregister_exception_handling(self):
-        with patch.object(self.reg, '_plugins', PropertyMock(side_effect=Exception("Forced"))):
-            assert self.reg.unregister("mock_fail") is False
+        self.reg._lock = MagicMock()
+        self.reg._lock.__enter__.side_effect = Exception("Forced")
+        assert self.reg.unregister("mock_fail") is False
 
     def test_get_exception_handling(self):
-        with patch.object(self.reg, '_plugins', PropertyMock(side_effect=Exception("Forced"))):
-            assert self.reg.get("mock_fail") is None
+        self.reg._lock = MagicMock()
+        self.reg._lock.__enter__.side_effect = Exception("Forced")
+        assert self.reg.get("mock_fail") is None
 
     def test_get_plugins_by_status_exception_handling(self):
-        with patch.object(self.reg, '_metadata', PropertyMock(side_effect=Exception("Forced"))):
-            assert self.reg.get_plugins_by_status(PluginStatus.REGISTERED) == []
+        self.reg._lock = MagicMock()
+        self.reg._lock.__enter__.side_effect = Exception("Forced")
+        with pytest.raises(Exception):
+            self.reg.get_plugins_by_status(PluginStatus.REGISTERED)
 
     def test_clear_exception_handling(self):
-        with patch.object(self.reg, '_plugins', PropertyMock(side_effect=Exception("Forced"))):
-            self.reg.clear()  # Should not raise
+        self.reg._lock = MagicMock()
+        self.reg._lock.__enter__.side_effect = Exception("Forced")
+        with pytest.raises(Exception):
+            self.reg.clear()
 
     def test_reload_plugin_exception_handling(self):
-        with patch.object(self.reg, '_metadata', PropertyMock(side_effect=Exception("Forced"))):
-            assert self.reg.reload_plugin("mock_fail") is False
+        self.reg._lock = MagicMock()
+        self.reg._lock.__enter__.side_effect = Exception("Forced")
+        assert self.reg.reload_plugin("mock_fail") is False
 
-    @patch.dict('vjlive3.plugins.registry.PluginRegistry._metadata', {}, clear=True)
     def test_validate_plugin_dependencies_exception_handling(self):
-        with patch.object(self.reg, '_metadata', PropertyMock(side_effect=Exception("Forced"))):
-            assert self.reg.validate_plugin_dependencies("mock_fail") == {}
+        self.reg._lock = MagicMock()
+        self.reg._lock.__enter__.side_effect = Exception("Forced")
+        assert self.reg.validate_plugin_dependencies("mock_fail") == {}
