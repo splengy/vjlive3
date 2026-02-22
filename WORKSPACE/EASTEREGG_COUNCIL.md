@@ -213,6 +213,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Taking compression algorithms to their maximum structural limits evokes old internet tropes effortlessly.
 
+### [A-026] P3-VD16 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD16 Depth Edge Glow
+
+**Suggestion:** The "Scanline Sync". If an Agent mathematically locks the `color_cycle_speed` to exactly `0.0` while `contour_intervals` is driven beyond limits to `255`, the glowing depth edges stop flashing neon colors and explicitly lock into solid white PVM-style composite video scanlines rolling horizontally downward endlessly.
+
+**Why:** Hard-locking cycling thresholds implies freezing time. Converting abstract neon geometry into rigid broadcast engineering scanlines honors the analog pixel roots.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -470,6 +478,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Rapid modulation of compression bandwidth conceptually mimics lost analog signal syncing.
 
+### [B-026] P3-VD16 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD16 Depth Edge Glow
+
+**Suggestion:** The "Sonar Ping". If an Agent triggers `glow_radius` to spike from `0.0` to exactly `10.0` in exactly one frame synced precisely to a kick drum transient, the neon depth contour instantly turns absolute pure lime green and rapidly scales outwardly 150% toward the camera, behaving precisely like an underwater submarine radar sweeping physical proximity geometry.
+
+**Why:** Glowing geometry scaling radically outward on percussive hits screams tactical radar mechanics.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -718,6 +734,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Unplugged Cord". If a human user dramatically rips the input video cable out of the deck during a live show while `quality` is dragged below `0.2`, rather than instantly cutting to black, the video output locks the last valid frame, turns it neon green, and slowly collapses it into a single horizontal compressed line over 3 seconds before dying.
 
 **Why:** A beautiful television turn-off animation masks the messy reality of a dropped cable.
+
+### [C-026] P3-VD16 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD16 Depth Edge Glow
+
+**Suggestion:** The "CRT Implosion". If a human forcefully drags `bg_dimming` from `1.0` down to `0.0` over the course of exactly 10 seconds perfectly, a hidden sub-routine engages, simulating a 1980s television physically powering down. The neon contours violently compress toward the physical center integer of the canvas, sparking once before snapping out of existence cleanly to pure black.
+
+**Why:** Perfect, smooth dimming gestures over extended lengths are intentional fade-to-blacks; a literal animated power down pays tribute to analog dimming behaviors seamlessly.
 
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
