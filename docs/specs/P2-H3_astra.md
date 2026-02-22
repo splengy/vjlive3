@@ -1,75 +1,109 @@
-# Specification: P2-H3 Astra Depth Camera Integration
+# Spec Template — P2-H3 Astra Depth Camera Integration
 
-## 1. Overview
-The Astra Depth Camera is a critical hardware input for volumetric and depth-based visual effects. Since OpenCV's `CAP_OPENNI2` backend is notoriously unstable across platforms, VJLive3 implements bespoke native drivers: a Linux implementation utilizing `PyUSB` and a Windows/Native implementation invoking the OpenNI2 C API via `ctypes`. This specification details the unification of these backends under a common `AstraSource` class, providing a stable, high-performance depth stream to the `vjlive3` plugin system.
+**File naming:** `docs/specs/P2-H3_astra.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
 
-## 2. Architecture
+---
 
-### 2.1 Backend Selection
-The system automatically detects the OS and loads the appropriate backend:
-- **Linux (`AstraLinuxSource`)**: Uses `pyusb` to talk directly to the Astra hardware (Vendor 0x2bc5, Product 0x0402), bypassing OpenNI2 entirely to avoid library conflicts and segfaults.
-- **Windows (`AstraNativeSource`)**: Uses `ctypes` to load `OpenNI2.dll` and communicate via the C API (`oniInitialize`, `oniStreamReadFrame`, etc.).
+## Task: P2-H3 — Astra Depth Camera Integration
 
-### 2.2 Unified Interface (`AstraSource`)
-Both backends must conform to a unified interface yielding asynchronous access to the depth stream. 
+**Phase:** Phase 2
+**Assigned To:** (Pending Manager Assignment)
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module integrates the Orbbec Astra depth camera into VJLive3's plugin and routing system. It captures raw depth arrays and RGB video frames, normalizes them, and provides them as a video/texture source to the node graph. In accordance with SAFETY RAIL #6, it implements a robust "Simulator Mode" that generates procedural depth data if the physical camera is disconnected or missing drivers.
+
+---
+
+## What It Does NOT Do
+
+- It does NOT render advanced 3D point clouds directly (that belongs to depth effects).
+- It does NOT perform skeletal tracking or gesture recognition (those are separate higher-level nodes).
+
+---
+
+## Public Interface
+
 ```python
-class AstraSourceProtocol(Protocol):
+import numpy as np
+from typing import Optional, Tuple
+from vjlive3.plugins.api import Plugin, VJLiveAPI
+
+class AstraDepthCamera:
+    """Core hardware abstraction for the Astra camera."""
+    def __init__(self, width: int = 640, height: int = 480) -> None: ...
     def start(self) -> bool: ...
     def stop(self) -> None: ...
-    def read_depth(self) -> Tuple[bool, Optional[np.ndarray]]: ...
-    def get_depth_info(self) -> dict: ...
+    def get_frames(self) -> Tuple[Optional[np.ndarray], Optional[np.ndarray]]: 
+        """Returns (depth_frame_normalized_0_to_1, rgb_frame_uint8)"""
+        ...
+    def is_hardware_connected(self) -> bool: ...
+
+class AstraPlugin(Plugin):
+    """Plugin wrapper exposing the camera to the node graph."""
+    def __init__(self, api: VJLiveAPI) -> None: ...
+    def on_load(self) -> None: ...
+    def process(self, context) -> None: ...
+    def on_unload(self) -> None: ...
 ```
 
-### 2.3 Depth Processing Pipeline
-Raw depth data (16-bit unsigned integers representing millimeters) must be conditioned before use by effects:
-- **Temporal Smoothing**: A rolling average buffer (e.g., last 3 frames) to reduce temporal noise.
-- **Thresholding**: Configurable near and far clipping planes (e.g., 0.5m to 4.0m) mapping valid depth to a normalized 0.0-1.0 float32 range.
-- **Invalid Pixel Handling**: Zero-value pixels (no return) must be handled gracefully (e.g., mapped to 0.0 or ignored).
+---
 
-## 3. Implementation Details
+## Inputs and Outputs
 
-### 3.1 Hardware Fail-Graceful (Safety Rail #6)
-If the Astra camera is not physically connected or permissions are denied, the system **must not crash**.
-- The `start()` method should gracefully return `False`.
-- The node graph UI should display the source as "Offline" rather than throwing exceptions.
-- The `read_depth` method should return `(False, None)`.
+| Input | Type | Description |
+|-------|------|-------------|
+| Device connection | Physical USB | Orbbec Astra camera via OpenNI2 or PyUSB |
+| `use_simulation` | `bool` | Force simulated data even if camera is present |
 
-### 3.2 Linux PyUSB Backend (`src/vjlive3/hardware/astra_linux.py`)
-- Identify USB `idVendor=0x2bc5` and `idProduct=0x0402`.
-- Attempt to detach kernel drivers (`dev.detach_kernel_driver`) if bound.
-- Read from the depth bulk IN endpoint asynchronously using a dedicated background thread.
-- Extract $640 \times 480 \times 2$ bytes per frame, reshaping to a `(480, 640)` uint16 numpy array.
-- Employ thread-safe locking (`threading.Lock()`) when copying the latest frame to the reader.
+| Output | Type | Description |
+|--------|------|-------------|
+| `depth_frame` | `np.ndarray` | Float32 array, shape (H,W), normalized 0.0-1.0 |
+| `rgb_frame` | `np.ndarray` | UInt8 array, shape (H,W,3), standard RGB |
+| Texture outputs | GL Texture | Pushed to the render engine for other nodes to use |
 
-### 3.3 Windows Native Backend (`src/vjlive3/hardware/astra_native.py`)
-- Find `OpenNI2.dll` (assume it will be placed in a known `bin/astra/` directory or loaded from system PATH).
-- Handle missing DLL gracefully (fail-graceful).
-- Initialize stream (`ONI_SENSOR_DEPTH`).
-- Read frames in a background thread, using `ctypes` to map the `OniFrame` memory pointer to a numpy array without expensive looping.
+---
 
-### 3.4 Depth Source Manager (`src/vjlive3/hardware/astra.py`)
-A factory or facade class that:
-1. Detects the OS using `sys.platform`.
-2. Instantiates the correct backend.
-3. Provides higher-level processing (normalization, thresholding) if requested.
+## Edge Cases and Error Handling
 
-## 4. Node Graph Integration
+- What happens if the Astra is unplugged mid-show? → The `get_frames` method detects the read failure, logs a warning, automatically falls back to Simulator mode, and emits a device-lost event.
+- What happens if the OpenNI2 drivers are missing on startup? → `AstraDepthCamera` catches the exception during `start()`, logs an ERROR indicating missing drivers, and starts the simulator. (Rail #6 Compliance).
 
-A `DepthCameraNode` must be created in `src/vjlive3/plugins/core/astra_node.py` (or similar core node module):
-- Exposes `near_clip` and `far_clip` parameters.
-- Outputs a 2D float32 texture (via the texture manager) representing the normalized depth map.
-- Generates a valid 1x1 black texture when the camera is offline to prevent shader pipeline errors.
+---
 
-## 5. Testing Requirements
+## Dependencies
 
-- **Unit Tests**:
-  - Mock the USB device/ctypes DLL to verify `start()`, `stop()`, and `read_depth()` logic without hardware.
-  - Verify graceful failure when hardware is missing.
-  - Test depth normalization math.
-- **Integration Tests**:
-  - `scripts/verify_astra_hardware.py` (manual execution) to test live hardware if present.
+- Python dependencies: `numpy`, `opencv-python` (for generic capture if using cv2 CAP_OPENNI2 backend) or `pyusb` for direct access.
+- System dependencies: OpenNI2 shared libraries (Windows/Linux) if going the native ctypes route.
 
-## 6. Constraints & Safety Rails
-- **No Silent Failures**: Connection errors must be logged (`logger.error`), but the application must continue running (Hardware Fail-Graceful).
-- **Resource Leak Prevention**: The background thread must shut down cleanly on `stop()`, and USB resources must be disposed of correctly.
-- **Performance**: The background thread must use `time.sleep(0.001)` or blocking IO timeouts to avoid 100% CPU usage. Frame copies must use `numpy.copy()` within a tight lock to prevent tearing, but the lock must not be held during USB I/O.
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_astra_simulator_fallback` | Instantiating without hardware correctly enters Simulator mode. |
+| `test_astra_frame_normalization` | The simulator (and mock hardware) returns depth arrays correctly scaled 0.0-1.0. |
+| `test_astra_plugin_registration` | The plugin successfully registers its outputs with the VJLive3 API. |
+| `test_astra_disconnect_recovery` | Simulating a hardware disconnect at runtime triggers a smooth fallback to the simulator. |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-2] P2-H3: Astra depth camera integration` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
