@@ -197,6 +197,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Extreme morphological erosion implies melting. Melting things realistically slide down due to gravity.
 
+### [A-024] P3-VD14 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD14 Depth Fracture Datamosh
+
+**Suggestion:** The "Spiderweb Protocol". If `bleed_amount` is set exactly to `-1.0` dynamically (a logically invalid negative dispersion), the datamosh motion inversion causes the video to physically freeze, drawing stark, perfect Voronoi shattered web lines slowly outward from the edges until the entire screen is covered in a static cracked pane.
+
+**Why:** Negative pixel bleeding conceptually implies pulling fragments back together, freezing them into a solid web pattern.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -438,6 +446,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Infinite un-decaying feedback eventually leads to total system heat death, neutralizing into absolute uniform grey.
 
+### [B-024] P3-VD14 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD14 Depth Fracture Datamosh
+
+**Suggestion:** The "Temporal Smash". If an Agent drives the `fracture_decay` from exactly `1.0` down to `0.0` in less than `50ms` globally synced to a high-magnitude audio transient, the shader flushes all buffer feedback frames simultaneously, generating a bright white flash across the entire canvas for 3 frames simulating a physical glass burst.
+
+**Why:** Instantly erasing persistent shattered glass right on a musical drop should feel like a bright, violent pop.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -670,6 +686,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Pac-Man Glitch". If a human rapidly switches the `morph_mode` setting wildly between exactly 0 (Erode) and 1 (Dilate) without touching 2 or 3, a hidden subroutine triggers, rendering a massive, heavily glitched, glowing yellow 8-bit circle with a missing slice flying right to left across the screen eating the datamoshed artifacts.
 
 **Why:** Rapidly growing and shrinking (Dilating and Eroding) is the physical gesture equivalent of opening and closing a mouth. Ergo, Pac-Man.
+
+### [C-024] P3-VD14 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD14 Depth Fracture Datamosh
+
+**Suggestion:** The "Bullet Hole". If a human double-clicks violently on the direct center of the video canvas while the `displacement_strength` is maxed, the datamosh ripples outward radically from that specific coordinate, leaving a perfectly round, stable, undistorted circular "hole" looking strictly through to the un-moshed background layer in the middle.
+
+**Why:** Humans want to direct the chaos; pointing exactly where the glass breaks adds localized narrative structure to the noise.
 
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
