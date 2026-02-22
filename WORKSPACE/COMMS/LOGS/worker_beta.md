@@ -97,3 +97,8 @@
 **Task:** P3-VD20 Depth Slitscan Datamosh
 **Built:** `src/vjlive3/plugins/depth_slitscan_datamosh.py`, `tests/plugins/test_depth_slitscan_datamosh.py` with 7 tests (100% pass, 100% coverage)
 **Blocker:** None
+
+### [2026-02-22 03:20] — STATUS
+**Task:** P3-VD21 Depth Temporal Echo
+**Built:** `src/vjlive3/plugins/depth_temporal_echo.py`, `tests/plugins/test_depth_temporal_echo.py` with 6 tests (100% pass, 100% coverage)
+**Blocker:** None
