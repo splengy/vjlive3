@@ -417,6 +417,14 @@ class EffectChain:
         vao.render(moderngl.TRIANGLE_STRIP)
         vao.release()
 
+    def get_output(self) -> Optional[int]:
+        """Return the texture ID of the last render pass."""
+        return self._last_output_texture if self._last_output_texture else self.fbo_b.texture
+
+    def cleanup(self) -> None:
+        """Alias for delete()."""
+        self.delete()
+
     def delete(self) -> None:
         if hasattr(self, 'fbo_a') and self.fbo_a: self.fbo_a.delete()
         if hasattr(self, 'fbo_b') and self.fbo_b: self.fbo_b.delete()
