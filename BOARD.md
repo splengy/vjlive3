@@ -317,7 +317,7 @@ Unicorn Farts, Void Swirl, Volumetric — **plus all others found in both codeba
 | Task ID | Description | Status | Source |
 |---------|-------------|--------|--------|
 | P7-B1 | License server (JWT + RBAC) | ✅ Done | VJlive-2 |
-| P7-B2 | Plugin marketplace integration | ⬜ Todo | VJlive-2 |
+| P7-B2 | Plugin marketplace integration | ✅ Done | VJlive-2 |
 | P7-B3 | Developer portal | ⬜ Todo | vjlive |
 | P7-B4 | Burst credit licensing | ⬜ Todo | VJlive-2 |
 
