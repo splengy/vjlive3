@@ -245,6 +245,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Because liquid freezing under pressure is physically satisfying, and using the depth cache to pull "time crystals" honors the 3D buffer.
 
+### [A-031] P3-VD20 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD20 Depth Slitscan Datamosh
+
+**Suggestion:** The "Chronomatic Reversal". If an agent dials `near_far_flip` directly to the absolute maximum `1.0` while `chromatic_split` is maxed and `scan_direction` is set to `3.0` (spiral), the temporal buffer logic overflows playfully. The outer RGB edges spiral forwards in time (buffering new live frames), while the center of the performer collapses backwards in time through the entire feedback loop history.
+
+**Why:** Setting deep variables to opposite limits in spiral coordinate space creates mathematically inevitable time-travel paradox aesthetics.
+
 ---
 
 ### [A-028] P2-H1 — Alpha
@@ -544,6 +552,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It transforms the pristine glass aesthetic into something deeply toxic and metallic, a dramatic visual pivot driven purely by stalling the ripple clock.
 
+### [B-031] P3-VD20 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD20 Depth Slitscan Datamosh
+
+**Suggestion:** The "Digital Treadmill". When an agent maps `scan_speed` perfectly to human walking tempo (~105BPM via audio reactor or tap tempo) and sets `scan_direction` to `1.0` (Vertical), the datamosh blocks specifically lock onto the performer's feet. It visually looks like they are walking infinitely forward over a glitching escalator that consumes the stage below them.
+
+**Why:** Syncing linear spatial progression shaders to walking tempos grounds the abstract math directly into human kinetic motion.
+
 ---
 
 ### [B-028] P2-H1 — Alpha
@@ -834,6 +850,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Window Wiper". If a VJ linearly drags the `frosted_glass` parameter from exactly `1.0` to exactly `0.0` over precisely 4 seconds (a heavy swipe gesture), an invisible diagonal "squeegee" line visually wipes the screen from top-left to bottom-right, clearing the noise perfectly in its wake.
 
 **Why:** Frosted glass demands to be wiped clean by a hand. Giving the parameter fade a spatial transition makes setting the dial immensely satisfying.
+
+### [C-031] P3-VD20 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD20 Depth Slitscan Datamosh
+
+**Suggestion:** The "Paintbrush Hand". Because the scan speed is modulated by depth, if a human performer steps entirely back (slowest scan rate) but reaches one hand aggressively forward toward the lens, that single hand tears through the temporal scan lines rapidly and leaves a trailing, highly persistent streak of `scan_glow` wherever it waves, effectively turning their physical hand into a temporal light-brush in 3D space.
+
+**Why:** Depth cameras naturally isolate extreme foreground objects. Tying that isolation to a temporal persistence buffer makes the performer physically interact with the smear trail like thick paint.
 
 ---
 

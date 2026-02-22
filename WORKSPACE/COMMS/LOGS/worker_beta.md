@@ -92,3 +92,8 @@
 **Task:** P3-VD19 Depth Liquid Refraction
 **Built:** `src/vjlive3/plugins/depth_liquid_refraction.py`, `tests/plugins/test_depth_liquid_refraction.py` with 6 tests (100% pass, 100% coverage)
 **Blocker:** None
+
+### [2026-02-22 03:15] — STATUS
+**Task:** P3-VD20 Depth Slitscan Datamosh
+**Built:** `src/vjlive3/plugins/depth_slitscan_datamosh.py`, `tests/plugins/test_depth_slitscan_datamosh.py` with 7 tests (100% pass, 100% coverage)
+**Blocker:** None

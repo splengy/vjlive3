@@ -117,7 +117,7 @@
 | P2-H1 | MIDI controller input | P0 | ✅ Done | `src/vjlive3/core/midi_controller.py` — MidiController, 9/9 tests ✅ 2026-02-22 |
 | P2-H2 | Audio reactive input analysis block | P0 | ✅ Done | `src/vjlive3/audio/...` — Audio Analyzer Pipeline Active |OscClient, 20/20 tests ✅ 2026-02-21 |
 | P2-H3 | Orbbec Astra / Kinect 2 Depth Camera | P1 | ✅ Done | `src/vjlive3/plugins/astra.py` — AstraDepthCamera, 5/5 tests ✅ 2026-02-22 |
-| P2-H4 | NDI video transport (full hub + streams) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H4_ndi.md` |
+| P2-H4 | NDI video transport (full hub + streams) | P1 | ✅ Done | `src/vjlive3/plugins/ndi.py` — NDIHub/NDISender/NDIReceiver, 9/9 tests ✅ 2026-02-22 |
 | P2-H5 | Spout support (Windows video sharing) | P2 | ✅ Done | `src/vjlive3/plugins/spout.py` — SpoutManager, 5/5 tests ✅ 2026-02-22 |
 | P2-H6 | Gamepad input (GLFW backend) | P2 | ✅ Done | `src/vjlive3/plugins/gamepad.py` — GamepadPlugin, 4/4 tests ✅ 2026-02-22 |
 | P2-H7 | Laser safety system | P1 | ✅ Done | `src/vjlive3/hardware/laser.py` — LaserSafetySystem, 8/8 tests ✅ 2026-02-22 |
@@ -161,7 +161,8 @@
 | P3-VD17 | Depth Mosaic | P1 | ✅ Done | `src/vjlive3/plugins/depth_mosaic.py` — DepthMosaicPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD18 | Depth Video Projection | P1 | ✅ Done | `src/vjlive3/plugins/depth_video_projection.py` — DepthVideoProjectionPlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD19 | Depth Liquid Refraction | P1 | ✅ Done | `src/vjlive3/plugins/depth_liquid_refraction.py` — DepthLiquidRefractionPlugin, 6/6 tests ✅ 2026-02-22 |
-| P3-VD20+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
+| P3-VD20 | Depth Slitscan Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_slitscan_datamosh.py` — DepthSlitscanDatamoshPlugin, 7/7 tests ✅ 2026-02-22 |
+| P3-VD21+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 
 ### 3B — Existing Depth Plugins (in VJlive-2 — verify quality, keep or improve)
 Depth Modulated, Depth Edge Glow, Depth Color Grade, Depth Erosion, Depth Fracture,
