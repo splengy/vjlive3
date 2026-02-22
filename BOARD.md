@@ -129,7 +129,7 @@
 | P2-X1 | Multi-node coordination (ZeroMQ) | P0 | ✅ Done | `src/vjlive3/sync/zmq_coordinator.py` — ZmqCoordinator, 4/4 tests ✅ 2026-02-22 |
 | P2-X2 | Timecode sync (LTC/MTC/NTP) | P0 | ✅ Done | `src/vjlive3/sync/timecode.py` — TimecodeEngine + sources, 28/28 tests ✅ 2026-02-21 |
 | P2-X3 | Output mapping + screen warping | P1 | ✅ Done | `src/vjlive3/video/output_mapper.py` — OutputMapper, 6/6 tests ✅ 2026-02-22 |
-| P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-X4_projection_mapping.md` |
+| P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | ✅ Done | `src/vjlive3/video/projection_mapper.py` — ProjectionMapper, 4/4 tests ✅ 2026-02-22 |
 
 **Phase 2 Gate:** DMX test signal works. MIDI input registers. Hardware-absent fails gracefully.
 

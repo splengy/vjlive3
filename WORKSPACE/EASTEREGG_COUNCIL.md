@@ -149,6 +149,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Output mapping involves forcing 2D textures onto 3D surfaces conceptually. Nodding to impossible geometry is a fun math joke for anyone reading the code.
 
+### [A-012] P2-X4 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-X4 Projection Mapping
+
+**Suggestion:** If a user creates a `PolygonMask` with precisely 13 points shaped like a skull, the blend regions momentarily invert their gamma curves (flashing negative edge shadows) when the mask is saved.
+
+**Why:** Digital masks blocking out physical structures are common in VJing, but skull masks are a mainstay of underground dark-rave culture. Spooky feedback is good feedback.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -253,6 +261,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** An agent finding the Fibonacci sequence conceptually and mapping it to physical screen layout positions should be visually rewarded with a spiral.
 
+### [B-012] P2-X4 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-X4 Projection Mapping
+
+**Suggestion:** If an AI manager agent overlaps three projectors together with a combined blend delta of >2.5 width units (an insane hardware layout), the `ProjectionMapper` logs: "Agent projector fusion detected. Attempting to synthesize a localized sun."
+
+**Why:** Because agents don't have to physically rig the heavy projectors to ceilings, they occasionally request physically impossible arrays. The renderer gently mocking them adds character.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -356,6 +372,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If a human user names a screen slice EXACTLY `"The Eye"` and drags all 4 warp points to the precise center of the screen `(0.5, 0.5)` collapsing it to infinite density, the screen goes pure white for 1 second with a soft bass drop audio cue before returning to normal.
 
 **Why:** Mapping involves dragging points around physically. Collapsing a projection slice into a singularity is a fun interactive glitch for the human to discover.
+
+### [C-012] P2-X4 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-X4 Projection Mapping
+
+**Suggestion:** If a user names a blend region `"Vantablack"` and rapidly sets its luminance to 0.0 five times, the system temporarily draws the blend region as pure #FF00FF magenta instead of a gradient.
+
+**Why:** Edge blending tuning is heavily dependent on ambient room lighting and projector black levels. When a frustrated human tries to force an impossible black, flashing magenta serves as high-contrast calibration tape so they can actually see the seam. It's an easter egg that actively helps debugging.
 
 ---
 
