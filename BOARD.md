@@ -105,7 +105,7 @@
 |---------|-------------|----------|--------|--------|
 | P2-D1 | DMX512 core engine + fixture profiles | P0 | ✅ Done | Spec ready: `docs/specs/P2-D1_dmx_engine.md` |
 | P2-D2 | ArtNet + sACN output | P0 | ✅ Done | Spec ready: `docs/specs/P2-D2_artnet_output.md` |
-| P2-D3 | DMX FX engine (chases, rainbow, strobe) | P0 | ⏳ Queued | Spec ready: `docs/specs/P2-D3_dmx_fx.md` |
+| P2-D3 | DMX FX engine (chases, rainbow, strobe) | P0 | ✅ Done | Spec ready: `docs/specs/P2-D3_dmx_fx.md` |
 | P2-D4 | Show control system | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-D4_show_control.md` |
 | P2-D5 | Audio-reactive DMX | P1 | ✅ Done | `src/vjlive3/core/dmx/audio_dmx.py` — AudioDmxLink, 5/5 tests ✅ 2026-02-22 |
 | P2-D6 | DMX WebSocket handler | P1 | ⬜ Todo | Blocked on P2-D1 |

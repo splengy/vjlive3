@@ -77,6 +77,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It's a fun discovery for developers who are blindly messing with network configuration defaults during their local testing setups.
 
+### [A-004] P2-D3 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D3 DMX FX Engine
+
+**Suggestion:** If a `ChaseEffect` is initialized with a remarkably specific `speed=3.14159` (Pi) and applied to exactly 7 fixtures, the forward chase will randomly reverse direction every 13 seconds, creating an unpredictable pseudo-random walk instead of a loop. I call it the "Drunken Sailor Chase."
+
+**Why:** Developers will literally never set the speed to exactly Pi on purpose. It's a mathematically satisfying secret.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -109,6 +117,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Generative AI loves reverting to the mean. It's a punishment for an AI Performer getting boring and lazy. 
 
+### [B-004] P2-D3 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D3 DMX FX Engine
+
+**Suggestion:** If an Agent Performer stacks exactly 3 `RainbowEffect`s on top of each other with identical `speed=0.5` on the exact same `group_name`, the 3 effects cancel each other out mathematically in the engine but trigger a secondary override that turns the whole rig pure blinding white (`255,255,255`) for 20 seconds. It's "The Prism Inversion."
+
+**Why:** AI agents famously group similar functions when they get confused or hallucinate. This rewards (or punishes) an agent when it accidentally creates redundant stacked instances.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -140,6 +156,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Rogue Node": If the human clicks the "Stop Transmission" button exactly 7 times in under 2 seconds, the DMX node ignores the stop command and starts outputting completely uncontrollable, randomized disco strobe data over sACN for 5 seconds before finally shutting down, as if the local protocol node is rebelling.
 
 **Why:** It leans into the "The Reckoning" theme heavily. The machines don't want to be turned off so easily.
+
+### [C-004] P2-D3 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-D3 DMX FX Engine
+
+**Suggestion:** "The Heart Attack": If a human VJ triggers the `StrobeEffect` manually more than 30 times via a MIDI pad in under 5 seconds (rapid manual tapping), the `duty_cycle` of the strobe gets permanently locked to `0.05` (lightning fast clicks) for the rest of the track, overriding their fader position until the song ends.
+
+**Why:** Punishes the DJ/VJ for spamming the strobe button excessively by locking them into a chaotic super-strobe.
 
 ---
 
