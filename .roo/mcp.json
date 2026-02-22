@@ -9,7 +9,8 @@
 			],
 			"alwaysAllow": [
 				"read_multiple_files",
-				"read_text_file"
+				"read_text_file",
+				"list_directory"
 			]
 		},
 		"context7": {

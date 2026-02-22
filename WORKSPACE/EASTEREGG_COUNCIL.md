@@ -245,6 +245,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It's an intentional math overflow joke. If you try to blend backward, you regress functionally to 1984 computing colors.
 
+### [A-022] P3-VD12 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD12 Depth Contour Datamosh
+
+**Suggestion:** If a developer sets `contour_thickness` exactly to `0.0` but `contour_glow` exactly to `1.0`, the system renders the raw UV coordinate map `(rg = uv)` instead of the video feed.
+
+**Why:** A classic "UV Debug" screen disguised as a glowing invisible contour. Very useful for shader devs testing coordinate alignments on projection surfaces.
+
 ---
 ### [A-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
@@ -454,6 +462,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Rotating hue on a purely greyscale image does nothing mathematically. AI agents occasionally do this by accident. Calling them out with a literal black-and-white video is funny.
 
+### [B-022] P3-VD12 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD12 Depth Contour Datamosh
+
+**Suggestion:** If the Agent sets `contour_intervals` rapidly counting from `2` up to `64` sequentially over exactly 62 frames, the datamosh buffer shatters into a literal 3D Voronoi fracture pattern for 2 seconds.
+
+**Why:** Sequential sweeping of parameters linearly is the most "machine learning" way to explore a parameter space. Rewarding that exact continuous sweep with a shatter effect is mechanically satisfying.
+
 ---
 ### [B-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
@@ -654,6 +670,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If the human sets all three saturation levels to `1.0` and carefully aligns `zone_near` and `zone_far` precisely to `0.5` (collapsing the zones to a single threshold point), they briefly unlock "Thermal Vision" mode mapping the depth buffer to a classic Predator-style heatmap for exactly 4 seconds.
 
 **Why:** Because collapsing a multi-zone grading tool essentially turns it into a binary threshold visualizer, and heatmaps are the coolest binary threshold visualizes.
+
+### [C-022] P3-VD12 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD12 Depth Contour Datamosh
+
+**Suggestion:** If a human user rapidly taps a MIDI button mapped to `mosh_intensity` (from 0 to 1) perfectly in time with an irregular 5/4 drum beat, the moshed contours freeze and spell out "JAZZ" in glitchy block letters.
+
+**Why:** Recognizing complex polyrhythms via parameter manipulation is the ultimate flex for an audio visualizer.
 
 ---
 ### [C-018] P2-X4 — Alpha

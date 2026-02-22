@@ -67,3 +67,8 @@
 **Task:** P3-VD11 Depth Color Grade
 **Built:** `src/vjlive3/plugins/depth_color_grade.py`, `tests/plugins/test_depth_color_grade.py` with 6 tests (100% pass, 100% coverage)
 **Blocker:** None
+
+### [2026-02-22 02:50] — STATUS
+**Task:** P3-VD12 Depth Contour Datamosh
+**Built:** `src/vjlive3/plugins/depth_contour_datamosh.py`, `tests/plugins/test_depth_contour_datamosh.py` with 7 tests (100% pass, 100% coverage)
+**Blocker:** None
