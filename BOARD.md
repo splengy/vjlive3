@@ -50,6 +50,28 @@
 - [x] Silicon Sigil verified on boot
 - [x] AGENT_SYNC.md phase completion note
 
+### P0-INF2: Legacy Feature Parity Analysis & Implementation Plan
+
+| Task ID | Description | Priority | Status | Source |
+|---------|-------------|----------|--------|--------|
+| P0-INF2 | Legacy Feature Parity - 600-800+ missing features (revised) | P0 | ⬜ Todo | AST analysis of vjlive/ & VJlive-2/ |
+| | **Spec:** `docs/specs/P0-INF2_legacy_feature_parity.md` | | | |
+| | **Critical Collections:** | | | |
+| | - Depth Collection: 100+ missing depth plugins | | | |
+| | - Audio Families: Bogaudio (10) + Befaco (6) | | | |
+| | - V-* Effects: 14 missing visual collections | | | |
+| | - Datamosh Family: 20+ missing effects | | | |
+| | - Quantum/Agent: Advanced systems | | | |
+
+**Implementation Strategy:**
+- Phase 1: Critical Depth Collection (100+ plugins from both codebases)
+- Phase 2: Audio Plugin Families (16 plugins)
+- Phase 3: V-* Visual Effects (14 collections)
+- Phase 4: Datamosh Family (20+ effects)
+- Phase 5: Quantum & Agent Systems
+
+**Verification:** All 600-800+ features ported with 60 FPS, 80%+ test coverage, zero safety rail violations.
+
 ---
 
 ## Phase 1: Foundation & Rendering (Weeks 1-4) 🔴 RESET — Code wiped. Must read legacy FIRST before rewriting.

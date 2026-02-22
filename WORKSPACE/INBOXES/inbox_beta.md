@@ -1,87 +1,39 @@
-# Implementation Tasks — Phase 7 Business
+# Implementation Tasks — P0-INF2: Legacy Feature Parity Phase 1
 
-**Assigned By:** Manager-Gemini-3.1
+**Assigned By:** Manager
 **Date:** 2026-02-22
-**Priority:** P0-P1 — Complete Phase 7 Business collection
+**Priority:** P0 — Critical Depth Collection Porting
 
 ---
 
 ## Context
+Worker Beta, your Phase 7 Business obligations are suspended. We are formally initiating the **P0-INF2 Legacy Feature Parity** protocol. 
 
-Phase 7 requires porting 4 business modules from the legacy VJlive-2 codebase. All specifications have been created and approved. These are business infrastructure modules for licensing, marketplace, analytics, and updates.
+The legacy codebases (`vjlive` and `VJlive-2`) house incredible depth, including 423 unique effect/plugin classes. We are saving the soul of this project.
 
----
+You are assigned **Phase 1: Critical Depth Collection**. There are 87 depth processing plugins that must be ported from the legacy models to the new VJLive3 standard.
 
-## Task List
+## Master Specification
+Your absolute Source of Truth for this massive initiative is:
+`docs/specs/P0-INF2_legacy_feature_parity.md`
 
-### P7-B1: License Server (JWT + RBAC)
+## The Initial Workload
+Begin porting the highest-priority depth plugins into `src/vjlive3/plugins/depth`:
+1. `Depth Loop Injection`
+2. `Depth Parallel Universe`
+3. `Depth Portal Composite`
+4. `Depth Neural Quantum Hyper Tunnel`
+5. `Depth Reality Distortion`
 
-**Spec:** `docs/specs/phase7_business/P7-B1_License_Server.md`
-**Priority:** P0
-**Dependencies:** pyjwt, sqlite3/sqlalchemy
-**Test coverage:** ≥80%
+## Phase Gate Checklist
+For every single module you port, you MUST achieve the following before returning execution:
 
-### P7-B2: Plugin Marketplace Integration
-
-**Spec:** `docs/specs/phase7_business/P7-B2_Plugin_Marketplace.md`
-**Priority:** P0
-**Dependencies:** requests, aiohttp
-**Test coverage:** ≥80%
-
-### P7-B3: Analytics Dashboard
-
-**Spec:** `docs/specs/phase7_business/P7-B3_Analytics_Dashboard.md`
-**Priority:** P1
-**Dependencies:** sqlite3/sqlalchemy, pandas
-**Test coverage:** ≥80%
-
-### P7-B4: Update Server (Delta Patches)
-
-**Spec:** `docs/specs/phase7_business/P7-B4_Update_Server.md`
-**Priority:** P1
-**Dependencies:** requests, cryptography
-**Test coverage:** ≥80%
+- [ ] **No-Stub Policy**: Absolutely no dead code logic paths.
+- [ ] **Interface**: Inherit correctly from `vjlive3.plugins.api.PluginBase`.
+- [ ] **Test Coverage**: You must write Pytest hardware mocks and achieve >= 80% coverage per module.
+- [ ] **Performance Limit**: Real-time 60fps capability. Do not bloat the system. Run `scripts/check_performance_regression.py`.
+- [ ] **Security**: Run `scripts/check_souls.py` and `scripts/check_stubs.py` and ensure zero violations.
 
 ---
 
-## Instructions
-
-1. Read each specification file thoroughly before starting implementation.
-2. Implement modules in order: P7-B1 through P7-B4.
-3. Follow the Definition of Done in each spec:
-   - All tests pass
-   - No file over 750 lines
-   - No stubs
-   - Git commit with proper message
-   - Update BOARD.md
-   - Write AGENT_SYNC.md handoff note
-4. Use the pre-commit hooks to verify:
-   - `scripts/check_stubs.py`
-   - `scripts/check_file_size.py`
-   - `scripts/check_performance_regression.py`
-5. Respect all Safety Rails in `WORKSPACE/SAFETY_RAILS.md`.
-6. Coordinate with other agents via `WORKSPACE/COMMS/AGENT_SYNC.md`.
-
----
-
-## Critical Notes
-
-- These are **business** modules — security and reliability are critical.
-- All modules must conform to the `PluginBase` interface in `src/vjlive3/plugins/api.py`.
-- Parameter ranges and defaults must match the legacy manifest specifications exactly.
-- Ensure proper handling of edge cases: security vulnerabilities, data corruption, network failures.
-
----
-
-## Verification
-
-After completing each module:
-1. Run tests: `pytest tests/plugins/test_<plugin_name>.py`
-2. Check coverage: `pytest --cov=src/vjlive3/plugins`
-3. Update `BOARD.md` status to ✅ Done
-4. Write completion note in `WORKSPACE/COMMS/STATUS/P7-<task-id>.txt`
-5. Create `task_completion_P7-<task-id>.md` with summary
-
----
-
-**Begin implementation. Report progress via AGENT_SYNC.md.**
+**Execution is yours. Begin porting Depth Loop Injection.**

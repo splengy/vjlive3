@@ -1,0 +1,3547 @@
+{
+  "audit_metadata": {
+    "timestamp": "2025-02-22",
+    "vjlive_root": "/home/happy/Desktop/claude projects/vjlive",
+    "vjlive2_root": "/home/happy/Desktop/claude projects/VJlive-2",
+    "total_plugins_found": 218,
+    "currently_implemented": 35,
+    "missing_plugins": 218
+  },
+  "categories": {
+    "Quantum/AI": {
+      "count": 10,
+      "plugins": [
+        {
+          "name": "agent_avatar",
+          "class_name": "TravelingAvatarEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vagent/agent_avatar.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "agent_avatar",
+          "class_name": "AgentAvatarEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vagent/agent_avatar.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "base",
+          "class_name": "VmlBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vml/base.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "ml_gpu_effects",
+          "class_name": "MLBaseAsyncEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vml/ml_gpu_effects.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "ml_gpu_effects",
+          "class_name": "MLStyleGLEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vml/ml_gpu_effects.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "ml_gpu_effects",
+          "class_name": "MLSegmentationBlurGLEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vml/ml_gpu_effects.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "neural_rave_nexus",
+          "class_name": "NeuralRaveNexus",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/neural_rave_nexus.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "quantum_consciousness_explorer",
+          "class_name": "QuantumConsciousnessExplorer",
+          "source": "VJlive-2",
+          "file_path": "plugins/quantum_consciousness_explorer.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "trails",
+          "class_name": "TrailsEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/trails.py",
+          "description": "",
+          "category": "Quantum/AI"
+        },
+        {
+          "name": "tunnel_vision_3",
+          "class_name": "QuantumConsciousnessSingularityEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/tunnel_vision_3.py",
+          "description": "",
+          "category": "Quantum/AI"
+        }
+      ]
+    },
+    "Other": {
+      "count": 93,
+      "plugins": [
+        {
+          "name": "V Sws",
+          "class_name": "VSwsEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/v_sws.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "V Sws",
+          "class_name": "HorizontalWaveEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/v_sws.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "V Sws",
+          "class_name": "VerticalWaveEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/v_sws.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "V Sws",
+          "class_name": "RippleEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/v_sws.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "V Sws",
+          "class_name": "SpiralWaveEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/v_sws.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "ascii_effect",
+          "class_name": "ASCIIEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/ascii_effect.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "VmathsBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vmaths/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "VstyleBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vstyle/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "VfunctionBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vfunction/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "Vtides_anomBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vtides_anom/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "VlxdBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vlxd/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "VtempiBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vtempi/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "VjumblerBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vjumbler/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "Vmi_complexBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vmi_complex/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "Vstages_anomBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vstages_anom/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "Vshadertoy_extraBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vshadertoy_extra/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "base",
+          "class_name": "VechophonBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vechophon/base.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "bass_cannon_2",
+          "class_name": "BassCanon2",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/bass_cannon_2.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "FeedbackEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "BlendAddEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "BlendMultEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "BlendDiffEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "ScanlinesEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "VignetteEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "InfiniteFeedbackEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "BloomEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "BloomShadertoyEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend",
+          "class_name": "MixerEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "blend_modes",
+          "class_name": "_BlendMode",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend_modes.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "chroma_key",
+          "class_name": "ChromaKeyEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/chroma_key.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "PosterizeEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "ContrastEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "SaturateEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "HueEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "BrightnessEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "InvertEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "ThreshEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "RGBShiftEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color",
+          "class_name": "ColorCorrectEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "color_grade",
+          "class_name": "ColorGradeEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/color_grade.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "colorama",
+          "class_name": "ColoramaEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vcore/colorama.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "displacement_map",
+          "class_name": "DisplacementMapEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/displacement_map.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "distortion",
+          "class_name": "ChromaticDistortionEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/distortion.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "distortion",
+          "class_name": "PatternDistortionEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/distortion.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "dithering",
+          "class_name": "DitheringEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/dithering.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "fluid_sim",
+          "class_name": "FluidSimEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/fluid_sim/fluid_sim.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "geometry",
+          "class_name": "MandalascopeEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/geometry.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "geometry",
+          "class_name": "RotateEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/geometry.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "geometry",
+          "class_name": "ScaleEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/geometry.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "geometry",
+          "class_name": "PixelateEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/geometry.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "geometry",
+          "class_name": "RepeatEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/geometry.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "geometry",
+          "class_name": "ScrollEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/geometry.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "geometry",
+          "class_name": "MirrorEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/geometry.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "geometry",
+          "class_name": "ProjectionMappingEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/geometry.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "hyperion",
+          "class_name": "VimanaHyperion",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vimana/hyperion.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "hyperspace_tunnel",
+          "class_name": "HyperspaceTunnelEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/hyperspace/hyperspace_tunnel.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "living_fractal_consciousness",
+          "class_name": "LivingFractalConsciousness",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/living_fractal_consciousness.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "luma_chroma_mask",
+          "class_name": "LumaChromaMaskEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/luma_chroma_mask.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "lut_grading",
+          "class_name": "LUTGradingEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/lut_grading.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "milkdrop",
+          "class_name": "MilkdropEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/milkdrop/milkdrop.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "morphology",
+          "class_name": "MorphologyEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/morphology.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "oscilloscope",
+          "class_name": "OscilloscopeEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/oscilloscope.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "plugin_template",
+          "class_name": "CustomEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/plugin_template.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "pop_art_effects",
+          "class_name": "BenDayDotsEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vstyle/pop_art_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "pop_art_effects",
+          "class_name": "WarholQuadEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vstyle/pop_art_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "r16_deep_mosh_studio",
+          "class_name": "R16DeepMoshStudio",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/r16_deep_mosh_studio.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "r16_interstellar_mosh",
+          "class_name": "R16InterstellarMosh",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/r16_interstellar_mosh.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "reaction_diffusion",
+          "class_name": "ReactionDiffusionEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/reaction_diffusion/reaction_diffusion.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "resize_effect",
+          "class_name": "ResizeEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/resize_effect.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "rutt_etra_scanline",
+          "class_name": "RuttEtraScanlineEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/rutt_etra_scanline.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "silver_visions",
+          "class_name": "VideoOutEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/silver_visions.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "silver_visions",
+          "class_name": "ImageInEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/silver_visions.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "silver_visions",
+          "class_name": "CoordinateFolderEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/silver_visions.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "silver_visions",
+          "class_name": "AffineTransformEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/silver_visions.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "silver_visions",
+          "class_name": "PreciseDelayEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/silver_visions.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "slit_scan",
+          "class_name": "SlitScanEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/slit_scan.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "sync_eater",
+          "class_name": "SyncEaterEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/sync_eater.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "time_remap",
+          "class_name": "TimeRemapEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/time_remap.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vcv_video_effects",
+          "class_name": "GaussianBlurEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vcv_video_effects",
+          "class_name": "MultibandColorEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vcv_video_effects",
+          "class_name": "HDRToneMapEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vcv_video_effects",
+          "class_name": "SolarizeEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vcv_video_effects",
+          "class_name": "ResonantBlurEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vcv_video_effects",
+          "class_name": "AdaptiveContrastEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vcv_video_effects",
+          "class_name": "SpatialEchoEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vcv_video_effects",
+          "class_name": "DelayZoomEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_effects.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vibrant_retro_styles",
+          "class_name": "RioAestheticEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vstyle/vibrant_retro_styles.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vimana",
+          "class_name": "Vimana",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vimana/vimana.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vimana_hyperion_ultimate",
+          "class_name": "VimanaHyperionUltimate",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/effect_vimana_hyperion/vimana_hyperion_ultimate.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "vimana_synth",
+          "class_name": "VimanaEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vvimana/vimana_synth.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "visualizer",
+          "class_name": "VisualizerEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/visualizer.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "visualizer",
+          "class_name": "SpectrumAnalyzerEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/visualizer.py",
+          "description": "",
+          "category": "Other"
+        },
+        {
+          "name": "visualizer",
+          "class_name": "VUMeterEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/visualizer.py",
+          "description": "",
+          "category": "Other"
+        }
+      ]
+    },
+    "Generator": {
+      "count": 15,
+      "plugins": [
+        {
+          "name": "base",
+          "class_name": "Vmake_noiseBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vmake_noise/base.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "fractal_generator",
+          "class_name": "FractalGenerator",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/fractal_generator.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "generators",
+          "class_name": "OscEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "generators",
+          "class_name": "NoiseEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "generators",
+          "class_name": "VoronoiEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "generators",
+          "class_name": "GradientEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "generators",
+          "class_name": "MandalaEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "generators",
+          "class_name": "PlasmaEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "generators",
+          "class_name": "PerlinEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "silver_visions",
+          "class_name": "PathGeneratorEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/silver_visions.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "vcv_video_generators",
+          "class_name": "HarmonicPatternsGen",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "vcv_video_generators",
+          "class_name": "FMCoordinatesGen",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "vcv_video_generators",
+          "class_name": "MacroShapeGen",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "vcv_video_generators",
+          "class_name": "GranularVideoGen",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_generators.py",
+          "description": "",
+          "category": "Generator"
+        },
+        {
+          "name": "vcv_video_generators",
+          "class_name": "ResonantGeometryGen",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_generators.py",
+          "description": "",
+          "category": "Generator"
+        }
+      ]
+    },
+    "Particle/3D": {
+      "count": 5,
+      "plugins": [
+        {
+          "name": "base",
+          "class_name": "VparticlesBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vparticles/base.py",
+          "description": "",
+          "category": "Particle/3D"
+        },
+        {
+          "name": "particles_3d",
+          "class_name": "AdvancedParticle3DSystem",
+          "source": "VJlive-2",
+          "file_path": "plugins/vparticles/particles_3d.py",
+          "description": "",
+          "category": "Particle/3D"
+        },
+        {
+          "name": "particles_3d",
+          "class_name": "Particle3DSystem",
+          "source": "VJlive-2",
+          "file_path": "plugins/vparticles/particles_3d.py",
+          "description": "",
+          "category": "Particle/3D"
+        },
+        {
+          "name": "shadertoy_particles",
+          "class_name": "ShadertoyParticles",
+          "source": "VJlive-2",
+          "file_path": "plugins/vshadertoy_extra/shadertoy_particles.py",
+          "description": "",
+          "category": "Particle/3D"
+        },
+        {
+          "name": "vibrant_retro_styles",
+          "class_name": "RadiantMeshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vstyle/vibrant_retro_styles.py",
+          "description": "",
+          "category": "Particle/3D"
+        }
+      ]
+    },
+    "Depth": {
+      "count": 50,
+      "plugins": [
+        {
+          "name": "Depth Acid Fractal",
+          "class_name": "DepthAcidFractalDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_acid_fractal.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Aware Compression",
+          "class_name": "DepthAwareCompressionEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_aware_compression.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Blur",
+          "class_name": "DepthBlurEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_blur.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Camera Splitter",
+          "class_name": "DepthCameraSplitterEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_camera_splitter.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Color Grade",
+          "class_name": "DepthColorGradeEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_color_grade.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Contour Datamosh",
+          "class_name": "DepthContourDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_contour_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Data Mux",
+          "class_name": "DepthDataMuxEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_data_mux.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Distance Filter",
+          "class_name": "DepthDistanceFilterEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_distance_filter.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Dual",
+          "class_name": "DepthDualEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_dual.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Edge Glow",
+          "class_name": "DepthEdgeGlowEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_edge_glow.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "DepthEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "DepthPointCloudEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "DepthPointCloud3DEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "DepthMeshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "DepthContourEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "DepthParticle3DEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "DepthDistortionEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "DepthFieldEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "OpticalFlowEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Effects",
+          "class_name": "BackgroundSubtractionEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Erosion Datamosh",
+          "class_name": "DepthErosionDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_erosion_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Feedback Matrix Datamosh",
+          "class_name": "DepthFeedbackMatrixDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_feedback_matrix_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Fog",
+          "class_name": "DepthFogEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_fog.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Fracture Datamosh",
+          "class_name": "DepthFractureDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_fracture_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Fx Loop",
+          "class_name": "DepthFXLoopEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_fx_loop.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Groovy Datamosh",
+          "class_name": "DepthGroovyDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_groovy_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Holographic",
+          "class_name": "DepthHolographicIridescenceEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_holographic.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Liquid Refraction",
+          "class_name": "DepthLiquidRefractionEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_liquid_refraction.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Loop Injection Datamosh",
+          "class_name": "DepthLoopInjectionDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_loop_injection_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Modular Datamosh",
+          "class_name": "DepthModularDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_modular_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Modulated Datamosh",
+          "class_name": "DepthModulatedDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_modulated_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Mosaic",
+          "class_name": "DepthMosaicEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_mosaic.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Mosh Nexus",
+          "class_name": "DepthMoshNexus",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_mosh_nexus.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Motion Transfer",
+          "class_name": "DepthMotionTransferEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_motion_transfer.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Parallel Universe Datamosh",
+          "class_name": "DepthParallelUniverseDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_parallel_universe_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Particle Shred",
+          "class_name": "DepthParticleShredEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_particle_shred.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Portal Composite",
+          "class_name": "DepthPortalCompositeEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_portal_composite.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Raver Datamosh",
+          "class_name": "DepthRaverDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_raver_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Reverb",
+          "class_name": "DepthReverbEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_reverb.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Simulator",
+          "class_name": "DepthSimulatorEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_simulator.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Slitscan Datamosh",
+          "class_name": "DepthSlitScanDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_slitscan_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Temporal Echo",
+          "class_name": "DepthTemporalEchoEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_temporal_echo.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Temporal Strat",
+          "class_name": "DepthTemporalStratEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_temporal_strat.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Vector Field Datamosh",
+          "class_name": "DepthVectorFieldDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_vector_field_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Video Projection",
+          "class_name": "DepthVideoProjectionEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_video_projection.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "Depth Void Datamosh",
+          "class_name": "DepthVoidDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/depth_void_datamosh.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "datamosh_3d",
+          "class_name": "DepthDisplacementEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/datamosh_3d.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "datamosh_3d",
+          "class_name": "DepthEchoEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/datamosh_3d.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "ml_gpu_effects",
+          "class_name": "MLDepthEstimationEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vml/ml_gpu_effects.py",
+          "description": "",
+          "category": "Depth"
+        },
+        {
+          "name": "quantum_depth_nexus_effect",
+          "class_name": "QuantumDepthNexus",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdepth/quantum_depth_nexus_effect.py",
+          "description": "",
+          "category": "Depth"
+        }
+      ]
+    },
+    "Datamosh": {
+      "count": 36,
+      "plugins": [
+        {
+          "name": "bad_trip_datamosh",
+          "class_name": "BadTripDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/bad_trip_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "base",
+          "class_name": "VvoxglitchBase",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vvoxglitch/base.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "bass_cannon_datamosh",
+          "class_name": "BassCannonDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/bass_cannon_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "bass_therapy_datamosh",
+          "class_name": "BassTherapyDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/bass_therapy_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "blend",
+          "class_name": "GlitchEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "bullet_time_datamosh",
+          "class_name": "BulletTimeDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/bullet_time_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "cellular_automata_datamosh",
+          "class_name": "CellularAutomataDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/cellular_automata_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "cotton_candy_datamosh",
+          "class_name": "CottonCandyDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/cotton_candy_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "cupcake_cascade_datamosh",
+          "class_name": "CupcakeCascadeDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/cupcake_cascade_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh",
+          "class_name": "CompressionEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vcore/datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh",
+          "class_name": "DatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/core/vcore/datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh",
+          "class_name": "PixelBloomEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh",
+          "class_name": "MeltEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh",
+          "class_name": "PixelSortEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh",
+          "class_name": "FrameHoldEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh_3d",
+          "class_name": "Datamosh3DEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/datamosh_3d.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh_3d",
+          "class_name": "LayerSeparationEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/datamosh_3d.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "datamosh_3d",
+          "class_name": "ShatterEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/datamosh_3d.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "dimension_splice_datamosh",
+          "class_name": "DimensionSpliceDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/dimension_splice_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "dolly_zoom_datamosh",
+          "class_name": "DollyZoomDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/dolly_zoom_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "face_melt_datamosh",
+          "class_name": "FaceMeltDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/face_melt_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "fracture_rave_datamosh",
+          "class_name": "FractureRaveDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/fracture_rave_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "liquid_lsd_datamosh",
+          "class_name": "LiquidLSDDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/liquid_lsd_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "mosh_pit_datamosh",
+          "class_name": "MoshPitDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/mosh_pit_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "neural_splice_datamosh",
+          "class_name": "NeuralSpliceDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/neural_splice_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "particle_datamosh_trails",
+          "class_name": "ParticleDatamoshTrailsEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/particle_datamosh_trails.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "plasma_melt_datamosh",
+          "class_name": "PlasmaMeltDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/plasma_melt_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "prism_realm_datamosh",
+          "class_name": "PrismRealmDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/prism_realm_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "sacred_geometry_datamosh",
+          "class_name": "SacredGeometryDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/sacred_geometry_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "spirit_aura_datamosh",
+          "class_name": "SpiritAuraDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/spirit_aura_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "temporal_rift_datamosh",
+          "class_name": "TemporalRiftDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/temporal_rift_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "tunnel_vision_datamosh",
+          "class_name": "TunnelVisionDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/tunnel_vision_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "unicorn_farts_datamosh",
+          "class_name": "UnicornFartsDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/unicorn_farts_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "void_swirl_datamosh",
+          "class_name": "VoidSwirlDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/void_swirl_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "volumetric_datamosh",
+          "class_name": "VolumetricDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/volumetric_datamosh.py",
+          "description": "",
+          "category": "Datamosh"
+        },
+        {
+          "name": "volumetric_glitch",
+          "class_name": "VolumetricGlitchEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/volumetric_glitch.py",
+          "description": "",
+          "category": "Datamosh"
+        }
+      ]
+    },
+    "Audio": {
+      "count": 7,
+      "plugins": [
+        {
+          "name": "Audio Reactive Effects",
+          "class_name": "AudioParticleSystem",
+          "source": "VJlive-2",
+          "file_path": "plugins/vaudio_reactive/audio_reactive_effects.py",
+          "description": "",
+          "category": "Audio"
+        },
+        {
+          "name": "Audio Reactive Effects",
+          "class_name": "AudioWaveformDistortion",
+          "source": "VJlive-2",
+          "file_path": "plugins/vaudio_reactive/audio_reactive_effects.py",
+          "description": "",
+          "category": "Audio"
+        },
+        {
+          "name": "Audio Reactive Effects",
+          "class_name": "AudioSpectrumTrails",
+          "source": "VJlive-2",
+          "file_path": "plugins/vaudio_reactive/audio_reactive_effects.py",
+          "description": "",
+          "category": "Audio"
+        },
+        {
+          "name": "Audio Reactive Effects",
+          "class_name": "AudioKaleidoscope",
+          "source": "VJlive-2",
+          "file_path": "plugins/vaudio_reactive/audio_reactive_effects.py",
+          "description": "",
+          "category": "Audio"
+        },
+        {
+          "name": "cosmic_tunnel_datamosh",
+          "class_name": "CosmicTunnelDatamoshEffect",
+          "source": "VJlive-2",
+          "file_path": "plugins/vdatamosh/cosmic_tunnel_datamosh.py",
+          "description": "",
+          "category": "Audio"
+        },
+        {
+          "name": "raymarched_scenes",
+          "class_name": "AudioReactiveRaymarchedScenes",
+          "source": "VJlive-2",
+          "file_path": "plugins/vshadertoy_extra/raymarched_scenes.py",
+          "description": "",
+          "category": "Audio"
+        },
+        {
+          "name": "vcv_video_generators",
+          "class_name": "ByteBeatGen",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/vcv_video_generators.py",
+          "description": "",
+          "category": "Audio"
+        }
+      ]
+    },
+    "Modulator": {
+      "count": 1,
+      "plugins": [
+        {
+          "name": "blend",
+          "class_name": "ModulateEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/blend.py",
+          "description": "",
+          "category": "Modulator"
+        }
+      ]
+    },
+    "V-Effect": {
+      "count": 1,
+      "plugins": [
+        {
+          "name": "analog_tv",
+          "class_name": "AnalogTVEffect",
+          "source": "vjlive",
+          "file_path": "plugins/vcore/analog_tv.py",
+          "description": "",
+          "category": "V-Effect"
+        }
+      ]
+    }
+  },
+  "missing_plugins": [
+    {
+      "name": "Audio Reactive Effects",
+      "class_name": "AudioParticleSystem",
+      "source": "VJlive-2",
+      "file_path": "plugins/vaudio_reactive/audio_reactive_effects.py",
+      "description": "",
+      "category": "Audio"
+    },
+    {
+      "name": "Audio Reactive Effects",
+      "class_name": "AudioWaveformDistortion",
+      "source": "VJlive-2",
+      "file_path": "plugins/vaudio_reactive/audio_reactive_effects.py",
+      "description": "",
+      "category": "Audio"
+    },
+    {
+      "name": "Audio Reactive Effects",
+      "class_name": "AudioSpectrumTrails",
+      "source": "VJlive-2",
+      "file_path": "plugins/vaudio_reactive/audio_reactive_effects.py",
+      "description": "",
+      "category": "Audio"
+    },
+    {
+      "name": "Audio Reactive Effects",
+      "class_name": "AudioKaleidoscope",
+      "source": "VJlive-2",
+      "file_path": "plugins/vaudio_reactive/audio_reactive_effects.py",
+      "description": "",
+      "category": "Audio"
+    },
+    {
+      "name": "cosmic_tunnel_datamosh",
+      "class_name": "CosmicTunnelDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/cosmic_tunnel_datamosh.py",
+      "description": "",
+      "category": "Audio"
+    },
+    {
+      "name": "raymarched_scenes",
+      "class_name": "AudioReactiveRaymarchedScenes",
+      "source": "VJlive-2",
+      "file_path": "plugins/vshadertoy_extra/raymarched_scenes.py",
+      "description": "",
+      "category": "Audio"
+    },
+    {
+      "name": "vcv_video_generators",
+      "class_name": "ByteBeatGen",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_generators.py",
+      "description": "",
+      "category": "Audio"
+    },
+    {
+      "name": "bad_trip_datamosh",
+      "class_name": "BadTripDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/bad_trip_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "base",
+      "class_name": "VvoxglitchBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vvoxglitch/base.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "bass_cannon_datamosh",
+      "class_name": "BassCannonDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/bass_cannon_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "bass_therapy_datamosh",
+      "class_name": "BassTherapyDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/bass_therapy_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "blend",
+      "class_name": "GlitchEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "bullet_time_datamosh",
+      "class_name": "BulletTimeDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/bullet_time_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "cellular_automata_datamosh",
+      "class_name": "CellularAutomataDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/cellular_automata_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "cotton_candy_datamosh",
+      "class_name": "CottonCandyDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/cotton_candy_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "cupcake_cascade_datamosh",
+      "class_name": "CupcakeCascadeDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/cupcake_cascade_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh",
+      "class_name": "CompressionEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vcore/datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh",
+      "class_name": "DatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vcore/datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh",
+      "class_name": "PixelBloomEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh",
+      "class_name": "MeltEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh",
+      "class_name": "PixelSortEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh",
+      "class_name": "FrameHoldEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh_3d",
+      "class_name": "Datamosh3DEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/datamosh_3d.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh_3d",
+      "class_name": "LayerSeparationEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/datamosh_3d.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "datamosh_3d",
+      "class_name": "ShatterEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/datamosh_3d.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "dimension_splice_datamosh",
+      "class_name": "DimensionSpliceDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/dimension_splice_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "dolly_zoom_datamosh",
+      "class_name": "DollyZoomDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/dolly_zoom_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "face_melt_datamosh",
+      "class_name": "FaceMeltDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/face_melt_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "fracture_rave_datamosh",
+      "class_name": "FractureRaveDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/fracture_rave_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "liquid_lsd_datamosh",
+      "class_name": "LiquidLSDDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/liquid_lsd_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "mosh_pit_datamosh",
+      "class_name": "MoshPitDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/mosh_pit_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "neural_splice_datamosh",
+      "class_name": "NeuralSpliceDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/neural_splice_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "particle_datamosh_trails",
+      "class_name": "ParticleDatamoshTrailsEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/particle_datamosh_trails.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "plasma_melt_datamosh",
+      "class_name": "PlasmaMeltDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/plasma_melt_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "prism_realm_datamosh",
+      "class_name": "PrismRealmDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/prism_realm_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "sacred_geometry_datamosh",
+      "class_name": "SacredGeometryDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/sacred_geometry_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "spirit_aura_datamosh",
+      "class_name": "SpiritAuraDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/spirit_aura_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "temporal_rift_datamosh",
+      "class_name": "TemporalRiftDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/temporal_rift_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "tunnel_vision_datamosh",
+      "class_name": "TunnelVisionDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/tunnel_vision_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "unicorn_farts_datamosh",
+      "class_name": "UnicornFartsDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/unicorn_farts_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "void_swirl_datamosh",
+      "class_name": "VoidSwirlDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/void_swirl_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "volumetric_datamosh",
+      "class_name": "VolumetricDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/volumetric_datamosh.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "volumetric_glitch",
+      "class_name": "VolumetricGlitchEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/volumetric_glitch.py",
+      "description": "",
+      "category": "Datamosh"
+    },
+    {
+      "name": "Depth Acid Fractal",
+      "class_name": "DepthAcidFractalDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_acid_fractal.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Aware Compression",
+      "class_name": "DepthAwareCompressionEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_aware_compression.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Blur",
+      "class_name": "DepthBlurEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_blur.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Camera Splitter",
+      "class_name": "DepthCameraSplitterEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_camera_splitter.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Color Grade",
+      "class_name": "DepthColorGradeEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_color_grade.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Contour Datamosh",
+      "class_name": "DepthContourDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_contour_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Data Mux",
+      "class_name": "DepthDataMuxEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_data_mux.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Distance Filter",
+      "class_name": "DepthDistanceFilterEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_distance_filter.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Dual",
+      "class_name": "DepthDualEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_dual.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Edge Glow",
+      "class_name": "DepthEdgeGlowEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_edge_glow.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "DepthEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "DepthPointCloudEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "DepthPointCloud3DEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "DepthMeshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "DepthContourEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "DepthParticle3DEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "DepthDistortionEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "DepthFieldEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "OpticalFlowEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Effects",
+      "class_name": "BackgroundSubtractionEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Erosion Datamosh",
+      "class_name": "DepthErosionDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_erosion_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Feedback Matrix Datamosh",
+      "class_name": "DepthFeedbackMatrixDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_feedback_matrix_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Fog",
+      "class_name": "DepthFogEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_fog.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Fracture Datamosh",
+      "class_name": "DepthFractureDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_fracture_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Fx Loop",
+      "class_name": "DepthFXLoopEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_fx_loop.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Groovy Datamosh",
+      "class_name": "DepthGroovyDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_groovy_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Holographic",
+      "class_name": "DepthHolographicIridescenceEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_holographic.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Liquid Refraction",
+      "class_name": "DepthLiquidRefractionEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_liquid_refraction.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Loop Injection Datamosh",
+      "class_name": "DepthLoopInjectionDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_loop_injection_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Modular Datamosh",
+      "class_name": "DepthModularDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_modular_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Modulated Datamosh",
+      "class_name": "DepthModulatedDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_modulated_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Mosaic",
+      "class_name": "DepthMosaicEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_mosaic.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Mosh Nexus",
+      "class_name": "DepthMoshNexus",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_mosh_nexus.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Motion Transfer",
+      "class_name": "DepthMotionTransferEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_motion_transfer.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Parallel Universe Datamosh",
+      "class_name": "DepthParallelUniverseDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_parallel_universe_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Particle Shred",
+      "class_name": "DepthParticleShredEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_particle_shred.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Portal Composite",
+      "class_name": "DepthPortalCompositeEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_portal_composite.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Raver Datamosh",
+      "class_name": "DepthRaverDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_raver_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Reverb",
+      "class_name": "DepthReverbEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_reverb.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Simulator",
+      "class_name": "DepthSimulatorEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_simulator.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Slitscan Datamosh",
+      "class_name": "DepthSlitScanDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_slitscan_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Temporal Echo",
+      "class_name": "DepthTemporalEchoEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_temporal_echo.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Temporal Strat",
+      "class_name": "DepthTemporalStratEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_temporal_strat.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Vector Field Datamosh",
+      "class_name": "DepthVectorFieldDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_vector_field_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Video Projection",
+      "class_name": "DepthVideoProjectionEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_video_projection.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "Depth Void Datamosh",
+      "class_name": "DepthVoidDatamoshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/depth_void_datamosh.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "datamosh_3d",
+      "class_name": "DepthDisplacementEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/datamosh_3d.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "datamosh_3d",
+      "class_name": "DepthEchoEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdatamosh/datamosh_3d.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "ml_gpu_effects",
+      "class_name": "MLDepthEstimationEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vml/ml_gpu_effects.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "quantum_depth_nexus_effect",
+      "class_name": "QuantumDepthNexus",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/quantum_depth_nexus_effect.py",
+      "description": "",
+      "category": "Depth"
+    },
+    {
+      "name": "base",
+      "class_name": "Vmake_noiseBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vmake_noise/base.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "fractal_generator",
+      "class_name": "FractalGenerator",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/fractal_generator.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "generators",
+      "class_name": "OscEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "generators",
+      "class_name": "NoiseEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "generators",
+      "class_name": "VoronoiEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "generators",
+      "class_name": "GradientEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "generators",
+      "class_name": "MandalaEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "generators",
+      "class_name": "PlasmaEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "generators",
+      "class_name": "PerlinEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "silver_visions",
+      "class_name": "PathGeneratorEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/silver_visions.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "vcv_video_generators",
+      "class_name": "HarmonicPatternsGen",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "vcv_video_generators",
+      "class_name": "FMCoordinatesGen",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "vcv_video_generators",
+      "class_name": "MacroShapeGen",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "vcv_video_generators",
+      "class_name": "GranularVideoGen",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "vcv_video_generators",
+      "class_name": "ResonantGeometryGen",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_generators.py",
+      "description": "",
+      "category": "Generator"
+    },
+    {
+      "name": "blend",
+      "class_name": "ModulateEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Modulator"
+    },
+    {
+      "name": "V Sws",
+      "class_name": "VSwsEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/v_sws.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "V Sws",
+      "class_name": "HorizontalWaveEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/v_sws.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "V Sws",
+      "class_name": "VerticalWaveEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/v_sws.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "V Sws",
+      "class_name": "RippleEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/v_sws.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "V Sws",
+      "class_name": "SpiralWaveEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/v_sws.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "ascii_effect",
+      "class_name": "ASCIIEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/ascii_effect.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "VmathsBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vmaths/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "VstyleBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vstyle/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "VfunctionBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vfunction/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "Vtides_anomBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vtides_anom/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "VlxdBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vlxd/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "VtempiBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vtempi/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "VjumblerBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vjumbler/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "Vmi_complexBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vmi_complex/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "Vstages_anomBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vstages_anom/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "Vshadertoy_extraBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vshadertoy_extra/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "VechophonBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vechophon/base.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "bass_cannon_2",
+      "class_name": "BassCanon2",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/bass_cannon_2.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "FeedbackEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "BlendAddEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "BlendMultEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "BlendDiffEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "ScanlinesEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "VignetteEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "InfiniteFeedbackEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "BloomEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "BloomShadertoyEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend",
+      "class_name": "MixerEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "blend_modes",
+      "class_name": "_BlendMode",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/blend_modes.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "chroma_key",
+      "class_name": "ChromaKeyEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/chroma_key.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "PosterizeEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "ContrastEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "SaturateEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "HueEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "BrightnessEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "InvertEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "ThreshEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "RGBShiftEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color",
+      "class_name": "ColorCorrectEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "color_grade",
+      "class_name": "ColorGradeEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/color_grade.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "colorama",
+      "class_name": "ColoramaEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vcore/colorama.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "displacement_map",
+      "class_name": "DisplacementMapEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/displacement_map.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "distortion",
+      "class_name": "ChromaticDistortionEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/distortion.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "distortion",
+      "class_name": "PatternDistortionEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/distortion.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "dithering",
+      "class_name": "DitheringEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/dithering.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "fluid_sim",
+      "class_name": "FluidSimEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/fluid_sim/fluid_sim.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "geometry",
+      "class_name": "MandalascopeEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/geometry.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "geometry",
+      "class_name": "RotateEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/geometry.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "geometry",
+      "class_name": "ScaleEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/geometry.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "geometry",
+      "class_name": "PixelateEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/geometry.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "geometry",
+      "class_name": "RepeatEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/geometry.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "geometry",
+      "class_name": "ScrollEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/geometry.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "geometry",
+      "class_name": "MirrorEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/geometry.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "geometry",
+      "class_name": "ProjectionMappingEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/geometry.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "hyperion",
+      "class_name": "VimanaHyperion",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vimana/hyperion.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "hyperspace_tunnel",
+      "class_name": "HyperspaceTunnelEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/hyperspace/hyperspace_tunnel.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "living_fractal_consciousness",
+      "class_name": "LivingFractalConsciousness",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/living_fractal_consciousness.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "luma_chroma_mask",
+      "class_name": "LumaChromaMaskEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/luma_chroma_mask.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "lut_grading",
+      "class_name": "LUTGradingEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/lut_grading.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "milkdrop",
+      "class_name": "MilkdropEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/milkdrop/milkdrop.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "morphology",
+      "class_name": "MorphologyEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/morphology.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "oscilloscope",
+      "class_name": "OscilloscopeEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/oscilloscope.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "plugin_template",
+      "class_name": "CustomEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/plugin_template.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "pop_art_effects",
+      "class_name": "BenDayDotsEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vstyle/pop_art_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "pop_art_effects",
+      "class_name": "WarholQuadEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vstyle/pop_art_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "r16_deep_mosh_studio",
+      "class_name": "R16DeepMoshStudio",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/r16_deep_mosh_studio.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "r16_interstellar_mosh",
+      "class_name": "R16InterstellarMosh",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/r16_interstellar_mosh.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "reaction_diffusion",
+      "class_name": "ReactionDiffusionEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/reaction_diffusion/reaction_diffusion.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "resize_effect",
+      "class_name": "ResizeEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/resize_effect.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "rutt_etra_scanline",
+      "class_name": "RuttEtraScanlineEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/rutt_etra_scanline.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "silver_visions",
+      "class_name": "VideoOutEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/silver_visions.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "silver_visions",
+      "class_name": "ImageInEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/silver_visions.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "silver_visions",
+      "class_name": "CoordinateFolderEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/silver_visions.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "silver_visions",
+      "class_name": "AffineTransformEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/silver_visions.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "silver_visions",
+      "class_name": "PreciseDelayEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/silver_visions.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "slit_scan",
+      "class_name": "SlitScanEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/slit_scan.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "sync_eater",
+      "class_name": "SyncEaterEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/sync_eater.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "time_remap",
+      "class_name": "TimeRemapEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/time_remap.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vcv_video_effects",
+      "class_name": "GaussianBlurEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vcv_video_effects",
+      "class_name": "MultibandColorEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vcv_video_effects",
+      "class_name": "HDRToneMapEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vcv_video_effects",
+      "class_name": "SolarizeEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vcv_video_effects",
+      "class_name": "ResonantBlurEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vcv_video_effects",
+      "class_name": "AdaptiveContrastEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vcv_video_effects",
+      "class_name": "SpatialEchoEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vcv_video_effects",
+      "class_name": "DelayZoomEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/vcv_video_effects.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vibrant_retro_styles",
+      "class_name": "RioAestheticEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vstyle/vibrant_retro_styles.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vimana",
+      "class_name": "Vimana",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vimana/vimana.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vimana_hyperion_ultimate",
+      "class_name": "VimanaHyperionUltimate",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/effect_vimana_hyperion/vimana_hyperion_ultimate.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "vimana_synth",
+      "class_name": "VimanaEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vvimana/vimana_synth.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "visualizer",
+      "class_name": "VisualizerEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/visualizer.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "visualizer",
+      "class_name": "SpectrumAnalyzerEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/visualizer.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "visualizer",
+      "class_name": "VUMeterEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/visualizer.py",
+      "description": "",
+      "category": "Other"
+    },
+    {
+      "name": "base",
+      "class_name": "VparticlesBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vparticles/base.py",
+      "description": "",
+      "category": "Particle/3D"
+    },
+    {
+      "name": "particles_3d",
+      "class_name": "AdvancedParticle3DSystem",
+      "source": "VJlive-2",
+      "file_path": "plugins/vparticles/particles_3d.py",
+      "description": "",
+      "category": "Particle/3D"
+    },
+    {
+      "name": "particles_3d",
+      "class_name": "Particle3DSystem",
+      "source": "VJlive-2",
+      "file_path": "plugins/vparticles/particles_3d.py",
+      "description": "",
+      "category": "Particle/3D"
+    },
+    {
+      "name": "shadertoy_particles",
+      "class_name": "ShadertoyParticles",
+      "source": "VJlive-2",
+      "file_path": "plugins/vshadertoy_extra/shadertoy_particles.py",
+      "description": "",
+      "category": "Particle/3D"
+    },
+    {
+      "name": "vibrant_retro_styles",
+      "class_name": "RadiantMeshEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vstyle/vibrant_retro_styles.py",
+      "description": "",
+      "category": "Particle/3D"
+    },
+    {
+      "name": "agent_avatar",
+      "class_name": "TravelingAvatarEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vagent/agent_avatar.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "agent_avatar",
+      "class_name": "AgentAvatarEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vagent/agent_avatar.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "base",
+      "class_name": "VmlBase",
+      "source": "VJlive-2",
+      "file_path": "plugins/core/vml/base.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "ml_gpu_effects",
+      "class_name": "MLBaseAsyncEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vml/ml_gpu_effects.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "ml_gpu_effects",
+      "class_name": "MLStyleGLEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vml/ml_gpu_effects.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "ml_gpu_effects",
+      "class_name": "MLSegmentationBlurGLEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vml/ml_gpu_effects.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "neural_rave_nexus",
+      "class_name": "NeuralRaveNexus",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/neural_rave_nexus.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "quantum_consciousness_explorer",
+      "class_name": "QuantumConsciousnessExplorer",
+      "source": "VJlive-2",
+      "file_path": "plugins/quantum_consciousness_explorer.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "trails",
+      "class_name": "TrailsEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/trails.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "tunnel_vision_3",
+      "class_name": "QuantumConsciousnessSingularityEffect",
+      "source": "VJlive-2",
+      "file_path": "plugins/vdepth/tunnel_vision_3.py",
+      "description": "",
+      "category": "Quantum/AI"
+    },
+    {
+      "name": "analog_tv",
+      "class_name": "AnalogTVEffect",
+      "source": "vjlive",
+      "file_path": "plugins/vcore/analog_tv.py",
+      "description": "",
+      "category": "V-Effect"
+    }
+  ]
+}
