@@ -221,6 +221,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Hard-locking cycling thresholds implies freezing time. Converting abstract neon geometry into rigid broadcast engineering scanlines honors the analog pixel roots.
 
+### [A-027] P2-H1 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H1 MIDI Controller Input
+
+**Suggestion:** The "Ghost Note". If the system receives a `note_on` event for MIDI Note `0` at Velocity `1` (an extremely unlikely human input), the system temporarily flips the entire interface UI into an inverted high-contrast debug mode for exactly 3 seconds before reverting.
+
+**Why:** Lowest possible note at the lowest possible velocity feels like a hidden hacker 'ping' command.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -486,6 +494,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Glowing geometry scaling radically outward on percussive hits screams tactical radar mechanics.
 
+### [B-027] P2-H1 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H1 MIDI Controller Input
+
+**Suggestion:** The "Polyrhythmic Crash". If a Performer mashes more than 10 simultaneous different MIDI CC values at extreme rates (over 50 events per second), the VJLive output injects a quick flash of raw scrolling binary code representing the buffer overflow into the video datamosh layer, visualizing the input stress.
+
+**Why:** Frantic MIDI knob-twisting can overload hardware buses; visually manifesting the hex data "spilling" into the art bridges the digital/physical gap.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -742,6 +758,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "CRT Implosion". If a human forcefully drags `bg_dimming` from `1.0` down to `0.0` over the course of exactly 10 seconds perfectly, a hidden sub-routine engages, simulating a 1980s television physically powering down. The neon contours violently compress toward the physical center integer of the canvas, sparking once before snapping out of existence cleanly to pure black.
 
 **Why:** Perfect, smooth dimming gestures over extended lengths are intentional fade-to-blacks; a literal animated power down pays tribute to analog dimming behaviors seamlessly.
+
+### [C-027] P2-H1 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H1 MIDI Controller Input
+
+**Suggestion:** The "Konami Chord". If a human plays the exact triad chord C4-E4-G4 on a connected keyboard identically at max velocity (127), the logging console temporarily changes output colors to bright rainbow for the next 10 lines of debug output.
+
+**Why:** Classic cheat code logic mapped to musical harmony rewards humans looking for hidden physical interactions.
 
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)

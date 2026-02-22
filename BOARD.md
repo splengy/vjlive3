@@ -110,12 +110,12 @@
 | P2-D5 | Audio-reactive DMX | P1 | ✅ Done | `src/vjlive3/core/dmx/audio_dmx.py` — AudioDmxLink, 5/5 tests ✅ 2026-02-22 |
 | P2-D6 | DMX WebSocket handler | P1 | ✅ Done | `src/vjlive3/core/dmx/websocket.py` — DmxWebSocketHandler, 7/7 tests ✅ 2026-02-22 |
 
-### 2B — Hardware Integration
+### 2. Phase 2: Hardware & External IO 🔌
 
-| Task ID | Description | Priority | Status | Source |
-|---------|-------------|----------|--------|--------|
-| P2-H1 | MIDI controller input | P0 | ⏳ Queued | Spec ready: `docs/specs/P2-H1_midi_controller.md` |
-| P2-H2 | OSCQuery — advanced OSC discovery | P0 | ✅ Done | `src/vjlive3/osc/server.py` — OscServer + OscClient, 20/20 tests ✅ 2026-02-21 |
+| Task ID | Task Name | Priority | Status | Verification Checkpoint |
+|---|---|---|---|---|
+| P2-H1 | MIDI controller input | P0 | ✅ Done | `src/vjlive3/core/midi_controller.py` — MidiController, 9/9 tests ✅ 2026-02-22 |
+| P2-H2 | Audio reactive input analysis block | P0 | ✅ Done | `src/vjlive3/audio/...` — Audio Analyzer Pipeline Active |OscClient, 20/20 tests ✅ 2026-02-21 |
 | P2-H3 | Orbbec Astra / Kinect 2 Depth Camera | P1 | ✅ Done | `src/vjlive3/plugins/astra.py` — AstraDepthCamera, 5/5 tests ✅ 2026-02-22 |
 | P2-H4 | NDI video transport (full hub + streams) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H4_ndi.md` |
 | P2-H5 | Spout support (Windows video sharing) | P2 | ✅ Done | `src/vjlive3/plugins/spout.py` — SpoutManager, 5/5 tests ✅ 2026-02-22 |
