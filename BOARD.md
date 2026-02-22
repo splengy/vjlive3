@@ -318,7 +318,7 @@ Unicorn Farts, Void Swirl, Volumetric — **plus all others found in both codeba
 |---------|-------------|--------|--------|
 | P7-B1 | License server (JWT + RBAC) | ✅ Done | VJlive-2 |
 | P7-B2 | Plugin marketplace integration | ✅ Done | VJlive-2 |
-| P7-B3 | Developer portal | ⬜ Todo | vjlive |
+| P7-B3 | Developer portal | ✅ Done | vjlive |
 | P7-B4 | Burst credit licensing | ⬜ Todo | VJlive-2 |
 
 **Phase 7 Gate:** GUI visible. Sentience slider works. License validation passes.
@@ -330,6 +330,13 @@ Unicorn Farts, Void Swirl, Volumetric — **plus all others found in both codeba
 | Task ID | Description | Status |
 |---------|-------------|--------|
 | P8-I1 | End-to-end integration testing | ⬜ Todo |
+| P8-I2 | Performance benchmarks (60fps target verified) | ⬜ Todo |
+| P8-I3 | Security audit (zero P0 vulns) | ⬜ Todo |
+| P8-I4 | 80%+ test coverage on all core systems | ⬜ Todo |
+| P8-I5 | Complete documentation for all features | ⬜ Todo |
+| P8-I6 | Production deployment validation | ⬜ Todo |
+| P8-I7 | User acceptance testing | ⬜ Todo |
+| P8-I8 | Parity testing: Legacy VJLive vs VJLive3 | ⬜ Todo |
 | P8-I2 | Performance benchmarks (60fps target verified) | ⬜ Todo |
 | P8-I3 | Security audit (zero P0 vulns) | ⬜ Todo |
 | P8-I4 | 80%+ test coverage on all core systems | ⬜ Todo |
