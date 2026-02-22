@@ -5,6 +5,7 @@ import time
 from vjlive3.render.shader_compiler import ShaderCompiler, ShaderInfo
 from vjlive3.render.program import PASSTHROUGH_FRAGMENT
 from vjlive3.render.opengl_context import OpenGLContext
+from unittest.mock import patch, MagicMock
 
 @pytest.fixture(scope="session")
 def gl_context():
@@ -14,13 +15,15 @@ def gl_context():
     yield ctx
     ctx.terminate()
 
-def test_init_no_hardware():
+@patch('vjlive3.render.shader_compiler.Observer')
+def test_init_no_hardware(mock_obs):
     # Should not crash if dir does not exist initially
     sc = ShaderCompiler("/tmp/nonexistent_shader_dir_12345")
     assert sc.shader_dir == "/tmp/nonexistent_shader_dir_12345"
     sc.cleanup()
 
-def test_glsl_compilation(gl_context):
+@patch('vjlive3.render.shader_compiler.Observer')
+def test_glsl_compilation(mock_obs, gl_context):
     sc = ShaderCompiler()
     # Test successful compile
     prg = sc.compile_glsl(PASSTHROUGH_FRAGMENT, 'fragment', 'pass_test')
@@ -39,7 +42,8 @@ def test_glsl_compilation(gl_context):
     
     sc.cleanup()
 
-def test_error_handling(gl_context):
+@patch('vjlive3.render.shader_compiler.Observer')
+def test_error_handling(mock_obs, gl_context):
     sc = ShaderCompiler()
     
     # Intentionally bad glsl syntax
@@ -55,7 +59,8 @@ def test_error_handling(gl_context):
     
     sc.cleanup()
 
-def test_milkdrop_compilation(gl_context):
+@patch('vjlive3.render.shader_compiler.Observer')
+def test_milkdrop_compilation(mock_obs, gl_context):
     sc = ShaderCompiler()
     
     # Empty preset rejection
@@ -72,7 +77,8 @@ def test_milkdrop_compilation(gl_context):
     
     sc.cleanup()
     
-def test_shader_caching_and_hot_reload(gl_context):
+@patch('vjlive3.render.shader_compiler.Observer')
+def test_shader_caching_and_hot_reload(mock_obs, gl_context):
     with tempfile.TemporaryDirectory() as td:
         sc = ShaderCompiler(td)
         
@@ -113,7 +119,8 @@ def test_shader_caching_and_hot_reload(gl_context):
         
         sc.cleanup()
 
-def test_missing_shader_reload(gl_context):
+@patch('vjlive3.render.shader_compiler.Observer')
+def test_missing_shader_reload(mock_obs, gl_context):
     sc = ShaderCompiler()
     # Missing path fails gracefully
     sc.register_shader_path('ghost', '/tmp/does_not_exist.glsl')

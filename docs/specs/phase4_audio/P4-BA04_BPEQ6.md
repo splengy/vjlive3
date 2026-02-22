@@ -1,4 +1,4 @@
-# Spec: P4-BA04 — BPEQ6
+# Spec: P4-BA04 — BPEQ6 (6-Band Parametric EQ)
 
 **File naming:** `docs/specs/phase4_audio/P4-BA04_BPEQ6.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,34 +16,44 @@
 
 ## What This Module Does
 
-BPEQ6 is a 6-band parametric equalizer that provides precise control over audio frequency content. Each band has independent gain and frequency controls, allowing for detailed tonal shaping, surgical frequency correction, and creative sound design.
+BPEQ6 is a 6-band parametric equalizer plugin for VJLive3. It provides individual frequency, gain, and Q controls for each band, plus global input/output gain, enabling precise tonal shaping and frequency correction for audio signals.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not include built-in spectrum analysis or visualization
-- Does not support stereo processing (mono only)
-- Does not include dynamic compression or limiting
-- Does not provide phase adjustment controls
+- Does not provide spectrum analysis (controls only)
+- Does not include auto-EQ (manual control only)
+- Does not handle multi-band compression (EQ only)
+- Does not include filter presets (manual settings only)
 
 ---
 
 ## Public Interface
 
 ```python
-class BPEQ6:
-    def __init__(self) -> None: ...
+class BPEQ6Plugin:
+    def __init__(self, num_bands: int = 6) -> None: ...
+    
+    def set_band_frequency(self, band: int, frequency: float) -> None: ...
+    def get_band_frequency(self, band: int) -> float: ...
     
     def set_band_gain(self, band: int, gain: float) -> None: ...
     def get_band_gain(self, band: int) -> float: ...
     
-    def set_band_freq(self, band: int, freq: float) -> None: ...
-    def get_band_freq(self, band: int) -> float: ...
+    def set_band_q(self, band: int, q: float) -> None: ...
+    def get_band_q(self, band: int) -> float: ...
     
-    def process(self, audio: float) -> float: ...
+    def set_input_gain(self, gain: float) -> None: ...
+    def get_input_gain(self) -> float: ...
+    
+    def set_output_gain(self, gain: float) -> None: ...
+    def get_output_gain(self) -> float: ...
+    
+    def process(self, audio: AudioBuffer) -> AudioBuffer: ...
     
     def reset(self) -> None: ...
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -52,31 +62,34 @@ class BPEQ6:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `band` | `int` | Band index (0-5) | 0 ≤ band ≤ 5 |
-| `gain` | `float` | Band gain in dB | -12.0 to 12.0 |
-| `freq` | `float` | Band frequency (normalized) | 0.0 to 1.0 |
-| `audio` | `float` | Input audio sample | -1.0 to 1.0 |
+| `num_bands` | `int` | Number of EQ bands | 1-16 |
+| `band` | `int` | Band index | 0 to num_bands-1 |
+| `frequency` | `float` | Center frequency in Hz | 20.0 to 20000.0 |
+| `gain` | `float` | Gain in dB | -24.0 to 24.0 |
+| `q` | `float` | Quality factor | 0.1 to 20.0 |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Equalized audio sample
+**Output:** `AudioBuffer` — Equalized audio
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if band index is out of range? → Raises ValueError with message
-- What happens if gain is out of range? → Clamp to -12.0 to 12.0 dB
-- What happens if freq is out of range? → Clamp to 0.0 to 1.0
-- What happens if audio input clips? → Clips to -1.0 to 1.0 range
-- What happens on cleanup? → Reset all bands to default (gain=0.0, freq=preset values)
+- What happens if band out of range? → Clamp or raise error
+- What happens if frequency out of range? → Clamp to 20-20k Hz
+- What happens if gain/q invalid? → Clamp to valid range
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - `numpy` — for filter coefficient calculations — fallback: use math module
+  - `numpy` — for audio processing — fallback: raise ImportError
+  - `scipy` — for filter design — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -85,11 +98,12 @@ class BPEQ6:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_flat_response` | With all gains at 0, EQ is transparent |
-| `test_band_gain` | Individual band gains affect output correctly |
-| `test_band_freq` | Frequency controls shift affected range |
-| `test_bypass` | Can effectively bypass all bands |
-| `test_edge_cases` | Handles extreme parameter values |
+| `test_band_parameters` | Sets and gets band parameters |
+| `test_input_output_gain` | Sets and gets I/O gain |
+| `test_equalization` | Applies EQ correctly |
+| `test_band_interaction` | Bands interact correctly |
+| `test_bypass` | Bypass works correctly |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -102,7 +116,7 @@ class BPEQ6:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BA04: BPEQ6 6-band parametric EQ` message
+- [ ] Git commit with `[Phase-4] P4-BA04: BPEQ6 parametric equalizer` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -119,4 +133,4 @@ class BPEQ6:
 
 ---
 
-*Specification based on Bogaudio BPEQ6 module from legacy VJlive-2 codebase.*
+*Specification based on Bogaudio BPEQ6 module.*

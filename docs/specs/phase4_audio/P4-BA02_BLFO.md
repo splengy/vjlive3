@@ -1,4 +1,4 @@
-# Spec: P4-BA02 — BLFO
+# Spec: P4-BA02 — BLFO (Low Frequency Oscillator)
 
 **File naming:** `docs/specs/phase4_audio/P4-BA02_BLFO.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,43 +16,43 @@
 
 ## What This Module Does
 
-BLFO (Bogaudio Low Frequency Oscillator) is a modulation source that generates periodic control signals in the sub-audio range (typically 0.005 Hz to 30 Hz). It provides multiple waveform shapes, rate control, and output scaling for use in controlling other audio and CV parameters.
+BLFO is a low frequency oscillator plugin for VJLive3. It generates various waveform shapes (sine, triangle, square, sawtooth, noise) with frequency, amplitude, phase, and sync controls, providing modulation sources for audio and visual effects.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not generate audio-rate signals (above 20 Hz)
-- Does not include built-in envelope followers or amplitude modulation
-- Does not provide synchronization or clocking features
-- Does not output audio signals directly (CV only)
+- Does not process audio signals (modulation only)
+- Does not include envelope generators (oscillator only)
+- Does not provide audio-rate modulation (LFO only)
+- Does not include MIDI control (manual parameters only)
 
 ---
 
 ## Public Interface
 
 ```python
-class BLFO:
-    def __init__(self) -> None: ...
+class BLFOPlugin:
+    def __init__(self, waveform: str = "sine") -> None: ...
     
-    def set_rate(self, rate: float) -> None: ...
-    def get_rate(self) -> float: ...
+    def set_frequency(self, frequency: float) -> None: ...
+    def get_frequency(self) -> float: ...
     
-    def set_shape(self, shape: float) -> None: ...
-    def get_shape(self) -> float: ...
+    def set_amplitude(self, amplitude: float) -> None: ...
+    def get_amplitude(self) -> float: ...
     
-    def set_pw(self, pw: float) -> None: ...
-    def get_pw(self) -> float: ...
+    def set_phase(self, phase: float) -> None: ...
+    def get_phase(self) -> float: ...
     
-    def set_offset(self, offset: float) -> None: ...
-    def get_offset(self) -> float: ...
+    def set_waveform(self, waveform: str) -> None: ...
+    def get_waveform(self) -> str: ...
     
-    def set_scale(self, scale: float) -> None: ...
-    def get_scale(self) -> float: ...
+    def set_sync(self, enabled: bool) -> None: ...
+    def get_sync(self) -> bool: ...
     
-    def process(self) -> float: ...
+    def generate(self, num_samples: int) -> np.ndarray: ...
     
-    def reset(self) -> None: ...
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -61,31 +61,32 @@ class BLFO:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `rate` | `float` | Oscillation speed | -5.0 to 10.0 (logarithmic) |
-| `shape` | `float` | Waveform shape morph | 0.0 to 1.0 |
-| `pw` | `float` | Pulse width (for square/pulse) | 0.0 to 1.0 |
-| `offset` | `float` | DC offset added to output | -1.0 to 1.0 |
-| `scale` | `float` | Output amplitude multiplier | 0.0 to 1.0 |
+| `waveform` | `str` | Waveform shape | 'sine', 'triangle', 'square', 'sawtooth', 'noise' |
+| `frequency` | `float` | Oscillation frequency | 0.01 to 20.0 Hz |
+| `amplitude` | `float` | Output amplitude | 0.0 to 1.0 |
+| `phase` | `float` | Phase offset | 0.0 to 1.0 |
+| `enabled` | `bool` | Sync enable | True/False |
+| `num_samples` | `int` | Number of samples to generate | > 0 |
 
-**Output:** `float` — LFO signal in range -1.0 to 1.0 (after scaling)
+**Output:** `np.ndarray` — Generated waveform samples
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if rate is negative? → Absolute value used, sign determines direction
-- What happens if shape/pw/offset/scale are out of range? → Clamp to valid range
-- What happens on initialization? → Set defaults: rate=1.0, shape=0.5, pw=0.5, offset=0.0, scale=1.0
-- What happens on cleanup? → Reset internal state
+- What happens if frequency out of range? → Clamp to valid range
+- What happens if amplitude negative? → Clamp to 0.0
+- What happens if num_samples zero? → Return empty array
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - `numpy` — for waveform generation — fallback: use math module
+  - `numpy` — for waveform generation — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -94,11 +95,13 @@ class BLFO:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_default_output` | Produces signal in expected range |
-| `test_rate_control` | Rate parameter affects frequency |
-| `test_shape_morph` | Shape parameter morphs waveform |
-| `test_scale_offset` | Scale and offset affect output correctly |
-| `test_edge_cases` | Handles extreme parameter values |
+| `test_frequency_setting` | Sets and gets frequency correctly |
+| `test_amplitude_setting` | Sets and gets amplitude correctly |
+| `test_phase_setting` | Sets and gets phase correctly |
+| `test_waveform_selection` | Selects waveform shapes |
+| `test_sync_control` | Enables/disables sync |
+| `test_waveform_generation` | Generates correct waveforms |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -128,4 +131,4 @@ class BLFO:
 
 ---
 
-*Specification based on Bogaudio BLFO module from legacy VJlive-2 codebase.*
+*Specification based on Bogaudio BLFO module.*

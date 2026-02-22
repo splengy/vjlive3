@@ -235,9 +235,9 @@ void main() {{
         if self._observer:
             try:
                 self._observer.stop()
-                self._observer.join(timeout=1.0)
-            except Exception:
-                pass
+                self._observer.join()
+            except Exception as e:
+                logger.error(f"Error stopping observer: {e}")
             self._observer = None
             
         for name, program in self._cache.items():

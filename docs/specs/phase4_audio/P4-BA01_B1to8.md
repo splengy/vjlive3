@@ -1,4 +1,4 @@
-# Spec: P4-BA01 — B1to8
+# Spec: P4-BA01 — B1to8 (8-Channel Mixer)
 
 **File naming:** `docs/specs/phase4_audio/P4-BA01_B1to8.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,34 +16,40 @@
 
 ## What This Module Does
 
-B1to8 is an 8-channel mixer module that combines multiple audio signals into a single output. It provides individual level controls for each input channel and a master output level, allowing for precise mixing of audio sources in a modular synthesis environment.
+B1to8 is an 8-channel audio mixer plugin for VJLive3. It provides individual channel volume, pan, mute, solo, and bus routing controls, enabling flexible audio mixing for live performances and productions.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not provide panning or stereo positioning
-- Does not include built-in effects or processing
-- Does not support CV control of levels
-- Does not include metering or visual feedback
+- Does not provide audio effects (delegates to other plugins)
+- Does not handle recording (playback only)
+- Does not include automation (manual control only)
+- Does not manage hardware outputs (software mixing only)
 
 ---
 
 ## Public Interface
 
 ```python
-class B1to8:
-    def __init__(self) -> None: ...
+class B1to8Plugin:
+    def __init__(self, num_channels: int = 8) -> None: ...
     
-    def set_level(self, channel: int, level: float) -> None: ...
-    def get_level(self, channel: int) -> float: ...
+    def set_volume(self, channel: int, volume: float) -> None: ...
+    def get_volume(self, channel: int) -> float: ...
     
-    def set_master_level(self, level: float) -> None: ...
-    def get_master_level(self) -> float: ...
+    def set_pan(self, channel: int, pan: float) -> None: ...
+    def get_pan(self, channel: int) -> float: ...
     
-    def process(self, inputs: List[float]) -> float: ...
+    def mute(self, channel: int, enabled: bool) -> None: ...
+    def solo(self, channel: int, enabled: bool) -> None: ...
     
-    def reset(self) -> None: ...
+    def route_to_bus(self, channel: int, bus: int) -> None: ...
+    def get_routing(self, channel: int) -> List[int]: ...
+    
+    def process(self, audio: AudioBuffer) -> AudioBuffer: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -52,27 +58,34 @@ class B1to8:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `channel` | `int` | Input channel index (0-7) | 0 ≤ channel ≤ 7 |
-| `level` | `float` | Channel level (0.0-1.0) | 0.0 ≤ level ≤ 1.0 |
-| `inputs` | `List[float]` | Audio input values | Length 8, values in -1.0 to 1.0 range |
+| `num_channels` | `int` | Number of mixer channels | 1-16 |
+| `channel` | `int` | Channel index | 0 to num_channels-1 |
+| `volume` | `float` | Volume level | 0.0 to 1.0 |
+| `pan` | `float` | Pan position | -1.0 (left) to 1.0 (right) |
+| `enabled` | `bool` | Mute/solo state | True/False |
+| `bus` | `int` | Bus index | 0-7 |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
+
+**Output:** `float`, `List[int]`, `AudioBuffer` — Mixer outputs
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if channel index is out of range? → Raises ValueError with message
-- What happens if input list length is not 8? → Raises ValueError with message
-- What happens if input values are out of range? → Clips to -1.0 to 1.0 range
-- What happens on cleanup? → Resets all levels to 0.0
+- What happens if channel out of range? → Clamp or raise error
+- What happens if volume/pan invalid? → Clamp to valid range
+- What happens if audio buffer None? → Pass through unchanged
+- What happens on cleanup? → Reset all channels, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - None required for basic functionality
+  - `numpy` — for audio processing — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -81,10 +94,12 @@ class B1to8:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_basic_mixing` | Combines 8 inputs correctly |
-| `test_level_control` | Individual channel levels work |
-| `test_master_level` | Master level affects output |
-| `test_edge_cases` | Handles invalid inputs gracefully |
+| `test_channel_volume` | Sets and gets volume correctly |
+| `test_channel_pan` | Sets and gets pan correctly |
+| `test_mute_solo` | Mute and solo work correctly |
+| `test_bus_routing` | Routes channels to buses |
+| `test_audio_processing` | Processes audio through mixer |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -97,7 +112,7 @@ class B1to8:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BA01: B1to8 mixer` message
+- [ ] Git commit with `[Phase-4] P4-BA01: B1to8 8-channel mixer` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -114,4 +129,4 @@ class B1to8:
 
 ---
 
-*Specification based on Bogaudio B1to8 module from legacy VJlive-2 codebase.*
+*Specification based on Bogaudio B1to8 module.*

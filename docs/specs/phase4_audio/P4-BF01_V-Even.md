@@ -1,4 +1,4 @@
-# Spec: P4-BF01 — V-Even
+# Spec: P4-BF01 — V-Even (Even Harmonic Distortion)
 
 **File naming:** `docs/specs/phase4_audio/P4-BF01_V-Even.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,37 +16,40 @@
 
 ## What This Module Does
 
-V-Even (Befaco Even VCO) is a voltage-controlled oscillator that generates even harmonics only, producing a distinctive sine-like waveform with reduced even-order harmonic content. It provides frequency control, fine tuning, and pulse width modulation for versatile sound generation.
+V-Even is an even harmonic distortion plugin for VJLive3. It adds even-order harmonics (2nd, 4th, 6th, 8th) to audio signals, providing warm, tube-like saturation and harmonic enrichment for sound coloring and enhancement.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not generate odd harmonics
-- Does not include built-in envelope generators
-- Does not provide synchronization or hard sync features
-- Does not include built-in effects or processing
+- Does not provide odd harmonics (even only)
+- Does not include effects processing (distortion only)
+- Does not handle recording (playback only)
+- Does not include convolution (harmonic generation only)
 
 ---
 
 ## Public Interface
 
 ```python
-class VEven:
+class VEvenPlugin:
     def __init__(self) -> None: ...
     
-    def set_frequency(self, freq: float) -> None: ...
-    def get_frequency(self) -> float: ...
+    def set_drive(self, drive: float) -> None: ...
+    def get_drive(self) -> float: ...
     
-    def set_fine(self, fine: float) -> None: ...
-    def get_fine(self) -> float: ...
+    def set_tone(self, tone: float) -> None: ...
+    def get_tone(self) -> float: ...
     
-    def set_pw(self, pw: float) -> None: ...
-    def get_pw(self) -> float: ...
+    def set_level(self, level: float) -> None: ...
+    def get_level(self) -> float: ...
     
-    def get_output(self) -> float: ...
+    def set_harmonic_order(self, order: int) -> None: ...
+    def get_harmonic_order(self) -> int: ...
     
-    def reset(self) -> None: ...
+    def process(self, audio: AudioBuffer) -> AudioBuffer: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -55,29 +58,32 @@ class VEven:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `freq` | `float` | Base frequency (normalized) | 0.0 to 1.0 |
-| `fine` | `float` | Fine tuning | -1.0 to 1.0 |
-| `pw` | `float` | Pulse width | 0.0 to 1.0 |
+| `drive` | `float` | Input drive/gain | 0.0 to 2.0 |
+| `tone` | `float` | Tone control (high-frequency rolloff) | 0.0 to 1.0 |
+| `level` | `float` | Output level | 0.0 to 2.0 |
+| `order` | `int` | Maximum harmonic order | 2, 4, 6, or 8 |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Audio waveform in range -1.0 to 1.0
+**Output:** `AudioBuffer` — Distorted audio with even harmonics
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if frequency is extreme? → May produce inaudible or unstable output
-- What happens if fine tuning is extreme? → May cause detuning beyond audible range
-- What happens if pw is 0 or 1? → May produce silence or extreme pulse width
-- What happens on cleanup? → Reset all parameters to defaults
+- What happens if drive/level out of range? → Clamp to valid range
+- What happens if harmonic order invalid? → Use default (4)
+- What happens if audio buffer clipped? → Soft clip or wrap based on policy
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - `numpy` — for waveform generation — fallback: use math module
+  - `numpy` — for audio processing — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -86,11 +92,12 @@ class VEven:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_even_harmonics` | Produces waveform with even harmonics only |
-| `test_frequency_control` | Frequency parameter works |
-| `test_fine_tuning` | Fine tuning parameter works |
-| `test_pw_control` | Pulse width affects waveform |
-| `test_edge_cases` | Handles extreme parameter values |
+| `test_drive_control` | Sets and gets drive correctly |
+| `test_tone_control` | Sets and gets tone correctly |
+| `test_level_control` | Sets and gets level correctly |
+| `test_harmonic_order` | Sets harmonic order |
+| `test_distortion` | Applies distortion correctly |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -103,7 +110,7 @@ class VEven:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BF01: V-Even even-harmonic VCO` message
+- [ ] Git commit with `[Phase-4] P4-BF01: V-Even even harmonic distortion` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -120,4 +127,4 @@ class VEven:
 
 ---
 
-*Specification based on Befaco V-Even module from legacy VJlive-2 codebase.*
+*Specification based on Befaco V-Even module.*

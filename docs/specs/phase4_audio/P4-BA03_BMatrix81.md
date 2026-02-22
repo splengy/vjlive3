@@ -1,4 +1,4 @@
-# Spec: P4-BA03 — BMatrix81
+# Spec: P4-BA03 — BMatrix81 (8x1 Mix Matrix)
 
 **File naming:** `docs/specs/phase4_audio/P4-BA03_BMatrix81.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,34 +16,38 @@
 
 ## What This Module Does
 
-BMatrix81 is an 8→1 matrix mixer that routes 8 input channels to a single output with individual gain controls for each input. It allows for complex signal routing and mixing in modular synthesis setups, with the ability to control the contribution of each input to the final mixed output.
+BMatrix81 is an 8-input to 1-output mix matrix plugin for VJLive3. It provides individual channel volume controls, mute/solo functions, and flexible routing, allowing complex mixing configurations for live audio performance.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not provide panning or stereo output
-- Does not include built-in effects or processing
-- Does not support CV control of gains
-- Does not include metering or visual feedback
+- Does not provide multi-output routing (single output only)
+- Does not include effects processing (mixing only)
+- Does not handle recording (playback only)
+- Does not include automation (manual control only)
 
 ---
 
 ## Public Interface
 
 ```python
-class BMatrix81:
-    def __init__(self) -> None: ...
+class BMatrix81Plugin:
+    def __init__(self, num_inputs: int = 8) -> None: ...
     
-    def set_gain(self, input_channel: int, gain: float) -> None: ...
-    def get_gain(self, input_channel: int) -> float: ...
+    def set_channel_volume(self, channel: int, volume: float) -> None: ...
+    def get_channel_volume(self, channel: int) -> float: ...
     
-    def set_master_gain(self, gain: float) -> None: ...
-    def get_master_gain(self) -> float: ...
+    def mute(self, channel: int, enabled: bool) -> None: ...
+    def solo(self, channel: int, enabled: bool) -> None: ...
     
-    def process(self, inputs: List[float]) -> float: ...
+    def set_output_volume(self, volume: float) -> None: ...
+    def get_output_volume(self) -> float: ...
+    
+    def process(self, audio: AudioBuffer) -> AudioBuffer: ...
     
     def reset(self) -> None: ...
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -52,30 +56,32 @@ class BMatrix81:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `input_channel` | `int` | Input channel index (0-7) | 0 ≤ input_channel ≤ 7 |
-| `gain` | `float` | Input gain (-1.0 to 1.0) | -1.0 ≤ gain ≤ 1.0 |
-| `inputs` | `List[float]` | Audio input values | Length 8, values in -1.0 to 1.0 range |
+| `num_inputs` | `int` | Number of input channels | 1-16 |
+| `channel` | `int` | Channel index | 0 to num_inputs-1 |
+| `volume` | `float` | Volume level | 0.0 to 1.0 |
+| `enabled` | `bool` | Mute/solo state | True/False |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Mixed output signal
+**Output:** `AudioBuffer` — Mixed output audio
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if input_channel is out of range? → Raises ValueError with message
-- What happens if gain is out of range? → Clamp to -1.0 to 1.0 range
-- What happens if input list length is not 8? → Raises ValueError with message
-- What happens if input values are out of range? → Clips to -1.0 to 1.0 range
-- What happens on cleanup? → Resets all gains to 0.0
+- What happens if channel out of range? → Clamp or raise error
+- What happens if volume invalid? → Clamp to 0.0-1.0
+- What happens if all channels solo? → Mix all or mute based on policy
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - None required for basic functionality
+  - `numpy` — for audio processing — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -84,11 +90,12 @@ class BMatrix81:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_basic_routing` | Routes 8 inputs to single output |
-| `test_gain_control` | Individual input gains work |
-| `test_master_gain` | Master gain affects output |
-| `test_negative_gain` | Negative gains invert signal |
-| `test_edge_cases` | Handles invalid inputs gracefully |
+| `test_channel_volume` | Sets and gets channel volume |
+| `test_mute_solo` | Mute and solo work correctly |
+| `test_output_volume` | Sets and gets output volume |
+| `test_mixing` | Mixes multiple channels correctly |
+| `test_solo_priority` | Solo takes precedence over mute |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -101,7 +108,7 @@ class BMatrix81:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BA03: BMatrix81 8→1 mixer` message
+- [ ] Git commit with `[Phase-4] P4-BA03: BMatrix81 mix matrix` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -118,4 +125,4 @@ class BMatrix81:
 
 ---
 
-*Specification based on Bogaudio BMatrix81 module from legacy VJlive-2 codebase.*
+*Specification based on Bogaudio BMatrix81 module.*

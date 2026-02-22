@@ -1,45 +1,45 @@
-# Implementation Tasks — Phase 6 Quantum
+# Implementation Tasks — Phase 7 Business
 
 **Assigned By:** Manager-Gemini-3.1
 **Date:** 2026-02-22
-**Priority:** P0-P1 — Complete Phase 6 Quantum collection
+**Priority:** P0-P1 — Complete Phase 7 Business collection
 
 ---
 
 ## Context
 
-Phase 6 requires porting 4 quantum consciousness modules from the legacy VJlive-2 codebase. All specifications have been created and approved. These are advanced consciousness simulation modules that provide quantum-inspired visual effects.
+Phase 7 requires porting 4 business modules from the legacy VJlive-2 codebase. All specifications have been created and approved. These are business infrastructure modules for licensing, marketplace, analytics, and updates.
 
 ---
 
 ## Task List
 
-### P6-Q1: Quantum Nexus / Consciousness System
+### P7-B1: License Server (JWT + RBAC)
 
-**Spec:** `docs/specs/phase6_quantum/P6-Q1_Quantum_Nexus.md`
+**Spec:** `docs/specs/phase7_business/P7-B1_License_Server.md`
 **Priority:** P0
-**Dependencies:** moderngl, numpy
+**Dependencies:** pyjwt, sqlite3/sqlalchemy
 **Test coverage:** ≥80%
 
-### P6-Q2: Quantum Explorer
+### P7-B2: Plugin Marketplace Integration
 
-**Spec:** `docs/specs/phase6_quantum/P6-Q2_Quantum_Explorer.md`
+**Spec:** `docs/specs/phase7_business/P7-B2_Plugin_Marketplace.md`
 **Priority:** P0
-**Dependencies:** moderngl, numpy
+**Dependencies:** requests, aiohttp
 **Test coverage:** ≥80%
 
-### P6-Q3: Quantum Tunnel
+### P7-B3: Analytics Dashboard
 
-**Spec:** `docs/specs/phase6_quantum/P6-Q3_Quantum_Tunnel.md`
+**Spec:** `docs/specs/phase7_business/P7-B3_Analytics_Dashboard.md`
 **Priority:** P1
-**Dependencies:** moderngl, numpy
+**Dependencies:** sqlite3/sqlalchemy, pandas
 **Test coverage:** ≥80%
 
-### P6-Q4: Living Fractal Consciousness [DREAMER]
+### P7-B4: Update Server (Delta Patches)
 
-**Spec:** `docs/specs/phase6_quantum/P6-Q4_Living_Fractal_Consciousness.md`
+**Spec:** `docs/specs/phase7_business/P7-B4_Update_Server.md`
 **Priority:** P1
-**Dependencies:** moderngl, numpy
+**Dependencies:** requests, cryptography
 **Test coverage:** ≥80%
 
 ---
@@ -47,7 +47,7 @@ Phase 6 requires porting 4 quantum consciousness modules from the legacy VJlive-
 ## Instructions
 
 1. Read each specification file thoroughly before starting implementation.
-2. Implement modules in order: P6-Q1 through P6-Q4.
+2. Implement modules in order: P7-B1 through P7-B4.
 3. Follow the Definition of Done in each spec:
    - All tests pass
    - No file over 750 lines
@@ -66,10 +66,10 @@ Phase 6 requires porting 4 quantum consciousness modules from the legacy VJlive-
 
 ## Critical Notes
 
-- These are **quantum consciousness** modules — GPU performance and visual quality are critical.
+- These are **business** modules — security and reliability are critical.
 - All modules must conform to the `PluginBase` interface in `src/vjlive3/plugins/api.py`.
 - Parameter ranges and defaults must match the legacy manifest specifications exactly.
-- Ensure proper handling of edge cases: performance limits, memory usage.
+- Ensure proper handling of edge cases: security vulnerabilities, data corruption, network failures.
 
 ---
 
@@ -79,8 +79,8 @@ After completing each module:
 1. Run tests: `pytest tests/plugins/test_<plugin_name>.py`
 2. Check coverage: `pytest --cov=src/vjlive3/plugins`
 3. Update `BOARD.md` status to ✅ Done
-4. Write completion note in `WORKSPACE/COMMS/STATUS/P6-<task-id>.txt`
-5. Create `task_completion_P6-<task-id>.md` with summary
+4. Write completion note in `WORKSPACE/COMMS/STATUS/P7-<task-id>.txt`
+5. Create `task_completion_P7-<task-id>.md` with summary
 
 ---
 

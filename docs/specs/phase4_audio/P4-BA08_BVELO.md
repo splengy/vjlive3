@@ -1,4 +1,4 @@
-# Spec: P4-BA08 — BVELO
+# Spec: P4-BA08 — BVELO (Envelope Follower)
 
 **File naming:** `docs/specs/phase4_audio/P4-BA08_BVELO.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,34 +16,40 @@
 
 ## What This Module Does
 
-BVELO (Bogaudio Velocity VCA) is a voltage-controlled amplifier that uses a velocity or CV signal to control the amplitude of an audio signal. It provides level and response controls, making it ideal for dynamic amplitude modulation, envelope following, and velocity-sensitive synthesis.
+BVELO is an envelope follower plugin for VJLive3. It tracks the amplitude envelope of an audio signal and outputs a control voltage, enabling audio-reactive modulation of parameters in other plugins and effects.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not include built-in envelope generators
-- Does not provide stereo processing (mono only)
-- Does not include built-in effects or processing
-- Does not support CV inputs for level (manual control only)
+- Does not process audio output (control signal only)
+- Does not include filters (envelope detection only)
+- Does not handle recording (analysis only)
+- Does not provide automation (real-time only)
 
 ---
 
 ## Public Interface
 
 ```python
-class BVELO:
-    def __init__(self) -> None: ...
+class BVELOPlugin:
+    def __init__(self, attack: float = 0.01, release: float = 0.1) -> None: ...
     
-    def set_level(self, level: float) -> None: ...
-    def get_level(self) -> float: ...
+    def set_attack(self, attack: float) -> None: ...
+    def get_attack(self) -> float: ...
     
-    def set_response(self, response: float) -> None: ...
-    def get_response(self) -> float: ...
+    def set_release(self, release: float) -> None: ...
+    def get_release(self) -> float: ...
     
-    def process(self, audio: float, cv: float) -> float: ...
+    def set_threshold(self, threshold: float) -> None: ...
+    def get_threshold(self) -> float: ...
     
-    def reset(self) -> None: ...
+    def set_output_scale(self, scale: float) -> None: ...
+    def get_output_scale(self) -> float: ...
+    
+    def process(self, audio: AudioBuffer) -> float: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -52,30 +58,32 @@ class BVELO:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `level` | `float` | Base amplitude level | 0.0 to 1.0 |
-| `response` | `float` | CV response curve | 0.0 to 1.0 |
-| `audio` | `float` | Audio input signal | -1.0 to 1.0 |
-| `cv` | `float` | Control voltage (velocity) | 0.0 to 1.0 |
+| `attack` | `float` | Attack time in seconds | 0.001 to 1.0 |
+| `release` | `float` | Release time in seconds | 0.001 to 1.0 |
+| `threshold` | `float` | Detection threshold | 0.0 to 1.0 |
+| `scale` | `float` | Output scaling factor | 0.0 to 10.0 |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Amplified audio signal
+**Output:** `float` — Envelope control voltage (0.0-1.0)
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if level is 0? → Output is silent regardless of audio
-- What happens if response is extreme? → May cause nonlinear amplification
-- What happens if audio or CV are out of range? → Clamp to valid range
-- What happens on cleanup? → Reset all parameters to defaults
+- What happens if attack/release out of range? → Clamp to valid range
+- What happens if threshold negative? → Clamp to 0.0
+- What happens if audio buffer empty? → Return current envelope
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - None required for basic functionality
+  - `numpy` — for audio processing — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -84,11 +92,12 @@ class BVELO:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_level_control` | Level parameter scales output |
-| `test_cv_response` | CV signal affects amplitude |
-| `test_response_curve` | Response parameter shapes CV curve |
-| `test_zero_level` | Level=0 produces silence |
-| `test_edge_cases` | Handles extreme parameter values |
+| `test_attack_release` | Sets and gets attack/release |
+| `test_threshold` | Sets and gets threshold |
+| `test_output_scale` | Sets and gets output scale |
+| `test_envelope_tracking` | Tracks audio envelope correctly |
+| `test_response_time` | Attack/release timing accurate |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -101,7 +110,7 @@ class BVELO:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BA08: BVELO velocity VCA` message
+- [ ] Git commit with `[Phase-4] P4-BA08: BVELO envelope follower` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -118,4 +127,4 @@ class BVELO:
 
 ---
 
-*Specification based on Bogaudio BVELO module from legacy VJlive-2 codebase.*
+*Specification based on Bogaudio BVELO module.*

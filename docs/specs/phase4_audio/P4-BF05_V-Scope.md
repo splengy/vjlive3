@@ -1,4 +1,4 @@
-# Spec: P4-BF05 — V-Scope
+# Spec: P4-BF05 — V-Scope (Oscilloscope)
 
 **File naming:** `docs/specs/phase4_audio/P4-BF05_V-Scope.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,39 +16,41 @@
 
 ## What This Module Does
 
-V-Scope (Befaco Oscilloscope) is a visual signal monitor that displays the waveform of an audio signal in real-time. It provides timebase (horizontal scale), gain (vertical scale), and trigger controls for stable waveform visualization, making it essential for signal monitoring and debugging.
+V-Scope is an oscilloscope plugin for VJLive3. It provides real-time waveform visualization of audio signals with adjustable timebase, vertical scale, trigger level, and display modes, enabling detailed audio signal analysis and debugging.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not perform audio analysis or feature extraction
-- Does not provide spectrum analysis (only time-domain)
-- Does not include built-in effects or processing
-- Does not support multiple channels (mono only)
-- Does not save waveform data or provide measurement tools
+- Does not process audio signals (visualization only)
+- Does not include spectrum analysis (waveform only)
+- Does not handle recording (real-time only)
+- Does not provide measurement tools (basic display only)
 
 ---
 
 ## Public Interface
 
 ```python
-class VScope:
+class VScopePlugin:
     def __init__(self) -> None: ...
     
-    def set_time_div(self, time_div: float) -> None: ...
-    def get_time_div(self) -> float: ...
+    def set_timebase(self, timebase: float) -> None: ...
+    def get_timebase(self) -> float: ...
     
-    def set_gain(self, gain: float) -> None: ...
-    def get_gain(self) -> float: ...
+    def set_vertical_scale(self, scale: float) -> None: ...
+    def get_vertical_scale(self) -> float: ...
     
-    def set_trigger_level(self, trigger_level: float) -> None: ...
+    def set_trigger_level(self, level: float) -> None: ...
     def get_trigger_level(self) -> float: ...
     
-    def process(self, audio: float) -> None: ...
-    def get_waveform_buffer(self) -> np.ndarray: ...
+    def set_display_mode(self, mode: str) -> None: ...
+    def get_display_mode(self) -> str: ...
     
-    def reset(self) -> None: ...
+    def process(self, audio: AudioBuffer) -> None: ...
+    def get_waveform_data(self) -> np.ndarray: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -57,31 +59,32 @@ class VScope:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `time_div` | `float` | Timebase (seconds per division) | 0.001 to 1.0 |
-| `gain` | `float` | Vertical gain | 0.1 to 10.0 |
-| `trigger_level` | `float` | Trigger threshold | -1.0 to 1.0 |
-| `audio` | `float` | Input audio signal | -1.0 to 1.0 |
+| `timebase` | `float` | Time per division in seconds | 0.0001 to 1.0 |
+| `scale` | `float` | Vertical scale (volts/div) | 0.01 to 10.0 |
+| `level` | `float` | Trigger level | -1.0 to 1.0 |
+| `mode` | `str` | Display mode | 'dots', 'lines', 'both' |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `np.ndarray` — Waveform buffer (circular buffer of recent samples)
+**Output:** `np.ndarray` — Waveform data for visualization
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if time_div is too small? → May show compressed waveform
-- What happens if gain is extreme? → May cause clipping or too small signal
-- What happens if trigger_level is out of range? → Clamp to [-1.0, 1.0]
-- What happens if audio is silent? → May not trigger, show flat line
-- What happens on cleanup? → Clear buffer, reset parameters
+- What happens if timebase/scale out of range? → Clamp to valid range
+- What happens if trigger level invalid? → Clamp to -1.0-1.0
+- What happens if display mode invalid? → Use default (lines)
+- What happens on cleanup? → Clear display buffers, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - `numpy` — for circular buffer — fallback: use list
+  - `numpy` — for audio processing — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -90,12 +93,12 @@ class VScope:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_buffer_fill` | Circular buffer fills correctly |
-| `test_timebase_control` | Timebase affects buffer display |
-| `test_gain_control` | Gain scales waveform vertically |
-| `test_trigger` | Trigger stabilizes waveform |
-| `test_sine_wave` | Displays sine wave correctly |
-| `test_edge_cases` | Handles extreme parameters |
+| `test_timebase_setting` | Sets and gets timebase |
+| `test_vertical_scale` | Sets and gets vertical scale |
+| `test_trigger_level` | Sets and gets trigger level |
+| `test_display_mode` | Changes display modes |
+| `test_waveform_capture` | Captures waveform correctly |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -125,4 +128,4 @@ class VScope:
 
 ---
 
-*Specification based on Befaco V-Scope module from legacy VJlive-2 codebase.*
+*Specification based on Befaco V-Scope module.*

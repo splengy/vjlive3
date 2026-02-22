@@ -1,4 +1,4 @@
-# Spec: P4-BF03 — V-Outs
+# Spec: P4-BF03 — V-Outs (Output Router)
 
 **File naming:** `docs/specs/phase4_audio/P4-BF03_V-Outs.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,31 +16,37 @@
 
 ## What This Module Does
 
-V-Outs (Befaco Output Module) provides a dedicated output stage for audio signals with level control and clipping protection. It serves as the final output stage before audio leaves the modular system, offering a master volume control and signal conditioning.
+V-Outs is an output router plugin for VJLive3. It provides multiple output selection, independent volume control per output, and mute functions, enabling flexible audio routing to different outputs (main, aux, monitor, etc.).
 
 ---
 
 ## What It Does NOT Do
 
-- Does not provide stereo panning (mono only)
-- Does not include built-in effects or processing
-- Does not support multiple output channels
-- Does not include metering or visual feedback
+- Does not provide effects processing (routing only)
+- Does not handle recording (playback only)
+- Does not include automation (manual control only)
+- Does not manage hardware outputs (software routing only)
 
 ---
 
 ## Public Interface
 
 ```python
-class VOuts:
-    def __init__(self) -> None: ...
+class VOutsPlugin:
+    def __init__(self, num_inputs: int = 1, num_outputs: int = 4) -> None: ...
     
-    def set_level(self, level: float) -> None: ...
-    def get_level(self) -> float: ...
+    def route_input_to_output(self, input_idx: int, output_idx: int, enabled: bool) -> None: ...
+    def get_routing(self, input_idx: int) -> List[bool]: ...
     
-    def process(self, audio: float) -> float: ...
+    def set_output_volume(self, output_idx: int, volume: float) -> None: ...
+    def get_output_volume(self, output_idx: int) -> float: ...
     
-    def reset(self) -> None: ...
+    def mute_output(self, output_idx: int, enabled: bool) -> None: ...
+    def is_output_muted(self, output_idx: int) -> bool: ...
+    
+    def process(self, audio: AudioBuffer) -> Dict[int, AudioBuffer]: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -49,28 +55,34 @@ class VOuts:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `level` | `float` | Output level | 0.0 to 1.0 |
-| `audio` | `float` | Input audio signal | -1.0 to 1.0 |
+| `num_inputs` | `int` | Number of inputs | 1-8 |
+| `num_outputs` | `int` | Number of outputs | 1-8 |
+| `input_idx` | `int` | Input index | 0 to num_inputs-1 |
+| `output_idx` | `int` | Output index | 0 to num_outputs-1 |
+| `enabled` | `bool` | Routing/mute state | True/False |
+| `volume` | `float` | Output volume | 0.0 to 1.0 |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Output audio signal (clipped to -1.0 to 1.0)
+**Output:** `Dict[int, AudioBuffer]` — Routed audio per output
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if level is 0? → Output is silent
-- What happens if level > 1? → Clamp to 1.0
-- What happens if audio clips? → Hard clip to [-1.0, 1.0]
-- What happens on cleanup? → Reset level to default (0.7)
+- What happens if input/output index out of range? → Clamp or raise error
+- What happens if volume invalid? → Clamp to 0.0-1.0
+- What happens if no routing configured? → Pass input to all outputs
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - None required for basic functionality
+  - `numpy` — for audio processing — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -79,10 +91,12 @@ class VOuts:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_level_control` | Level parameter scales output |
-| `test_clipping` | Clips output to valid range |
-| `test_zero_level` | Level=0 produces silence |
-| `test_edge_cases` | Handles extreme input values |
+| `test_routing_config` | Configures input-output routing |
+| `test_output_volume` | Sets and gets output volume |
+| `test_output_mute` | Mutes outputs correctly |
+| `test_audio_routing` | Routes audio to correct outputs |
+| `test_multiple_outputs` | Handles multiple outputs |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -95,7 +109,7 @@ class VOuts:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BF03: V-Outs output module` message
+- [ ] Git commit with `[Phase-4] P4-BF03: V-Outs output router` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -112,4 +126,4 @@ class VOuts:
 
 ---
 
-*Specification based on Befaco V-Outs module from legacy VJlive-2 codebase.*
+*Specification based on Befaco V-Outs module.*

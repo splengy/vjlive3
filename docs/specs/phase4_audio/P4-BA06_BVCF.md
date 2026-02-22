@@ -1,4 +1,4 @@
-# Spec: P4-BA06 — BVCF
+# Spec: P4-BA06 — BVCF (Voltage-Controlled Filter)
 
 **File naming:** `docs/specs/phase4_audio/P4-BA06_BVCF.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,40 +16,40 @@
 
 ## What This Module Does
 
-BVCF (Bogaudio Voltage Controlled Filter) is a multi-mode filter that shapes the frequency content of audio signals. It provides continuous control over cutoff frequency, resonance, and filter mode (lowpass, highpass, bandpass, notch), making it essential for sound design and tonal shaping.
+BVCF is a voltage-controlled filter plugin for VJLive3. It provides multiple filter types (lowpass, highpass, bandpass, notch), cutoff frequency, resonance, and envelope modulation, enabling dynamic frequency shaping and filtering effects.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not include built-in envelope followers or modulation sources
-- Does not provide stereo processing (mono only)
-- Does not include distortion or saturation effects
-- Does not support self-oscillation
+- Does not provide distortion effects (filter only)
+- Does not include multi-mode filtering (single filter)
+- Does not handle recording (playback only)
+- Does not include automation (manual control only)
 
 ---
 
 ## Public Interface
 
 ```python
-class BVCF:
-    def __init__(self) -> None: ...
+class BVCFPlugin:
+    def __init__(self, filter_type: str = "lowpass") -> None: ...
     
-    def set_frequency(self, freq: float) -> None: ...
-    def get_frequency(self) -> float: ...
+    def set_cutoff(self, frequency: float) -> None: ...
+    def get_cutoff(self) -> float: ...
     
-    def set_resonance(self, res: float) -> None: ...
+    def set_resonance(self, q: float) -> None: ...
     def get_resonance(self) -> float: ...
     
-    def set_mode(self, mode: int) -> None: ...
-    def get_mode(self) -> int: ...
+    def set_filter_type(self, filter_type: str) -> None: ...
+    def get_filter_type(self) -> str: ...
     
-    def set_fm(self, fm: float) -> None: ...
-    def get_fm(self) -> float: ...
+    def set_envelope_amount(self, amount: float) -> None: ...
+    def get_envelope_amount(self) -> float: ...
     
-    def process(self, audio: float) -> float: ...
+    def process(self, audio: AudioBuffer) -> AudioBuffer: ...
     
-    def reset(self) -> None: ...
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -58,32 +58,33 @@ class BVCF:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `freq` | `float` | Cutoff frequency (normalized) | 0.0 to 1.0 |
-| `res` | `float` | Resonance/Q | 0.0 to 1.0 |
-| `mode` | `int` | Filter mode | 0=LP, 1=HP, 2=BP, 3=Notch |
-| `fm` | `float` | FM amount | 0.0 to 1.0 |
-| `audio` | `float` | Input audio sample | -1.0 to 1.0 |
+| `filter_type` | `str` | Filter type | 'lowpass', 'highpass', 'bandpass', 'notch' |
+| `frequency` | `float` | Cutoff frequency in Hz | 20.0 to 20000.0 |
+| `q` | `float` | Resonance/Quality | 0.1 to 20.0 |
+| `amount` | `float` | Envelope modulation amount | 0.0 to 1.0 |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Filtered audio sample
+**Output:** `AudioBuffer` — Filtered audio
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if frequency is 0 or 1? → Extreme settings, may cause instability
-- What happens if resonance is too high? → May cause clipping, limit to safe range
-- What happens if mode is invalid? → Clamp to 0-3 range
-- What happens if audio input clips? → Clips to -1.0 to 1.0 range
-- What happens on cleanup? → Reset all parameters to defaults
+- What happens if frequency out of range? → Clamp to 20-20k Hz
+- What happens if q invalid? → Clamp to 0.1-20.0
+- What happens if filter type invalid? → Use default
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - `numpy` — for filter coefficient calculations — fallback: use math module
+  - `numpy` — for audio processing — fallback: raise ImportError
+  - `scipy` — for filter design — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -92,13 +93,12 @@ class BVCF:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_lowpass_mode` | Lowpass filter attenuates high frequencies |
-| `test_highpass_mode` | Highpass filter attenuates low frequencies |
-| `test_bandpass_mode` | Bandpass filter isolates frequency band |
-| `test_notch_mode` | Notch filter rejects specific frequency |
-| `test_resonance` | Resonance control affects Q factor |
-| `test_fm` | FM modulation affects cutoff |
-| `test_edge_cases` | Handles extreme parameter values |
+| `test_cutoff_control` | Sets and gets cutoff frequency |
+| `test_resonance_control` | Sets and gets resonance |
+| `test_filter_type` | Changes filter types |
+| `test_envelope_mod` | Envelope modulation works |
+| `test_filtering` | Applies filter correctly |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -111,7 +111,7 @@ class BVCF:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BA06: BVCF voltage controlled filter` message
+- [ ] Git commit with `[Phase-4] P4-BA06: BVCF voltage-controlled filter` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -128,4 +128,4 @@ class BVCF:
 
 ---
 
-*Specification based on Bogaudio BVCF module from legacy VJlive-2 codebase.*
+*Specification based on Bogaudio BVCF module.*

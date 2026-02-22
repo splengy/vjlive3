@@ -1,4 +1,4 @@
-# Spec: P4-BA05 — BSwitch
+# Spec: P4-BA05 — BSwitch (Audio Router/Selector)
 
 **File naming:** `docs/specs/phase4_audio/P4-BA05_BSwitch.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,34 +16,40 @@
 
 ## What This Module Does
 
-BSwitch is a signal routing module that selects between multiple audio inputs and routes the selected signal to the output. It provides manual control over which input is active, allowing for quick switching between different audio sources or signal paths.
+BSwitch is an audio router/selector plugin for VJLive3. It provides multiple input selection, crossfading between sources, and mute functions, enabling flexible audio source switching during live performances.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not provide crossfading between inputs
-- Does not include built-in effects or processing
-- Does not support CV control of switching
-- Does not include metering or visual feedback
+- Does not provide effects processing (routing only)
+- Does not handle recording (playback only)
+- Does not include automation (manual control only)
+- Does not manage hardware inputs (software routing only)
 
 ---
 
 ## Public Interface
 
 ```python
-class BSwitch:
-    def __init__(self, num_inputs: int = 2) -> None: ...
+class BSwitchPlugin:
+    def __init__(self, num_inputs: int = 4) -> None: ...
     
-    def set_position(self, position: int) -> None: ...
-    def get_position(self) -> int: ...
+    def select_input(self, input_index: int) -> None: ...
+    def get_selected_input(self) -> int: ...
     
-    def set_input(self, index: int, audio: float) -> None: ...
-    def get_input(self, index: int) -> float: ...
+    def set_crossfade(self, input_a: int, input_b: int, amount: float) -> None: ...
+    def get_crossfade(self) -> Tuple[int, int, float]: ...
     
-    def process(self) -> float: ...
+    def mute(self, enabled: bool) -> None: ...
+    def is_muted(self) -> bool: ...
     
-    def reset(self) -> None: ...
+    def set_volume(self, volume: float) -> None: ...
+    def get_volume(self) -> float: ...
+    
+    def process(self, audio: AudioBuffer) -> AudioBuffer: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -52,31 +58,35 @@ class BSwitch:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `num_inputs` | `int` | Number of switch positions | 2 ≤ num_inputs ≤ 8 |
-| `position` | `int` | Active input position | 0 ≤ position < num_inputs |
-| `index` | `int` | Input index | 0 ≤ index < num_inputs |
-| `audio` | `float` | Input audio sample | -1.0 to 1.0 |
+| `num_inputs` | `int` | Number of inputs | 2-16 |
+| `input_index` | `int` | Input to select | 0 to num_inputs-1 |
+| `input_a` | `int` | Crossfade input A | 0 to num_inputs-1 |
+| `input_b` | `int` | Crossfade input B | 0 to num_inputs-1 |
+| `amount` | `float` | Crossfade amount | 0.0 (A) to 1.0 (B) |
+| `enabled` | `bool` | Mute state | True/False |
+| `volume` | `float` | Output volume | 0.0 to 1.0 |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Selected input audio sample
+**Output:** `AudioBuffer` — Routed audio
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if position is out of range? → Raises ValueError with message
-- What happens if input index is out of range? → Raises ValueError with message
-- What happens if num_inputs is out of range? → Raises ValueError with message
-- What happens if audio input clips? → Clips to -1.0 to 1.0 range
-- What happens on cleanup? → Reset to position 0
+- What happens if input index out of range? → Clamp or raise error
+- What happens if crossfade inputs same? → Select single input
+- What happens if crossfade amount invalid? → Clamp to 0.0-1.0
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - None required for basic functionality
+  - `numpy` — for audio processing — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -85,10 +95,12 @@ class BSwitch:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_basic_switching` | Switches between inputs correctly |
-| `test_position_control` | Position parameter works |
-| `test_multiple_inputs` | Handles multiple input channels |
-| `test_edge_cases` | Handles invalid inputs gracefully |
+| `test_input_selection` | Selects inputs correctly |
+| `test_crossfade` | Crossfades between inputs |
+| `test_mute_control` | Mute works correctly |
+| `test_volume_control` | Volume control works |
+| `test_routing` | Routes audio correctly |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -101,7 +113,7 @@ class BSwitch:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BA05: BSwitch signal router` message
+- [ ] Git commit with `[Phase-4] P4-BA05: BSwitch audio router` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -118,4 +130,4 @@ class BSwitch:
 
 ---
 
-*Specification based on Bogaudio BSwitch module from legacy VJlive-2 codebase.*
+*Specification based on Bogaudio BSwitch module.*

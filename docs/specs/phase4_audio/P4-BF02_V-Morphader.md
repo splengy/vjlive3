@@ -1,4 +1,4 @@
-# Spec: P4-BF02 — V-Morphader
+# Spec: P4-BF02 — V-Morphader (Morphing Filter)
 
 **File naming:** `docs/specs/phase4_audio/P4-BF02_V-Morphader.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,37 +16,40 @@
 
 ## What This Module Does
 
-V-Morphader (Befaco Morphader) is a 4-channel crossfader that smoothly transitions between four audio inputs based on a position parameter. It provides individual level controls for each input and a master output, making it ideal for complex mixing and crossfading between multiple audio sources.
+V-Morphader is a morphing filter plugin for VJLive3. It provides two filter states (A and B) with continuous morphing between them, enabling dynamic filter sweeps, transitions, and evolving sound textures.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not provide panning or stereo positioning
-- Does not include built-in effects or processing
-- Does not support CV control of position
-- Does not include metering or visual feedback
+- Does not provide distortion effects (filter only)
+- Does not include multi-band filtering (single filter)
+- Does not handle recording (playback only)
+- Does not include automation (manual control only)
 
 ---
 
 ## Public Interface
 
 ```python
-class VMorphader:
+class VMorphaderPlugin:
     def __init__(self) -> None: ...
     
-    def set_position(self, position: float) -> None: ...
-    def get_position(self) -> float: ...
+    def set_filter_a(self, frequency: float, q: float, gain: float) -> None: ...
+    def get_filter_a(self) -> Tuple[float, float, float]: ...
     
-    def set_level(self, channel: int, level: float) -> None: ...
-    def get_level(self, channel: int) -> float: ...
+    def set_filter_b(self, frequency: float, q: float, gain: float) -> None: ...
+    def get_filter_b(self) -> Tuple[float, float, float]: ...
     
-    def set_master_level(self, level: float) -> None: ...
-    def get_master_level(self) -> float: ...
+    def set_morph(self, morph: float) -> None: ...
+    def get_morph(self) -> float: ...
     
-    def process(self, input1: float, input2: float, input3: float, input4: float) -> float: ...
+    def set_mode(self, mode: str) -> None: ...
+    def get_mode(self) -> str: ...
     
-    def reset(self) -> None: ...
+    def process(self, audio: AudioBuffer) -> AudioBuffer: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -55,31 +58,34 @@ class VMorphader:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `position` | `float` | Crossfade position (0-1) | 0.0 to 1.0 |
-| `channel` | `int` | Input channel index (0-3) | 0 ≤ channel ≤ 3 |
-| `level` | `float` | Channel level | 0.0 to 1.0 |
-| `input1-4` | `float` | Audio inputs | -1.0 to 1.0 |
+| `frequency` | `float` | Filter cutoff frequency in Hz | 20.0 to 20000.0 |
+| `q` | `float` | Filter resonance | 0.1 to 20.0 |
+| `gain` | `float` | Filter gain (dB) | -24.0 to 24.0 |
+| `morph` | `float` | Morph position between A and B | 0.0 (A) to 1.0 (B) |
+| `mode` | `str` | Filter mode | 'lowpass', 'highpass', 'bandpass', 'notch', 'peak' |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Crossfaded audio signal
+**Output:** `AudioBuffer` — Filtered audio with morphing
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if position is out of range? → Clamp to 0.0-1.0
-- What happens if channel index is out of range? → Raise ValueError
-- What happens if levels are 0? → Output is silent
-- What happens if inputs are out of range? → Clamp to -1.0 to 1.0
-- What happens on cleanup? → Reset all parameters to defaults
+- What happens if parameters out of range? → Clamp to valid ranges
+- What happens if morph invalid? → Clamp to 0.0-1.0
+- What happens if filter mode invalid? → Use default (lowpass)
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - None required for basic functionality
+  - `numpy` — for audio processing — fallback: raise ImportError
+  - `scipy` — for filter design — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -88,11 +94,12 @@ class VMorphader:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_basic_morphing` | Crossfades between 4 inputs correctly |
-| `test_position_control` | Position parameter works |
-| `test_level_control` | Individual channel levels work |
-| `test_master_level` | Master level affects output |
-| `test_edge_cases` | Handles invalid inputs gracefully |
+| `test_filter_a_b_setting` | Sets and gets filter A/B parameters |
+| `test_morph_control` | Morphs between filter states |
+| `test_mode_setting` | Changes filter modes |
+| `test_filter_morphing` | Morphing produces smooth transitions |
+| `test_audio_processing` | Processes audio correctly |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -105,7 +112,7 @@ class VMorphader:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BF02: V-Morphader 4-channel crossfader` message
+- [ ] Git commit with `[Phase-4] P4-BF02: V-Morphader morphing filter` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -122,4 +129,4 @@ class VMorphader:
 
 ---
 
-*Specification based on Befaco V-Morphader module from legacy VJlive-2 codebase.*
+*Specification based on Befaco V-Morphader module.*

@@ -1,4 +1,4 @@
-# Spec: P4-BF04 — V-Pony
+# Spec: P4-BF04 — V-Pony (Vactrol-Based Filter)
 
 **File naming:** `docs/specs/phase4_audio/P4-BF04_V-Pony.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -16,37 +16,40 @@
 
 ## What This Module Does
 
-V-Pony (Befaco Pony VCO) is a compact voltage-controlled oscillator that generates periodic audio waveforms. It provides frequency control, fine tuning, and pulse width modulation, offering a simple yet versatile sound source for modular synthesis.
+V-Pony is a vactrol-based filter plugin for VJLive3. It emulates the smooth, organic response of optical vactrol circuits, providing gentle filter sweeps with natural attack/release characteristics, ideal for evolving sound textures and subtle modulation.
 
 ---
 
 ## What It Does NOT Do
 
-- Does not include multiple waveform outputs (single output only)
-- Does not provide FM or sync modulation
-- Does not include built-in envelope generators
-- Does not support self-oscillation
+- Does not provide aggressive filtering (smooth only)
+- Does not include distortion effects (filter only)
+- Does not handle recording (playback only)
+- Does not include automation (manual control only)
 
 ---
 
 ## Public Interface
 
 ```python
-class VPony:
-    def __init__(self) -> None: ...
+class VPonyPlugin:
+    def __init__(self, filter_type: str = "lowpass") -> None: ...
     
-    def set_frequency(self, freq: float) -> None: ...
-    def get_frequency(self) -> float: ...
+    def set_cutoff(self, frequency: float) -> None: ...
+    def get_cutoff(self) -> float: ...
     
-    def set_fine(self, fine: float) -> None: ...
-    def get_fine(self) -> float: ...
+    def set_resonance(self, q: float) -> None: ...
+    def get_resonance(self) -> float: ...
     
-    def set_pw(self, pw: float) -> None: ...
-    def get_pw(self) -> float: ...
+    def set_vactrol_time(self, time: float) -> None: ...
+    def get_vactrol_time(self) -> float: ...
     
-    def get_output(self) -> float: ...
+    def set_filter_type(self, filter_type: str) -> None: ...
+    def get_filter_type(self) -> str: ...
     
-    def reset(self) -> None: ...
+    def process(self, audio: AudioBuffer) -> AudioBuffer: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
@@ -55,29 +58,33 @@ class VPony:
 
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
-| `freq` | `float` | Base frequency (normalized) | 0.0 to 1.0 |
-| `fine` | `float` | Fine tuning | -1.0 to 1.0 |
-| `pw` | `float` | Pulse width | 0.0 to 1.0 |
+| `filter_type` | `str` | Filter type | 'lowpass', 'highpass', 'bandpass' |
+| `frequency` | `float` | Cutoff frequency in Hz | 20.0 to 20000.0 |
+| `q` | `float` | Resonance/Quality | 0.1 to 20.0 |
+| `time` | `float` | Vactrol response time in seconds | 0.01 to 2.0 |
+| `audio` | `AudioBuffer` | Input audio buffer | Valid buffer |
 
-**Output:** `float` — Audio waveform in range -1.0 to 1.0
+**Output:** `AudioBuffer` — Filtered audio with vactrol smoothing
 
 ---
 
 ## Edge Cases and Error Handling
 
-- What happens if frequency is extreme? → May produce inaudible or unstable output
-- What happens if fine tuning is extreme? → May cause detuning beyond audible range
-- What happens if pw is 0 or 1? → May produce silence or extreme pulse width
-- What happens on cleanup? → Reset all parameters to defaults
+- What happens if frequency out of range? → Clamp to 20-20k Hz
+- What happens if q invalid? → Clamp to 0.1-20.0
+- What happens if vactrol time extreme? → Clamp to 0.01-2.0s
+- What happens on cleanup? → Reset all parameters, release resources
 
 ---
 
 ## Dependencies
 
 - External libraries needed (and what happens if they are missing):
-  - `numpy` — for waveform generation — fallback: use math module
+  - `numpy` — for audio processing — fallback: raise ImportError
+  - `scipy` — for filter design — fallback: raise ImportError
 - Internal modules this depends on:
-  - `vjlive3.plugins.PluginBase`
+  - `vjlive3.audio.audio_buffer` (for AudioBuffer type)
+  - `vjlive3.plugins.api` (for PluginBase)
 
 ---
 
@@ -86,11 +93,12 @@ class VPony:
 | Test Name | What It Verifies |
 |-----------|-----------------|
 | `test_init_no_hardware` | Module starts without crashing |
-| `test_oscillator_output` | Produces periodic waveform |
-| `test_frequency_control` | Frequency parameter works |
-| `test_fine_tuning` | Fine tuning parameter works |
-| `test_pw_control` | Pulse width affects waveform |
-| `test_edge_cases` | Handles extreme parameter values |
+| `test_cutoff_control` | Sets and gets cutoff frequency |
+| `test_resonance_control` | Sets and gets resonance |
+| `test_vactrol_time` | Sets and gets vactrol response time |
+| `test_filter_type` | Changes filter types |
+| `test_vactrol_smoothing` | Vactrol smoothing applied correctly |
+| `test_edge_cases` | Handles errors gracefully |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -103,7 +111,7 @@ class VPony:
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-4] P4-BF04: V-Pony oscillator` message
+- [ ] Git commit with `[Phase-4] P4-BF04: V-Pony vactrol filter` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
@@ -120,4 +128,4 @@ class VPony:
 
 ---
 
-*Specification based on Befaco V-Pony module from legacy VJlive-2 codebase.*
+*Specification based on Befaco V-Pony module.*
