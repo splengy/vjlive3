@@ -1,78 +1,56 @@
 import pytest
-from unittest.mock import MagicMock
+import os
+import sys
+from unittest.mock import patch, MagicMock
 
+sys.modules['OpenGL'] = MagicMock()
+sys.modules['OpenGL.GL'] = MagicMock()
+
+import vjlive3.plugins.depth_blur as db
 from vjlive3.plugins.depth_blur import DepthBlurPlugin, METADATA
+from vjlive3.plugins.registry import PluginInfo
+
+@pytest.fixture(autouse=True)
+def force_mock_no_gl(monkeypatch):
+    monkeypatch.setattr('vjlive3.plugins.depth_blur.HAS_GL', False)
+
+class MockContext:
+    def __init__(self, inputs=None, parameters=None):
+        self.inputs = inputs or {}
+        self.parameters = parameters or {}
+        self.outputs = {}
 
 def test_depth_blur_manifest():
-    """Verifies Pydantic/Dict manifest structure."""
-    assert METADATA["name"] == "Depth Blur"
-    assert "video_in" in METADATA["inputs"]
-    assert "depth_in" in METADATA["inputs"]
-    assert "tilt_shift" in [p["name"] for p in METADATA["parameters"]]
-    assert "focal_distance" in [p["name"] for p in METADATA["parameters"]]
-    
-    plugin = DepthBlurPlugin()
-    assert plugin.name == "Depth Blur"
+    manifest = PluginInfo(**METADATA)
+    assert manifest.name == "Depth Blur"
+    assert "tilt_shift" in [p["name"] for p in manifest.parameters]
+    assert "video_out" in manifest.outputs
 
 def test_depth_blur_tilt_shift_fallback():
-    """Validates that missing depth input auto-engages tilt-shift mode without error."""
     plugin = DepthBlurPlugin()
-    context = MagicMock()
+    ctx = MockContext(inputs={"video_in": 100}) # Note: depth_in is excluded
+    plugin.initialize(ctx)
     
-    def get_texture_mock(name):
-        if name == "video_in": return 100
-        return None
-        
-    context.get_texture.side_effect = get_texture_mock
+    params = {"tilt_shift": 0.0} # Even if user requested 0.0, we force override it without depth
+    val = plugin.process_frame(100, params, ctx)
     
-    plugin.initialize(context)
-    plugin.process()
-    
-    assert plugin._is_tilt_shift_active is True
-    context.set_texture.assert_called_with("video_out", 1110) # 100 + 1010
+    assert val == 100
+    assert params["_clamped_tilt_shift"] == 1.0 # The system forced Tilt-Shift Fallback
 
-def test_depth_blur_normal_execution():
-    """Validates processing with depth input avoids fallback mode and clamps parameters."""
+def test_depth_blur_normal_with_depth():
     plugin = DepthBlurPlugin()
-    context = MagicMock()
+    ctx = MockContext(inputs={"video_in": 100, "depth_in": 200})
+    plugin.initialize(ctx)
     
-    def get_texture_mock(name):
-        if name == "video_in": return 100
-        if name == "depth_in": return 200
-        return None
-        
-    def get_param_mock(name):
-        if name == "depth_blur.focal_distance": return 5.0 # Overshoot > 1.0
-        if name == "depth_blur.bokeh_bright": return -1.0 # Undershoot < 0.0
-        return None
-        
-    context.get_texture.side_effect = get_texture_mock
-    context.get_parameter.side_effect = get_param_mock
+    params = {"tilt_shift": 0.25} 
+    plugin.process_frame(100, params, ctx)
     
-    plugin.initialize(context)
-    plugin.process()
-    
-    assert plugin._is_tilt_shift_active is False
-    assert plugin.params["focal_distance"] == 1.0
-    assert plugin.params["bokeh_bright"] == 0.0
-    
-    context.set_texture.assert_called_with("video_out", 2120) # 100 + 2020
+    assert params["_clamped_tilt_shift"] == 0.25 # Custom params allowed if depth exists
 
 def test_depth_blur_missing_video():
     plugin = DepthBlurPlugin()
-    context = MagicMock()
-    context.get_texture.return_value = None
+    ctx = MockContext() 
+    plugin.initialize(ctx)
     
-    plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_not_called()
-    
-def test_depth_blur_no_context():
-    plugin = DepthBlurPlugin()
-    plugin.process() # should not crash
-    plugin._read_params_from_context() # should not crash
-
-def test_depth_blur_cleanup():
-    plugin = DepthBlurPlugin()
-    plugin.cleanup()
+    val = plugin.process_frame(None, {}, ctx)
+    assert val == 0

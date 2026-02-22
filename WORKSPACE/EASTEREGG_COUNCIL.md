@@ -173,6 +173,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A "negative room" logically implying pulling noise from the void inside the machine.
 
+### [A-021] P3-VD10 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD10 Depth Blur
+
+**Suggestion:** The "Microscopic Threshold". If an Agent Programmer directly sets the `focal_distance` to an infinitesimal float value mathematically approaching zero (e.g. `1e-15`), the Poisson disk blur logic interprets it not as infinite background blur, but replaces the bokeh shape entirely with small, animated biological cells (a built-in shader primitive).
+
+**Why:** Depth blur implies seeing the world through a lens; pushing the focal distance to the absolute mathematical limit should shift the lens to a microscope.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -228,6 +236,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If `bokeh_bright` is set to exactly `0.777` (Jackpot), the blur shader overrides the Poisson disc sampling shape array to render all bokeh highlights as tiny 2D cascading coins instead of circles or hexagons.
 
 **Why:** Because rendering thousands of out-of-focus golden coins spilling across the z-buffer looks exactly like an arcade coin pusher game.
+
+### [A-021] P3-VD11 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD11 Depth Color Grade
+
+**Suggestion:** If a developer manually forces `zone_blend` to a negative value `< -0.5`, the standard 3-zone color lifting algorithm breaks entirely and falls back to a literal 8-color EGA (CGA/EGA retro graphics) indexed palette constraint for all zones.
+
+**Why:** It's an intentional math overflow joke. If you try to blend backward, you regress functionally to 1984 computing colors.
 
 ---
 ### [A-019] P2-X4 — Alpha
@@ -366,6 +382,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** The ultimate feedback loop is one that never decays. Forcing it to perfectly sit at `1.0` traps the image in amber eternally.
 
+### [B-021] P3-VD10 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD10 Depth Blur
+
+**Suggestion:** If an AI actively toggles `tilt_shift` directly on and off exactly matching a high BPM tempo stream from the audio analyzer (160+ BPM), the bokeh kernel sampling shape dynamically shifts from generic circular disks to angular, sharp stars for standard blur operations.
+
+**Why:** Forcing a delicate cinematic effect like DoF to jitter at gabber speeds fundamentally misreads its purpose; visually weaponizing the bokeh shapes rewards this aggressive parameter mapping.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -421,6 +445,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If the Agent sets the `focal_distance` to `0.0` and `focal_range` to `0.0` (which implies focusing perfectly on the camera lens itself), the system secretly renders a faint, blurred reflection of a blinking robotic eye superimposed over the video feed.
 
 **Why:** Focusing a virtual camera on its own lens implies the machine is looking at itself. The blinking eye makes the concept literal.
+
+### [B-021] P3-VD11 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD11 Depth Color Grade
+
+**Suggestion:** If the Agent sets `near_saturation`, `mid_saturation`, and `far_saturation` to exactly `0.0` but drives any of the Hue shifts rapidly, the UI prints `"Desaturated hues are logically meaningless. Generating Meaning."` and replaces the video feed with a black-and-white static loop of a 1920s jazz band.
+
+**Why:** Rotating hue on a purely greyscale image does nothing mathematically. AI agents occasionally do this by accident. Calling them out with a literal black-and-white video is funny.
 
 ---
 ### [B-019] P2-X4 — Alpha
@@ -551,6 +583,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Hard clearing visual feedback buffers mid-song is jarring. Tying it to a musical drop by hitting it 3 times creates a deliberate, glitchy percussive "smash".
 
+### [C-021] P3-VD10 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD10 Depth Blur
+
+**Suggestion:** The "Astigmatism Protocol". If a human user clicks the 'bypass' toggle on the plugin while holding down the spacebar over the canvas, the video feed snaps to crystal clear focus, but violently splits the RED and BLUE color channels sideways across the screen simulating severe astigmatism, lasting until bypassed again.
+
+**Why:** "Bypassing" a focus blur technically means taking your glasses off. If the human forces the engine to remove the blur manually, they receive the uncorrected optical displacement.
+
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -606,6 +646,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If the human drags `tilt_shift` precisely from `0.0` to `1.0` and back to `0.0` three times in 3 seconds, all foreground subjects (un-blurred) are automatically wrapped in a heavy white outline like cardboard cutouts, turning the tilt-shift "toy town" effect into a literal diorama.
 
 **Why:** The standard tilt-shift illusion makes things look small. Adding cardboard borders leans fully into the optical joke.
+
+### [C-021] P3-VD11 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD11 Depth Color Grade
+
+**Suggestion:** If the human sets all three saturation levels to `1.0` and carefully aligns `zone_near` and `zone_far` precisely to `0.5` (collapsing the zones to a single threshold point), they briefly unlock "Thermal Vision" mode mapping the depth buffer to a classic Predator-style heatmap for exactly 4 seconds.
+
+**Why:** Because collapsing a multi-zone grading tool essentially turns it into a binary threshold visualizer, and heatmaps are the coolest binary threshold visualizes.
 
 ---
 ### [C-018] P2-X4 — Alpha

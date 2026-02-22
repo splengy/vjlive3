@@ -152,7 +152,7 @@
 | P3-VD08 | Depth R16 Wave | P0 | ✅ Done | `src/vjlive3/plugins/depth_r16_wave.py` — DepthR16WavePlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD09 | Depth Acid Fractal | P1 | ✅ Done | `src/vjlive3/plugins/depth_acid_fractal.py` — DepthAcidFractalPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD10 | Depth Blur | P1 | ✅ Done | `src/vjlive3/plugins/depth_blur.py` — DepthBlurPlugin, 6/6 tests ✅ 2026-02-22 |
-| P3-VD11 | Depth Color Grade | P1 | ⏳ Queued |
+| P3-VD11 | Depth Color Grade | P1 | ✅ Done | `src/vjlive3/plugins/depth_color_grade.py` — DepthColorGradePlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD12 | Depth Contour Datamosh | P1 | ⏳ Queued |
 | P3-VD13 | Depth Erosion Datamosh | P1 | ⏳ Queued |
 | P3-VD14 | Depth Fracture Datamosh | P1 | ⏳ Queued |
