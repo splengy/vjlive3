@@ -1,81 +1,144 @@
 import pytest
-from unittest.mock import MagicMock
+import os
+import sys
+from unittest.mock import patch, MagicMock
 
+sys.modules['OpenGL'] = MagicMock()
+sys.modules['OpenGL.GL'] = MagicMock()
+
+import vjlive3.plugins.depth_color_grade as dcg
 from vjlive3.plugins.depth_color_grade import DepthColorGradePlugin, METADATA
+from vjlive3.plugins.api import PluginContext
 
-def test_depth_color_grade_manifest():
-    """Verifies Pydantic/Dict manifest structure."""
+@pytest.fixture(autouse=True)
+def force_mock_no_gl(monkeypatch):
+    monkeypatch.setattr('vjlive3.plugins.depth_color_grade.HAS_GL', False)
+
+class MockContext:
+    def __init__(self, inputs=None, parameters=None):
+        self.inputs = inputs or {}
+        self.parameters = parameters or {}
+        self.outputs = {}
+
+def test_manifest():
     assert METADATA["name"] == "Depth Color Grade"
+    assert "zoneNear" in [p["name"] for p in METADATA["parameters"]]
     assert "video_in" in METADATA["inputs"]
     assert "depth_in" in METADATA["inputs"]
-    assert "zone_near" in [p["name"] for p in METADATA["parameters"]]
-    assert "zone_far" in [p["name"] for p in METADATA["parameters"]]
-    
-    plugin = DepthColorGradePlugin()
-    assert plugin.name == "Depth Color Grade"
+    assert "video_out" in METADATA["outputs"]
 
-def test_depth_color_grade_missing_depth():
-    """Validates fallback to Mid zone grading if depth is omitted."""
+def test_mock_processing_passthrough():
     plugin = DepthColorGradePlugin()
-    context = MagicMock()
+    ctx = MockContext(inputs={"depth_in": 200})
+    plugin.initialize(ctx)
     
-    def get_texture_mock(name):
-        if name == "video_in": return 100
-        return None
-        
-    context.get_texture.side_effect = get_texture_mock
+    assert plugin._mock_mode is True
     
-    plugin.initialize(context)
-    plugin.process()
+    res = plugin.process_frame(100, {}, ctx)
+    assert res == 100
+    assert ctx.outputs["video_out"] == 100
     
-    assert plugin._missing_depth is True
-    context.set_texture.assert_called_with("video_out", 655) # 100 + 555
+    # Missing input
+    assert plugin.process_frame(0, {}, ctx) == 0
 
-def test_depth_color_grade_zone_swap():
-    """Prevents math errors if zone_near is pushed past zone_far."""
+def setup_mock_gl(monkeypatch):
+    mock_gl = MagicMock()
+    mock_gl.glGenTextures.return_value = [1, 2]
+    mock_gl.glGenFramebuffers.return_value = [10, 20]
+    mock_gl.GL_TRUE = 1
+    mock_gl.glGetShaderiv.return_value = 1
+    mock_gl.glGetTexLevelParameteriv.return_value = 1920
+    monkeypatch.setattr(dcg, 'gl', mock_gl, raising=False)
+    monkeypatch.setattr(dcg, 'HAS_GL', True)
+    return mock_gl
+    
+def test_gl_initialization(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
     plugin = DepthColorGradePlugin()
-    context = MagicMock()
+    plugin._mock_mode = False
     
-    def get_texture_mock(name):
-        if name == "video_in": return 100
-        if name == "depth_in": return 200
-        return None
-        
-    def get_param_mock(name):
-        # Deliberately setting Near > Far
-        if name == "color_grade.zone_near": return 0.8
-        if name == "color_grade.zone_far": return 0.2
-        if name == "color_grade.mid_saturation": return 3.0 # Overshoot max 2.0
-        return None
-        
-    context.get_texture.side_effect = get_texture_mock
-    context.get_parameter.side_effect = get_param_mock
+    ctx = MockContext()
+    plugin.initialize(ctx)
     
-    plugin.initialize(context)
-    plugin.process()
+    assert plugin.prog is not None
+    assert plugin.textures["feedback_0"] == 1
+    assert plugin.textures["feedback_1"] == 2
+    assert plugin.fbos["feedback_0"] == 10
     
-    assert plugin._missing_depth is False
-    assert plugin.params["zone_near"] == 0.2
-    assert plugin.params["zone_far"] == 0.8
-    assert plugin.params["mid_saturation"] == 2.0 # Saturation clamp
-    
-    context.set_texture.assert_called_with("video_out", 1099) # 100 + 999
-
-def test_depth_color_grade_missing_video():
+def test_gl_fbo_cleanup(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
     plugin = DepthColorGradePlugin()
-    context = MagicMock()
-    context.get_texture.return_value = None
+    plugin._mock_mode = False
+    ctx = MockContext()
     
-    plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_not_called()
-    
-def test_depth_color_grade_no_context():
-    plugin = DepthColorGradePlugin()
-    plugin.process() # should not crash
-    plugin._read_params_from_context() # should not crash
-
-def test_depth_color_grade_cleanup():
-    plugin = DepthColorGradePlugin()
+    plugin.initialize(ctx)
     plugin.cleanup()
+    
+    mock_gl.glDeleteTextures.assert_called_once_with(2, [1, 2])
+    mock_gl.glDeleteFramebuffers.assert_called_once_with(2, [10, 20])
+    
+def test_gl_exception_fallback(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    mock_gl.glGenTextures.side_effect = Exception("Out of Memory")
+    
+    plugin = DepthColorGradePlugin()
+    plugin._mock_mode = False
+    ctx = MockContext()
+    
+    plugin.initialize(ctx)
+    assert plugin._mock_mode is True
+    
+def test_gl_render_ping_pong_and_uniforms(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    plugin = DepthColorGradePlugin()
+    plugin._mock_mode = False
+    ctx = MockContext(inputs={"depth_in": 300})
+    
+    plugin.initialize(ctx)
+    
+    assert plugin.ping_pong == 0
+    # Overlap near>far to trigger edge case zone boundary swap internally
+    res1 = plugin.process_frame(100, {"zoneNear": 8.0, "zoneFar": 2.0, "filmCurve": 3.0, "u_mix": 0.5}, ctx)
+    assert res1 == 2
+    assert plugin.ping_pong == 1
+    
+    mock_gl.glGetTexLevelParameteriv.return_value = 1920
+    res2 = plugin.process_frame(100, {}, ctx)
+    assert res2 == 1
+    
+    # Trigger texture size change reallocation branch
+    mock_gl.glGetTexLevelParameteriv.return_value = 800
+    res3 = plugin.process_frame(100, {}, ctx)
+    assert res3 == 2
+
+def test_gl_render_exception(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    plugin = DepthColorGradePlugin()
+    plugin._mock_mode = False
+    ctx = MockContext()
+    plugin.initialize(ctx)
+    
+    mock_gl.glBindTexture.side_effect = Exception("Driver Crash")
+    res = plugin.process_frame(100, {}, ctx)
+    assert res == 100 # Return raw input unharmed
+    
+def test_shader_compile_fail(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    mock_gl.glGetShaderiv.return_value = 0 # Fail flag
+    
+    plugin = DepthColorGradePlugin()
+    res = plugin._compile_shader()
+    assert res is None
+
+def test_single_int_generation(monkeypatch):
+    mock_gl = setup_mock_gl(monkeypatch)
+    mock_gl.glGenTextures.return_value = 99
+    mock_gl.glGenFramebuffers.return_value = 100
+    
+    plugin = DepthColorGradePlugin()
+    plugin._mock_mode = False
+    ctx = MockContext()
+    plugin.initialize(ctx)
+    
+    assert plugin.textures["feedback_0"] == 99
+    assert plugin.textures["feedback_1"] == 100
