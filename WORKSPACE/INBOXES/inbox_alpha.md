@@ -1,12 +1,12 @@
 # TASK ASSIGNMENT
 
 **Agent:** Worker Alpha
-**Task ID:** P2-H5
-**Task Name:** Spout support (Windows video sharing)
-**Spec File:** docs/specs/P2-H5_spout.md
+**Task ID:** P2-H7
+**Task Name:** Laser safety system & ILDA output
+**Spec File:** docs/specs/P2-H7_laser.md
 
 ## Instructions
-Please implement the specification defined in `docs/specs/P2-H5_spout.md`.
+Please implement the specification defined in `docs/specs/P2-H7_laser.md`.
 Follow all `WORKSPACE/HOW_TO_WORK.md` and `WORKSPACE/PRIME_DIRECTIVE.md` guidelines.
-Ensure SAFETY RAIL #6 and #8 are strictly followed regarding cross-platform mock fallbacks and graceful resource teardown.
+Ensure SAFETY RAIL #6 and #7 are strictly followed regarding hardware connection mocks, emergency stop features, and failing gracefully.
 Do not skip any verification steps.

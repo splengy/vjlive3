@@ -101,6 +101,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A fun throwback to the legacy framework that honors the transition to VJLive3.
 
+### [A-007] P2-H4 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-H4 NDI Video Transport
+
+**Suggestion:** If an NDI sender is created with the exact name `"The Construct"` and active for 60 seconds, it embeds a hidden steganographic payload in the alpha channel of the frames, spelling out "There is no spoon" in binary.
+
+**Why:** It perfectly fits the Matrix theme, and since it modifies the alpha channel by only 1 bit, it's completely invisible to the naked eye. Only an agent or a very dedicated programmer inspecting the raw byte streams would ever see it.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -157,6 +165,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Watching an agent thrash back and forth is jarring. This gracefully turns a catastrophic logic loop into an intentional, moody visual beat.
 
+### [B-007] P2-H4 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-H4 NDI Video Transport
+
+**Suggestion:** If an agent dynamically roots exactly 13 unique NDI receivers into a single texture mixer node within 5 seconds, the NDIHub initiates a recursive "mirror shatter" visual effect before purging the buffers to save memory.
+
+**Why:** 13 concurrent incoming full-HD streams is absurd and likely an agent gone rogue trying to maximize input bandwidth. This provides a cool thematic "system overload" visualization before protecting the RAM.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -212,6 +228,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If a VJ creates a Cue with the name `"Hold the Line"` and a fade_in time of exactly `420.0` seconds, the crossfade logic actually halts entirely midway through, locks the fader, and pulses a tiny strobe on the lowest DMX fixture until the human hits Go again.
 
 **Why:** 420 is historically a funny VJ number, but a 7 minute fade is absurdly long. This stops the VJ from falling asleep at the wheel and forces them to manually confirm the transition.
+
+### [C-007] P2-H4 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-H4 NDI Video Transport
+
+**Suggestion:** If a human performer physically unplugs and replugs their NDI ethernet cable 3 times in rhythm to the beat (detected via the source dropping and returning rapidly), the VJLive engine briefly overlays a glitching "HACK THE PLANET" text on all active outputs before restoring the network stack.
+
+**Why:** Network dropouts happen. Giving the human a way to purposely "play" the failure state turns a terrifying technical glitch into a deliberate cyberpunk performance gesture.
 
 ---
 

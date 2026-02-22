@@ -38,19 +38,19 @@
   {
     "task_id": "P2-H3",
     "spec_path": "docs/specs/P2-H3_astra.md",
-    "status": "in_progress",
+    "status": "completed",
     "assigned_worker": "Beta",
     "created_at": "2026-02-22T09:46:00.232152+00:00",
     "started_at": "2026-02-22T09:46:32.479649+00:00",
-    "completed_at": null
+    "completed_at": "2026-02-22T09:49:44.154283+00:00"
   },
   {
     "task_id": "P2-H4",
     "spec_path": "docs/specs/P2-H4_ndi.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T09:47:13.102970+00:00",
-    "started_at": null,
+    "started_at": "2026-02-22T09:50:01.702104+00:00",
     "completed_at": null
   },
   {
@@ -59,6 +59,24 @@
     "status": "queued",
     "assigned_worker": null,
     "created_at": "2026-02-22T09:48:23.902342+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-H6",
+    "spec_path": "docs/specs/P2-H6_gamepad.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-22T09:50:49.314167+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-H7",
+    "spec_path": "docs/specs/P2-H7_laser.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-22T09:53:28.460237+00:00",
     "started_at": null,
     "completed_at": null
   }

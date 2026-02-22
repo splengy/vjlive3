@@ -17,3 +17,8 @@
 **Task:** P2-H3 Astra Depth Camera
 **Built:** `src/vjlive3/plugins/astra.py`, `tests/plugins/test_astra.py` with 5 tests (100% pass, 94% local coverage)
 **Blocker:** None
+
+### [2026-02-22 02:00] — STATUS
+**Task:** P2-H4 NDI Video Transport
+**Built:** `src/vjlive3/plugins/ndi.py`, `tests/plugins/test_ndi.py` with 6 tests (100% pass, 94% local coverage)
+**Blocker:** None
