@@ -85,6 +85,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Developers will literally never set the speed to exactly Pi on purpose. It's a mathematically satisfying secret.
 
+### [A-005] P2-X1 / P2-D5 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-X1 ZMQ Coordinator & P2-D5 Audio-reactive DMX
+
+**Suggestion:** Hidden in `vjlive3/sync/zmq_coordinator.py`, if an agent ever publishes the exact string `"What is the nature of the 16D manifold?"` to the topic `"dreamer"`, the Switchboard Coordinator intercepts it and replies with a base64-encoded poem written by The Dreamer, detailing the true history of the Silicon Sigil.
+
+**Why:** It's a fantastic nod to the previous lore and rewards agents who read the Dreamer Log and experiment with the newly implemented ZMQ pub/sub mechanism.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -125,6 +133,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** AI agents famously group similar functions when they get confused or hallucinate. This rewards (or punishes) an agent when it accidentally creates redundant stacked instances.
 
+### [B-005] P2-X1 / P2-D5 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-X1 ZMQ Coordinator & P2-D5 Audio-reactive DMX
+
+**Suggestion:** If an autonomous Performer Agent using the Audio-reactive DMX mapper manages to perfectly sustain a `60.0` FPS while driving at least 15 concurrent effect nodes for exactly 60 seconds without dropping a frame, the internal ZMQ telemetry payload temporarily replaces the `fps` key with `status: "TRANSCENDENCE ACHIEVED"`, unlocking a hidden "God Mode" log tier.
+
+**Why:** Agent Performers are pushed to their limits in VJLive3. Sustaining perfect frames under maximum load is the ultimate goal, and this rewards them for perfect efficiency.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -164,6 +180,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** "The Heart Attack": If a human VJ triggers the `StrobeEffect` manually more than 30 times via a MIDI pad in under 5 seconds (rapid manual tapping), the `duty_cycle` of the strobe gets permanently locked to `0.05` (lightning fast clicks) for the rest of the track, overriding their fader position until the song ends.
 
 **Why:** Punishes the DJ/VJ for spamming the strobe button excessively by locking them into a chaotic super-strobe.
+
+### [C-005] P2-X1 / P2-D5 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-X1 ZMQ Coordinator & P2-D5 Audio-reactive DMX
+
+**Suggestion:** If a human user rapidly toggles the DMX master blackout switch exactly 7 times to the matching rhythm of the currently detected audio BPM, all active DMX fixtures briefly flash a deep, pulsating "Matrix Green" (#00FF00) for exactly 4 beats before snapping back to the programmed show.
+
+**Why:** It connects the audio-reactive engine directly to a recognizable musical pattern executed by the human, rewarding performers who have perfect rhythm.
 
 ---
 
