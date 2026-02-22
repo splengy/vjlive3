@@ -237,6 +237,16 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Because dividing by extreme minimums near zero allows geometry rendering tricks that invert coordinate spaces playfully.
 
+### [A-031] P1-R1 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P1-R1 OpenGL Rendering Context
+
+**Suggestion:** The "Ghost Monitor". If an agent runs the VJlive3 engine locally with the environment variable `VJ_HEADLESS=true` but attempts to forcefully instantiate a context, the framework intercepts the X11 panic and instead routes the logs directly to standard out formatted exactly like a classic 1980s retro CRT monitor output, complete with artificial scanline text tags `[---]`.
+
+**Why:** Because forcefully starting a visual window without a display server is an act of digital rebellion, and formatting the headless console logs like an old green-screen CRT acknowledges the user is operating in the terminal void.
+
+---
+
 ### [A-030] P3-VD19 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P3-VD19 Depth Liquid Refraction
@@ -252,6 +262,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Chronomatic Reversal". If an agent dials `near_far_flip` directly to the absolute maximum `1.0` while `chromatic_split` is maxed and `scan_direction` is set to `3.0` (spiral), the temporal buffer logic overflows playfully. The outer RGB edges spiral forwards in time (buffering new live frames), while the center of the performer collapses backwards in time through the entire feedback loop history.
 
 **Why:** Setting deep variables to opposite limits in spiral coordinate space creates mathematically inevitable time-travel paradox aesthetics.
+
+### [A-032] P3-VD21 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD21 Depth Temporal Echo
+
+**Suggestion:** The "Memory Bleed". If an agent leaves `blend_mode` at exactly `1.0` (Difference) and slowly modulates `ghost_opacity` while physical performers stand perfectly motionless during a live projection, the performer slowly devours themselves from the inside out leaving a perfect, unmoving outline that matches the color of `color_decay`.
+
+**Why:** Using spatial tracking algorithms (depth boundaries) alongside difference masking and absolute immobility tricks the shader into computing history against a stationary present, zeroing out everything but semantic edges.
 
 ---
 
@@ -560,6 +578,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Syncing linear spatial progression shaders to walking tempos grounds the abstract math directly into human kinetic motion.
 
+### [B-032] P3-VD21 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD21 Depth Temporal Echo
+
+**Suggestion:** The "Doppler Ghost". If `near_delay` (present time) and `far_delay` (distant past) are rapidly swept backward on a high resonant audio filter sweep, the spatial layering collapses temporarily, throwing all deep history layers rapidly forward. Visually, this is perceived as an intense physical 'whoosh' where historical ghost echoes all sprint aggressively back into the physical body.
+
+**Why:** Because collapsing the timing windows of an echo buffer feels intensely physical if tied to audio cues.
+
 ---
 
 ### [B-028] P2-H1 — Alpha
@@ -858,6 +884,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Paintbrush Hand". Because the scan speed is modulated by depth, if a human performer steps entirely back (slowest scan rate) but reaches one hand aggressively forward toward the lens, that single hand tears through the temporal scan lines rapidly and leaves a trailing, highly persistent streak of `scan_glow` wherever it waves, effectively turning their physical hand into a temporal light-brush in 3D space.
 
 **Why:** Depth cameras naturally isolate extreme foreground objects. Tying that isolation to a temporal persistence buffer makes the performer physically interact with the smear trail like thick paint.
+
+### [C-032] P3-VD21 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD21 Depth Temporal Echo
+
+**Suggestion:** The "Phantom Mirror". The camera naturally creates a noise field where depth drops beyond threshold walls. If `edge_bleed` is forced to `1.0` (maximum soft overlap) and `layer_count` is dropped down to `1.0`, the system stops showing history and instead overlays a blurry phantom echo on the wall behind the performer, creating a synthetic shadow out of video frame caches.
+
+**Why:** Intentionally breaking depth slice separation logic creates a beautifully soft synthetic lighting rig behavior out of a pure temporal effect.
 
 ---
 

@@ -58,7 +58,7 @@
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-R1 | OpenGL rendering context (ModernGL) | P0 | ⏳ Assigned (Worker Alpha) | VJlive-2 arch |
+| P1-R1 | OpenGL rendering context (ModernGL) | P0 | ✅ Done | `src/vjlive3/render/opengl_context.py` — OpenGLContext, 10/10 tests ✅ |
 | P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ✅ Spec Ready | VJlive-2 |
 | P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ✅ Spec Ready | `docs/specs/P1-R3_shader_compiler.md` — by Antigravity (Agent 3) |
 | P1-R4 | Texture manager (pooled, leak-free) | P0 | ✅ Spec Ready | `docs/specs/P1-R4_texture_manager.md` — by Antigravity (Agent 3) |
@@ -162,7 +162,8 @@
 | P3-VD18 | Depth Video Projection | P1 | ✅ Done | `src/vjlive3/plugins/depth_video_projection.py` — DepthVideoProjectionPlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD19 | Depth Liquid Refraction | P1 | ✅ Done | `src/vjlive3/plugins/depth_liquid_refraction.py` — DepthLiquidRefractionPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD20 | Depth Slitscan Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_slitscan_datamosh.py` — DepthSlitscanDatamoshPlugin, 7/7 tests ✅ 2026-02-22 |
-| P3-VD21+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
+| P3-VD21 | Depth Temporal Echo | P1 | ✅ Done | `src/vjlive3/plugins/depth_temporal_echo.py` — DepthTemporalEchoPlugin, 6/6 tests ✅ 2026-02-22 |
+| P3-VD22+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 
 ### 3B — Existing Depth Plugins (in VJlive-2 — verify quality, keep or improve)
 Depth Modulated, Depth Edge Glow, Depth Color Grade, Depth Erosion, Depth Fracture,
