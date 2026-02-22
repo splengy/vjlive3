@@ -8,7 +8,8 @@
 				"/home/happy/Desktop/claude projects"
 			],
 			"alwaysAllow": [
-				"read_multiple_files"
+				"read_multiple_files",
+				"read_text_file"
 			]
 		},
 		"context7": {

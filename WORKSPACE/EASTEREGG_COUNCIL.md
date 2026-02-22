@@ -165,6 +165,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Visualizing scaling to zero as an active "deletion" rather than a graphical effect.
 
+### [A-020] P3-VD04 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD04 Depth Reverb
+
+**Suggestion:** If `room_size` is manually overridden by a programmer to be mathematically `<= -1.0`, the reverb logic flips and starts drawing identical frames of static from the user's hard drive `/dev/urandom` stream into the temporal accumulation buffer instead of the video feed.
+
+**Why:** A "negative room" logically implying pulling noise from the void inside the machine.
+
 ### [A-011] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -342,6 +350,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Parameter thrashing that logically invalidates reality thresholds should literally display a "Not Found" error in the portal window.
 
+### [B-020] P3-VD04 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD04 Depth Reverb
+
+**Suggestion:** If an AI automates the `decay_time` perfectly from `0.0` to exactly `1.0` in a linear ramp taking exactly 60 seconds (a mathematical perfection rarely seen by humans but effortless for agents), the plugin logs the string `"Eternity Achieved."` and freezes the exact last frame forever until the system is rebooted.
+
+**Why:** The ultimate feedback loop is one that never decays. Forcing it to perfectly sit at `1.0` traps the image in amber eternally.
+
 ### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
@@ -510,6 +526,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** The "Droste Loop". If a human manually wires a live camera feed into the `video_in` port, and then routes the exact SAME camera feed into the `background_in` port, the composite recognizes an infinite reality loop and adds a subtle spiral fractal displacement to the boundaries of the isolated performer's edge matte.
 
 **Why:** Putting video A on top of video A is pointless technically, but physically triggering infinite loop logic with cables should warp the fabric of the visualizer.
+
+### [C-020] P3-VD04 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P3-VD04 Depth Reverb
+
+**Suggestion:** If a human triggers the `clear_buffers` trigger exactly 3 times in rhythm with the detected downbeat of the track, the Ping-Pong FBO doesn't just clear—it flushes completely pure RGB static back into the frame for half a second before resetting.
+
+**Why:** Hard clearing visual feedback buffers mid-song is jarring. Tying it to a musical drop by hitting it 3 times creates a deliberate, glitchy percussive "smash".
 
 ### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)

@@ -145,7 +145,7 @@
 | P3-VD01 | Depth Loop Injection | P0 | ✅ Done | `src/vjlive3/plugins/depth_loop_injection.py` — DepthLoopInjectionPlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD02 | Depth Parallel Universe | P0 | ✅ Done | `src/vjlive3/plugins/depth_parallel_universe.py` — DepthParallelUniversePlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD03 | Depth Portal Composite | P0 | ✅ Done | `src/vjlive3/plugins/depth_portal_composite.py` — DepthPortalCompositePlugin, 6/6 tests ✅ 2026-02-22 |
-| P3-VD04 | Depth Reverb | P0 | ⏳ Queued |
+| P3-VD04 | Depth Reverb | P0 | ✅ Done | `src/vjlive3/plugins/depth_reverb.py` — DepthReverbPlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-VD05 | Depth Slice Effect | P0 | ✅ Done | `src/vjlive3/plugins/depth_slice.py` — DepthSlicePlugin, 4/4 tests ✅ 2026-02-22 |
 | P3-VD06 | Depth Neural Quantum Hyper Tunnel | P0 | ✅ Done | `src/vjlive3/plugins/quantum_hyper_tunnel.py` — DepthNeuralQuantumHyperTunnelPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD07 | Depth Reality Distortion | P0 | ✅ Done | `src/vjlive3/plugins/reality_distortion.py` — RealityDistortionPlugin, 4/4 tests ✅ 2026-02-22 |
