@@ -1,252 +1,135 @@
-# Spec: P1-R4 — Texture Manager (Pooled, RAII, Leak-Free)
+# Spec: P1-R4 — Texture Manager
+
+**File naming:** `docs/specs/P1-R4_texture_manager.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P1-R4 — Texture Manager
 
 **Phase:** Phase 1 / P1-R4
-**Assigned To:** TBD (awaiting Manager assignment)
-**Spec Written By:** Antigravity (Agent 3)
-**Date:** 2026-02-21
-**Source References:** `VJlive-2/core/framebuffer.py`, `VJlive-2/docs/specs/P1-R2_gpu_pipeline.md`
-**Depends On:** P1-R1 (OpenGLContext)
+**Assigned To:** [Agent name]
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
 
 ---
 
 ## What This Module Does
 
-Manages GPU texture objects using a pool allocation strategy. Provides RAII `Texture2D` and
-`Framebuffer` handles that release GPU resources automatically when they go out of scope.
-Maintains separate pools keyed by (width, height, format) so textures can be reused across
-frames without re-allocation. Also manages PBO (Pixel Buffer Object) readback objects for
-async CPU-side pixel capture. Enforces 60 FPS by avoiding re-allocation in the hot path.
-Validates SAFETY_RAIL 8 (no resource leaks) by tracking unreleased handles.
+The texture manager provides pooled, leak-free texture resource management for the rendering pipeline. It handles texture creation, caching, reuse, and cleanup to prevent GPU memory leaks and ensure efficient texture usage across the application.
 
 ---
 
 ## What It Does NOT Do
 
-- Does NOT compile shaders (P1-R3)
-- Does NOT run the render loop (P1-R5)
-- Does NOT decode image files — callers provide raw pixel data
-- Does NOT upload video frames — that is P2's VideoSource scope
+- Does not handle shader compilation or program management
+- Does not provide image loading or decoding (delegates to image libraries)
+- Does not manage framebuffer objects (separate system)
+- Does not perform texture format conversion (requires pre-converted data)
 
 ---
 
 ## Public Interface
 
 ```python
-# vjlive3/render/textures.py
-
-import moderngl
-import numpy as np
-from typing import Optional, Tuple
-from enum import Enum
-
-
-class TextureFormat(str, Enum):
-    RGBA8   = "rgba8"      # 8-bit RGBA (most textures)
-    RGBA16F = "rgba16f"    # 16-bit float RGBA (HDR)
-    RGB8    = "rgb8"       # 8-bit RGB
-    R8      = "r8"         # single channel
-
-
-class Texture2D:
-    """
-    RAII wrapper around a moderngl.Texture.
-    Returned by TextureManager.acquire() — do not construct directly.
-    Release via context manager or explicit .release().
-    """
-
-    @property
-    def mgl(self) -> moderngl.Texture:
-        """Access underlying moderngl.Texture."""
-
-    @property
-    def width(self) -> int: ...
-
-    @property
-    def height(self) -> int: ...
-
-    @property
-    def format(self) -> TextureFormat: ...
-
-    def write(self, data: bytes) -> None:
-        """Upload pixel data. data must match width*height*channels bytes."""
-
-    def use(self, location: int = 0) -> None:
-        """Bind to a texture unit."""
-
-    def release(self) -> None:
-        """Return to pool. Idempotent."""
-
-    def __enter__(self) -> 'Texture2D': ...
-    def __exit__(self, *args) -> None: ...  # calls release()
-
-
-class Framebuffer:
-    """
-    RAII wrapper around moderngl.Framebuffer with an attached Texture2D.
-    Returned by TextureManager.acquire_framebuffer().
-    """
-
-    @property
-    def mgl(self) -> moderngl.Framebuffer: ...
-
-    @property
-    def color_texture(self) -> Texture2D:
-        """Access the colour attachment."""
-
-    @property
-    def width(self) -> int: ...
-
-    @property
-    def height(self) -> int: ...
-
-    def use(self) -> None:
-        """Bind as render target."""
-
-    def clear(self, r: float = 0.0, g: float = 0.0, b: float = 0.0, a: float = 0.0) -> None:
-        """Clear colour attachment."""
-
-    def release(self) -> None:
-        """Return to pool. Idempotent."""
-
-    def __enter__(self) -> 'Framebuffer': ...
-    def __exit__(self, *args) -> None: ...
-
-
-class PBOReadback:
-    """
-    RAII PBO for async pixel readback (avoids GPU stall).
-
-    Usage:
-        pbo = manager.acquire_pbo(width, height)
-        pbo.trigger_readback(framebuffer)  # non-blocking
-        # One frame later:
-        data = pbo.get_pixels()  # returns np.ndarray or None if not ready
-        pbo.release()
-    """
-
-    def trigger_readback(self, framebuffer: Framebuffer) -> None:
-        """Start async readback from framebuffer (non-blocking)."""
-
-    def get_pixels(self) -> Optional[np.ndarray]:
-        """
-        Return pixel data if DMA transfer complete, else None.
-        Shape: (height, width, 4) dtype uint8.
-        """
-
-    def release(self) -> None: ...
-
-    def __enter__(self) -> 'PBOReadback': ...
-    def __exit__(self, *args) -> None: ...
-
-
 class TextureManager:
-    """
-    Pool-based GPU texture allocator. One instance per OpenGL context.
-
-    Not thread-safe — must be used on the GL context thread.
-    """
-
-    def __init__(self, ctx: moderngl.Context) -> None:
-        """
-        Args:
-            ctx: Active ModernGL context.
-        """
-
-    def acquire(
-        self,
-        width: int,
-        height: int,
-        fmt: TextureFormat = TextureFormat.RGBA8,
-    ) -> Texture2D:
-        """
-        Get a texture of the given dimensions and format.
-
-        Reuses a pooled texture if available, otherwise allocates a new one.
-        Thread-unsafe — call from GL thread only.
-        """
-
-    def acquire_framebuffer(
-        self,
-        width: int,
-        height: int,
-        fmt: TextureFormat = TextureFormat.RGBA8,
-    ) -> Framebuffer:
-        """Get a framebuffer with attached colour texture from pool."""
-
-    def acquire_pbo(self, width: int, height: int) -> PBOReadback:
-        """Get a PBO for pixel readback from pool."""
-
-    def stats(self) -> dict:
-        """
-        Return pool statistics for diagnostics.
-        {'total_allocated': int, 'pooled': int, 'active': int, 'leaked': int}
-        leaked = allocated - (pooled + active) — non-zero indicates RAIL 8 violation.
-        """
-
-    def shutdown(self) -> None:
-        """Release all pooled and active textures. Logs RAIL 8 warning if leaked > 0."""
+    def __init__(self, ctx: moderngl.Context, max_textures: int = 1000) -> None: ...
+    
+    def create_texture(self, name: str, size: Tuple[int, int], components: int, data: Optional[bytes] = None) -> Texture: ...
+    def get_texture(self, name: str) -> Optional[Texture]: ...
+    def release_texture(self, name: str) -> bool: ...
+    
+    def create_from_image(self, name: str, image_path: str) -> Optional[Texture]: ...
+    def create_from_buffer(self, name: str, buffer: bytes, size: Tuple[int, int], components: int) -> Texture: ...
+    
+    def reserve_texture(self, name: str, size: Tuple[int, int], components: int) -> Texture: ...
+    def update_texture(self, texture: Texture, data: bytes) -> None: ...
+    
+    def clear_all(self) -> None: ...
+    def get_stats(self) -> TextureStats: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
 
-## Pool Strategy
+## Inputs and Outputs
 
-Pool key: `(width, height, format)` → `deque[Texture2D]`.
-- `acquire()`: pop from deque if non-empty, else allocate new.
-- `release()`: push back to deque.
-- Pool size cap: 8 textures per key (configurable). If cap exceeded, destroy instead of pool.
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `ctx` | `moderngl.Context` | ModernGL context | Must be valid |
+| `max_textures` | `int` | Maximum textures to cache | > 0 |
+| `name` | `str` | Texture identifier | Unique, non-empty |
+| `size` | `Tuple[int, int]` | Width, height in pixels | > 0 |
+| `components` | `int` | Number of components (1-4) | 1, 2, 3, or 4 |
+| `data` | `bytes` | Raw pixel data | Size = w*h*components |
+| `image_path` | `str` | Path to image file | Valid file path |
+| `buffer` | `bytes` | Raw buffer data | Valid bytes object |
+
+**Output:** `Texture` — ModernGL texture object or None
 
 ---
 
 ## Edge Cases and Error Handling
 
-- **GL out-of-memory:** Caught, raises `MemoryError("GPU OOM: cannot allocate {w}x{h} texture")`.
-- **Double release:** Log WARNING, skip return to pool (idempotent).
-- **write() size mismatch:** Raise `ValueError("Data size mismatch: expected {expected}, got {n}")`.
-- **shutdown() with leaked handles:** Log ERROR per leaked handle (RAIL 8 violation).
-- **PBO get_pixels before trigger:** Return None, log WARNING.
+- What happens if texture name already exists? → Reuse existing or raise error based on policy
+- What happens if texture size is invalid? → Raise ValueError
+- What happens if components invalid? → Raise ValueError
+- What happens if GPU memory exhausted? → Raise MemoryError with stats
+- What happens if image file missing? → Return None, log warning
+- What happens on cleanup? → Release all textures, clear cache
 
 ---
 
 ## Dependencies
 
-### External
-- `moderngl >= 5.0`
-- `numpy >= 1.24`
-
-### Internal
-- `vjlive3.render.context.OpenGLContext` (P1-R1)
+- External libraries needed (and what happens if they are missing):
+  - `moderngl` — required for OpenGL textures — fallback: raise ImportError
+  - `PIL` (Pillow) — for image loading — fallback: use stb_image or raise error
+- Internal modules this depends on:
+  - `vjlive3.render.opengl_context`
 
 ---
 
 ## Test Plan
 
-| Test ID | What It Verifies |
-|---------|-----------------|
-| `test_acquire_returns_texture2d` | acquire() returns Texture2D with correct w/h |
-| `test_release_returns_to_pool` | release then acquire at same dims → same pool slot |
-| `test_context_manager_releases` | `with manager.acquire(...) as t:` auto-releases |
-| `test_framebuffer_acquire` | acquire_framebuffer returns Framebuffer |
-| `test_framebuffer_clear_noop` | clear() does not crash |
-| `test_pbo_trigger_and_get` | trigger_readback + get_pixels returns ndarray or None |
-| `test_stats_active_count` | stats().active == number of unreleased handles |
-| `test_stats_leaked_zero_after_release` | release all → stats().leaked == 0 |
-| `test_double_release_noop` | second release() doesn't raise |
-| `test_write_size_mismatch_raises` | wrong size data → ValueError |
-| `test_pool_cap_destroys_over_cap` | acquire/release more than cap → no OOM |
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_init_no_hardware` | Module starts without crashing |
+| `test_create_texture` | Creates textures with correct properties |
+| `test_texture_reuse` | Reuses textures by name |
+| `test_texture_update` | Updates texture data correctly |
+| `test_release_texture` | Releases textures properly |
+| `test_clear_all` | Clears all textures |
+| `test_memory_limit` | Respects max_textures limit |
+| `test_error_cases` | Handles invalid inputs gracefully |
 
-Tests run in headless OpenGL (mesa software renderer).
-
-**Minimum coverage:** 80%
+**Minimum coverage:** 80% before task is marked done.
 
 ---
 
 ## Definition of Done
 
-- [ ] All 11 tests pass
-- [ ] File < 750 lines
-- [ ] No stubs
-- [ ] No resource leaks (stats().leaked == 0 in all tests)
-- [ ] BOARD.md P1-R4 marked ✅
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-1] P1-R4: Texture manager` message
+- [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## Verification Checkpoint
+
+- [ ] Spec reviewed and approved
+- [ ] Implementation ready to begin
+- [ ] All dependencies verified
+- [ ] Test plan complete
+- [ ] Definition of Done clear
+
+---
+
+*Specification based on VJlive-2 texture management system.*

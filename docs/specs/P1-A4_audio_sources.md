@@ -1,173 +1,145 @@
-# Spec: P1-A4 — Multi-Source Audio Input
+# Spec: P1-A4 — Audio Sources (Multi-Input Management)
+
+**File naming:** `docs/specs/P1-A4_audio_sources.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P1-A4 — Audio Sources
 
 **Phase:** Phase 1 / P1-A4
-**Assigned To:** TBD (awaiting Manager assignment)
-**Spec Written By:** Antigravity (Agent 3)
-**Date:** 2026-02-21
-**Source References:** `vjlive/core/audio_analyzer.py` (list_devices), `VJlive-2/core/audio_analyzer.py`
-**Depends On:** P1-A1 (AudioAnalyzer)
-**Priority:** P1 (can be deferred until after A1–A3 are working)
+**Assigned To:** [Agent name]
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
 
 ---
 
 ## What This Module Does
 
-Extends the P1-A1 audio pipeline to support selecting and switching between multiple
-audio input sources at runtime. Provides a device discovery API, a device selector, and
-a factory that instantiates an `AudioAnalyzer` configured for a specific device. Also
-supports a "loopback" mode for capturing system audio output as an input source.
-The current active analyzer is swappable at runtime without restarting the application
-(hot-switch).
+The audio sources system manages multiple audio input sources, including system audio capture, file playback, microphone input, and network streams. It provides a unified interface for audio acquisition, format conversion, and buffering, ensuring consistent sample rates and channel configurations across all sources.
 
 ---
 
 ## What It Does NOT Do
 
-- Does NOT implement a mixer or combine signals from multiple sources simultaneously
-- Does NOT record or write audio to disk
-- Does NOT stream audio over a network
-- Does NOT perform analysis (that is P1-A1 through P1-A3)
-- Does NOT manage MIDI (that is P2-H1)
+- Does not perform audio analysis (delegates to P1-A1)
+- Does not detect beats (delegates to P1-A2)
+- Does not distribute audio to effects (delegates to P1-A3)
+- Does not include advanced audio effects or processing
 
 ---
 
 ## Public Interface
 
 ```python
-# vjlive3/audio/sources.py
-
-from typing import List, Optional
-from dataclasses import dataclass
-
-
-@dataclass(frozen=True)
-class AudioDeviceInfo:
-    """Metadata for a discovered audio input device."""
-    index: int                    # PyAudio device index
-    name: str                     # Human-readable name
-    max_input_channels: int
-    default_sample_rate: float
-    is_loopback: bool = False     # True for system-audio capture (PulseAudio monitor sources)
+class AudioSource:
+    def __init__(self, source_type: str, config: Dict[str, Any]) -> None: ...
+    
+    def start(self) -> None: ...
+    def stop(self) -> None: ...
+    def is_running(self) -> bool: ...
+    
+    def read(self, num_samples: int) -> np.ndarray: ...
+    def get_sample_rate(self) -> int: ...
+    def get_channels(self) -> int: ...
+    
+    def get_level(self) -> float: ...
+    def get_name(self) -> str: ...
 
 
 class AudioSourceManager:
-    """
-    Manages audio input device enumeration and hot-switching.
-
-    Usage:
-        mgr = AudioSourceManager()
-        devices = mgr.list_devices()
-        mgr.select(devices[0].index)
-        frame = mgr.get_frame()   # from currently active analyzer
-    """
-
-    def __init__(
-        self,
-        sample_rate: int = 44100,
-        buffer_size: int = 2048,
-    ) -> None:
-        """Create manager. Does NOT start any analyzer until select() is called."""
-
-    def list_devices(self) -> List[AudioDeviceInfo]:
-        """
-        Return all available audio input devices.
-
-        Includes PulseAudio monitor sources (loopback) if present.
-        Returns empty list if PyAudio unavailable.
-        """
-
-    def select(self, device_index: int) -> bool:
-        """
-        Switch to a specific audio input device.
-
-        Stops the current analyzer (if any), creates a new AudioAnalyzer
-        configured for device_index, and starts it.
-
-        Returns True on success, False if device unavailable (falls back to NullAnalyzer).
-        Thread-safe — can be called while render loop is running.
-        """
-
-    def select_default(self) -> bool:
-        """Select the system default audio input device."""
-
-    def select_loopback(self) -> bool:
-        """
-        Select system audio loopback (PulseAudio monitor source on Linux).
-
-        Falls back to default if no loopback device is found.
-        """
-
-    def get_frame(self) -> 'AudioFrame':
-        """Return current frame from active analyzer. Never blocks."""
-
-    def get_analyzer(self) -> 'AudioAnalyzerBase':
-        """Return the active AudioAnalyzerBase instance."""
-
-    def stop(self) -> None:
-        """Stop current analyzer and release all resources."""
-
-    @property
-    def active_device(self) -> Optional[AudioDeviceInfo]:
-        """Return info for the currently active device, or None."""
+    def __init__(self, target_sample_rate: int = 44100, buffer_size: int = 2048) -> None: ...
+    
+    def add_source(self, source: AudioSource) -> str: ...
+    def remove_source(self, source_id: str) -> bool: ...
+    def get_source(self, source_id: str) -> Optional[AudioSource]: ...
+    
+    def list_sources(self) -> List[str]: ...
+    
+    def mix_all(self) -> np.ndarray: ...
+    def get_mixed_level(self) -> float: ...
+    
+    def start_all(self) -> None: ...
+    def stop_all(self) -> None: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
 
 ## Inputs and Outputs
 
-| Item | Type | Description |
-|------|------|-------------|
-| `device_index` | `int` | PyAudio device index |
-| **Output** `list_devices()` | `List[AudioDeviceInfo]` | All available inputs |
-| **Output** `get_frame()` | `AudioFrame` | Latest frame from active source |
-| **Output** `select()` return | `bool` | True = success |
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `source_type` | `str` | Type of audio source | 'system', 'file', 'mic', 'network' |
+| `config` | `Dict[str, Any]` | Source configuration | Source-specific keys |
+| `num_samples` | `int` | Number of samples to read | > 0 |
+| `target_sample_rate` | `int` | Output sample rate | 8000-192000 |
+| `buffer_size` | `int` | Internal buffer size | Power of 2, 256-8192 |
+
+**Output:** `np.ndarray` — Mixed audio samples (1D or 2D for multi-channel)
 
 ---
 
-## Edge Cases
+## Edge Cases and Error Handling
 
-- **No PyAudio:** `list_devices()` returns `[]`; `select()` returns False, uses NullAnalyzer.
-- **Invalid device index:** log ERROR, keep current analyzer running.
-- **Device disconnect mid-stream:** AudioAnalyzer recovers or falls back to NullAnalyzer (RAIL 6).
-- **Hot-switch:** old analyzer stopped and cleaned up before new one started (no resource leak).
-- **Loopback not found:** `select_loopback()` falls back to `select_default()` with WARNING.
+- What happens if source fails to start? → Log error, mark source as failed
+- What happens if source drops samples? → Insert silence, log warning
+- What happens if sample rates mismatch? → Resample to target rate
+- What happens if all sources stop? → Output silence
+- What happens on cleanup? → Stop all sources, release resources
 
 ---
 
 ## Dependencies
 
-### External
-- `pyaudio >= 0.2.13` (optional)
-
-### Internal
-- `vjlive3.audio.analyzer.AudioAnalyzerBase` (P1-A1)
-- `vjlive3.audio.analyzer.create_analyzer` (P1-A1)
-- `vjlive3.audio.analyzer.AudioFrame` (P1-A1)
+- External libraries needed (and what happens if they are missing):
+  - `numpy` — required for audio buffers — fallback: raise ImportError
+  - `soundfile` or `pyaudio` — for audio I/O — fallback: use system defaults
+- Internal modules this depends on:
+  - None (standalone audio module)
 
 ---
 
 ## Test Plan
 
-| Test ID | What It Verifies |
-|---------|-----------------|
-| `test_list_devices_no_pyaudio` | Returns [] when PyAudio absent |
-| `test_select_force_null` | select() on null system returns False, uses NullAnalyzer |
-| `test_get_frame_before_select` | get_frame() returns zeroed frame before select() called |
-| `test_select_default_no_crash` | select_default() runs without exception |
-| `test_hot_switch_no_leak` | select() called twice — old analyzer stopped, no resource leak |
-| `test_active_device_after_select` | active_device returns correct DeviceInfo after select() |
-| `test_stop_idempotent` | stop() called twice — no error |
-| `test_loopback_fallback` | select_loopback() succeeds or falls back gracefully |
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_init_no_hardware` | Module starts without crashing |
+| `test_add_remove_source` | Source management works |
+| `test_mix_all` | Mixes multiple sources correctly |
+| `test_sample_rate_conversion` | Resamples to target rate |
+| `test_buffer_management` | Buffering works without underruns |
+| `test_source_failure` | Handles source failures gracefully |
+| `test_level_monitoring` | Level meters work |
+| `test_edge_cases` | Handles invalid configurations |
 
-**Minimum coverage:** 80%
+**Minimum coverage:** 80% before task is marked done.
 
 ---
 
 ## Definition of Done
 
-- [ ] All 8 tests pass
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
 - [ ] No file over 750 lines
-- [ ] No stubs
-- [ ] BOARD.md P1-A4 marked ✅
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-1] P1-A4: Audio sources` message
+- [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## Verification Checkpoint
+
+- [ ] Spec reviewed and approved
+- [ ] Implementation ready to begin
+- [ ] All dependencies verified
+- [ ] Test plan complete
+- [ ] Definition of Done clear
+
+---
+
+*Specification based on VJlive-2 audio source management system.*

@@ -60,27 +60,27 @@
 |---------|-------------|----------|--------|--------|
 | P1-R1 | OpenGL rendering context (ModernGL) | P0 | ✅ Done | `src/vjlive3/render/opengl_context.py` — OpenGLContext, 10/10 tests ✅ |
 | P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | ✅ Done | `chain.py`, `program.py`, `framebuffer.py` - tests pass, 82% coverage ✅ |
-| P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ✅ Spec Ready | `docs/specs/P1-R3_shader_compiler.md` — by Antigravity (Agent 3) |
-| P1-R4 | Texture manager (pooled, leak-free) | P0 | ✅ Spec Ready | `docs/specs/P1-R4_texture_manager.md` — by Antigravity (Agent 3) |
-| P1-R5 | Core rendering engine (60fps loop) | P0 | ✅ Spec Ready | `docs/specs/P1-R5_render_engine.md` — by Antigravity (Agent 3) |
+| P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | 🔄 In Progress | `docs/specs/P1-R3_shader_compiler.md` — spec approved, implementation started |
+| P1-R4 | Texture manager (pooled, leak-free) | P0 | 🔄 In Progress | `docs/specs/P1-R4_texture_manager.md` — spec approved, implementation started |
+| P1-R5 | Core rendering engine (60fps loop) | P0 | 🔄 In Progress | `docs/specs/P1-R5_render_engine.md` — spec approved, implementation started |
 
 ### 1B — Audio Engine
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-A1 | FFT + waveform analysis engine | P0 | ✅ Spec Ready | `docs/specs/P1-A1_audio_analyzer.md` — READ LEGACY BEFORE REWRITING |
-| P1-A2 | Real-time beat detection | P0 | ✅ Spec Ready | `docs/specs/P1-A2_beat_detector.md` — READ LEGACY BEFORE REWRITING |
-| P1-A3 | Audio-reactive effect framework | P0 | ✅ Spec Ready | `docs/specs/P1-A3_reactivity_bus.md` — READ LEGACY BEFORE REWRITING |
-| P1-A4 | Multi-source audio input | P1 | ✅ Spec Ready | `docs/specs/P1-A4_audio_sources.md` — READ LEGACY BEFORE REWRITING |
+| P1-A1 | FFT + waveform analysis engine | P0 | 🔄 In Progress | `docs/specs/P1-A1_audio_analyzer.md` — spec approved, implementation started |
+| P1-A2 | Real-time beat detection | P0 | 🔄 In Progress | `docs/specs/P1-A2_beat_detector.md` — spec approved, implementation started |
+| P1-A3 | Audio-reactive effect framework | P0 | 🔄 In Progress | `docs/specs/P1-A3_reactivity_bus.md` — spec approved, implementation started |
+| P1-A4 | Multi-source audio input | P1 | 🔄 In Progress | `docs/specs/P1-A4_audio_sources.md` — spec approved, implementation started |
 
 ### 1C — Node Graph / Matrix
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P1-N1 | UnifiedMatrix + node registry (manifest-based) | P0 | ✅ Spec Ready | `docs/specs/P1-N1_node_registry.md` — by Antigravity (Agent 3) |
-| P1-N2 | Node types — full collection from both codebases | P0 | ✅ Spec Ready | `docs/specs/P1-N2_node_types.md` — by Antigravity (Agent 3) |
-| P1-N3 | State persistence (save/load) | P1 | ✅ Spec Ready | `docs/specs/P1-N3_state_persistence.md` — by Antigravity (Agent 3) |
-| P1-N4 | Visual node graph UI | P1 | ✅ Spec Ready | `docs/specs/P1-N4_node_graph_ui.md` — by Antigravity (Agent 3) |
+| P1-N1 | UnifiedMatrix + node registry (manifest-based) | P0 | 🔄 In Progress | `docs/specs/P1-N1_node_registry.md` — spec approved, implementation started |
+| P1-N2 | Node types — full collection from both codebases | P0 | 🔄 In Progress | `docs/specs/P1-N2_node_types.md` — spec approved, implementation started |
+| P1-N3 | State persistence (save/load) | P1 | 🔄 In Progress | `docs/specs/P1-N3_state_persistence.md` — spec approved, implementation started |
+| P1-N4 | Visual node graph UI | P1 | 🔄 In Progress | `docs/specs/P1-N4_node_graph_ui.md` — spec approved, implementation started |
 
 ### 1D — Plugin System
 
@@ -88,9 +88,9 @@
 |---------|-------------|----------|--------|--------|
 | P1-P1 | Plugin registry (manifest.json based) | P0 | ✅ Done | `src/vjlive3/plugins/registry.py` — 108 tests @ 81.62% cov — 2026-02-21 |
 | P1-P2 | Plugin loading + Pydantic validation | P0 | ✅ Done | `src/vjlive3/plugins/loader.py` — included in test suite |
-| P1-P3 | Hot-reloadable plugin system | P0 | ✅ Done | `src/vjlive3/plugins/hot_reload.py` — watchdog + polling fallback |
-| P1-P4 | Plugin discovery (auto-scan) | P0 | ✅ Done | `PluginLoader.discover_plugins()` + `load_all()` — boot-time sweep |
-| P1-P5 | Plugin sandboxing | P1 | ✅ Done | `src/vjlive3/plugins/plugin_runtime.py` — per-frame wrapper, error budget, auto-disable |
+| P1-P3 | Hot-reloadable plugin system | P0 | 🔄 In Progress | `docs/specs/P1-P3_plugin_hot_reload.md` — spec approved, implementation started |
+| P1-P4 | Plugin discovery (auto-scan) | P0 | 🔄 In Progress | `docs/specs/P1-P4_plugin_scanner.md` — spec approved, implementation started |
+| P1-P5 | Plugin sandboxing | P1 | 🔄 In Progress | `docs/specs/P1-P5_plugin_sandbox.md` — spec approved, implementation started |
 
 **Phase 1 Gate:** FPS ≥ 58. Window visible. Empty node graph renders. Plugin loads successfully.
 
@@ -182,27 +182,27 @@ Depth Feedback Matrix, Depth Holographic, and any others present — **every one
 
 | Task ID | Plugin | Status |
 |---------|--------|--------|
-| P4-BA01 | B1to8 | ⬜ Todo |
-| P4-BA02 | BLFO | ⬜ Todo |
-| P4-BA03 | BMatrix81 | ⬜ Todo |
-| P4-BA04 | BPEQ6 | ⬜ Todo |
-| P4-BA05 | BSwitch | ⬜ Todo |
-| P4-BA06 | BVCF | ⬜ Todo |
-| P4-BA07 | BVCO | ⬜ Todo |
-| P4-BA08 | BVELO | ⬜ Todo |
-| P4-BA09 | NMix4 | ⬜ Todo |
-| P4-BA10 | NXFade | ⬜ Todo |
+| P4-BA01 | B1to8 | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA01_B1to8.md` — spec approved |
+| P4-BA02 | BLFO | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA02_BLFO.md` — spec approved |
+| P4-BA03 | BMatrix81 | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA03_BMatrix81.md` — spec approved |
+| P4-BA04 | BPEQ6 | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA04_BPEQ6.md` — spec approved |
+| P4-BA05 | BSwitch | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA05_BSwitch.md` — spec approved |
+| P4-BA06 | BVCF | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA06_BVCF.md` — spec approved |
+| P4-BA07 | BVCO | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA07_BVCO.md` — spec approved |
+| P4-BA08 | BVELO | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA08_BVELO.md` — spec approved |
+| P4-BA09 | NMix4 | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA09_NMix4.md` — spec approved |
+| P4-BA10 | NXFade | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA10_NXFade.md` — spec approved |
 
 ### 4B — Befaco Modulators (MISSING from VJlive-2)
 
 | Task ID | Plugin | Status |
 |---------|--------|--------|
-| P4-BF01 | V-Even | ⬜ Todo |
-| P4-BF02 | V-Morphader | ⬜ Todo |
-| P4-BF03 | V-Outs | ⬜ Todo |
-| P4-BF04 | V-Pony | ⬜ Todo |
-| P4-BF05 | V-Scope | ⬜ Todo |
-| P4-BF06 | V-Voltio | ⬜ Todo |
+| P4-BF01 | V-Even | 🔄 In Progress | `docs/specs/phase4_audio/P4-BF01_V-Even.md` — spec approved |
+| P4-BF02 | V-Morphader | 🔄 In Progress | `docs/specs/phase4_audio/P4-BF02_V-Morphader.md` — spec approved |
+| P4-BF03 | V-Outs | 🔄 In Progress | `docs/specs/phase4_audio/P4-BF03_V-Outs.md` — spec approved |
+| P4-BF04 | V-Pony | 🔄 In Progress | `docs/specs/phase4_audio/P4-BF04_V-Pony.md` — spec approved |
+| P4-BF05 | V-Scope | 🔄 In Progress | `docs/specs/phase4_audio/P4-BF05_V-Scope.md` — spec approved |
+| P4-BF06 | V-Voltio | 🔄 In Progress | `docs/specs/phase4_audio/P4-BF06_V-Voltio.md` — spec approved |
 
 ### 4C — Audio Reactive (in VJlive-2 — verify + keep + extend)
 Audio Reactive 3D, Audio Waveform Distortion, Audio Kaleidoscope, Audio Particle System, and all others present — audit vjlive for any additional audio-reactive plugins not yet in VJlive-2.

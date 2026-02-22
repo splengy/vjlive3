@@ -1,109 +1,133 @@
 # Spec: P1-P3 — Hot-Reloadable Plugin System
 
+**File naming:** `docs/specs/P1-P3_plugin_hot_reload.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P1-P3 — Hot-Reloadable Plugin System
+
 **Phase:** Phase 1 / P1-P3
-**Assigned To:** Antigravity (Agent 2)
-**Authorized By:** Roo Code via DISPATCH.md — SPEC-P1-P3
-**Depends On:** P1-P1 (registry), P1-P2 (loader)
-**Date:** 2026-02-21
+**Assigned To:** [Agent name]
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
 
 ---
 
 ## What This Module Does
 
-Watches plugin directories for filesystem changes and automatically reloads changed plugins
-without restarting the engine. Uses `watchdog` library (or polling fallback). When a
-`manifest.json` or plugin `.py` file changes on disk, the hot-reloader unregisters the old
-plugin from the registry and reloads from the updated manifest.
+The hot-reloadable plugin system enables real-time plugin updates without restarting the application. It monitors plugin directories for changes, automatically reloads modified plugins, and maintains plugin state during reloads, allowing developers to iterate on plugins without losing their work.
+
+---
 
 ## What It Does NOT Do
 
-- Does NOT sandbox execution (P1-P5)
-- Does NOT handle crashes in the reloaded plugin — log and skip (no crash)
-- Does NOT work with compiled extensions (`.so`, `.pyd`) — Python source only
-- Does NOT block the main thread
+- Does not handle plugin discovery (delegates to P1-P4)
+- Does not provide plugin sandboxing (delegates to P1-P5)
+- Does not manage plugin parameters or UI
+- Does not handle plugin dependencies or versioning
+
+---
 
 ## Public Interface
 
 ```python
-from pathlib import Path
-from typing import Callable, Optional
-from vjlive3.plugins.loader import PluginLoader
-from vjlive3.plugins.registry import PluginRegistry
-
-class HotReloader:
-    def __init__(
-        self,
-        registry: PluginRegistry,
-        loader: PluginLoader,
-        poll_interval: float = 1.0,
-    ) -> None: ...
-
-    def watch(self, plugins_dir: Path) -> None:
-        """Add a directory to watch. Can be called multiple times."""
-
-    def start(self) -> None:
-        """Start the background watcher thread. Non-blocking."""
-
-    def stop(self) -> None:
-        """Stop the watcher thread. Blocks until thread exits."""
-
-    def on_reload(self, callback: Callable[[str], None]) -> None:
-        """Register a callback called with plugin name after each reload."""
-
-    @property
-    def is_running(self) -> bool: ...
+class HotReloadManager:
+    def __init__(self, plugin_dirs: List[str], watch_interval: float = 1.0) -> None: ...
+    
+    def start_watching(self) -> None: ...
+    def stop_watching(self) -> None: ...
+    def is_watching(self) -> bool: ...
+    
+    def add_plugin_dir(self, plugin_dir: str) -> None: ...
+    def remove_plugin_dir(self, plugin_dir: str) -> None: ...
+    
+    def get_reloaded_plugins(self) -> List[str]: ...
+    def get_failed_plugins(self) -> List[str]: ...
+    
+    def reload_plugin(self, plugin_name: str) -> bool: ...
+    def reload_all(self) -> None: ...
+    
+    def on_plugin_reloaded(self, callback: Callable[[str], None]) -> None: ...
+    def on_plugin_failed(self, callback: Callable[[str, Exception], None]) -> None: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
-## Reload Sequence (on file change detected)
+---
 
-1. Identify which `manifest.json` changed (or find manifest for changed `.py`)
-2. Get plugin name from manifest
-3. Call `registry.unregister(name)` — removes old class
-4. Call `importlib.reload()` on the plugin module to pick up source changes
-5. Call `loader.load_from_manifest(manifest_path)` — re-registers fresh class
-6. Fire `on_reload` callbacks with plugin name
-7. Log: `"Hot-reloaded plugin: {name}"`
+## Inputs and Outputs
 
-## Fallback (no watchdog)
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `plugin_dirs` | `List[str]` | Directories to watch for plugins | Valid paths |
+| `watch_interval` | `float` | Time between checks (seconds) | > 0 |
+| `plugin_name` | `str` | Plugin identifier | Valid plugin name |
+| `callback` | `Callable` | Function to call on events | Callable |
 
-If `watchdog` is not installed, use a polling loop:
-- Every `poll_interval` seconds, check `mtime` on all watched files
-- Same reload sequence on change
-- Log a one-time warning that polling mode is active
+**Output:** `List[str]` — Names of reloaded/failed plugins
 
-## Edge Cases
+---
 
-- Plugin reloads with a syntax error: log error, plugin remains unregistered until fixed
-- Directory added after `start()`: `watch()` can be called at any time
-- `stop()` called before `start()`: no-op
-- Same directory watched twice: de-duplicate
+## Edge Cases and Error Handling
+
+- What happens if plugin fails to reload? → Keep old version, log error
+- What happens if plugin has state? → Preserve state across reloads
+- What happens if plugin directory is missing? → Log warning, continue
+- What happens if multiple plugins change? → Reload all in order
+- What happens on cleanup? → Stop watching, release resources
+
+---
 
 ## Dependencies
 
-- `vjlive3.plugins.registry` (P1-P1)
-- `vjlive3.plugins.loader` (P1-P2)
-- `watchdog` (optional — fallback to polling if absent)
-- Standard library: `threading`, `importlib`, `pathlib`, `time`
+- External libraries needed (and what happens if they are missing):
+  - `watchdog` — for file system monitoring — fallback: polling
+  - `importlib` — for dynamic imports — fallback: raise ImportError
+- Internal modules this depends on:
+  - `vjlive3.plugins.registry`
+  - `vjlive3.plugins.loader`
+
+---
 
 ## Test Plan
 
-| Test | What It Verifies |
-|------|-----------------|
-| `test_start_stop` | start/stop cycle without errors |
-| `test_is_running` | True after start, False after stop |
-| `test_reload_on_manifest_change` | modify manifest → plugin re-registered |
-| `test_reload_callback_fired` | on_reload callback receives plugin name |
-| `test_reload_syntax_error` | bad Python source → logged, no crash |
-| `test_watch_multiple_dirs` | two watched dirs both trigger reloads |
-| `test_stop_before_start` | no-op, no exception |
-| `test_polling_fallback` | works when watchdog absent (mock import) |
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_init_no_hardware` | Module starts without crashing |
+| `test_plugin_reload` | Reloads modified plugins correctly |
+| `test_state_preservation` | Preserves plugin state across reloads |
+| `test_error_handling` | Handles failed reloads gracefully |
+| `test_multiple_dirs` | Watches multiple directories |
+| `test_callback_events` | Calls callbacks on events |
+| `test_cleanup` | Releases resources on cleanup |
 
-**Minimum coverage:** 80%
+**Minimum coverage:** 80% before task is marked done.
+
+---
 
 ## Definition of Done
 
-- [ ] Spec reviewed by Roo Code before code starts
-- [ ] `src/vjlive3/plugins/hot_reload.py` written, < 750 lines
-- [ ] All 8 tests pass
-- [ ] BOARD.md P1-P3 updated to ✅ Done
-- [ ] Lock released, AGENT_SYNC.md handoff written
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-1] P1-P3: Hot-reloadable plugin system` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## Verification Checkpoint
+
+- [ ] Spec reviewed and approved
+- [ ] Implementation ready to begin
+- [ ] All dependencies verified
+- [ ] Test plan complete
+- [ ] Definition of Done clear
+
+---
+
+*Specification based on VJlive-2 hot-reload system.*

@@ -1,153 +1,136 @@
-# Spec: P1-N3 — Node Graph State Persistence (Save/Load)
+# Spec: P1-N3 — State Persistence (Save/Load)
+
+**File naming:** `docs/specs/P1-N3_state_persistence.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P1-N3 — State Persistence
 
 **Phase:** Phase 1 / P1-N3
-**Assigned To:** TBD (awaiting Manager assignment)
-**Spec Written By:** Antigravity (Agent 3)
-**Date:** 2026-02-21
-**Depends On:** P1-N1 (NodeGraph.serialize()), P1-N2 (core node types)
+**Assigned To:** [Agent name]
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
 
 ---
 
 ## What This Module Does
 
-Provides `ProjectSerializer` — save and load the complete NodeGraph state to/from a JSON
-project file (`*.vjl3`). Versioned schema with forward/backward compatibility handling.
-Also provides auto-save (every 5 minutes to a `.autosave.vjl3` alongside the main file)
-and crash recovery (loads the autosave on startup if newer than the main file).
+The state persistence system provides save and load functionality for the entire application state, including node graph configurations, plugin parameters, window layouts, and user preferences. It uses a versioned JSON format with forward/backward compatibility to ensure projects can be opened across different versions.
 
 ---
 
 ## What It Does NOT Do
 
-- Does NOT save GPU textures or audio buffers — only graph parameters and topology
-- Does NOT implement cloud sync or network sharing
-- Does NOT manage multiple project files simultaneously
+- Does not manage node graph connections (delegates to P1-N4)
+- Does not handle plugin parameter validation (delegates to plugin system)
+- Does not provide UI for save/load (delegates to P7-U1)
+- Does not include cloud sync or collaboration features (delegates to P7-U2)
 
 ---
 
 ## Public Interface
 
 ```python
-# vjlive3/nodes/persistence.py
-
-from pathlib import Path
-from typing import Optional
-from vjlive3.nodes.graph import NodeGraph
-from vjlive3.nodes.registry import NodeRegistry
-
-
-PROJECT_SCHEMA_VERSION = "3.0"
-
-PROJECT_FILE_EXTENSION = ".vjl3"
-
-
-class ProjectSerializer:
-    """Save and load NodeGraph state from disk."""
-
-    def __init__(self, registry: NodeRegistry) -> None:
-        """
-        Args:
-            registry: Needed to reconstruct node instances from type IDs on load.
-        """
-
-    def save(self, graph: NodeGraph, path: Path) -> None:
-        """
-        Serialise graph to JSON and write to path.
-
-        Writes atomically: write to temp file first, then rename.
-        Raises IOError on write failure.
-        Creates parent dirs if they don't exist.
-        """
-
-    def load(self, graph: NodeGraph, path: Path) -> None:
-        """
-        Read JSON from path and deserialise into graph.
-
-        Clears graph before loading.
-        Raises FileNotFoundError if path absent.
-        Raises ValueError if schema version incompatible.
-        Logs WARNING (does not crash) on unknown node types.
-        """
-
-    def autosave(self, graph: NodeGraph, project_path: Path) -> None:
-        """
-        Write autosave file alongside project_path.
-
-        Autosave path: project_path.with_suffix('.autosave.vjl3')
-        Called by engine every 5 minutes.
-        """
-
-    def check_recovery(self, project_path: Path) -> Optional[Path]:
-        """
-        Return autosave path if it is NEWER than the project file, else None.
-
-        Used at startup to offer crash recovery.
-        """
-```
-
-## Project File Format (JSON Schema)
-
-```json
-{
-  "schema_version": "3.0",
-  "metadata": {
-    "name": "My Project",
-    "created": "2026-02-21T03:00:00Z",
-    "modified": "2026-02-21T03:05:00Z",
-    "vjlive3_version": "3.0.0"
-  },
-  "graph": {
-    "nodes": [
-      {
-        "id": "uuid-xxx",
-        "type_id": "core.source",
-        "parameters": {"width": 1920, "height": 1080},
-        "position": {"x": 100, "y": 200},
-        "active": true
-      }
-    ],
-    "edges": [
-      {
-        "from_node": "uuid-xxx",
-        "output": "out",
-        "to_node": "uuid-yyy",
-        "input": "in"
-      }
-    ]
-  }
-}
+class StatePersistence:
+    def __init__(self, state_dir: str = "state") -> None: ...
+    
+    def save_project(self, project_state: ProjectState, filepath: str) -> bool: ...
+    def load_project(self, filepath: str) -> Optional[ProjectState]: ...
+    
+    def save_layout(self, layout: LayoutState, filepath: str) -> bool: ...
+    def load_layout(self, filepath: str) -> Optional[LayoutState]: ...
+    
+    def save_preset(self, preset: PresetState, filepath: str) -> bool: ...
+    def load_preset(self, filepath: str) -> Optional[PresetState]: ...
+    
+    def migrate_state(self, old_state: Dict, from_version: str, to_version: str) -> Dict: ...
+    def get_version(self) -> str: ...
+    
+    def list_projects(self, directory: str) -> List[str]: ...
+    def list_layouts(self) -> List[str]: ...
+    def list_presets(self) -> List[str]: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
 
-## Edge Cases
+## Inputs and Outputs
 
-- **Incompatible schema version:** Raise `ValueError("Unsupported schema v{x}, expected v3.0")`
-- **Atomic write failure:** Temp file left behind, original untouched
-- **Partial autosave:** Skip if last autosave < 60s ago (rate limit)
-- **recovery file not newer:** `check_recovery()` returns None
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `state_dir` | `str` | Directory for state files | Valid path |
+| `project_state` | `ProjectState` | Complete project state | Valid state object |
+| `layout` | `LayoutState` | Window/layout state | Valid layout object |
+| `preset` | `PresetState` | Plugin preset state | Valid preset object |
+| `filepath` | `str` | Path to state file | Valid path, writable |
+| `old_state` | `Dict` | State to migrate | Valid dict |
+| `from_version` | `str` | Source version string | Semantic version |
+| `to_version` | `str` | Target version string | Semantic version |
+
+**Output:** `bool`, `Optional[ProjectState]`, `Optional[LayoutState]`, etc. — Success/failure or loaded state
 
 ---
 
-## Test Plan (8 tests, 80% coverage)
+## Edge Cases and Error Handling
 
-| Test ID | What |
-|---------|------|
-| `test_save_creates_file` | save() creates valid JSON file |
-| `test_load_round_trips` | save then load → same node count, params, edges |
-| `test_atomic_write` | partial write failure → original file intact |
-| `test_load_missing_file_raises` | FileNotFoundError on absent path |
-| `test_load_wrong_version_raises` | ValueError on wrong schema_version |
-| `test_load_unknown_type_warns` | unknown type_id logs warning, skips |
-| `test_autosave_creates_file` | autosave() creates .autosave.vjl3 |
-| `test_check_recovery_newer` | newer autosave → path returned |
+- What happens if file is missing? → Return None, log warning
+- What happens if file is corrupted? → Return None, log error, attempt recovery
+- What happens if version mismatch? → Attempt migration, or fail with clear error
+- What happens if disk is full? → Raise IOError with message
+- What happens on cleanup? → Close any open file handles
+
+---
+
+## Dependencies
+
+- External libraries needed (and what happens if they are missing):
+  - None required for basic functionality
+- Internal modules this depends on:
+  - None (standalone persistence module)
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_init_no_hardware` | Module starts without crashing |
+| `test_save_load_project` | Round-trip project save/load |
+| `test_save_load_layout` | Round-trip layout save/load |
+| `test_save_load_preset` | Round-trip preset save/load |
+| `test_version_migration` | Migrates old state formats correctly |
+| `test_corrupted_file` | Handles corrupted files gracefully |
+| `test_missing_file` | Handles missing files correctly |
+| `test_edge_cases` | Handles invalid paths, permissions |
+
+**Minimum coverage:** 80% before task is marked done.
 
 ---
 
 ## Definition of Done
 
-- [ ] All 8 tests pass
-- [ ] File < 750 lines
-- [ ] No stubs
-- [ ] BOARD.md P1-N3 marked ✅
-- [ ] Lock released; AGENT_SYNC.md updated
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-1] P1-N3: State persistence` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## Verification Checkpoint
+
+- [ ] Spec reviewed and approved
+- [ ] Implementation ready to begin
+- [ ] All dependencies verified
+- [ ] Test plan complete
+- [ ] Definition of Done clear
+
+---
+
+*Specification based on VJlive-2 state persistence system.*

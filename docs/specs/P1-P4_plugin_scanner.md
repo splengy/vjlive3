@@ -1,111 +1,129 @@
 # Spec: P1-P4 — Plugin Discovery (Auto-Scan)
 
+**File naming:** `docs/specs/P1-P4_plugin_scanner.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P1-P4 — Plugin Discovery
+
 **Phase:** Phase 1 / P1-P4
-**Assigned To:** Antigravity (Agent 2)
-**Authorized By:** Roo Code via DISPATCH.md — SPEC-P1-P4
-**Depends On:** P1-P1 (registry), P1-P2 (loader)
-**Date:** 2026-02-21
+**Assigned To:** [Agent name]
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
 
 ---
 
 ## What This Module Does
 
-Walks the VJLive3 plugin directory tree, finds all `manifest.json` files, and passes
-each to `PluginLoader` to register. This is the boot-time discovery sweep that populates
-the registry from the filesystem. Also provides a utility to list all available plugins
-without loading them (manifest-only scan).
+The plugin discovery system automatically scans specified directories for plugins, reads their manifest files, and builds a registry of available plugins. It supports multiple plugin directories, recursive scanning, and manifest validation, providing the foundation for the plugin loading system.
+
+---
 
 ## What It Does NOT Do
 
-- Does NOT watch for changes (that is P1-P3 HotReloader)
-- Does NOT load plugins from network
-- Does NOT run plugin code during scan — scan is metadata-only until `load=True`
+- Does not load or instantiate plugins (delegates to P1-P2)
+- Does not handle hot-reloading (delegates to P1-P3)
+- Does not provide sandboxing (delegates to P1-P5)
+- Does not manage plugin dependencies or versioning
+
+---
 
 ## Public Interface
 
 ```python
-from pathlib import Path
-from typing import List, Dict, Any
-from vjlive3.plugins.loader import PluginLoader
-from vjlive3.plugins.registry import PluginRegistry
-
-@dataclass
-class DiscoveredPlugin:
-    manifest_path: Path
-    plugin_id: str
-    name: str
-    version: str
-    category: str
-    loaded: bool = False
-    load_error: Optional[str] = None
-
 class PluginScanner:
-    def __init__(
-        self,
-        registry: PluginRegistry,
-        loader: PluginLoader,
-    ) -> None: ...
-
-    def scan(self, plugins_root: Path) -> List[DiscoveredPlugin]:
-        """Recursively find all manifest.json files under plugins_root.
-        Returns list of DiscoveredPlugin. Does NOT load — metadata only."""
-
-    def scan_and_load(self, plugins_root: Path) -> List[DiscoveredPlugin]:
-        """Scan + load each discovered plugin. Sets loaded=True on success."""
-
-    def scan_vjlive2_compat(self, plugins_root: Path) -> List[DiscoveredPlugin]:
-        """Same as scan() but also recognises VJlive-2 .bundled manifest files."""
+    def __init__(self, plugin_dirs: List[str], recursive: bool = True) -> None: ...
+    
+    def scan(self) -> List[PluginManifest]: ...
+    def scan_directory(self, directory: str) -> List[PluginManifest]: ...
+    
+    def find_manifest(self, plugin_path: str) -> Optional[PluginManifest]: ...
+    def validate_manifest(self, manifest: PluginManifest) -> ValidationResult: ...
+    
+    def list_discovered_plugins(self) -> List[str]: ...
+    def get_manifest(self, plugin_name: str) -> Optional[PluginManifest]: ...
+    
+    def add_plugin_dir(self, plugin_dir: str) -> None: ...
+    def remove_plugin_dir(self, plugin_dir: str) -> None: ...
+    
+    def clear_cache(self) -> None: ...
 ```
 
-## Scan Rules
+---
 
-- Find all files named `manifest.json` recursively under `plugins_root`
-- Also accept `manifest.json.bundled` (VJlive-2 compatibility)
-- Skip `__pycache__/`, `.git/`, `node_modules/`
-- Skip manifests that cannot be parsed (log warning, continue)
-- Skip manifests missing `id` or `name` fields (log warning, continue)
-- No hard limit on number of plugins found
+## Inputs and Outputs
 
-## VJlive-2 Compatibility
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `plugin_dirs` | `List[str]` | Directories to scan | Valid paths |
+| `recursive` | `bool` | Scan subdirectories | True/False |
+| `plugin_path` | `str` | Path to plugin directory | Valid path |
+| `manifest` | `PluginManifest` | Plugin manifest object | Valid manifest |
 
-VJlive-2 shipped plugins with `manifest.json.bundled` files. The scanner must:
-1. Try `manifest.json` first
-2. If not found, try `manifest.json.bundled` (strip `.bundled` before loading)
-3. Log if bundled format was used: `"Loading bundled manifest for {name}"`
+**Output:** `List[PluginManifest]` — Discovered plugin manifests
 
-## Edge Cases
+---
 
-- `plugins_root` does not exist: log warning, return empty list
-- Zero manifests found: return empty list (not an error)
-- Permission error reading a file: log error, continue
-- Circular symlinks: detect via `Path.resolve()`, skip already-seen real paths
+## Edge Cases and Error Handling
+
+- What happens if directory doesn't exist? → Log warning, skip
+- What happens if manifest is invalid? → Skip plugin, log error
+- What happens if duplicate plugin names? → Last one wins or raise error
+- What happens if permission denied? → Log error, skip directory
+- What happens on cleanup? → Clear cache, release resources
+
+---
 
 ## Dependencies
 
-- `vjlive3.plugins.registry` (P1-P1)
-- `vjlive3.plugins.loader` (P1-P2)
-- Standard library: `pathlib`, `json`, `logging`
+- External libraries needed (and what happens if they are missing):
+  - None required for basic functionality
+- Internal modules this depends on:
+  - `vjlive3.plugins.validator`
+  - `vjlive3.plugins.api` (for PluginManifest type)
+
+---
 
 ## Test Plan
 
-| Test | What It Verifies |
-|------|-----------------|
-| `test_scan_empty_dir` | returns empty list, no crash |
-| `test_scan_single_plugin` | finds one manifest.json |
-| `test_scan_recursive` | finds manifests in subdirectories |
-| `test_scan_skips_pycache` | __pycache__ directories ignored |
-| `test_scan_and_load` | loads plugins and sets loaded=True |
-| `test_scan_and_load_invalid_manifest` | continues past invalid manifests |
-| `test_vjlive2_compat_bundled` | finds .bundled manifest |
-| `test_scan_nonexistent_root` | logs warning, returns [] |
-| `test_missing_name_field` | skipped with warning |
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_init_no_hardware` | Module starts without crashing |
+| `test_scan_directory` | Scans directory and finds plugins |
+| `test_recursive_scan` | Scans subdirectories correctly |
+| `test_manifest_validation` | Validates manifest files |
+| `test_duplicate_handling` | Handles duplicate plugin names |
+| `test_missing_directory` | Handles missing directories gracefully |
+| `test_invalid_manifest` | Skips invalid manifests |
+| `test_edge_cases` | Handles edge cases correctly |
 
-**Minimum coverage:** 80%
+**Minimum coverage:** 80% before task is marked done.
+
+---
 
 ## Definition of Done
 
-- [ ] Spec reviewed by Roo Code before code starts
-- [ ] `src/vjlive3/plugins/scanner.py` written, < 750 lines
-- [ ] All 9 tests pass using `tmp_path` fixtures
-- [ ] BOARD.md P1-P4 updated to ✅ Done
-- [ ] Lock released, AGENT_SYNC.md handoff written
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-1] P1-P4: Plugin discovery (auto-scan)` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## Verification Checkpoint
+
+- [ ] Spec reviewed and approved
+- [ ] Implementation ready to begin
+- [ ] All dependencies verified
+- [ ] Test plan complete
+- [ ] Definition of Done clear
+
+---
+
+*Specification based on VJlive-2 plugin scanner architecture.*

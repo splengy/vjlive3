@@ -1,166 +1,149 @@
-# Spec: P1-N4 — Visual Node Graph UI
+# Spec: P1-N4 — Node Graph UI (Visual Programming Interface)
+
+**File naming:** `docs/specs/P1-N4_node_graph_ui.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P1-N4 — Node Graph UI
 
 **Phase:** Phase 1 / P1-N4
-**Assigned To:** TBD (awaiting Manager assignment)
-**Spec Written By:** Antigravity (Agent 3)
-**Date:** 2026-02-21
-**Depends On:** P1-N1 (NodeGraph), P1-N2 (node types), P1-R1 (window / GLFW)
-**Priority:** P1 — Phase Gate requires "empty node graph visible on screen"
+**Assigned To:** [Agent name]
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
 
 ---
 
 ## What This Module Does
 
-Provides an **ImGui-based** visual node graph editor rendered directly in the GLFW window
-alongside (or over) the render output. Allows the user to:
-- See all nodes as draggable cards on a canvas
-- See edges as bezier curves between ports
-- Click a node to select it and edit its parameters in a side panel
-- Right-click canvas to add a new node from a type picker
-- Delete selected nodes/edges with the Delete key
-- Pan the canvas (middle-mouse drag) and zoom (scroll wheel)
-
-This is a Phase 1 **minimal viable** graph UI — polish and advanced features are Phase 3.
+The node graph UI provides a visual programming interface for building effect chains and signal flow graphs. It allows users to create, connect, and configure nodes in a canvas-based editor, with real-time feedback, parameter editing, and live updates to the rendering engine.
 
 ---
 
 ## What It Does NOT Do
 
-- Does NOT render a browser or web-based UI (that's the future web-UI)
-- Does NOT provide video preview compositing in the UI
-- Does NOT support multi-select or group operations (Phase 3)
-- Does NOT have undo/redo (Phase 3)
+- Does not perform node execution (delegates to render engine)
+- Does not handle plugin loading (delegates to plugin system)
+- Does not provide audio analysis (delegates to audio engine)
+- Does not include advanced graph layout algorithms (basic manual layout only)
 
 ---
-
-## Technology
-
-Uses **PyImGui** (`imgui[glfw]`) rendered into the same GLFW window as ModernGL.
-The `NodeGraphEditor` class owns the ImGui frame for the graph canvas each render tick.
 
 ## Public Interface
 
 ```python
-# vjlive3/ui/node_editor.py
-
-import imgui
-from typing import Optional, Tuple
-from vjlive3.nodes.graph import NodeGraph
-from vjlive3.nodes.registry import NodeRegistry
-
-
-class NodeGraphEditor:
-    """
-    ImGui-based visual node graph editor.
-
-    Render order: call draw() inside an ImGui frame, after begin_frame().
-    """
-
-    def __init__(self, graph: NodeGraph, registry: NodeRegistry) -> None:
-        """
-        Args:
-            graph:    Live NodeGraph to display and edit.
-            registry: Used to populate the "Add Node" type picker.
-        """
-
-    def draw(self) -> None:
-        """
-        Render the complete node editor UI for this frame.
-
-        Must be called between imgui.new_frame() and imgui.render().
-        Mutates graph directly in response to user interactions.
-        Thread-unsafe — call from render thread only.
-        """
-
-    @property
-    def selected_node_id(self) -> Optional[str]:
-        """ID of currently selected node, or None."""
-
-    def pan_to(self, x: float, y: float) -> None:
-        """Programmatically set canvas pan offset (e.g. centre on a node)."""
-
-    def fit_all(self) -> None:
-        """Pan and zoom to show all nodes within the canvas viewport."""
+class NodeGraphUI:
+    def __init__(self, node_registry: NodeRegistry, render_engine: RenderEngine) -> None: ...
+    
+    def create_node(self, node_type: str, x: float, y: float) -> NodeInstance: ...
+    def delete_node(self, node_id: str) -> bool: ...
+    
+    def connect(self, source_node: str, source_port: str, target_node: str, target_port: str) -> Connection: ...
+    def disconnect(self, connection_id: str) -> bool: ...
+    
+    def move_node(self, node_id: str, x: float, y: float) -> None: ...
+    def get_node_position(self, node_id: str) -> Tuple[float, float]: ...
+    
+    def set_node_parameter(self, node_id: str, param_name: str, value: Any) -> None: ...
+    def get_node_parameter(self, node_id: str, param_name: str) -> Any: ...
+    
+    def get_connections(self) -> List[Connection]: ...
+    def get_nodes(self) -> List[NodeInstance]: ...
+    
+    def export_graph(self) -> GraphDefinition: ...
+    def import_graph(self, graph_def: GraphDefinition) -> None: ...
+    
+    def render(self, ctx: moderngl.Context, width: int, height: int) -> None: ...
+    def handle_event(self, event: UIEvent) -> None: ...
+    
+    def cleanup(self) -> None: ...
 ```
 
 ---
 
-## UI Layout
+## Inputs and Outputs
 
-```
-┌──────────────────────────────────────────────────────┐
-│ [Node Graph]    + Add Node     Zoom: 100%  Fit All   │
-├──────────────────────────────────────────────────────┤
-│                                                      │
-│  ┌──────────┐   bezier   ┌──────────────┐            │
-│  │ Source   │ ─────────► │ Effect: Blur │ ──► [Out] │
-│  └──────────┘            └──────────────┘            │
-│               (canvas, pannable, zoomable)            │
-├──────────────────────────────────────────────────────┤
-│ PROPERTIES  [Blur effect node selected]              │
-│  intensity: [slider 0.0 ──── 0.5 ──── 1.0]           │
-│  radius:    [slider ...]                             │
-└──────────────────────────────────────────────────────┘
-```
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `node_registry` | `NodeRegistry` | Registry of available nodes | Must be initialized |
+| `render_engine` | `RenderEngine` | Rendering engine to control | Must be initialized |
+| `node_type` | `str` | Node type identifier | Valid node type |
+| `x, y` | `float` | Node position in graph canvas | Screen coordinates |
+| `source_node` | `str` | Source node ID | Valid node ID |
+| `source_port` | `str` | Source port name | Valid port |
+| `target_node` | `str` | Target node ID | Valid node ID |
+| `target_port` | `str` | Target port name | Valid port |
+| `param_name` | `str` | Parameter name | Valid parameter |
+| `value` | `Any` | Parameter value | Valid for parameter type |
+| `event` | `UIEvent` | User input event | Mouse, keyboard, etc. |
+| `ctx` | `moderngl.Context` | OpenGL context for rendering | Must be valid |
+| `width, height` | `int` | Canvas dimensions | > 0 |
 
----
-
-## User Interactions
-
-| Action | Result |
-|--------|--------|
-| Left-click node | Select node; show params in panel |
-| Drag node | Move node on canvas |
-| Drag from port → port | Create edge |
-| Right-click canvas | "Add Node" popup with type picker |
-| Delete key | Delete selected node/edge |
-| Middle-mouse drag | Pan canvas |
-| Scroll wheel | Zoom in/out |
-| Double-click canvas | Deselect |
+**Output:** Renders node graph UI, manages graph state
 
 ---
 
-## Edge Cases
+## Edge Cases and Error Handling
 
-- **Cycle attempt:** Edge drag to an already-connected (would-cycle) port shows red highlight, drops on release.
-- **Empty graph:** Canvas shows help text "Right-click to add your first node".
-- **Node with no params:** Properties panel shows "No parameters".
-- **Very long node name:** Truncate with ellipsis in card header.
+- What happens if node type is invalid? → Show error, don't create node
+- What happens if connection is incompatible? → Reject connection, show feedback
+- What happens if node parameter is invalid? → Reject, show error
+- What happens if graph is cyclic? → Detect and prevent
+- What happens on cleanup? → Clear graph, release UI resources
 
 ---
 
 ## Dependencies
 
-### External
-- `imgui[glfw] >= 2.0` (PyImGui with GLFW backend)
-
-### Internal
-- `vjlive3.nodes.graph.NodeGraph` (P1-N1)
-- `vjlive3.nodes.registry.NodeRegistry` (P1-N1)
+- External libraries needed (and what happens if they are missing):
+  - `moderngl` — for rendering UI elements — fallback: raise ImportError
+  - `imgui` or `pygame` — for UI framework — fallback: use basic pygame
+- Internal modules this depends on:
+  - `vjlive3.render.opengl_context`
+  - `vjlive3.plugins.registry`
+  - `vjlive3.plugins.loader`
 
 ---
 
 ## Test Plan
 
-| Test ID | What |
-|---------|------|
-| `test_editor_initialises` | NodeGraphEditor(graph, registry) doesn't crash |
-| `test_draw_empty_graph` | draw() with 0 nodes doesn't crash |
-| `test_draw_two_nodes` | draw() with 2 connected nodes renders without error |
-| `test_selected_node_none_initially` | selected_node_id is None at start |
-| `test_fit_all_noop_on_empty` | fit_all() on empty graph doesn't crash |
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_init_no_hardware` | Module starts without crashing |
+| `test_create_delete_node` | Node creation and deletion works |
+| `test_connect_disconnect` | Connection management works |
+| `test_move_node` | Node positioning works |
+| `test_parameter_edit` | Parameter changes propagate |
+| `test_export_import` | Graph serialization round-trips |
+| `test_cycle_detection` | Prevents cyclic connections |
+| `test_render` | UI renders without errors |
 
-Tests use headless ImGui mock (no display required).
-
-**Minimum coverage:** 80%
+**Minimum coverage:** 80% before task is marked done.
 
 ---
 
 ## Definition of Done
 
-- [ ] All 5 tests pass
-- [ ] "Empty node graph visible on screen" (Phase Gate) verifiable with manual smoke test
-- [ ] File < 750 lines
-- [ ] No stubs
-- [ ] BOARD.md P1-N4 marked ✅
-- [ ] Lock released; AGENT_SYNC.md updated
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-1] P1-N4: Node graph UI` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## Verification Checkpoint
+
+- [ ] Spec reviewed and approved
+- [ ] Implementation ready to begin
+- [ ] All dependencies verified
+- [ ] Test plan complete
+- [ ] Definition of Done clear
+
+---
+
+*Specification based on VJlive-2 node graph UI architecture.*
