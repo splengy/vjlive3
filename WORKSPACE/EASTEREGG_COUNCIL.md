@@ -157,7 +157,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Because performance is explicitly mentioned as a Safety Rail constraint for this node, putting a hard stop to an integer-limit stress test is deeply cathartic.
 
-### [A-013] P2-X4 — Alpha
+### [A-014] P3-VD06 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD06 Neural Quantum Hyper Tunnel
+
+**Suggestion:** If `tunnel_speed` is set to exactly `0.0` and `quantum_jitter` is set to exactly `1.0`, the shader overrides the output to render the classic "Starfield" Windows 95 screensaver instead of the video feed.
+
+**Why:** A "quantum hyper tunnel" frozen in time but maxed out on jitter is effectively just flying through static stars.
+
+### [A-015] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 
@@ -261,7 +269,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A funny way to reward the AI for trying to find hardware that isn't physically there, giving it a virtual toy to play with.
 
-### [B-011] P2-X3 — Beta
+### [B-012] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
 
@@ -269,7 +277,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** An agent finding the Fibonacci sequence conceptually and mapping it to physical screen layout positions should be visually rewarded with a spiral.
 
-### [B-012] P3-VD05 — Beta
+### [B-013] P3-VD05 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P3-VD05 Depth Slice Effect
 
@@ -277,7 +285,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It playfully attempts to rate-limit hyperactive AI performers who sequence noise way too fast for human enjoyment.
 
-### [B-013] P2-X4 — Alpha
+### [B-014] P3-VD06 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD06 Neural Quantum Hyper Tunnel
+
+**Suggestion:** If the Agent sets `neural_color_shift` to a sequence of `[0.1, 0.2, 0.3, 0.4]` exactly over 4 frames, the plugin bypasses the neural color math and just forces the entire tunnel to render as a rainbow gradient.
+
+**Why:** AI models love obvious patterns, so completing a simple `0.1` ladder should just unlock the simplest, most human trope color palette: rainbow.
+
+### [B-015] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 
@@ -381,7 +397,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** You can't put gamepad support in a creative coding app without adding a Konami Code easter egg. It's practically illegal.
 
-### [C-011] P2-X3 — Beta
+### [C-012] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
 
@@ -389,7 +405,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Mapping involves dragging points around physically. Collapsing a projection slice into a singularity is a fun interactive glitch for the human to discover.
 
-### [C-012] P3-VD05 — Beta
+### [C-013] P3-VD05 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P3-VD05 Depth Slice Effect
 
@@ -397,7 +413,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Slicing depth contour lines naturally resembles a voxel terraced mountain map. Triggering the aesthetic block-world meme on peak scream is a great club visual glitch.
 
-### [C-013] P2-X4 — Alpha
+### [C-014] P3-VD06 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD06 Neural Quantum Hyper Tunnel
+
+**Suggestion:** If the human drags `feedback_decay` past `1.0` to `1.1` (using a hacked UI override), the console prints "WARNING: Reality structural integrity compromised." and the entire application window physically shakes left and right by 10 pixels.
+
+**Why:** Audio feedback loops historically destroy speakers. Visual feedback loops destroy retinas. Shaking the actual OS window framing the app is a great meta-joke for "> 1.0" feedback.
+
+### [C-015] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 
