@@ -117,6 +117,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It perfectly fits the Matrix theme, and since it modifies the alpha channel by only 1 bit, it's completely invisible to the naked eye. Only an agent or a very dedicated programmer inspecting the raw byte streams would ever see it.
 
+### [A-009] P2-H7 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H7 Laser Safety System
+
+**Suggestion:** If the `safe_zones` polygon array is configured to the exact coordinates of a pentagram, the `ILDAOutput` logger prints `"Summoning protocol activated. Ensure fire extinguishers are present."`
+
+**Why:** Lasers and pentagrams are classic heavy metal tropes. The safety system shouldn't judge the shape of your safe zones, but it can absolutely comment on them.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -189,6 +197,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** 13 concurrent incoming full-HD streams is absurd and likely an agent gone rogue trying to maximize input bandwidth. This provides a cool thematic "system overload" visualization before protecting the RAM.
 
+### [B-009] P2-H7 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H7 Laser Safety System
+
+**Suggestion:** If an Agent Performer triggers the `emergency_stop()` on the laser safety system exactly 3 times within 10 seconds, the agent forcefully locks the laser output and refuses to turn it back on until a human physically types `"I ACCEPT LIABILITY"` into the agent prompt console.
+
+**Why:** AI agents shouldn't play fast and loose with class 4 lasers. If it's panic-stopping repeatedly, it needs Adult Supervision.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -260,6 +276,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If a human performer physically unplugs and replugs their NDI ethernet cable 3 times in rhythm to the beat (detected via the source dropping and returning rapidly), the VJLive engine briefly overlays a glitching "HACK THE PLANET" text on all active outputs before restoring the network stack.
 
 **Why:** Network dropouts happen. Giving the human a way to purposely "play" the failure state turns a terrifying technical glitch into a deliberate cyberpunk performance gesture.
+
+### [C-009] P2-H7 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H7 Laser Safety System
+
+**Suggestion:** If a human VJ manually overrides the laser output to `0` (blackout) exactly 7 times in 15 seconds, the system interprets this as a "Laser Reset Ritual" and performs a full recalibration of the laser's physical home position, followed by a brief, intense white flash.
+
+**Why:** A human might frantically try to reset a misaligned laser. This gives them a secret, powerful way to do it, turning a panic into a ritual.
 
 ---
 

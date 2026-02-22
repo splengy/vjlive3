@@ -120,7 +120,7 @@
 | P2-H4 | NDI video transport (full hub + streams) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H4_ndi.md` |
 | P2-H5 | Spout support (Windows video sharing) | P2 | ✅ Done | `src/vjlive3/plugins/spout.py` — SpoutManager, 5/5 tests ✅ 2026-02-22 |
 | P2-H6 | Gamepad input (GLFW backend) | P2 | ⬜ Todo | VJlive-2 only | Spec ready: `docs/specs/P2-H6_gamepad.md` |
-| P2-H7 | Laser safety system | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H7_laser.md` |
+| P2-H7 | Laser safety system | P1 | ✅ Done | `src/vjlive3/hardware/laser.py` — LaserSafetySystem, 8/8 tests ✅ 2026-02-22 |
 
 ### 2C — Distributed Architecture (MISSING from VJlive-2)
 
@@ -142,10 +142,10 @@
 
 | Task ID | Plugin | Priority | Status |
 |---------|--------|----------|--------|
-| P3-VD01 | Depth Loop Injection | P0 | ⬜ Todo |
-| P3-VD02 | Depth Parallel Universe | P0 | ⬜ Todo |
-| P3-VD03 | Depth Portal Composite | P0 | ⬜ Todo |
-| P3-VD04 | Depth Reverb | P0 | ⬜ Todo |
+| P3-VD01 | Depth Loop Injection | P0 | ⏳ Queued |
+| P3-VD02 | Depth Parallel Universe | P0 | ⏳ Queued |
+| P3-VD03 | Depth Portal Composite | P0 | ⏳ Queued |
+| P3-VD04 | Depth Reverb | P0 | ⏳ Queued |
 | P3-VD05 | Depth Slice Effect | P0 | ⬜ Todo |
 | P3-VD06 | Depth Neural Quantum Hyper Tunnel | P0 | ⬜ Todo |
 | P3-VD07 | Depth Reality Distortion | P0 | ⬜ Todo |
