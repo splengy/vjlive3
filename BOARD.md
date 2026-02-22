@@ -179,6 +179,7 @@
 | P3-VD-Beta2 | Depth Parallel Universe | P0 | ✅ Done | `src/vjlive3/plugins/depth_parallel_universe.py` — DepthParallelUniversePlugin, 9/9 tests ✅ 2026-02-22 |
 | P3-VD-Beta3 | Depth Portal Composite | P0 | ✅ Done | `src/vjlive3/plugins/depth_portal_composite.py` — DepthPortalCompositePlugin, 9/9 tests ✅ 2026-02-22 |
 | P3-VD-Beta4 | Depth Neural Quantum Hyper Tunnel | P0 | ✅ Done | `src/vjlive3/plugins/quantum_hyper_tunnel.py` — DepthNeuralQuantumHyperTunnelPlugin, 6/6 tests ✅ 2026-02-22 |
+| P3-VD-Beta5 | Depth Reality Distortion | P0 | ✅ Done | `src/vjlive3/plugins/reality_distortion.py` — RealityDistortionPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD33 | Depth Distance Filter (DepthDistanceFilterEffect) | P0 | ◯ Todo |
 | P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ◯ Todo |
 | P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ◯ Todo |

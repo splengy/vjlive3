@@ -17,7 +17,7 @@ def test_reality_distortion_manifest():
 def test_reality_distortion_execution_with_depth():
     """Processing a frame completes without GL errors when depth is present."""
     plugin = RealityDistortionPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock()
     
     def get_texture_mock(name):
         if name == "video_in": return 100
@@ -45,7 +45,7 @@ def test_reality_distortion_execution_with_depth():
 def test_reality_distortion_execution_without_depth():
     """Processing a frame completes and falls back to uniform distortion."""
     plugin = RealityDistortionPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock()
     
     def get_texture_mock(name):
         if name == "video_in": return 100
@@ -61,7 +61,7 @@ def test_reality_distortion_execution_without_depth():
 
 def test_reality_distortion_missing_video():
     plugin = RealityDistortionPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock()
     context.get_texture.return_value = None
     
     plugin.initialize(context)
