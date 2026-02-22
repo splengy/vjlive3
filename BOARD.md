@@ -193,6 +193,58 @@
 | P3-VD23 | Depth Vector Field Datamosh | P1 | ✅ Done | `src/vjlive3/plugins/depth_vector_field_datamosh.py` — DepthVectorFieldDatamoshPlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD24+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 
+| P3-VD26 | Depth Acid Fractal (DepthAcidFractalDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD27 | Depth Aware Compression (DepthAwareCompressionEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD28 | Depth Blur (DepthBlurEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD29 | Depth Camera Splitter (DepthCameraSplitterEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD30 | Depth Color Grade (DepthColorGradeEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD31 | Depth Contour Datamosh (DepthContourDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD32 | Depth Data Mux (DepthDataMuxEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD33 | Depth Distance Filter (DepthDistanceFilterEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD36 | Depth Effects (DepthEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD40 | Depth Effects (DepthContourEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD41 | Depth Effects (DepthParticle3DEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD42 | Depth Effects (DepthDistortionEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD43 | Depth Effects (DepthFieldEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD44 | Depth Effects (OpticalFlowEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD45 | Depth Effects (BackgroundSubtractionEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD46 | Depth Erosion Datamosh (DepthErosionDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD47 | Depth Feedback Matrix Datamosh (DepthFeedbackMatrixDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD48 | Depth Fog (DepthFogEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD49 | Depth Fracture Datamosh (DepthFractureDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD50 | Depth Fx Loop (DepthFXLoopEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD51 | Depth Groovy Datamosh (DepthGroovyDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD52 | Depth Holographic (DepthHolographicIridescenceEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD53 | Depth Liquid Refraction (DepthLiquidRefractionEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD54 | Depth Loop Injection Datamosh (DepthLoopInjectionDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD55 | Depth Modular Datamosh (DepthModularDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD56 | Depth Modulated Datamosh (DepthModulatedDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD57 | Depth Mosaic (DepthMosaicEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD59 | Depth Motion Transfer (DepthMotionTransferEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD60 | Depth Parallel Universe Datamosh (DepthParallelUniverseDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD61 | Depth Particle Shred (DepthParticleShredEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD62 | Depth Portal Composite (DepthPortalCompositeEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD63 | Depth Raver Datamosh (DepthRaverDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD64 | Depth Reverb (DepthReverbEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD65 | Depth Simulator (DepthSimulatorEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD66 | Depth Slitscan Datamosh (DepthSlitScanDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD67 | Depth Temporal Echo (DepthTemporalEchoEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD68 | Depth Temporal Strat (DepthTemporalStratEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD69 | Depth Vector Field Datamosh (DepthVectorFieldDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD70 | Depth Video Projection (DepthVideoProjectionEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD71 | Depth Void Datamosh (DepthVoidDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD72 | datamosh_3d (DepthDisplacementEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD73 | datamosh_3d (DepthEchoEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD74 | ml_gpu_effects (MLDepthEstimationEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD75 | quantum_depth_nexus_effect (QuantumDepthNexus) | P0 | ◯ Todo | VJlive-2 |
+
+
 ### 3B — Existing Depth Plugins (in VJlive-2 — verify quality, keep or improve)
 Depth Modulated, Depth Edge Glow, Depth Color Grade, Depth Erosion, Depth Fracture,
 Depth Modular, Depth Slitscan, Depth Void, Depth Particle Shred, Depth Motion Transfer,
@@ -219,6 +271,20 @@ Depth Feedback Matrix, Depth Holographic, and any others present — **every one
 | P4-BA08 | BVELO | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA08_BVELO.md` — spec approved |
 | P4-BA09 | NMix4 | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA09_NMix4.md` — spec approved |
 | P4-BA10 | NXFade | 🔄 In Progress | `docs/specs/phase4_audio/P4-BA10_NXFade.md` — spec approved |
+
+### 4D — Audio Reactive (MISSING from VJlive-2)
+
+| Task ID | Plugin | Status | Source |
+|---------|--------|--------|--------|
+
+| P4-AU02 | Audio Reactive Effects (AudioParticleSystem) | P0 | ◯ Todo | VJlive-2 |
+| P4-AU03 | Audio Reactive Effects (AudioWaveformDistortion) | P0 | ◯ Todo | VJlive-2 |
+| P4-AU04 | Audio Reactive Effects (AudioSpectrumTrails) | P0 | ◯ Todo | VJlive-2 |
+| P4-AU05 | Audio Reactive Effects (AudioKaleidoscope) | P0 | ◯ Todo | VJlive-2 |
+| P4-AU06 | cosmic_tunnel_datamosh (CosmicTunnelDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P4-AU07 | raymarched_scenes (AudioReactiveRaymarchedScenes) | P0 | ◯ Todo | VJlive-2 |
+| P4-AU08 | vcv_video_generators (ByteBeatGen) | P0 | ◯ Todo | VJlive-2 |
+
 
 ### 4B — Befaco Modulators (MISSING from VJlive-2)
 

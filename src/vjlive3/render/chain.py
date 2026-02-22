@@ -95,6 +95,11 @@ class EffectChain:
     def remove_effect(self, name: str) -> None:
         with self._lock:
             self.effects = [e for e in self.effects if e.name != name]
+            
+    def clear(self) -> None:
+        """Remove all active effects from the chain."""
+        with self._lock:
+            self.effects.clear()
 
     def get_available_effects(self) -> List[str]:
         return [e.name for e in self.effects]
