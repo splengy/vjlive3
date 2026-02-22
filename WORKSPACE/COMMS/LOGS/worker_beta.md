@@ -12,3 +12,8 @@
 **Task:** P2-D6 DMX WebSocket handler
 **Built:** `src/vjlive3/core/dmx/websocket.py`, `tests/core/test_dmx_websocket.py` with 7 tests (100% pass, 96% local coverage)
 **Blocker:** None
+
+### [2026-02-22 01:54] — STATUS
+**Task:** P2-H3 Astra Depth Camera
+**Built:** `src/vjlive3/plugins/astra.py`, `tests/plugins/test_astra.py` with 5 tests (100% pass, 94% local coverage)
+**Blocker:** None

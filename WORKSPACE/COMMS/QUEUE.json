@@ -29,18 +29,36 @@
   {
     "task_id": "P2-D6",
     "spec_path": "docs/specs/P2-D6_dmx_websocket.md",
-    "status": "in_progress",
+    "status": "completed",
     "assigned_worker": "Beta",
     "created_at": "2026-02-22T09:41:05.567129+00:00",
     "started_at": "2026-02-22T09:44:12.436668+00:00",
-    "completed_at": null
+    "completed_at": "2026-02-22T09:46:32.426319+00:00"
   },
   {
     "task_id": "P2-H3",
     "spec_path": "docs/specs/P2-H3_astra.md",
+    "status": "in_progress",
+    "assigned_worker": "Beta",
+    "created_at": "2026-02-22T09:46:00.232152+00:00",
+    "started_at": "2026-02-22T09:46:32.479649+00:00",
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-H4",
+    "spec_path": "docs/specs/P2-H4_ndi.md",
     "status": "queued",
     "assigned_worker": null,
-    "created_at": "2026-02-22T09:46:00.232152+00:00",
+    "created_at": "2026-02-22T09:47:13.102970+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-H5",
+    "spec_path": "docs/specs/P2-H5_spout.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-22T09:48:23.902342+00:00",
     "started_at": null,
     "completed_at": null
   }
