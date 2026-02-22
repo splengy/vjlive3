@@ -1,0 +1,101 @@
+# Spec Template — P3-VD07 Depth Reality Distortion
+
+**File naming:** `docs/specs/P3-VD07_depth_reality_distortion.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P3-VD07 — Depth Reality Distortion
+
+**Phase:** Phase 3
+**Assigned To:** (Pending Manager Assignment)
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module ports the "Reality Distortion Field" effect from VJlive-2. It creates a complex, multi-dimensional reality warping shader that responds to audio and depth. The depth map acts as a "distortion map", selectively applying intense spatial displacement and color bleeding based on the proximity of the subject.
+
+---
+
+## What It Does NOT Do
+
+- It does NOT implement physical vertex displacement in 3D (it is a 2D screen-space pixel shader mapping UV distortion).
+
+---
+
+## Public Interface
+
+```python
+from vjlive3.plugins.api import Plugin, VJLiveAPI
+from vjlive3.plugins.registry import PluginManifest
+
+METADATA = {
+    "name": "Reality Distortion",
+    "description": "Quantum reality manipulation via depth-mapped UV distortion.",
+    "version": "1.0.0",
+    "parameters": [
+        {"name": "distortion_amount", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "warp_frequency", "type": "float", "min": 0.0, "max": 10.0, "default": 2.0},
+        {"name": "depth_threshold", "type": "float", "min": 0.0, "max": 1.0, "default": 0.3},
+        {"name": "chromatic_aberration", "type": "float", "min": 0.0, "max": 1.0, "default": 0.2}
+    ],
+    "inputs": ["video_in", "depth_in"],
+    "outputs": ["video_out"]
+}
+
+class RealityDistortionPlugin(Plugin):
+    """Screen-space UV reality warping effect."""
+    def __init__(self, api: VJLiveAPI) -> None: ...
+    def on_load(self) -> None: ...
+    def process(self, context) -> None: ...
+    def on_unload(self) -> None: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Port | Type | Description |
+|------|------|-------------|
+| `video_in` | GL Texture | Live RGB video feed |
+| `depth_in` | GL Texture | Grayscale depth map driving the warp mask |
+| `video_out`| GL Texture | Output |
+
+---
+
+## Edge Cases and Error Handling
+
+- **Missing Inputs**: If `depth_in` is missing, the effect must either bypass itself or apply the distortion uniformly across the entire frame.
+- **UV Clamping**: The fragment shader must gracefully handle UVs pushed outside the 0.0-1.0 range (e.g., using `GL_MIRRORED_REPEAT` or shader-side clamping) to prevent hard black borders from appearing.
+
+---
+
+## Dependencies
+
+- OpenGL Context.
+- VJLive3 Plugin API.
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_reality_distortion_manifest` | Verifies Pydantic manifest structure. |
+| `test_reality_distortion_execution` | Processing a frame completes without GL errors. |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed
+- [ ] All tests pass
+- [ ] No file over 750 lines
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-3] P3-VD07: Depth Reality Distortion`
+- [ ] BOARD.md updated

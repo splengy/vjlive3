@@ -1,0 +1,105 @@
+# Spec Template — P3-VD06 Depth Neural Quantum Hyper Tunnel
+
+**File naming:** `docs/specs/P3-VD06_depth_neural_quantum_hyper_tunnel.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P3-VD06 — Depth Neural Quantum Hyper Tunnel
+
+**Phase:** Phase 3
+**Assigned To:** (Pending Manager Assignment)
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module ports the "Neural Quantum Hyper Tunnel" depth effect from VJlive-2. It creates a psychedelic, feedback-heavy infinite tunnel effect where the geometry and speed of the tunnel are modulated by the incoming depth map. The "neural" aspect involves non-linear color mapping (simulated style-transfer via GLSL) across the depth boundaries.
+
+---
+
+## What It Does NOT Do
+
+- It does NOT use an actual PyTorch/TensorFlow ML model (it's a real-time GLSL shader simulating neural aesthetics to maintain 60 FPS, per SAFETY RAIL #1).
+
+---
+
+## Public Interface
+
+```python
+import numpy as np
+from vjlive3.plugins.api import Plugin, VJLiveAPI
+from vjlive3.plugins.registry import PluginManifest
+
+METADATA = {
+    "name": "Neural Quantum Hyper Tunnel",
+    "description": "Infinite depth-modulated feedback tunnel with non-linear color routing.",
+    "version": "1.0.0",
+    "parameters": [
+        {"name": "tunnel_speed", "type": "float", "min": -2.0, "max": 2.0, "default": 0.5},
+        {"name": "depth_influence", "type": "float", "min": 0.0, "max": 1.0, "default": 0.8},
+        {"name": "quantum_jitter", "type": "float", "min": 0.0, "max": 1.0, "default": 0.1},
+        {"name": "neural_color_shift", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "feedback_decay", "type": "float", "min": 0.0, "max": 1.0, "default": 0.95}
+    ],
+    "inputs": ["video_in", "depth_in"],
+    "outputs": ["video_out"]
+}
+
+class DepthNeuralQuantumHyperTunnelPlugin(Plugin):
+    """Deep feedback tunnel modulated by depth."""
+    def __init__(self, api: VJLiveAPI) -> None: ...
+    def on_load(self) -> None: ...
+    def process(self, context) -> None: ...
+    def on_unload(self) -> None: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Port | Type | Description |
+|------|------|-------------|
+| `video_in` | GL Texture | Live RGB video feed |
+| `depth_in` | GL Texture | Depth map controlling tunnel depth/geometry |
+| `video_out`| GL Texture | Output |
+
+---
+
+## Edge Cases and Error Handling
+
+- **Feedback FBO Lifecycles**: The tunnel effect heavily relies on rendering the previous frame into the current frame. Ping-pong FBOs MUST be explicitly deleted on unload (SAFETY RAIL #8).
+- **Resolution Sync**: If the input video size changes, the feedback buffers must immediately resize without crashing.
+- **NaN/Inf Prevention**: `quantum_jitter` and `tunnel_speed` must be clamped in the shader to prevent infinite values from tearing the FBO to black.
+
+---
+
+## Dependencies
+
+- OpenGL Context.
+- VJLive3 Plugin API.
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_quantum_tunnel_manifest` | Verifies Pydantic manifest structure. |
+| `test_quantum_tunnel_fbo_cleanup` | Ensures no textures are left dangling after `on_unload`. |
+| `test_quantum_tunnel_bypass` | Works cleanly when `depth_in` is not provided. |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed
+- [ ] All tests pass
+- [ ] No file over 750 lines
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-3] P3-VD06: Depth Neural Quantum Hyper Tunnel`
+- [ ] BOARD.md updated

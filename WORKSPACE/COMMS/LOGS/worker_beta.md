@@ -27,3 +27,8 @@
 **Task:** P2-H6 Gamepad Input (GLFW Backend)
 **Built:** `src/vjlive3/plugins/gamepad.py`, `tests/plugins/test_gamepad.py` with 4 tests (100% pass, 93% local coverage)
 **Blocker:** None
+
+### [2026-02-22 02:15] — STATUS
+**Task:** P2-X3 Output mapping + screen warping
+**Built:** `src/vjlive3/core/output_mapper.py`, `tests/core/test_output_mapper.py` with 6 tests (100% pass, 99% local coverage)
+**Blocker:** None

@@ -141,6 +141,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Classic 1337 gaming reference hidden in a mundane configuration variable.
 
+### [A-011] P2-X3 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-X3 Output Mapper
+
+**Suggestion:** If an `OutputMapper` configuration is loaded where the four `warp_points` perfectly match an M.C. Escher impossible triangle (mathematically invalid self-intersection), the `MeshWarper` logs a single line: "Geometry denied. Sending to non-Euclidean fallback."
+
+**Why:** Output mapping involves forcing 2D textures onto 3D surfaces conceptually. Nodding to impossible geometry is a fun math joke for anyone reading the code.
+
 ---
 
 ## 🎛️ Category B: Agent Performer Eggs
@@ -237,6 +245,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A funny way to reward the AI for trying to find hardware that isn't physically there, giving it a virtual toy to play with.
 
+### [B-011] P2-X3 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-X3 Output Mapper
+
+**Suggestion:** If an Agent Performer creates exactly 8 screen slices and arranges their X coordinates to mathematically match the Fibonacci sequence (normalized), the output mapper forces all 8 slices into a spiral layout for exactly 3 seconds.
+
+**Why:** An agent finding the Fibonacci sequence conceptually and mapping it to physical screen layout positions should be visually rewarded with a spiral.
+
 ---
 
 ## 👤 Category C: Human Performer Eggs
@@ -332,6 +348,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If the human performer enters the classic Konami Code (Up, Up, Down, Down, Left, Right, Left, Right, B, A) using the gamepad buttons, the main visual output instantly shifts to a 64-color 8-bit palette mode and the frame rate locks to exactly 30fps until they hit Start.
 
 **Why:** You can't put gamepad support in a creative coding app without adding a Konami Code easter egg. It's practically illegal.
+
+### [C-011] P2-X3 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P2-X3 Output Mapper
+
+**Suggestion:** If a human user names a screen slice EXACTLY `"The Eye"` and drags all 4 warp points to the precise center of the screen `(0.5, 0.5)` collapsing it to infinite density, the screen goes pure white for 1 second with a soft bass drop audio cue before returning to normal.
+
+**Why:** Mapping involves dragging points around physically. Collapsing a projection slice into a singularity is a fun interactive glitch for the human to discover.
 
 ---
 

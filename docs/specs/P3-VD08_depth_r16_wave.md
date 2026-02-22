@@ -1,0 +1,101 @@
+# Spec Template — P3-VD08 Depth R16 Wave
+
+**File naming:** `docs/specs/P3-VD08_depth_r16_wave.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P3-VD08 — Depth R16 Wave
+
+**Phase:** Phase 3
+**Assigned To:** (Pending Manager Assignment)
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module ports the "R16 Depth Wave" effect from VJlive-2. It creates sinusoidal wave-like distortions specifically tailored for high-precision (16-bit) depth data. It modifies not only the visual RGB output but ALSO outputs a modified depth map (`depth_raw_out`), allowing downstream depth effects to inherit the wave distortion.
+
+---
+
+## What It Does NOT Do
+
+- It does NOT generate raw hardware depth data. It modifies incoming depth maps.
+
+---
+
+## Public Interface
+
+```python
+from vjlive3.plugins.api import Plugin, VJLiveAPI
+
+METADATA = {
+    "name": "R16 Depth Wave",
+    "description": "Sinusoidal wave distortions for high-precision depth maps.",
+    "version": "1.0.0",
+    "parameters": [
+        {"name": "wave_amplitude", "type": "float", "min": 0.0, "max": 1.0, "default": 0.1},
+        {"name": "wave_frequency", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
+        {"name": "wave_speed", "type": "float", "min": -5.0, "max": 5.0, "default": 1.0},
+        {"name": "phase_offset", "type": "float", "min": 0.0, "max": 3.14159, "default": 0.0}
+    ],
+    "inputs": ["video_in", "depth_raw_in"],
+    "outputs": ["video_out", "depth_raw_out"]
+}
+
+class DepthR16WavePlugin(Plugin):
+    """High-precision depth map wave distorter."""
+    def __init__(self, api: VJLiveAPI) -> None: ...
+    def on_load(self) -> None: ...
+    def process(self, context) -> None: ...
+    def on_unload(self) -> None: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Port | Type | Description |
+|------|------|-------------|
+| `video_in` | GL Texture | Source Video |
+| `depth_raw_in` | GL Texture (R16) | High-precision depth map |
+| `video_out`| GL Texture | Distorted video |
+| `depth_raw_out` | GL Texture (R16) | Wave-distorted depth map |
+
+---
+
+## Edge Cases and Error Handling
+
+- **Texture Formats**: Must ensure the `depth_raw_out` texture is created with a 16-bit format (`GL_R16` or `GL_R16F`) to preserve the fidelity of the incoming depth map. 
+- **Missing Depth**: If `depth_raw_in` is missing, bypass and output `video_in` to `video_out` and a blank/default texture to `depth_raw_out`.
+
+---
+
+## Dependencies
+
+- OpenGL Context.
+- VJLive3 Plugin API.
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_r16_wave_manifest` | Verifies Pydantic manifest structure and dual-output configuration. |
+| `test_r16_texture_allocation` | Verifies that the plugin allocates an FBO capable of 16-bit rendering for the depth output. |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed
+- [ ] All tests pass
+- [ ] No file over 750 lines
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-3] P3-VD08: Depth R16 Wave`
+- [ ] BOARD.md updated
