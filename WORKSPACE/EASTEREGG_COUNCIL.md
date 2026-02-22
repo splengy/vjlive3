@@ -221,7 +221,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Hard-locking cycling thresholds implies freezing time. Converting abstract neon geometry into rigid broadcast engineering scanlines honors the analog pixel roots.
 
-### [A-027] P2-H1 — Alpha
+### [A-027] P3-VD17 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD17 Depth Mosaic
+
+**Suggestion:** The "Infinite Zoom". If `cell_size_max` is pushed forcefully dynamically above `2000.0` while `tile_style` is `0.0` (Square), the camera bypasses the actual video input and replaces the single massive block with a live low-res render feed of the GUI application itself, effectively creating a Droste effect mirror.
+
+**Why:** Taking mosaic cubes to extreme proportions should reveal the structural makeup of the application rendering them.
+
+### [A-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-H1 MIDI Controller Input
 
@@ -494,7 +502,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Glowing geometry scaling radically outward on percussive hits screams tactical radar mechanics.
 
-### [B-027] P2-H1 — Alpha
+### [B-027] P3-VD17 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD17 Depth Mosaic
+
+**Suggestion:** The "Dithered Memory". If an Agent linearly automates `color_quantize` strictly from exactly `0.0` to `1.0` sequentially over exactly 16 seconds (a slow motion degradation) while audio amplitude crosses a silence threshold, the quantization completely overrides to standard 1-bit Atkinson dithering exactly mirroring MacPaint from 1984.
+
+**Why:** A slow transition to perfect low-fi quantization is a mathematical homage to the origin of digital image manipulation.
+
+### [B-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-H1 MIDI Controller Input
 
@@ -759,7 +775,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Perfect, smooth dimming gestures over extended lengths are intentional fade-to-blacks; a literal animated power down pays tribute to analog dimming behaviors seamlessly.
 
-### [C-027] P2-H1 — Alpha
+### [C-027] P3-VD17 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD17 Depth Mosaic
+
+**Suggestion:** The "Tetris Mode". Nếu a human VJ intentionally hard-steps the `gap_width` exactly from `0` to `5` to `0` to `5` rapidly four times syncing with an aggressive audio baseline, the square tiles suddenly gain gravity physics and drop to the bottom of the screen instead of retaining their video mapping.
+
+**Why:** Adding gravity to geometric blocks is instinctively satisfying. Humans playing with blocks inevitably want them to fall down.
+
+### [C-028] P2-H1 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-H1 MIDI Controller Input
 

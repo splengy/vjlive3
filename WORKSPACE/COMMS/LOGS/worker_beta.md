@@ -77,3 +77,8 @@
 **Task:** P3-VD13 Depth Erosion Datamosh
 **Built:** `src/vjlive3/plugins/depth_erosion_datamosh.py`, `tests/plugins/test_depth_erosion_datamosh.py` with 6 tests (100% pass, 100% coverage)
 **Blocker:** None
+
+### [2026-02-22 03:00] — STATUS
+**Task:** P3-VD17 Depth Mosaic
+**Built:** `src/vjlive3/plugins/depth_mosaic.py`, `tests/plugins/test_depth_mosaic.py` with 6 tests (100% pass, 100% coverage)
+**Blocker:** None
