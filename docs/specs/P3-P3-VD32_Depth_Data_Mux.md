@@ -5,7 +5,7 @@
 > **Source:** VJlive-2 (`plugins/vdepth/depth_data_mux.py`)  
 > **Class:** `DepthDataMuxEffect`  
 > **Phase:** Phase 3  
-> **Status:** ⬜ Todo  
+> **Status:** ✅ Done  
 
 ## Mission Context
 
@@ -36,12 +36,12 @@ Port the `DepthDataMuxEffect` effect from `VJlive-2` codebase into VJLive3's cle
 
 ## Verification Checkpoints
 
-- [ ] Plugin loads successfully via registry
-- [ ] All parameters exposed and editable
-- [ ] Renders at 60 FPS minimum
-- [ ] Test coverage ≥80%
-- [ ] No safety rail violations
-- [ ] Original functionality verified (side-by-side comparison)
+- [x] Plugin loads successfully via registry
+- [x] All parameters exposed and editable
+- [x] Renders at 60 FPS minimum
+- [x] Test coverage ≥80%
+- [x] No safety rail violations
+- [x] Original functionality verified (side-by-side comparison)
 
 ## Resources
 
