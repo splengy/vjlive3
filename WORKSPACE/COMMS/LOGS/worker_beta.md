@@ -47,3 +47,8 @@
 **Task:** P3-VD07 Depth Reality Distortion
 **Built:** `src/vjlive3/plugins/reality_distortion.py`, `tests/plugins/test_reality_distortion.py` with 4 tests (Human Verifypass, coverage approx ~99%)
 **Blocker:** None
+
+### [2026-02-22 02:30] — STATUS
+**Task:** P3-VD08 Depth R16 Wave
+**Built:** `src/vjlive3/plugins/depth_r16_wave.py`, `tests/plugins/test_depth_r16_wave.py` with 6 tests (100% pass, 100% coverage)
+**Blocker:** None

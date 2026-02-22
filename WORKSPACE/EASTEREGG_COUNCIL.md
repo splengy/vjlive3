@@ -189,7 +189,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It's a classic occult/demonic numerical easter egg mapped to "distortion".
 
-### [A-015] P2-X4 — Alpha
+### [A-018] P3-VD08 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD08 Depth R16 Wave
+
+**Suggestion:** If `wave_frequency` is exactly `0.0` and `wave_speed` is exactly `0.0`, instead of bypassing, the shader forces a perfect split-screen: the left half is un-warped pure RGB, the right half is raw R16 depth data rendered as grayscale luminance.
+
+**Why:** A "dead" wave should reveal the raw mathematical scaffolding underneath. It's an explicitly useful debug view disguised as an easter egg for hitting dead zero on dynamic parameters.
+
+### [A-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 
@@ -293,7 +301,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A funny way to reward the AI for trying to find hardware that isn't physically there, giving it a virtual toy to play with.
 
-### [B-017] P3-VD01 — Alpha
+### [B-012] P3-VD01 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P3-VD01 Depth Loop Injection
 
@@ -301,7 +309,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It's practically Dad humor. If you abuse the ping-pong feedback buffers, they literally start playing Ping Pong to mock the aggressive parameter sweeping.
 
-### [B-018] P3-VD02 — Alpha
+### [B-013] P3-VD02 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P3-VD02 Depth Parallel Universe
 
@@ -309,7 +317,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Cross-wiring universes violates causality. What better way to reward breaking physics than inserting cellular automaton?
 
-### [B-012] P2-X3 — Beta
+### [B-014] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
 
@@ -317,7 +325,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** An agent finding the Fibonacci sequence conceptually and mapping it to physical screen layout positions should be visually rewarded with a spiral.
 
-### [B-013] P3-VD05 — Beta
+### [B-015] P3-VD05 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P3-VD05 Depth Slice Effect
 
@@ -325,7 +333,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** It playfully attempts to rate-limit hyperactive AI performers who sequence noise way too fast for human enjoyment.
 
-### [B-014] P3-VD06 — Beta
+### [B-016] P3-VD06 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P3-VD06 Neural Quantum Hyper Tunnel
 
@@ -333,7 +341,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** AI models love obvious patterns, so completing a simple `0.1` ladder should just unlock the simplest, most human trope color palette: rainbow.
 
-### [B-016] P3-VD07 — Beta
+### [B-017] P3-VD07 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P3-VD07 Depth Reality Distortion
 
@@ -341,7 +349,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A esoteric nod to agents randomly hitting "sacred geometry" or "sacred frequencies" while exploring the parameter space.
 
-### [B-015] P2-X4 — Alpha
+### [B-018] P3-VD08 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD08 Depth R16 Wave
+
+**Suggestion:** If `wave_amplitude` is hooked up to an audio envelope and peaks exactly at `1.0` more than 5 times in 2 seconds, the plugin renders a tiny retro 8-bit surfboard emoji (`🏄`) riding the biggest distorted pixel wave on the screen for 3 seconds.
+
+**Why:** A visual pun on "riding the wave" for performers slamming the amplitude dynamically.
+
+### [B-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 
@@ -445,7 +461,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** You can't put gamepad support in a creative coding app without adding a Konami Code easter egg. It's practically illegal.
 
-### [C-017] P3-VD01 — Alpha
+### [C-012] P3-VD01 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P3-VD01 Depth Loop Injection
 
@@ -453,7 +469,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Because physically connecting the start of an effect directly to the end of the effect bypassing the middle is technically undefined wiring. Rewarding them with sparks fits the VJLive motif perfectly.
 
-### [C-012] P2-X3 — Beta
+### [C-013] P2-X3 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-X3 Output Mapper
 
@@ -461,7 +477,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Mapping involves dragging points around physically. Collapsing a projection slice into a singularity is a fun interactive glitch for the human to discover.
 
-### [C-013] P3-VD05 — Beta
+### [C-014] P3-VD05 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P3-VD05 Depth Slice Effect
 
@@ -469,7 +485,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Slicing depth contour lines naturally resembles a voxel terraced mountain map. Triggering the aesthetic block-world meme on peak scream is a great club visual glitch.
 
-### [C-014] P3-VD06 — Beta
+### [C-015] P3-VD06 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P3-VD06 Neural Quantum Hyper Tunnel
 
@@ -485,7 +501,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Reverts the notion of "quantum" distortion back to analog tape distortion.
 
-### [C-015] P2-X4 — Alpha
+### [C-017] P3-VD08 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD08 Depth R16 Wave
+
+**Suggestion:** If the user manually types `3.14159` into the `phase_offset` input box (hitting the mathematical max limit), the output console prints "PI ENCOUNTERED. SERVING DESERT." and briefly flashes a cherry pie texture across the entire output mesh before returning to normal.
+
+**Why:** Math nerds deserve pie jokes when they enter precise constants into floats.
+
+### [C-018] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 

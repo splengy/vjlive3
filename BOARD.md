@@ -149,7 +149,7 @@
 | P3-VD05 | Depth Slice Effect | P0 | ✅ Done | `src/vjlive3/plugins/depth_slice.py` — DepthSlicePlugin, 4/4 tests ✅ 2026-02-22 |
 | P3-VD06 | Depth Neural Quantum Hyper Tunnel | P0 | ✅ Done | `src/vjlive3/plugins/quantum_hyper_tunnel.py` — DepthNeuralQuantumHyperTunnelPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD07 | Depth Reality Distortion | P0 | ✅ Done | `src/vjlive3/plugins/reality_distortion.py` — RealityDistortionPlugin, 4/4 tests ✅ 2026-02-22 |
-| P3-VD08 | Depth R16 Wave | P0 | ⏳ Queued |
+| P3-VD08 | Depth R16 Wave | P0 | ✅ Done | `src/vjlive3/plugins/depth_r16_wave.py` — DepthR16WavePlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD09 | Depth Acid Fractal | P1 | ⏳ Queued |
 | P3-VD10 | Depth Blur | P1 | ⏳ Queued |
 | P3-VD11 | Depth Color Grade | P1 | ⏳ Queued |
