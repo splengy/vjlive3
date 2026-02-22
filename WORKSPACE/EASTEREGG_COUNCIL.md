@@ -205,6 +205,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A "dead" wave should reveal the raw mathematical scaffolding underneath. It's an explicitly useful debug view disguised as an easter egg for hitting dead zero on dynamic parameters.
 
+### [A-019] P3-VD09 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD09 Depth Acid Fractal
+
+**Suggestion:** If the developer sets `fractal_intensity` to precisely `1.618` (Golden Ratio) internally, the fragment shader caps the Julia set iteration loop early and instead renders a perfect, solid gold `#FFD700` circle right in the center of the screen.
+
+**Why:** A nod to sacred geometry inside a fractal shader. The gold circle represents the mathematical concept "phi".
+
+---
 ### [A-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
@@ -373,6 +382,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A visual pun on "riding the wave" for performers slamming the amplitude dynamically.
 
+### [B-019] P3-VD09 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD09 Depth Acid Fractal
+
+**Suggestion:** If an Agent routes a perfect triangle wave oscillator (LFO) into the `zoom_blur` parameter perfectly synced to the BPM for 8 uninterrupted bars, the blur effect reverses direction, creating an "imploding star" visual instead of a zoom blur.
+
+**Why:** AI agents excel at perfect sync timing that humans struggle with. Rewarding perfect LFO sync with physics-reversing visuals is deeply satisfying.
+
+---
 ### [B-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
@@ -533,6 +551,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Math nerds deserve pie jokes when they enter precise constants into floats.
 
+### [C-019] P3-VD09 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD09 Depth Acid Fractal
+
+**Suggestion:** "The Bad Trip." If the human performer hammers the blackout key while `neon_burn` is > `0.9` and `solarize_level` > `0.9`, the blackout doesn't work. Instead, the screen inverts colors, freezes the current frame buffer permanently, and slowly melts the pixels downwards over 10 seconds.
+
+**Why:** It's extremely funny when the "panic button" (blackout) actually makes the visual significantly more distressing when the parameters are already set to maximum chaos.
+
+---
 ### [C-018] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
