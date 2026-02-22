@@ -339,17 +339,48 @@ Audio Reactive 3D, Audio Waveform Distortion, Audio Kaleidoscope, Audio Particle
 V-Maths, V-Frames, V-Grids, V-Harmonaig, V-LXD, V-Marbles, V-Roots, V-Stages Segment, V-Tides
 
 ### 5D — Datamosh Family (verify both sources, keep VJlive-2's cleaner impl)
-Bad Trip, Bass Cannon, Bass Therapy, Bullet Time, Cellular Automata, Cosmic Tunnel,
-Cotton Candy, Cupcake Cascade, Dimension Splice, Dolly Zoom, Face Melt, Fracture Rave,
-Liquid LSD, Mosh Pit, Neural Splice, Particle Trails, Plasma Melt, Prism Realm,
-Quantum Consciousness, Sacred Geometry, Spirit Aura, Temporal Rift, Tunnel Vision,
-Unicorn Farts, Void Swirl, Volumetric — **plus all others found in both codebases (audit, never assume the list is complete)**
+### 5D — Datamosh Family (verify both sources, keep VJlive-2's cleaner impl)
+
+| Task ID | Plugin | Status | Source |
+|---------|--------|--------|--------|
+
+| P5-DM02 | bad_trip_datamosh (BadTripDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM03 | bass_cannon_datamosh (BassCannonDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM04 | bass_therapy_datamosh (BassTherapyDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM05 | blend (GlitchEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM06 | bullet_time_datamosh (BulletTimeDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM07 | cellular_automata_datamosh (CellularAutomataDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM08 | cotton_candy_datamosh (CottonCandyDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM09 | cupcake_cascade_datamosh (CupcakeCascadeDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM10 | datamosh (CompressionEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM11 | datamosh (DatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM12 | datamosh (PixelBloomEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM13 | datamosh (MeltEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM14 | datamosh (PixelSortEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM15 | datamosh (FrameHoldEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM16 | datamosh_3d (Datamosh3DEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM17 | datamosh_3d (LayerSeparationEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM18 | datamosh_3d (ShatterEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM19 | dimension_splice_datamosh (DimensionSpliceDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM20 | dolly_zoom_datamosh (DollyZoomDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM21 | face_melt_datamosh (FaceMeltDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM22 | fracture_rave_datamosh (FractureRaveDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM23 | liquid_lsd_datamosh (LiquidLSDDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM24 | mosh_pit_datamosh (MoshPitDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM25 | neural_splice_datamosh (NeuralSpliceDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM26 | particle_datamosh_trails (ParticleDatamoshTrailsEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM27 | plasma_melt_datamosh (PlasmaMeltDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM28 | prism_realm_datamosh (PrismRealmDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM29 | sacred_geometry_datamosh (SacredGeometryDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM30 | spirit_aura_datamosh (SpiritAuraDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM31 | temporal_rift_datamosh (TemporalRiftDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM32 | tunnel_vision_datamosh (TunnelVisionDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM33 | unicorn_farts_datamosh (UnicornFartsDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM34 | void_swirl_datamosh (VoidSwirlDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM35 | volumetric_datamosh (VolumetricDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P5-DM36 | volumetric_glitch (VolumetricGlitchEffect) | P0 | ◯ Todo | VJlive-2 |
 
 **Phase 5 Gate:** Full V-* collection loaded. All modulators functional. Every plugin individually reviewed — no batch shortcuts.
-
----
-
-## Phase 6: Advanced Systems (Weeks 13-16)
 
 ### 6A — AI / Neural Systems (VJlive-2 leads)
 
