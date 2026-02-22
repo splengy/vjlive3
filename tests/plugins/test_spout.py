@@ -4,7 +4,7 @@ import sys
 from unittest.mock import patch, MagicMock
 
 import vjlive3.plugins.spout as spout_mod
-from vjlive3.plugins.api import VJLiveAPI
+from vjlive3.plugins.api import PluginContext
 
 def test_spout_mock_fallback_on_linux():
     """On non-Windows platforms, or if the library is missing, instantiation creates Mock objects without crashing."""
@@ -40,10 +40,11 @@ def test_spout_receiver_mock_read():
 
 def test_spout_plugin_api():
     """Ensure the plugin wrapper implements the factory correctly."""
-    plugin = spout_mod.SpoutPlugin("Spout", "1.0")
-    api = VJLiveAPI(MagicMock(), MagicMock(), MagicMock())
+    plugin = spout_mod.SpoutPlugin()
+    context = MagicMock(spec=PluginContext)
     
-    assert plugin.on_init(api) is True
+    plugin.initialize(context)
+    assert plugin.manager is not None
     
     sender = plugin.create_sender("test")
     receiver = plugin.create_receiver("test")
@@ -51,7 +52,7 @@ def test_spout_plugin_api():
     assert len(plugin.active_senders) == 1
     assert len(plugin.active_receivers) == 1
     
-    plugin.on_stop()
+    plugin.cleanup()
     assert len(plugin.active_senders) == 0
     assert len(plugin.active_receivers) == 0
 

@@ -101,7 +101,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A fun throwback to the legacy framework that honors the transition to VJLive3.
 
-### [A-007] P2-H4 — Beta
+### [A-007] P2-H5 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H5 Spout Support (Windows Video Sharing)
+
+**Suggestion:** If a developer initializes a `SpoutSender` with the exact name `"The Matrix"`, the internal mock fallback (if triggered on Linux) silently generates a 10x10 green-on-black scrolling text array internally instead of a blank buffer.
+
+**Why:** Spout is famous for resolving mapping woes. Giving the mock mode a visual output when targeted explicitly helps debug Linux-fallback CI pipelines while referencing an iconic film.
+
+### [A-008] P2-H4 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-H4 NDI Video Transport
 
@@ -165,7 +173,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Watching an agent thrash back and forth is jarring. This gracefully turns a catastrophic logic loop into an intentional, moody visual beat.
 
-### [B-007] P2-H4 — Beta
+### [B-007] P2-H5 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H5 Spout Support (Windows Video Sharing)
+
+**Suggestion:** If an Agent Performer successfully streams exactly 1337 frames continuously over a single Spout Sender without dropping a pulse, the plugin logs the string `"L33t H4x0r Streaming Enabled"` at the debug level.
+
+**Why:** A subtle nod to gaming/hacker culture, fitting for a zero-copy DirectX texture sharing module often used alongside video games or Unity.
+
+### [B-008] P2-H4 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-H4 NDI Video Transport
 
@@ -229,7 +245,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** 420 is historically a funny VJ number, but a 7 minute fade is absurdly long. This stops the VJ from falling asleep at the wheel and forces them to manually confirm the transition.
 
-### [C-007] P2-H4 — Beta
+### [C-007] P2-H5 — Alpha
+**Suggested by:** Alpha (Worker 1)
+**Task:** P2-H5 Spout Support (Windows Video Sharing)
+
+**Suggestion:** If a VJ types the word `"PORTHOLE"` into the main UI while a Spout Receiver is active, the Spout texture is temporarily masked into a perfect circle for exactly 5 seconds.
+
+**Why:** A visual pun on the name "Spout," changing a square GPU texture into a ship's porthole is a great live gag.
+
+### [C-008] P2-H4 — Beta
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-H4 NDI Video Transport
 

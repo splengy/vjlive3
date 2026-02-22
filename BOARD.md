@@ -117,9 +117,9 @@
 | P2-H1 | MIDI controller input | P0 | ⏳ Queued | Spec ready: `docs/specs/P2-H1_midi_controller.md` |
 | P2-H2 | OSCQuery — advanced OSC discovery | P0 | ✅ Done | `src/vjlive3/osc/server.py` — OscServer + OscClient, 20/20 tests ✅ 2026-02-21 |
 | P2-H3 | Orbbec Astra / Kinect 2 Depth Camera | P1 | ✅ Done | `src/vjlive3/plugins/astra.py` — AstraDepthCamera, 5/5 tests ✅ 2026-02-22 |
-| P2-H4 | NDI video transport (full hub + streams) | P1 | ✅ Done | `src/vjlive3/plugins/ndi.py` — NDIHub, 6/6 tests ✅ 2026-02-22 |
-| P2-H5 | Spout support (Windows video sharing) | P2 | ⏳ Queued | Spec ready: `docs/specs/P2-H5_spout.md` |
-| P2-H6 | Gamepad input (GLFW backend) | P2 | ⏳ Queued | Spec ready: `docs/specs/P2-H6_gamepad.md` |
+| P2-H4 | NDI video transport (full hub + streams) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H4_ndi.md` |
+| P2-H5 | Spout support (Windows video sharing) | P2 | ✅ Done | `src/vjlive3/plugins/spout.py` — SpoutManager, 5/5 tests ✅ 2026-02-22 |
+| P2-H6 | Gamepad input (GLFW backend) | P2 | ⬜ Todo | VJlive-2 only | Spec ready: `docs/specs/P2-H6_gamepad.md` |
 | P2-H7 | Laser safety system | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-H7_laser.md` |
 
 ### 2C — Distributed Architecture (MISSING from VJlive-2)
@@ -128,8 +128,8 @@
 |---------|-------------|----------|--------|--------|
 | P2-X1 | Multi-node coordination (ZeroMQ) | P0 | ✅ Done | `src/vjlive3/sync/zmq_coordinator.py` — ZmqCoordinator, 4/4 tests ✅ 2026-02-22 |
 | P2-X2 | Timecode sync (LTC/MTC/NTP) | P0 | ✅ Done | `src/vjlive3/sync/timecode.py` — TimecodeEngine + sources, 28/28 tests ✅ 2026-02-21 |
-| P2-X3 | Output mapping + screen warping | P1 | ⬜ Todo | Spec required: `docs/specs/P2-X3_output_mapper.md` |
-| P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | ⬜ Todo | vjlive only |
+| P2-X3 | Output mapping + screen warping | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-X3_output_mapper.md` |
+| P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | ⏳ Queued | Spec ready: `docs/specs/P2-X4_projection_mapping.md` |
 
 **Phase 2 Gate:** DMX test signal works. MIDI input registers. Hardware-absent fails gracefully.
 
