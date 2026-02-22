@@ -72,3 +72,8 @@
 **Task:** P3-VD12 Depth Contour Datamosh
 **Built:** `src/vjlive3/plugins/depth_contour_datamosh.py`, `tests/plugins/test_depth_contour_datamosh.py` with 7 tests (100% pass, 100% coverage)
 **Blocker:** None
+
+### [2026-02-22 02:55] — STATUS
+**Task:** P3-VD13 Depth Erosion Datamosh
+**Built:** `src/vjlive3/plugins/depth_erosion_datamosh.py`, `tests/plugins/test_depth_erosion_datamosh.py` with 6 tests (100% pass, 100% coverage)
+**Blocker:** None

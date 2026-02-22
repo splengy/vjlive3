@@ -261,6 +261,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** A classic "UV Debug" screen disguised as a glowing invisible contour. Very useful for shader devs testing coordinate alignments on projection surfaces.
 
+### [A-023] P3-VD13 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD13 Depth Erosion Datamosh
+
+**Suggestion:** If an Agent developer overrides the `morph_radius` limit to dynamically scale above `10.0`, the system aborts the convolution matrix entirely and simply renders a cellular automaton (Conway's Game of Life) seeded by the current video frame.
+
+**Why:** Excessive morphology just blurs things into unrecognizable blobs. Handing them an actual cellular automaton when their morphology gets too cellular is mathematically fulfilling.
+
 ---
 ### [A-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
@@ -486,6 +494,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Sequential sweeping of parameters linearly is the most "machine learning" way to explore a parameter space. Rewarding that exact continuous sweep with a shatter effect is mechanically satisfying.
 
+### [B-023] P3-VD13 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD13 Depth Erosion Datamosh
+
+**Suggestion:** If the Agent Performer switches `morph_mode` exactly along the sequence `0, 1, 2, 3, 0` over 5 consecutive frames, the datamoshed blobs temporarily arrange themselves into the shape of a smiling pixel-art skull.
+
+**Why:** Erosion, Dilation, Opening, Closing. The fundamental morphological operations form a lifecycle of growth and decay. The skull represents the completion of the cycle.
+
 ---
 ### [B-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
@@ -702,6 +718,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If a human user rapidly taps a MIDI button mapped to `mosh_intensity` (from 0 to 1) perfectly in time with an irregular 5/4 drum beat, the moshed contours freeze and spell out "JAZZ" in glitchy block letters.
 
 **Why:** Recognizing complex polyrhythms via parameter manipulation is the ultimate flex for an audio visualizer.
+
+### [C-023] P3-VD13 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD13 Depth Erosion Datamosh
+
+**Suggestion:** If the human VJ drops the `feedback_decay` from its default `0.95` to exactly `0.0` at the exact apex of an audio peak, all morphological blobs on screen instantly explode outward like shattered glass instead of fading away.
+
+**Why:** Hard-cutting feedback usually just looks like dropping the video. Giving it physics and making it shatter makes dropping the feedback a powerful visual hit.
 
 ---
 ### [C-018] P2-X4 — Alpha
