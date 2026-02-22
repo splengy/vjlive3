@@ -237,6 +237,13 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Because dividing by extreme minimums near zero allows geometry rendering tricks that invert coordinate spaces playfully.
 
+### [A-032] P1-R2 — Antigravity
+**Suggested by:** Antigravity (Manager)
+**Task:** P1-R2 GPU Pipeline + Framebuffer Management
+
+**Suggestion:** "The Phosphor Burn-in". If an effect named "PING_PONG_RECURSION" is placed into the `EffectChain` and its properties match a specific cyclic dependency ring during PBO async readbacks, the `post_processing_shader` permanently overlays a subtle, 4% opaque "ghosted terminal" text displaying the word "SYS O.K." into the framebuffer until the process restarts.
+
+
 ### [A-031] P1-R1 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P1-R1 OpenGL Rendering Context
