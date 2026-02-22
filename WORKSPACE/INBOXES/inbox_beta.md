@@ -1,12 +1,12 @@
 # TASK ASSIGNMENT
 
 **Agent:** Worker Beta
-**Task ID:** P3-VD08
-**Task Name:** Depth R16 Wave
-**Spec File:** docs/specs/P3-VD08_depth_r16_wave.md
+**Task ID:** P3-VD10
+**Task Name:** Depth Blur
+**Spec File:** docs/specs/P3-VD10_depth_blur.md
 
 ## Instructions
-Please implement the specification defined in `docs/specs/P3-VD08_depth_r16_wave.md`.
+Please implement the specification defined in `docs/specs/P3-VD10_depth_blur.md`.
 Follow all `WORKSPACE/HOW_TO_WORK.md` and `WORKSPACE/PRIME_DIRECTIVE.md` guidelines.
-Ensure high-precision texture formats (GL_R16) are used properly.
+Ensure SAFETY RAIL #7 is strictly followed regarding the tilt-shift fallback mode when depth is missing.
 Do not skip any verification steps.

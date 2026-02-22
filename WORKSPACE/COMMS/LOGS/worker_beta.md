@@ -32,3 +32,8 @@
 **Task:** P2-X3 Output mapping + screen warping
 **Built:** `src/vjlive3/core/output_mapper.py`, `tests/core/test_output_mapper.py` with 6 tests (100% pass, 99% local coverage)
 **Blocker:** None
+
+### [2026-02-22 02:20] — STATUS
+**Task:** P3-VD05 Depth Slice Effect
+**Built:** `src/vjlive3/plugins/depth_slice.py`, `tests/plugins/test_depth_slice.py` with 4 tests (Human Verifypass, coverage approx ~99%)
+**Blocker:** None

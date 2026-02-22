@@ -146,11 +146,13 @@
 | P3-VD02 | Depth Parallel Universe | P0 | ⏳ Queued |
 | P3-VD03 | Depth Portal Composite | P0 | ⏳ Queued |
 | P3-VD04 | Depth Reverb | P0 | ⏳ Queued |
-| P3-VD05 | Depth Slice Effect | P0 | ⏳ Queued |
+| P3-VD05 | Depth Slice Effect | P0 | ✅ Done | `src/vjlive3/plugins/depth_slice.py` — DepthSlicePlugin, 4/4 tests ✅ 2026-02-22 |
 | P3-VD06 | Depth Neural Quantum Hyper Tunnel | P0 | ⏳ Queued |
 | P3-VD07 | Depth Reality Distortion | P0 | ⏳ Queued |
 | P3-VD08 | Depth R16 Wave | P0 | ⏳ Queued |
-| P3-VD09+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
+| P3-VD09 | Depth Acid Fractal | P1 | ⏳ Queued |
+| P3-VD10 | Depth Blur | P1 | ⏳ Queued |
+| P3-VD11+ | All remaining depth plugins in vjlive/vdepth/ — audit, name, and port each individually | P1 | ⬜ Todo |
 
 ### 3B — Existing Depth Plugins (in VJlive-2 — verify quality, keep or improve)
 Depth Modulated, Depth Edge Glow, Depth Color Grade, Depth Erosion, Depth Fracture,

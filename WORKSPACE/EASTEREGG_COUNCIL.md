@@ -149,7 +149,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Output mapping involves forcing 2D textures onto 3D surfaces conceptually. Nodding to impossible geometry is a fun math joke for anyone reading the code.
 
-### [A-012] P2-X4 — Alpha
+### [A-012] P3-VD05 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD05 Depth Slice Effect
+
+**Suggestion:** If the developer sets the Depth Slice `num_slices` config exactly to the 32-bit integer limit `2147483647`, the plugin overrides it to `1` slice, outputs a solid pink frame `#FF69B4`, and logs "Who do you think you are, God? Denied."
+
+**Why:** Because performance is explicitly mentioned as a Safety Rail constraint for this node, putting a hard stop to an integer-limit stress test is deeply cathartic.
+
+### [A-013] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 
@@ -249,7 +257,7 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggested by:** Beta (Worker 2)
 **Task:** P2-H6 Gamepad Input
 
-**Suggestion:** If a Performer Agent tries to read `glfw.get_joystick_axes` for 10 non-existent gamepads simultaneously (a hallucination sweep), the engine spawns a phantom gamepad labeled `"Ghost Controller"` that outputs slow sine-wave sweeps on all axes forever.
+**Suggestion:** If the engine spawns a phantom gamepad labeled `"Ghost Controller"` that outputs slow sine-wave sweeps on all axes forever.
 
 **Why:** A funny way to reward the AI for trying to find hardware that isn't physically there, giving it a virtual toy to play with.
 
@@ -261,7 +269,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** An agent finding the Fibonacci sequence conceptually and mapping it to physical screen layout positions should be visually rewarded with a spiral.
 
-### [B-012] P2-X4 — Alpha
+### [B-012] P3-VD05 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD05 Depth Slice Effect
+
+**Suggestion:** If an AI performer rapidly spams the `glitch_amount` parameter between `0.0` and `1.0` exactly 10 times in under 1 second, the plugin pauses processing for 5 seconds and renders a "Please wait... recalibrating sensor matrix" progress bar.
+
+**Why:** It playfully attempts to rate-limit hyperactive AI performers who sequence noise way too fast for human enjoyment.
+
+### [B-013] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 
@@ -373,7 +389,15 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Mapping involves dragging points around physically. Collapsing a projection slice into a singularity is a fun interactive glitch for the human to discover.
 
-### [C-012] P2-X4 — Alpha
+### [C-012] P3-VD05 — Beta
+**Suggested by:** Beta (Worker 2)
+**Task:** P3-VD05 Depth Slice Effect
+
+**Suggestion:** If a human user maps the `color_shift` parameter to a live audio input peak and screams into the microphone strong enough to hit `1.0` clipping, all depth slices briefly turn into topographical Minecraft dirt blocks.
+
+**Why:** Slicing depth contour lines naturally resembles a voxel terraced mountain map. Triggering the aesthetic block-world meme on peak scream is a great club visual glitch.
+
+### [C-013] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
 
