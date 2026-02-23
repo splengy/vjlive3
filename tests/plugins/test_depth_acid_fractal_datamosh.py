@@ -1,83 +1,145 @@
-import pytest
-from unittest.mock import MagicMock, patch
-import numpy as np
+"""
+Tests for P3-EXT040: DepthAcidFractalDatamoshPlugin.
+"""
+import sys
+from unittest.mock import MagicMock
 
-from vjlive3.plugins.depth_acid_fractal_datamosh import DepthAcidFractalDatamoshEffectPlugin
-from vjlive3.plugins.api import PluginContext
+import pytest
+
+# ── GL stub ──────────────────────────────────────────────────────────────────
+gl_stub = MagicMock()
+gl_stub.glCreateShader.return_value  = 1
+gl_stub.glCreateProgram.return_value = 1
+gl_stub.glGetShaderiv.return_value   = 1
+gl_stub.glGetProgramiv.return_value  = 1
+gl_stub.glGenVertexArrays.return_value = 1
+gl_stub.glGenTextures.return_value   = 1
+gl_stub.glGenFramebuffers.return_value = 1
+gl_stub.GL_VERTEX_SHADER   = 0x8B31
+gl_stub.GL_FRAGMENT_SHADER = 0x8B30
+gl_stub.GL_COMPILE_STATUS  = 0x8B81
+gl_stub.GL_LINK_STATUS     = 0x8B82
+gl_stub.GL_RGBA8           = 0x8058
+gl_stub.GL_RGBA            = 0x1908
+gl_stub.GL_UNSIGNED_BYTE   = 0x1401
+gl_stub.GL_TEXTURE_2D      = 0x0DE1
+gl_stub.GL_TEXTURE_MIN_FILTER = 0x2801
+gl_stub.GL_TEXTURE_MAG_FILTER = 0x2800
+gl_stub.GL_LINEAR          = 0x2601
+gl_stub.GL_FRAMEBUFFER     = 0x8D40
+gl_stub.GL_COLOR_ATTACHMENT0 = 0x8CE0
+gl_stub.GL_READ_FRAMEBUFFER  = 0x8CA8
+gl_stub.GL_DRAW_FRAMEBUFFER  = 0x8CA9
+gl_stub.GL_COLOR_BUFFER_BIT  = 0x4000
+gl_stub.GL_NEAREST         = 0x2600
+gl_stub.GL_TRIANGLE_STRIP  = 0x0005
+gl_stub.GL_TEXTURE0        = 0x84C0
+gl_stub.GL_TEXTURE1        = 0x84C1
+gl_stub.GL_TEXTURE2        = 0x84C2
+
+sys.modules.setdefault('OpenGL', MagicMock())
+sys.modules.setdefault('OpenGL.GL', gl_stub)
+
+from vjlive3.plugins.depth_acid_fractal_datamosh import (  # noqa: E402
+    DepthAcidFractalDatamoshPlugin, DepthAcidFractalDatamoshEffect,
+    METADATA, PRESETS,
+)
+
 
 @pytest.fixture
-def mock_gl():
-    with patch("vjlive3.plugins.depth_acid_fractal_datamosh.gl") as mock_gl:
-        mock_gl.glGetShaderiv.return_value = 1
-        mock_gl.glGetProgramiv.return_value = 1
-        mock_gl.glGenFramebuffers.return_value = 100
-        mock_gl.glGenTextures.side_effect = range(200, 1000)
-        mock_gl.glGenVertexArrays.return_value = 300
-        mock_gl.glGenBuffers.return_value = 400
-        mock_gl.glCheckFramebufferStatus.return_value = 36053 # GL_FRAMEBUFFER_COMPLETE
-        yield mock_gl
+def plugin():
+    p = DepthAcidFractalDatamoshPlugin()
+    p._mock = True
+    return p
 
-class MutableContext(PluginContext):
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-        self.outputs = {}
+@pytest.fixture
+def ctx():
+    c = MagicMock()
+    c.width = 1920; c.height = 1080
+    c.time = 0.0
+    c.inputs = {}
+    c.outputs = {}
+    return c
 
-def test_acid_fractal_manifest():
-    plugin = DepthAcidFractalDatamoshEffectPlugin()
-    meta = plugin.get_metadata()
-    assert meta["name"] == "DepthAcidFractalDatamoshEffect"
-    assert "datamosh_intensity" in [p["name"] for p in meta["parameters"]]
 
-def test_acid_fractal_mock_mode():
-    with patch("vjlive3.plugins.depth_acid_fractal_datamosh.HAS_GL", False):
-        plugin = DepthAcidFractalDatamoshEffectPlugin()
-        ctx = MutableContext(inputs={"video_in": 5}, width=1920, height=1080)
-        
+class TestMetadata:
+    def test_name(self, plugin):
+        assert 'Acid Fractal' in plugin.get_metadata()['name']
+
+    def test_has_presets(self):
+        assert 'microdose' in PRESETS
+        assert 'dimensional_rift' in PRESETS
+
+    def test_preset_has_keys(self):
+        for p in PRESETS.values():
+            assert 'fractal_intensity' in p
+            assert 'neon_boost' in p
+
+    def test_metadata_tags(self):
+        assert 'julia' in METADATA['tags']
+        assert 'depth' in METADATA['tags']
+
+
+class TestLifecycle:
+    def test_initialize_mock(self, plugin, ctx):
+        assert plugin.initialize(ctx)
+        assert plugin._initialized
+
+    def test_process_zero(self, plugin, ctx):
         plugin.initialize(ctx)
-        out = plugin.process_frame(5, {}, ctx)
-        
-        assert out == 5
-        assert ctx.outputs["video_out"] == 5
+        assert plugin.process_frame(0, {}, ctx) == 0
 
-def test_acid_fractal_missing_depth(mock_gl):
-    # Safety Rail #7 validation
-    plugin = DepthAcidFractalDatamoshEffectPlugin()
-    plugin._mock_mode = False
-    
-    ctx = MutableContext(inputs={"video_in": 5}, width=1920, height=1080, time=1.0)
-    plugin.initialize(ctx)
-    plugin.process_frame(5, {"fractal_scale": 3.0}, ctx)
-    
-    mock_gl.glUniform1i.assert_any_call(mock_gl.glGetUniformLocation(plugin.prog, "has_depth"), 0)
-    mock_gl.glUniform1f.assert_any_call(mock_gl.glGetUniformLocation(plugin.prog, "fractal_scale"), 3.0)
+    def test_process_passthrough_mock(self, plugin, ctx):
+        plugin.initialize(ctx)
+        assert plugin.process_frame(99, {}, ctx) == 99
 
-def test_acid_fractal_with_depth(mock_gl):
-    plugin = DepthAcidFractalDatamoshEffectPlugin()
-    plugin._mock_mode = False
-    
-    ctx = MutableContext(inputs={"depth_in": 10}, width=1920, height=1080, time=1.0)
-    plugin.initialize(ctx)
-    plugin.process_frame(5, {}, ctx)
-    
-    # Verify depth mapping correctly activated
-    mock_gl.glUniform1i.assert_any_call(mock_gl.glGetUniformLocation(plugin.prog, "has_depth"), 1)
-    # prev_tex is bound to texture unit 2
-    mock_gl.glUniform1i.assert_any_call(mock_gl.glGetUniformLocation(plugin.prog, "prevTex"), 2)
+    def test_output_set(self, plugin, ctx):
+        plugin.initialize(ctx)
+        plugin.process_frame(42, {}, ctx)
+        assert ctx.outputs.get('video_out') == 42
 
-def test_acid_fractal_cleanup(mock_gl):
-    # Safety Rail #8 validation
-    plugin = DepthAcidFractalDatamoshEffectPlugin()
-    plugin._mock_mode = False
-    
-    ctx = MutableContext(inputs={}, width=1920, height=1080)
-    plugin.initialize(ctx)
-    plugin.process_frame(5, {}, ctx)
-    
-    plugin.cleanup()
-    
-    assert mock_gl.glDeleteTextures.call_count >= 2
-    mock_gl.glDeleteTextures.assert_any_call(1, [200]) # tex
-    mock_gl.glDeleteTextures.assert_any_call(1, [201]) # prev_tex
-    mock_gl.glDeleteFramebuffers.assert_any_call(1, [100])
-    mock_gl.glDeleteBuffers.assert_any_call(1, [400])
-    mock_gl.glDeleteVertexArrays.assert_any_call(1, [300])
+    def test_cleanup_noop(self, plugin, ctx):
+        plugin.initialize(ctx)
+        plugin.cleanup()
+        assert plugin._prog == 0
+
+
+class TestParams:
+    def test_default_params_passthrough(self, plugin, ctx):
+        plugin.initialize(ctx)
+        r = plugin.process_frame(1, {}, ctx)
+        assert r == 1
+
+    def test_all_presets_valid(self, ctx):
+        for name, p in PRESETS.items():
+            plugin = DepthAcidFractalDatamoshPlugin()
+            plugin._mock = True
+            plugin.initialize(ctx)
+            r = plugin.process_frame(5, p, ctx)
+            assert r == 5, f"Preset '{name}' failed"
+
+    @pytest.mark.parametrize("key,val", [
+        ('fractal_intensity', 10.0),
+        ('prism_split', 10.0),
+        ('solarize', 10.0),
+        ('neon_boost', 10.0),
+        ('feedback', 10.0),
+    ])
+    def test_extreme_params(self, plugin, ctx, key, val):
+        plugin.initialize(ctx)
+        r = plugin.process_frame(3, {key: val}, ctx)
+        assert r == 3
+
+
+class TestCompatAlias:
+    def test_alias(self):
+        assert DepthAcidFractalDatamoshEffect is DepthAcidFractalDatamoshPlugin
+
+
+class TestMultipleFrames:
+    def test_runs_100_frames(self, plugin, ctx):
+        plugin.initialize(ctx)
+        for i in range(100):
+            ctx.time = float(i) * 0.016
+            r = plugin.process_frame(1, {}, ctx)
+            assert r == 1

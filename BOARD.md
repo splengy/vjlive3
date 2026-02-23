@@ -92,12 +92,12 @@
 | P3-EXT010 | audio_reactive_effects (AudioSpectrumTrails) | P0 | ✅ Done | `src/vjlive3/plugins/audio_spectrum_trails.py` — 19 tests ✅ 2026-02-23 |
 | P3-EXT011 | background_subtraction (BackgroundSubtractionEffect) | P0 | ✅ Done | `src/vjlive3/plugins/background_subtraction.py` — 16 tests ✅ 2026-02-23 |
 | P3-EXT012 | depth_effects (BackgroundSubtractionEffect) | P0 | ✅ Done | *(duplicate — BackgroundSubtractionEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT013 | bad_trip_datamosh (BadTripDatamoshEffect) | P0 | ✅ Done | *(duplicate — BadTripDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT014 | bass_cannon_datamosh (BassCannonDatamoshEffect) | P0 | ✅ Done | *(duplicate — BassCannonDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT015 | bass_cannon_2 (BassCanon2) | P0 | ✅ Done | *(duplicate — BassCanon2 already shipped in P4/P5/P6/P7)* |
+| P3-EXT013 | bad_trip_datamosh (BadTripDatamoshEffect) | P0 | ✅ Done | `src/vjlive3/plugins/bad_trip_datamosh.py` — 12-param horror datamosh, 21 tests ✅ 2026-02-23 |
+| P3-EXT014 | bass_cannon_datamosh (BassCannonDatamoshEffect) | P0 | ✅ Done | `src/vjlive3/plugins/bass_cannon_datamosh.py` — 12-param shockwave, 22 tests ✅ 2026-02-23 |
+| P3-EXT015 | bass_cannon_2 (BassCanon2) | P0 | ✅ Done | `src/vjlive3/plugins/bass_cannon_2.py` — 30-param neural rave cannon, 24 tests ✅ 2026-02-23 |
 | P3-EXT016 | bass_therapy_datamosh (BassTherapyDatamoshEffect) | P0 | ✅ Done | *(duplicate — BassTherapyDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT017 | pop_art_effects (BenDayDotsEffect) | P0 | ✅ Done | *(duplicate — BenDayDotsEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT018 | blend (BlendAddEffect) | P0 | ✅ Done | *(duplicate — BlendAddEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT017 | pop_art_effects (BenDayDotsEffect) | P0 | ✅ Done | `src/vjlive3/plugins/ben_day_dots.py` — 42-line halftone GLSL, Pop Art palette, 23 tests ✅ 2026-02-23 |
+| P3-EXT018 | blend (BlendAddEffect) | P0 | ✅ Done | `src/vjlive3/plugins/blend_add.py` — 50-line GLSL, channel-masked additive, 27 tests ✅ 2026-02-23 |
 | P3-EXT019 | blend (BlendDiffEffect) | P0 | ✅ Done | *(duplicate — BlendDiffEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT020 | blend (BlendMultEffect) | P0 | ✅ Done | *(duplicate — BlendMultEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT021 | blend (BloomEffect) | P0 | ✅ Done | *(duplicate — BloomEffect already shipped in P4/P5/P6/P7)* |
@@ -119,7 +119,7 @@
 | P3-EXT037 | cupcake_cascade_datamosh (CupcakeCascadeDatamoshEffect) | P0 | ✅ Done | *(duplicate — CupcakeCascadeDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT038 | datamosh_3d (Datamosh3DEffect) | P0 | ✅ Done | *(duplicate — Datamosh3DEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT039 | vcv_video_effects (DelayZoomEffect) | P0 | ✅ Done | *(duplicate — DelayZoomEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT040 | depth_acid_fractal (DepthAcidFractalDatamoshEffect) | P0 | ⬜ Todo | vjlive |
+| P3-EXT040 | depth_acid_fractal (DepthAcidFractalPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_acid_fractal.py` — 6-param depth-reactive fractal, 5 tests ✅ 2026-02-23 |
 | P3-EXT041 | depth_camera_splitter (DepthCameraSplitterEffect) | P0 | ✅ Done | *(duplicate — DepthCameraSplitterEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT042 | depth_data_mux (DepthDataMuxEffect) | P0 | ✅ Done | *(duplicate — DepthDataMuxEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT043 | datamosh_3d (DepthDisplacementEffect) | P0 | ✅ Done | *(duplicate — DepthDisplacementEffect already shipped in P4/P5/P6/P7)* |
@@ -145,7 +145,7 @@
 | P3-EXT063 | depth_raver_datamosh (DepthRaverDatamoshEffect) | P0 | ✅ Done | *(duplicate — DepthRaverDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT064 | depth_simulator (DepthSimulatorEffect) | P0 | ✅ Done | *(duplicate — DepthSimulatorEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT065 | depth_slitscan_datamosh (DepthSlitScanDatamoshEffect) | P0 | ✅ Done | *(duplicate — DepthSlitScanDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT066 | depth_effects (DepthVisualizationMode) | P0 | ⬜ Todo | vjlive |
+| P3-EXT066 | depth_effects (DepthEffectsPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_effects.py` — 7-effect depth chain (blur, color, distortion, glow, fog, sharpen), 8 tests ✅ 2026-02-23 |
 | P3-EXT067 | depth_void_datamosh (DepthVoidDatamoshEffect) | P0 | ✅ Done | *(duplicate — DepthVoidDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT068 | dimension_splice_datamosh (DimensionSpliceDatamoshEffect) | P0 | ✅ Done | *(duplicate — DimensionSpliceDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT069 | displacement_map (DisplacementMapEffect) | P0 | ✅ Done | *(duplicate — DisplacementMapEffect already shipped in P4/P5/P6/P7)* |
@@ -264,15 +264,15 @@
 | P3-EXT182 | agent_avatar (TravelingAvatarEffect) | P0 | ✅ Done | *(duplicate — TravelingAvatarEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT183 | tunnel_vision_datamosh (TunnelVisionDatamoshEffect) | P0 | ✅ Done | *(duplicate — TunnelVisionDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT184 | unicorn_farts_datamosh (UnicornFartsDatamoshEffect) | P0 | ✅ Done | *(duplicate — UnicornFartsDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT185 | vattractors (VHalvorsenPlugin) | P0 | ⬜ Todo | vjlive |
-| P3-EXT186 | vattractors (VLorenzPlugin) | P0 | ⬜ Todo | vjlive |
+| P3-EXT185 | vattractors (VHalvorsenPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/vattractors.py` — VAttractorsPlugin (mode=1), 41 tests ✅ 2026-02-23 |
+| P3-EXT186 | vattractors (VLorenzPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/vattractors.py` — VAttractorsPlugin (mode=0), 41 tests ✅ 2026-02-23 |
 | P3-EXT187 | v_rainmaker_rhythmic_echo (VRainmakerRhythmicEcho) | P0 | ⬜ Todo | vjlive |
-| P3-EXT188 | vattractors (VSakaryaPlugin) | P0 | ⬜ Todo | vjlive |
-| P3-EXT189 | vbefaco_extra (VScopeXL) | P0 | ⬜ Todo | vjlive |
+| P3-EXT188 | vattractors (VSakaryaPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/vattractors.py` — VAttractorsPlugin (mode=3), 41 tests ✅ 2026-02-23 |
+| P3-EXT189 | vbefaco_extra (VScopeXL) | P0 | 🚫 Out of Scope | *(hardware-specific VCV Rack scope, no equivalent in VJLive3 alpha)* |
 | P3-EXT190 | v_sws (VSwsEffect) | P0 | ✅ Done | *(duplicate — VSwsEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT191 | vattractors (VThomasPlugin) | P0 | ⬜ Todo | vjlive |
+| P3-EXT191 | vattractors (VThomasPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/vattractors.py` — VAttractorsPlugin (mode=2), 41 tests ✅ 2026-02-23 |
 | P3-EXT192 | visualizer (VUMeterEffect) | P0 | ✅ Done | *(duplicate — VUMeterEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT193 | v_warps (VWarps) | P0 | ⬜ Todo | vjlive |
+| P3-EXT193 | v_warps (VWarps) | P0 | 🚫 Out of Scope | *(VCV Rack hardware warp module, no GPU equivalent for alpha)* |
 | P3-EXT194 | v_sws (VerticalWaveEffect) | P0 | ✅ Done | *(duplicate — VerticalWaveEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT195 | blend (VignetteEffect) | P0 | ✅ Done | *(duplicate — VignetteEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT196 | visualizer (VisualizerEffect) | P0 | ✅ Done | *(duplicate — VisualizerEffect already shipped in P4/P5/P6/P7)* |
