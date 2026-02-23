@@ -1,0 +1,219 @@
+# P3-EXT066 Dimension Splice Datamosh Effect
+
+## What This Module Does
+
+Dimension Splice Datamosh Effect creates effects that simulate splicing together different dimensions or realities, with depth information controlling which dimension is visible at different depths. The effect produces glitchy, reality-warping distortions where different depth planes show different "dimensions" of the video, creating a sense of dimensional fragmentation and multiverse overlap.
+
+## Public Interface
+
+```python
+METADATA = {
+    "name": "Dimension Splice Datamosh Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Creates multi-dimensional splicing effects with depth-based dimension selection",
+    "category": "Depth Effects",
+    "tags": ["depth", "datamosh", "dimension", "splice", "multiverse"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "dimension_count": {
+            "type": "integer",
+            "min": 2,
+            "max": 8,
+            "default": 4,
+            "description": "Number of dimensions to splice"
+        },
+        "splice_mode": {
+            "type": "enum",
+            "options": ["depth_based", "time_based", "random", "pattern", "hybrid"],
+            "default": "depth_based",
+            "description": "How dimensions are spliced together"
+        },
+        "depth_mapping": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth maps to dimension selection"
+        },
+        "depth_zones": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "min": {"type": "float", "min": 0.0, "max": 1.0},
+                    "max": {"type": "float", "min": 0.0, "max": 1.0},
+                    "dimension": {"type": "integer", "min": 0, "max": 7}
+                }
+            },
+            "default": [
+                {"min": 0.0, "max": 0.25, "dimension": 0},
+                {"min": 0.25, "max": 0.5, "dimension": 1},
+                {"min": 0.5, "max": 0.75, "dimension": 2},
+                {"min": 0.75, "max": 1.0, "dimension": 3}
+            ],
+            "description": "Depth zones and their assigned dimensions"
+        },
+        "dimension_intensities": {
+            "type": "array",
+            "items": {"type": "float", "min": 0.0, "max": 1.0},
+            "default": [1.0, 0.9, 0.8, 0.7],
+            "description": "Intensity for each dimension"
+        },
+        "dimension_datamosh": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {"type": "string"},
+                    "intensity": {"type": "float", "min": 0.0, "max": 1.0},
+                    "speed": {"type": "float", "min": 0.0, "max": 10.0},
+                    "color_shift": {"type": "float", "min": -180.0, "max": 180.0}
+                }
+            },
+            "default": [
+                {"type": "none", "intensity": 0.0, "speed": 0.0, "color_shift": 0.0},
+                {"type": "random", "intensity": 0.3, "speed": 1.0, "color_shift": 30.0},
+                {"type": "scanline", "intensity": 0.4, "speed": 1.5, "color_shift": 60.0},
+                {"type": "block", "intensity": 0.5, "speed": 0.8, "color_shift": 90.0}
+            ],
+            "description": "Datamosh configuration for each dimension"
+        },
+        "transition_smoothness": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Smoothness of transitions between dimensions"
+        },
+        "global_intensity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.8,
+            "description": "Overall intensity of dimension splice effect"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "motion_sensitivity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Sensitivity to motion in dimension switching"
+        },
+        "feedback_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Amount of feedback between dimensions"
+        },
+        "feedback_mode": {
+            "type": "enum",
+            "options": ["additive", "multiply", "screen", "difference", "xor"],
+            "default": "additive",
+            "description": "Blending mode for feedback"
+        },
+        "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 1000000,
+            "default": 42,
+            "description": "Random seed for dimension patterns"
+        }
+    }
+}
+```
+
+## What It Does NOT Do
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform audio-reactive dimension switching
+- Does not support external dimension sources
+- Does not handle infinite recursion (limited by feedback)
+
+## Test Plan
+
+1. **Dimension Count Tests:**
+   - Test with minimum 2 dimensions
+   - Test with maximum 8 dimensions
+   - Test with different dimension counts
+
+2. **Splice Mode Tests:**
+   - Test depth-based splicing
+   - Test time-based splicing
+   - Test random splicing
+   - Test pattern-based splicing
+   - Test hybrid splicing
+
+3. **Depth Mapping Tests:**
+   - Test linear depth mapping
+   - Test exponential depth mapping
+   - Test logarithmic depth mapping
+   - Test different depth exponents
+
+4. **Depth Zone Tests:**
+   - Test with different depth zone configurations
+   - Test with overlapping zones
+   - Test with non-overlapping zones
+   - Test with edge zones
+
+5. **Dimension Configuration Tests:**
+   - Test different dimension intensities
+   - Test different datamosh types per dimension
+   - Test different datamosh parameters per dimension
+   - Test with invalid configurations (fallback behavior)
+
+6. **Transition Tests:**
+   - Test with sharp transitions (0.0)
+   - Test with smooth transitions (1.0)
+   - Test with different transition smoothness
+
+7. **Feedback Tests:**
+   - Test with no feedback
+   - Test with different feedback amounts
+   - Test with different feedback modes
+
+8. **Performance Tests:**
+   - Measure FPS with different dimension counts
+   - Test with various resolutions
+   - Verify memory usage with multiple dimensions
+
+9. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth dimension transitions
+   - Test with moving objects
+   - Test with static scenes
+
+## Implementation Notes
+
+- Use modular architecture for dimension management
+- Implement efficient depth-based dimension routing
+- Support real-time parameter adjustment
+- Provide dimension preview mode
+- Include depth visualization for debugging
+
+## Deliverables
+
+- `src/vjlive3/plugins/dimension_splice_datamosh.py` - Main plugin implementation
+- `tests/plugins/test_dimension_splice_datamosh.py` - Comprehensive test suite
+- `docs/plugins/dimension_splice_datamosh.md` - User documentation
+- `shaders/dimension_splice_datamosh.glsl` - GPU shader for dimension processing
+
+## Success Criteria
+
+- ✅ Multi-dimensional splicing with depth-based selection
+- ✅ Multiple splice modes and dimension configurations
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Configurable transitions and global parameters
+- ✅ Various feedback and blending options
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

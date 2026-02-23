@@ -1,141 +1,264 @@
-# P3-EXT061: Depth Effects Depth Point Cloud 3D Effect
+# P3-EXT061 Depth Effects Depth Point Cloud 3D Effect
 
 ## What This Module Does
-Generates a 3D point cloud from depth information, where each pixel's depth value determines the 3D position of a point, creating a volumetric representation of the scene that can be rotated, manipulated, and rendered in 3D space.
+
+Depth Point Cloud 3D Effect generates 3D point clouds from depth information, creating volumetric visualizations that represent the depth structure of the scene as a collection of points in 3D space. The effect converts depth maps into 3D point clouds with configurable density, size, color, and animation, allowing for immersive depth-based volumetric rendering.
 
 ## Public Interface
 
-### METADATA
 ```python
 METADATA = {
     "name": "Depth Point Cloud 3D Effect",
-    "id": "P3-EXT061",
-    "category": "depth_effects",
-    "description": "Generates 3D point cloud from depth map with interactive manipulation",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Generates 3D point clouds from depth information",
+    "category": "Depth Effects",
+    "tags": ["depth", "point_cloud", "3d", "volumetric"],
     "inputs": ["video", "depth"],
     "outputs": ["video"],
-    "priority": 0,
-    "dependencies": ["DepthBuffer", "PointCloudEngine"],
-    "test_coverage": 85
+    "parameters": {
+        "point_density": {
+            "type": "float",
+            "min": 0.01,
+            "max": 1.0,
+            "default": 0.1,
+            "description": "Density of points in the point cloud"
+        },
+        "point_count": {
+            "type": "integer",
+            "min": 100,
+            "max": 1000000,
+            "default": 50000,
+            "description": "Maximum number of points in the cloud"
+        },
+        "point_size": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Size of each point"
+        },
+        "point_size_variation": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Variation in point sizes"
+        },
+        "depth_scale": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Scale factor for depth values"
+        },
+        "depth_offset": {
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Offset added to depth values"
+        },
+        "color_source": {
+            "type": "enum",
+            "options": ["depth", "video", "depth_video_mix", "solid", "gradient"],
+            "default": "depth",
+            "description": "Source of point colors"
+        },
+        "point_color": {
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Solid color for points (if color_source=solid)"
+        },
+        "gradient_start": {
+            "type": "color",
+            "default": "#0000ff",
+            "description": "Start color for gradient (if color_source=gradient)"
+        },
+        "gradient_end": {
+            "type": "color",
+            "default": "#ff0000",
+            "description": "End color for gradient (if color_source=gradient)"
+        },
+        "color_mix_ratio": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Mix ratio between depth and video colors"
+        },
+        "opacity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.8,
+            "description": "Base point opacity"
+        },
+        "opacity_by_depth": {
+            "type": "boolean",
+            "default": true,
+            "description": "Adjust opacity based on depth"
+        },
+        "blend_mode": {
+            "type": "enum",
+            "options": ["normal", "additive", "screen", "multiply"],
+            "default": "additive",
+            "description": "Point blending mode"
+        },
+        "animation_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Speed of point animation"
+        },
+        "animation_type": {
+            "type": "enum",
+            "options": ["none", "wave", "rotate", "pulse", "noise"],
+            "default": "none",
+            "description": "Type of point animation"
+        },
+        "wave_amplitude": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.1,
+            "description": "Amplitude of wave animation"
+        },
+        "wave_frequency": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Frequency of wave animation"
+        },
+        "rotation_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Speed of rotation animation"
+        },
+        "noise_scale": {
+            "type": "float",
+            "min": 0.001,
+            "max": 0.1,
+            "default": 0.01,
+            "description": "Scale of noise animation"
+        },
+        "noise_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Speed of noise animation"
+        },
+        "culling_enable": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable frustum culling for performance"
+        },
+        "lod_enable": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable level-of-detail rendering"
+        },
+        "lod_threshold": {
+            "type": "float",
+            "min": 0.1,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "LOD transition threshold"
+        }
+    }
 }
 ```
 
-### Parameters
-- `point_density` (float): Points per pixel (0.1-1.0, default: 0.5)
-- `depth_scale` (float): Multiplier for depth values (0.1-10.0, default: 1.0)
-- `point_size` (float): Size of rendered points in pixels (1.0-20.0, default: 2.0)
-- `rotation_x` (float): X-axis rotation in degrees (-180 to 180, default: 0)
-- `rotation_y` (float): Y-axis rotation in degrees (-180 to 180, default: 0)
-- `rotation_z` (float): Z-axis rotation in degrees (-180 to 180, default: 0)
-- `camera_distance` (float): Distance from camera to point cloud (1.0-50.0, default: 5.0)
-- `color_mode` (str): Point coloring: "depth", "original", "normal", "solid"
-- `solid_color` (list[int]): RGB color when color_mode="solid" [0-255, 0-255, 0-255]
-
-### Inputs
-- `video` (torch.Tensor[uint8]): Input video frames [B, 3, H, W]
-- `depth` (torch.Tensor[float]): Depth buffer [B, 1, H, W] normalized 0-1
-
-### Outputs
-- `video` (torch.Tensor[uint8]): Rendered point cloud [B, 3, H, W]
-
 ## What It Does NOT Do
-- Does NOT perform real-time point cloud reconstruction at 4K resolution (performance limit)
-- Does NOT support point cloud export to PLY/OBJ formats (visual only)
-- Does NOT implement advanced point shading (simple point sprite rendering)
-- Does NOT handle point occlusion beyond basic depth testing
-- Does NOT support animated rotation via keyframes (manual parameter control only)
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform full 3D reconstruction (point cloud only)
+- Does not support point-point interactions (no physics between points)
+- Does not handle infinite point counts (limited by point_count)
 
 ## Test Plan
 
-### Unit Tests
-1. `test_point_cloud_initialization()`
-   - Verify METADATA constants
-   - Test parameter validation (point_density 0.1-1.0, depth_scale 0.1-10.0)
-   - Test default rotation values
+1. **Point Density Tests:**
+   - Test with minimum density (sparse cloud)
+   - Test with maximum density (dense cloud)
+   - Test with different densities
 
-2. `test_depth_to_point_projection()`
-   - Create synthetic depth map with known values
-   - Verify 3D point positions match depth + camera intrinsics
-   - Test depth_scale multiplier effect
+2. **Point Count Tests:**
+   - Test with minimum 100 points
+   - Test with maximum 1,000,000 points
+   - Test with different point counts
 
-3. `test_point_density_sampling()`
-   - Test point_density parameter: 0.1, 0.5, 1.0
-   - Verify point count matches expected density
-   - Test sampling pattern (random vs grid)
+3. **Point Size Tests:**
+   - Test with small point size
+   - Test with large point size
+   - Test with size variation
 
-4. `test_rotation_transforms()`
-   - Test rotation_x, rotation_y, rotation_z individually
-   - Verify 3D rotation matrices applied correctly
-   - Test rotation order (XYZ Euler angles)
-   - Test negative angles and wrapping
+4. **Depth Scale/Offset Tests:**
+   - Test with different depth scales
+   - Test with different depth offsets
+   - Test with combined scale and offset
 
-5. `test_camera_distance()`
-   - Test camera_distance parameter
-   - Verify point cloud scales correctly
-   - Test distance clipping (too close/far)
+5. **Color Source Tests:**
+   - Test depth-based coloring
+   - Test video-based coloring
+   - Test mixed coloring
+   - Test solid color
+   - Test gradient coloring
 
-6. `test_color_modes()`
-   - Test all color_mode options: depth, original, normal, solid
-   - Verify color mapping correctness
-   - Test solid_color parameter when color_mode="solid"
+6. **Opacity Tests:**
+   - Test with different base opacities
+   - Test with depth-based opacity enabled/disabled
+   - Test with different blend modes
 
-### Integration Tests
-1. `test_full_pipeline_60fps()`
-   - Process 1000 frames at 1920x1080 with point_density=0.5
-   - Verify FPS ≥ 60 on test hardware
-   - Monitor memory usage < 1GB for point cloud buffers
+7. **Animation Tests:**
+   - Test with no animation
+   - Test with wave animation
+   - Test with rotation animation
+   - Test with pulse animation
+   - Test with noise animation
+   - Test with different animation speeds
 
-2. `test_real_depth_point_cloud()`
-   - Feed real depth map from MiDaS/DPT
-   - Verify point cloud represents scene structure
-   - Test rotation and camera_distance with real data
+8. **Performance Tests:**
+   - Measure FPS with different point counts
+   - Test with various resolutions
+   - Verify GPU memory usage
+   - Test with culling enabled/disabled
+   - Test with LOD enabled/disabled
 
-3. `test_performance_scaling()`
-   - Test point_density scaling: 0.1, 0.5, 1.0
-   - Verify FPS degradation is linear
-   - Test memory scaling with point count
-
-4. `test_safety_rails_compliance()`
-   - Verify no silent failures on invalid inputs
-   - Test error handling for missing depth
-   - Ensure all exceptions are logged with context
+9. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth point animation
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
 
-### Architecture
-- Build on existing `DepthEffect` base class from P3-VD35
-- Integrate with `PointCloudEngine` from VJlive-2 if available, else implement simple point cloud
-- Use OpenGL point sprites for rendering (GPU-accelerated)
-- Implement 3D transformations with PyTorch tensors for GPU compute
-
-### Performance Optimizations
-- Use GPU compute for depth-to-point projection (parallel per-pixel)
-- Implement point LOD: reduce point count at distance
-- Use OpenGL VBO (Vertex Buffer Object) for point cloud rendering
-- Batch rotation transforms on GPU
-
-### Memory Management
-- Point count = H × W × point_density (max: 1920×1080×1.0 ≈ 2M points)
-- Each point: position (3 floats) + color (3 floats) = 24 bytes
-- 2M points × 24 bytes = 48MB per frame buffer
-- Use double-buffering to avoid allocation stalls
-- Profile memory with 4K input, enforce < 2GB peak
-
-### Safety Rails
-- Enforce point_density ≤ 1.0 (memory limit)
-- Clamp depth_scale to [0.1, 10.0] with warning
-- Validate rotation angles [-180, 180] with clear error
-- Fallback to wireframe if point rendering fails
+- Use GPU-based point cloud rendering for performance
+- Implement efficient depth-to-3D conversion
+- Support real-time parameter adjustment
+- Provide point cloud preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-1. `src/vjlive3/effects/depth_point_cloud_3d_effect.py` - Main effect implementation
-2. `tests/effects/test_depth_point_cloud_3d_effect.py` - Unit + integration tests
-3. `docs/effects/depth_point_cloud_3d_effect.md` - User documentation
-4. Update `MODULE_MANIFEST.md` with new plugin entry
+
+- `src/vjlive3/plugins/depth_point_cloud_3d.py` - Main plugin implementation
+- `tests/plugins/test_depth_point_cloud_3d.py` - Comprehensive test suite
+- `docs/plugins/depth_point_cloud_3d.md` - User documentation
+- `shaders/depth_point_cloud_3d.glsl` - GPU shader for point rendering
 
 ## Success Criteria
-- ✅ All unit tests pass (≥ 85% coverage)
-- ✅ 60 FPS at 1080p with point_density=0.5 on RTX 4070 Ti Super
-- ✅ Zero safety rail violations (memory, errors, silent failures)
-- ✅ Works with real depth maps from MiDaS/DPT
-- ✅ Clean code: ≤ 750 lines, no stubs, full type hints
+
+- ✅ 3D point cloud generation from depth information
+- ✅ Configurable point density, size, and count
+- ✅ Multiple color sources and blending options
+- ✅ Various animation types with smooth motion
+- ✅ Real-time performance with minimal FPS impact
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

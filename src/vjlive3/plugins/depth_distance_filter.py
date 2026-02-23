@@ -1,382 +1,315 @@
-import os
-import logging
-from typing import Dict, Any, Optional
 import numpy as np
+import logging
 
-from vjlive3.plugins.api import EffectPlugin, PluginContext
-
-logger = logging.getLogger(__name__)
-
-# Mock GL for headless pytests via environment flag injection
 try:
-    if os.environ.get("PYTEST_MOCK_GL"):
-        raise ImportError("Forced MOCK GL for pytest")
     import OpenGL.GL as gl
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-    gl = None
+
+from typing import Dict, Any
+from vjlive3.plugins.api import EffectPlugin, PluginContext
+
+logger = logging.getLogger(__name__)
+
+METADATA = {
+    "name": "DepthDistanceFilter",
+    "version": "3.0.0",
+    "description": "Distance-based filtering using depth buffer",
+    "author": "VJLive3 Team",
+    "license": "GPLv3",
+    "plugin_type": "depth_effect",
+    "category": "filter",
+    "tags": ["depth", "distance", "filter", "fog", "atmosphere"],
+    "priority": 1,
+    "dependencies": ["DepthBuffer"],
+    "incompatible": ["NoDepthSupport"],
+    "inputs": ["video_in", "depth_in"],
+    "outputs": ["video_out"],
+    "parameters": [
+        {"name": "filter_type", "type": "str", "default": "fog", "options": ["fog", "blur", "contrast", "saturation", "brightness"]},
+        {"name": "near_distance", "type": "float", "default": 0.0, "min": 0.0, "max": 1.0},
+        {"name": "far_distance", "type": "float", "default": 1.0, "min": 0.0, "max": 1.0},
+        {"name": "filter_strength", "type": "float", "default": 0.5, "min": 0.0, "max": 1.0},
+        {"name": "fog_color", "type": "list", "default": [0.7, 0.8, 1.0]},
+        {"name": "blur_radius", "type": "int", "default": 5, "min": 1, "max": 20},
+        {"name": "contrast_shift", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0},
+        {"name": "saturation_shift", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0},
+        {"name": "brightness_shift", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0}
+    ]
+}
+
+VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec2 texcoord;
+out vec2 uv;
+void main() {
+    uv = texcoord;
+    gl_Position = vec4(position, 0.0, 1.0);
+}
+"""
 
 DEPTH_DISTANCE_FILTER_FRAGMENT = """
 #version 330 core
-in vec2 v_uv;
+in vec2 uv;
 out vec4 fragColor;
 
 uniform sampler2D tex0;
 uniform sampler2D depth_tex;
-uniform sampler2D tex_b;          // Optional secondary input for replacement
-uniform float time;
 uniform vec2 resolution;
-uniform float u_mix;
 
-// Range
-uniform float near_clip;            // Near distance threshold (0=camera, 1=far)
-uniform float far_clip;             // Far distance threshold
-uniform float edge_softness;        // Feathering at clip boundaries
+uniform int filter_type; // 0=fog, 1=blur, 2=contrast, 3=sat, 4=bright
+uniform float near_distance;
+uniform float far_distance;
+uniform float filter_strength;
 
-// Mask behavior
-uniform float invert;               // Invert the mask (show outside instead)
-uniform float fill_mode;            // 0=transparent, 3.3=solid color, 6.6=blur, 10=input B
-uniform vec3 fill_color;            // Fill color when mode=solid
+uniform vec3 fog_color;
+uniform int blur_radius;
+uniform float contrast_shift;
+uniform float saturation_shift;
+uniform float brightness_shift;
 
-// Mask refinement
-uniform float edge_refine;          // Erode/dilate mask edges
-uniform float smoothing;            // Temporal smoothing of the mask
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
 
-// Output
-uniform float show_mask;            // Preview mask as grayscale
-uniform float depth_colorize;       // False-color the depth for visualization
+vec3 hsv2rgb(vec3 c) {
+    vec3 p = abs(fract(c.xxx + vec3(1.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
+    return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
+}
 
 void main() {
-    float depth = texture(depth_tex, v_uv).r;
-    vec4 source = texture(tex0, v_uv);
-
-    // ====== DEPTH MASK ======
-    // Compute mask based on near/far clip range
-    float mask = 1.0;
-
-    // Soft near clip
-    mask *= smoothstep(near_clip - edge_softness * 0.1,
-                       near_clip + edge_softness * 0.1, depth);
-
-    // Soft far clip
-    mask *= 1.0 - smoothstep(far_clip - edge_softness * 0.1,
-                              far_clip + edge_softness * 0.1, depth);
-
-    // ====== EDGE REFINEMENT ======
-    if (abs(edge_refine) > 0.001) {
-        // Sample neighbors for erode/dilate
-        float texel = 2.0 / max(resolution.x, 1.0);
-        float d_up = texture(depth_tex, v_uv + vec2(0, texel)).r;
-        float d_dn = texture(depth_tex, v_uv - vec2(0, texel)).r;
-        float d_lt = texture(depth_tex, v_uv - vec2(texel, 0)).r;
-        float d_rt = texture(depth_tex, v_uv + vec2(texel, 0)).r;
-
-        float m_up = smoothstep(near_clip, near_clip + 0.01, d_up)
-                   * (1.0 - smoothstep(far_clip - 0.01, far_clip, d_up));
-        float m_dn = smoothstep(near_clip, near_clip + 0.01, d_dn)
-                   * (1.0 - smoothstep(far_clip - 0.01, far_clip, d_dn));
-        float m_lt = smoothstep(near_clip, near_clip + 0.01, d_lt)
-                   * (1.0 - smoothstep(far_clip - 0.01, far_clip, d_lt));
-        float m_rt = smoothstep(near_clip, near_clip + 0.01, d_rt)
-                   * (1.0 - smoothstep(far_clip - 0.01, far_clip, d_rt));
-
-        if (edge_refine > 0.0) {
-            // Dilate: take max of neighbors
-            mask = max(mask, max(max(m_up, m_dn), max(m_lt, m_rt)) * edge_refine);
-        } else {
-            // Erode: take min of neighbors
-            float neighbors_min = min(min(m_up, m_dn), min(m_lt, m_rt));
-            mask = mix(mask, min(mask, neighbors_min), -edge_refine);
+    float depth = texture(depth_tex, uv).r;
+    vec3 color = texture(tex0, uv).rgb;
+    
+    // clamp denom to prevent extreme bleeding
+    float denom = far_distance - near_distance;
+    float w = 0.0;
+    if (abs(denom) > 0.0001) {
+        w = clamp((depth - near_distance) / denom, 0.0, 1.0);
+    } else {
+        w = depth >= near_distance ? 1.0 : 0.0;
+    }
+    
+    float intensity = w * filter_strength;
+    
+    if (intensity > 0.0) {
+        if (filter_type == 0) { // fog
+            color = mix(color, fog_color, intensity);
         }
-    }
-
-    // ====== INVERT ======
-    if (invert > 0.5) {
-        mask = 1.0 - mask;
-    }
-
-    // ====== FILL OUTSIDE MASK ======
-    vec4 fill;
-    if (fill_mode < 3.3) {
-        // Transparent (black)
-        fill = vec4(0.0, 0.0, 0.0, 0.0);
-    } else if (fill_mode < 6.6) {
-        // Solid color
-        fill = vec4(fill_color, 1.0);
-    } else if (fill_mode < 8.3) {
-        // Blur: show blurred version outside mask
-        vec4 blurred = vec4(0.0);
-        float total = 0.0;
-        
-        // UNROLL SAFE: Limited loops to protect real-time constraint (SR1)
-        for (int x = -2; x <= 2; x++) {
-            for (int y = -2; y <= 2; y++) {
-                vec2 offset = vec2(float(x), float(y)) * 4.0 / max(resolution, vec2(1.0));
-                float w = 1.0 / (1.0 + float(abs(x) + abs(y)));
-                blurred += texture(tex0, v_uv + offset) * w;
-                total += w;
+        else if (filter_type == 1) { // blur
+            int r = int(round(float(blur_radius) * intensity));
+            if (r > 0) {
+                vec3 blurred = vec3(0.0);
+                float total = 0.0;
+                for (int x = -r; x <= r; x++) {
+                    for (int y = -r; y <= r; y++) {
+                        vec2 offset = vec2(float(x), float(y)) / resolution;
+                        float w_blur = 1.0 / (1.0 + float(abs(x) + abs(y)));
+                        blurred += texture(tex0, clamp(uv + offset, 0.0, 1.0)).rgb * w_blur;
+                        total += w_blur;
+                    }
+                }
+                color = blurred / total;
             }
         }
-        fill = blurred / total;
-    } else {
-        // Input B (secondary video)
-        fill = texture(tex_b, v_uv);
+        else if (filter_type == 2) { // contrast
+            float cs = contrast_shift * intensity;
+            color = mix(vec3(0.5), color, 1.0 + cs);
+        }
+        else if (filter_type == 3) { // sat
+            float ss = saturation_shift * intensity;
+            vec3 hsv = rgb2hsv(clamp(color, 0.0, 1.0));
+            hsv.y = clamp(hsv.y * (1.0 + ss), 0.0, 1.0);
+            color = hsv2rgb(hsv);
+        }
+        else if (filter_type == 4) { // bright
+            float bs = brightness_shift * intensity;
+            color = clamp(color + vec3(bs), 0.0, 1.0);
+        }
     }
-
-    // ====== COMPOSE ======
-    vec4 result = mix(fill, source, mask);
-
-    // ====== VISUALIZATION MODES ======
-    if (show_mask > 0.5) {
-        // Show mask as grayscale
-        result = vec4(vec3(mask), 1.0);
-    }
-
-    if (depth_colorize > 0.0) {
-        // False-color depth visualization
-        vec3 depth_color = vec3(depth); // Fallback monochrome 
-        if (depth < 0.2)
-            depth_color = mix(vec3(1,0,0), vec3(1,0.5,0), depth * 5.0);
-        else if (depth < 0.4)
-            depth_color = mix(vec3(1,0.5,0), vec3(1,1,0), (depth-0.2) * 5.0);
-        else if (depth < 0.6)
-            depth_color = mix(vec3(1,1,0), vec3(0,1,0), (depth-0.4) * 5.0);
-        else if (depth < 0.8)
-            depth_color = mix(vec3(0,1,0), vec3(0,0.5,1), (depth-0.6) * 5.0);
-        else
-            depth_color = mix(vec3(0,0.5,1), vec3(0.2,0,0.8), (depth-0.8) * 5.0);
-
-        // Overlay mask boundary
-        float mask_edge = abs(fract(mask * 4.0) - 0.5) < 0.05 ? 1.0 : 0.0;
-        depth_color += vec3(mask_edge);
-
-        result = mix(result, vec4(depth_color, 1.0), depth_colorize);
-    }
-
-    fragColor = mix(source, result, u_mix);
+    
+    fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
 }
 """
 
-METADATA = {
-    "name": "Depth Distance Filter",
-    "description": "Filter/mask video by depth range. Isolates pixels within a near/far depth window.",
-    "version": "1.0.0",
-    "author": "Antigravity",
-    "category": "Visual Depth",
-    "tags": ["mask", "distance", "filter", "depth"],
-    "status": "active",
-    "parameters": [
-        {"name": "nearClip", "type": "float", "min": 0.0, "max": 10.0, "default": 1.0},
-        {"name": "farClip", "type": "float", "min": 0.0, "max": 10.0, "default": 8.0},
-        {"name": "edgeSoftness", "type": "float", "min": 0.0, "max": 10.0, "default": 3.0},
-        {"name": "invert", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "fillMode", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "fillColorR", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "fillColorG", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "fillColorB", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "edgeRefine", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "smoothing", "type": "float", "min": 0.0, "max": 10.0, "default": 3.0},
-        {"name": "showMask", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "depthColorize", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "u_mix", "type": "float", "min": 0.0, "max": 1.0, "default": 1.0}
-    ],
-    "inputs": ["video_in", "depth_in", "tex_b"],
-    "outputs": ["video_out"]
-}
-
-
 class DepthDistanceFilterPlugin(EffectPlugin):
-    """P3-VD33: Depth Distance Filter effect port mapped to VJLive3 standards."""
-    
-    def __init__(self) -> None:
+    """
+    DepthDistanceFilter implementation for VJLive3.
+    """
+    def __init__(self):
         super().__init__()
         self._mock_mode = not HAS_GL
         self.prog = None
-        self.ping_pong = 0
-        self.time = 0.0
-        
-        self.textures: Dict[str, Optional[int]] = {"feedback_0": None, "feedback_1": None}
-        self.fbos: Dict[str, Optional[int]] = {"feedback_0": None, "feedback_1": None}
+        self.out_tex = None
+        self.fbo = None
+        self.vao = None
+        self.vbo = None
 
-    def _compile_shader(self):
-        if not HAS_GL: return None
-        try:
-            vertex = gl.glCreateShader(gl.GL_VERTEX_SHADER)
-            gl.glShaderSource(vertex, "#version 330 core\\nlayout(location=0) in vec2 pos; layout(location=1) in vec2 uv; out vec2 v_uv; void main() { gl_Position = vec4(pos, 0.0, 1.0); v_uv = uv; }")
-            gl.glCompileShader(vertex)
-            
-            fragment = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
-            gl.glShaderSource(fragment, DEPTH_DISTANCE_FILTER_FRAGMENT)
-            gl.glCompileShader(fragment)
-            
-            if gl.glGetShaderiv(fragment, gl.GL_COMPILE_STATUS) != gl.GL_TRUE:
-                logger.error(f"Fragment compile failed: {gl.glGetShaderInfoLog(fragment)}")
-                return None
-                
-            prog = gl.glCreateProgram()
-            gl.glAttachShader(prog, vertex)
-            gl.glAttachShader(prog, fragment)
-            gl.glLinkProgram(prog)
-            return prog
-        except Exception as e:
-            logger.error(f"Failed to compile shader locally: {e}")
-            return None
+    def get_metadata(self) -> Dict[str, Any]:
+        return METADATA
 
     def initialize(self, context: PluginContext) -> None:
-        super().initialize(context)
+        if self._mock_mode:
+            return
+
+        try:
+            self._compile_shader()
+            self._setup_quad()
+            self._setup_fbo(1920, 1080)
+        except Exception as e:
+            logger.error(f"Failed to initialize OpenGL in DepthDistanceFilter: {e}")
+            self._mock_mode = True
+
+    def _compile_shader(self):
+        vs = gl.glCreateShader(gl.GL_VERTEX_SHADER)
+        gl.glShaderSource(vs, VERTEX_SHADER)
+        gl.glCompileShader(vs)
+        if not gl.glGetShaderiv(vs, gl.GL_COMPILE_STATUS):
+            raise RuntimeError(f"VS Error: {gl.glGetShaderInfoLog(vs)}")
+
+        fs = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
+        gl.glShaderSource(fs, DEPTH_DISTANCE_FILTER_FRAGMENT)
+        gl.glCompileShader(fs)
+        if not gl.glGetShaderiv(fs, gl.GL_COMPILE_STATUS):
+            raise RuntimeError(f"FS Error: {gl.glGetShaderInfoLog(fs)}")
+
+        self.prog = gl.glCreateProgram()
+        gl.glAttachShader(self.prog, vs)
+        gl.glAttachShader(self.prog, fs)
+        gl.glLinkProgram(self.prog)
+        if not gl.glGetProgramiv(self.prog, gl.GL_LINK_STATUS):
+            raise RuntimeError(f"Program Link Error: {gl.glGetProgramInfoLog(self.prog)}")
+            
+        gl.glDeleteShader(vs)
+        gl.glDeleteShader(fs)
+
+    def _setup_quad(self):
+        vertices = np.array([
+            -1.0, -1.0,  0.0, 0.0,
+             1.0, -1.0,  1.0, 0.0,
+            -1.0,  1.0,  0.0, 1.0,
+             1.0,  1.0,  1.0, 1.0,
+        ], dtype=np.float32)
+        
+        self.vao = gl.glGenVertexArrays(1)
+        self.vbo = gl.glGenBuffers(1)
+        
+        gl.glBindVertexArray(self.vao)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vbo)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices.nbytes, vertices, gl.GL_STATIC_DRAW)
+        
+        gl.glEnableVertexAttribArray(0)
+        gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(0))
+        gl.glEnableVertexAttribArray(1)
+        gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(8))
+        gl.glBindVertexArray(0)
+
+    def _setup_fbo(self, w: int, h: int):
+        self.fbo = gl.glGenFramebuffers(1)
+        self.out_tex = gl.glGenTextures(1)
+        
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.out_tex)
+        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.out_tex, 0)
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+
+    def _bind_uniforms(self, params: Dict[str, Any], w: int, h: int):
+        f_type = params.get("filter_type", "fog")
+        type_idx = 0
+        if f_type == "blur": type_idx = 1
+        elif f_type == "contrast": type_idx = 2
+        elif f_type == "saturation": type_idx = 3
+        elif f_type == "brightness": type_idx = 4
+        
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "filter_type"), type_idx)
+        gl.glUniform2f(gl.glGetUniformLocation(self.prog, "resolution"), float(w), float(h))
+        
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "near_distance"), float(params.get("near_distance", 0.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "far_distance"), float(params.get("far_distance", 1.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "filter_strength"), float(params.get("filter_strength", 0.5)))
+        
+        fc = params.get("fog_color", [0.7, 0.8, 1.0])
+        if not isinstance(fc, list) or len(fc) < 3:
+            fc = [0.7, 0.8, 1.0]
+        gl.glUniform3f(gl.glGetUniformLocation(self.prog, "fog_color"), float(fc[0]), float(fc[1]), float(fc[2]))
+        
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "blur_radius"), int(params.get("blur_radius", 5)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "contrast_shift"), float(params.get("contrast_shift", 0.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "saturation_shift"), float(params.get("saturation_shift", 0.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "brightness_shift"), float(params.get("brightness_shift", 0.0)))
+
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+        if not input_texture or input_texture <= 0:
+             return 0
+             
+        depth_texture = getattr(context, "inputs", {}).get("depth_in", input_texture)
+        
+        if self._mock_mode:
+            if hasattr(context, "outputs"):
+                context.outputs["video_out"] = input_texture
+            return input_texture
+            
+        w, h = getattr(context, 'width', 1920), getattr(context, 'height', 1080)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glViewport(0, 0, w, h)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+        
+        gl.glUseProgram(self.prog)
+        
+        gl.glActiveTexture(gl.GL_TEXTURE0)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex0"), 0)
+        
+        gl.glActiveTexture(gl.GL_TEXTURE1)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, depth_texture)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_tex"), 1)
+        
+        self._bind_uniforms(params, w, h)
+        
+        gl.glBindVertexArray(self.vao)
+        gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
+        gl.glBindVertexArray(0)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+        
+        if hasattr(context, "outputs"):
+            context.outputs["video_out"] = self.out_tex
+            
+        return self.out_tex
+
+    def cleanup(self) -> None:
         if self._mock_mode:
             return
             
         try:
-            self.prog = self._compile_shader()
-            if not self.prog:
-                self._mock_mode = True
-                return
-
-            tex_ids = gl.glGenTextures(2)
-            fbo_ids = gl.glGenFramebuffers(2)
-            if isinstance(tex_ids, int): tex_ids = [tex_ids, tex_ids+1]
-            if isinstance(fbo_ids, int): fbo_ids = [fbo_ids, fbo_ids+1]
-                
-            for i, key in enumerate(self.textures.keys()):
-                self.textures[key] = tex_ids[i]
-                self.fbos[key] = fbo_ids[i]
-                
-            self.vao = gl.glGenVertexArrays(1)
-            self.vbo = gl.glGenBuffers(1)
-            gl.glBindVertexArray(self.vao)
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vbo)
-            
-            quad_data = np.array([
-                -1.0, -1.0,  0.0, 0.0,
-                 1.0, -1.0,  1.0, 0.0,
-                -1.0,  1.0,  0.0, 1.0,
-                 1.0,  1.0,  1.0, 1.0
-            ], dtype=np.float32)
-            
-            gl.glBufferData(gl.GL_ARRAY_BUFFER, quad_data.nbytes, quad_data, gl.GL_STATIC_DRAW)
-            gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(0))
-            gl.glEnableVertexAttribArray(0)
-            gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(8))
-            gl.glEnableVertexAttribArray(1)
-            gl.glBindVertexArray(0)
-            
+            if self.out_tex:
+                gl.glDeleteTextures(1, [self.out_tex])
+                self.out_tex = None
+            if self.fbo:
+                gl.glDeleteFramebuffers(1, [self.fbo])
+                self.fbo = None
+            if self.vbo:
+                gl.glDeleteBuffers(1, [self.vbo])
+                self.vbo = None
+            if self.vao:
+                gl.glDeleteVertexArrays(1, [self.vao])
+                self.vao = None
+            if self.prog:
+                gl.glDeleteProgram(self.prog)
+                self.prog = None
         except Exception as e:
-            logger.warning(f"Failed to initialize GL FBOs inside DepthDistanceFilter: {e}")
-            self._mock_mode = True
-
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
-        if input_texture is None or input_texture == 0:
-            return 0
-            
-        self.time += 0.016
-            
-        if self._mock_mode:
-            context.outputs["video_out"] = input_texture
-            return input_texture
-
-        try:
-            depth_in = context.inputs.get("depth_in", input_texture)
-            tex_b_in = context.inputs.get("tex_b", input_texture)
-
-            gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
-            w = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_WIDTH)
-            h = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_HEIGHT)
-            
-            # Use alternating FBOs to prevent read/write tearing when chained
-            current_fbo = self.fbos[f"feedback_{1 - self.ping_pong}"]
-            current_tex = self.textures[f"feedback_{1 - self.ping_pong}"]
-            
-            gl.glBindTexture(gl.GL_TEXTURE_2D, current_tex)
-            tex_w = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_WIDTH)
-            if tex_w != w:
-                gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
-                gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, current_fbo)
-                gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, current_tex, 0)
-                
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, current_fbo)
-            gl.glViewport(0, 0, w, h)
-            gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-            
-            gl.glUseProgram(self.prog)
-            self._bind_uniforms(params, w, h)
-            
-            # Bind textures
-            gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex0"), 0)
-            
-            gl.glActiveTexture(gl.GL_TEXTURE1)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, depth_in)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_tex"), 1)
-            
-            gl.glActiveTexture(gl.GL_TEXTURE2)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, tex_b_in)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex_b"), 2)
-            
-            # Draw
-            gl.glBindVertexArray(self.vao)
-            gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
-            gl.glBindVertexArray(0)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
-            
-            self.ping_pong = 1 - self.ping_pong
-            context.outputs["video_out"] = current_tex
-            return current_tex
-            
-        except Exception as e:
-            logger.error(f"Render failed: {e}")
-            return input_texture
-
-    def _map_param(self, params, name, out_min, out_max, default_val):
-        val = params.get(name, default_val)
-        return out_min + (val / 10.0) * (out_max - out_min)
-
-    def _bind_uniforms(self, params, w, h):
-        gl.glUniform2f(gl.glGetUniformLocation(self.prog, "resolution"), float(w), float(h))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "time"), float(self.time))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "u_mix"), params.get("u_mix", 1.0))
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "near_clip"), self._map_param(params, 'nearClip', 0.0, 1.0, 1.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "far_clip"), self._map_param(params, 'farClip', 0.0, 1.0, 8.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "edge_softness"), self._map_param(params, 'edgeSoftness', 0.0, 1.0, 3.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "invert"), 1.0 if params.get('invert', 0.0) > 5.0 else 0.0)
-        
-        # Fill modes
-        fill_mode_mapped = self._map_param(params, 'fillMode', 0.0, 10.0, 0.0)
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "fill_mode"), fill_mode_mapped)
-        
-        r = self._map_param(params, 'fillColorR', 0.0, 1.0, 0.0)
-        g = self._map_param(params, 'fillColorG', 0.0, 1.0, 0.0)
-        b = self._map_param(params, 'fillColorB', 0.0, 1.0, 0.0)
-        gl.glUniform3f(gl.glGetUniformLocation(self.prog, "fill_color"), r, g, b)
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "edge_refine"), self._map_param(params, 'edgeRefine', -1.0, 1.0, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "smoothing"), self._map_param(params, 'smoothing', 0.0, 1.0, 3.0))
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "show_mask"), 1.0 if params.get('showMask', 0.0) > 5.0 else 0.0)
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "depth_colorize"), self._map_param(params, 'depthColorize', 0.0, 1.0, 0.0))
-
-    def cleanup(self) -> None:
-        if not self._mock_mode:
-            try:
-                textures_to_delete = [t for t in self.textures.values() if t is not None]
-                if textures_to_delete:
-                    gl.glDeleteTextures(len(textures_to_delete), textures_to_delete)
-                fbos_to_delete = [f for f in self.fbos.values() if f is not None]
-                if fbos_to_delete:
-                    gl.glDeleteFramebuffers(len(fbos_to_delete), fbos_to_delete)
-                if self.prog:
-                    gl.glDeleteProgram(self.prog)
-                if hasattr(self, 'vao') and self.vao:
-                    gl.glDeleteVertexArrays(1, [self.vao])
-                if hasattr(self, 'vbo') and self.vbo:
-                    gl.glDeleteBuffers(1, [self.vbo])
-            except Exception as e:
-                logger.error(f"Error cleaning up FBOs/Textures during DepthDistanceFilter unload: {e}")
-                
-        for k in self.textures:
-            self.textures[k] = None
-            self.fbos[k] = None
+            logger.error(f"Cleanup Error: {e}")

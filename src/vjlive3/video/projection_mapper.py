@@ -27,7 +27,7 @@ class PolygonMask:
     points: List[Tuple[float, float]]  # Normalized 0.0 to 1.0 coordinates
     inverted: bool = False  # True = mask outside, False = mask inside
 
-PROJECTION_FRAGMENT_SHADER = \"\"\"
+PROJECTION_FRAGMENT_SHADER = """
 #version 330 core
 out vec4 FragColor;
 in vec2 TexCoords;
@@ -79,7 +79,7 @@ void main() {
     
     FragColor = color;
 }
-\"\"\"
+"""
 
 class ProjectionMapper:
     """Applies edge blending and masking to a warped slice."""
