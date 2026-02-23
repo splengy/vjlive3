@@ -1,0 +1,750 @@
+# P3-EXT008: ArbharGranularizer (Arbhar Granularizer)
+
+## 📋 Task Overview
+**Port the ArbharGranularizer from VJLive-2 to VJLive3.** This is a GPU-accelerated granular synthesis effect that provides real-time audio-reactive granular processing using compute shaders or fragment shader particle systems.
+
+**Priority:** P0 (Missing Legacy Effect)
+**Estimated Complexity:** 9/10 (Very Advanced: GPU particle system, compute shaders, feedback loops, audio reactivity)
+**Source:** `/home/happy/Desktop/claude projects/VJlive-2/core/effects/arbhar_granularizer.py` (123+ lines, plus shader)
+
+---
+
+## 🎯 Core Concept
+
+The effect is a GPU-accelerated granular synthesizer that:
+
+**GPU Particle System:**
+- Thousands of grains processed in parallel on GPU
+- Each grain is a small video fragment with position, size, age, lifetime
+- Grain spawning, updating, and rendering all on GPU via shader
+
+**Dual Framebuffer Architecture:**
+- **Grain buffer:** Offscreen framebuffer storing grain particles
+- **Feedback buffer:** Optional feedback loop for trail effects
+- Ping-pong rendering between buffers
+
+**Parameter Set:**
+- `intensity` (0.0-10.0): Overall grain spawn rate and activity
+- `grain_size` (0.01-1.0): Size of individual grains (UV scale)
+- `density` (0.0-1.0): Number of grains per frame
+- `spray` (0.0-1.0): Spatial randomness/jitter of grain positions
+- `feedback` (0.0-1.0): Feedback loop amount (trail persistence)
+- `blend` (0.0-1.0): Mix between original and granular output
+- `audio_reactivity` (0.0-1.0): Sensitivity to audio signals
+
+**Audio Reactivity:**
+- Maps audio features to parameters in real-time:
+  - `BEAT_INTENSITY` → `intensity` (2.0 + intensity × 8.0)
+  - `TEMPO` → `grain_size` (0.1 + tempo × 0.9)
+  - `ENERGY` → `density` (0.2 + energy × 0.8)
+  - `BEAT_INTENSITY` → `spray` (intensity × 0.8)
+  - `ENERGY` → `feedback` (density × 0.6)
+  - `BEAT_INTENSITY` → `audio_reactivity`
+
+**Rendering Pipeline:**
+1. Update grain particle system (GPU or CPU-side state)
+2. Render grains to grain buffer (shader)
+3. Apply feedback (optional, blend grain buffer with previous frame)
+4. Composite with current frame using blend factor
+
+---
+
+## 📐 Technical Specification
+
+### 1. File Structure
+
+```
+src/vjlive3/plugins/arbhar_granularizer.py
+shaders/arbhar_granularizer.frag
+tests/plugins/test_arbhar_granularizer.py
+```
+
+**Target size:** ≤ 750 lines (including tests)
+
+### 2. Class Hierarchy
+
+```python
+from typing import Tuple, Optional, Dict, Any
+from OpenGL.GL import glGenFramebuffers, glGenTextures, glBindFramebuffer, glFramebufferTexture2D, GL_FRAMEBUFFER, GL_TEXTURE_2D, glTexImage2D, glTexSubImage2D, glBindTexture, GL_RGB, GL_RGB8, GL_UNSIGNED_BYTE, GL_TEXTURE_MIN_FILTER, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, GL_LINEAR, GL_CLAMP_TO_EDGE, glCheckFramebufferStatus, GL_FRAMEBUFFER_COMPLETE, glDeleteFramebuffers, glDeleteTextures, glActiveTexture, GL_TEXTURE0, GL_TEXTURE1, glUniform1i, glUniform1f, glUniform2f
+
+from ..base import Effect
+
+class Framebuffer:
+    """Simple framebuffer wrapper for offscreen rendering."""
+    def __init__(self, width: int, height: int):
+        self.width = width
+        self.height = height
+        self.fbo = glGenFramebuffers(1)
+        self.texture = glGenTextures(1)
+        self._setup()
+
+    def _setup(self):
+        glBindTexture(GL_TEXTURE_2D, self.texture)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, self.width, self.height, 0, GL_RGB, GL_UNSIGNED_BYTE, None)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+
+        glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, self.texture, 0)
+        assert glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer incomplete"
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+
+    def bind(self):
+        glBindFramebuffer(GL_FRAMEBUFFER, self.fbo)
+        glViewport(0, 0, self.width, self.height)
+
+    def unbind(self):
+        glBindFramebuffer(GL_FRAMEBUFFER, 0)
+
+    def cleanup(self):
+        glDeleteFramebuffers([self.fbo])
+        glDeleteTextures([self.texture])
+
+class ArbharGranularizer(Effect):
+    METADATA = {
+        "id": "arbhar_granularizer",
+        "name": "Arbhar Granularizer",
+        "description": "GPU-accelerated granular synthesis with audio reactivity and feedback loops",
+        "version": "2.0.0",
+        "author": "VJLive-2 Legacy → VJLive3 Port",
+        "tags": ["granular", "synthesis", "gpu", "audio-reactive", "feedback"],
+        "priority": 80,
+        "can_be_disabled": True,
+        "needs_gl_context": True,
+        "size_impact": 30,  # MB (two framebuffers)
+        "performance_impact": 40,  # FPS cost (heavy GPU)
+        "dependencies": ["PyOpenGL"],
+        "license": "proprietary"
+    }
+
+    def __init__(self):
+        super().__init__("arbhar_granularizer", self._get_fragment_shader())
+        # Parameters (0.0-10.0 range, except grain_size/density/spray/feedback/blend are 0-1 mapped)
+        self.params = {
+            "intensity": 5.0,       # 0-10 → grain spawn rate
+            "grain_size": 0.2,      # 0-1 → grain UV scale (0.01-1.0)
+            "density": 0.5,         # 0-1 → grains per frame
+            "spray": 0.3,           # 0-1 → position jitter
+            "feedback": 0.1,        # 0-1 → feedback amount
+            "blend": 0.8,           # 0-1 → mix factor (0=all granular, 1=all original)
+            "audio_reactivity": 0.7 # 0-1 → audio sensitivity
+        }
+        for p in self.params:
+            if p in ["grain_size", "density", "spray", "feedback", "blend", "audio_reactivity"]:
+                self.set_parameter_range(p, 0.0, 1.0)
+            else:
+                self.set_parameter_range(p, 0.0, 10.0)
+
+        # Framebuffers
+        self.grain_buffer: Optional[Framebuffer] = None
+        self.feedback_buffer: Optional[Framebuffer] = None
+        self._frame_width = 1920
+        self._frame_height = 1080
+
+        # Audio reactor
+        self._audio_reactor = None
+
+    def set_frame_size(self, width: int, height: int):
+        """Update framebuffer sizes when resolution changes."""
+        self._frame_width = width
+        self._frame_height = height
+        if self.grain_buffer:
+            self.grain_buffer.delete()
+        if self.feedback_buffer:
+            self.feedback_buffer.delete()
+        self.grain_buffer = Framebuffer(width, height)
+        self.feedback_buffer = Framebuffer(width, height)
+
+    def set_audio_analyzer(self, audio_analyzer):
+        """Set audio analyzer for reactivity."""
+        self._audio_reactor = AudioReactor(audio_analyzer)
+
+    def apply_uniforms(self, time_val: float, resolution: tuple, audio_reactor=None, semantic_layer=None):
+        super().apply_uniforms(time_val, resolution, audio_reactor, semantic_layer)
+
+        # Audio reactivity: map audio features to parameters
+        if audio_reactor is not None:
+            intensity = audio_reactor.get_feature(AudioFeature.BEAT_INTENSITY)
+            tempo = audio_reactor.get_feature(AudioFeature.TEMPO)
+            energy = audio_reactor.get_feature(AudioFeature.ENERGY)
+
+            self.params["intensity"] = 2.0 + intensity * 8.0
+            self.params["grain_size"] = 0.1 + tempo * 0.9
+            self.params["density"] = 0.2 + energy * 0.8
+            self.params["spray"] = intensity * 0.8
+            self.params["feedback"] = energy * 0.6
+            self.params["audio_reactivity"] = intensity
+
+            # Clamp
+            self.params["intensity"] = max(0.0, min(10.0, self.params["intensity"]))
+            for p in ["grain_size", "density", "spray", "feedback", "blend", "audio_reactivity"]:
+                self.params[p] = max(0.0, min(1.0, self.params[p]))
+
+        # Upload uniforms
+        glUniform1f(self.get_uniform_location("intensity"), self.params["intensity"])
+        glUniform1f(self.get_uniform_location("grain_size"), self.params["grain_size"])
+        glUniform1f(self.get_uniform_location("density"), self.params["density"])
+        glUniform1f(self.get_uniform_location("spray"), self.params["spray"])
+        glUniform1f(self.get_uniform_location("feedback"), self.params["feedback"])
+        glUniform1f(self.get_uniform_location("blend"), self.params["blend"])
+        glUniform1f(self.get_uniform_location("audio_reactivity"), self.params["audio_reactivity"])
+
+        # Bind grain buffer texture to texture unit 1
+        if self.grain_buffer:
+            glActiveTexture(GL_TEXTURE1)
+            glBindTexture(GL_TEXTURE_2D, self.grain_buffer.texture)
+            glUniform1i(self.get_uniform_location("u_grain_buffer"), 1)
+
+        # Bind feedback buffer texture to texture unit 2
+        if self.feedback_buffer:
+            glActiveTexture(GL_TEXTURE2)
+            glBindTexture(GL_TEXTURE_2D, self.feedback_buffer.texture)
+            glUniform1i(self.get_uniform_location("u_feedback_buffer"), 2)
+
+    def process_frame(self, frame: np.ndarray, audio_data: Optional[np.ndarray] = None) -> np.ndarray:
+        """Main processing pipeline."""
+        # Step 1: Update grain particle system (GPU compute or CPU-side)
+        self._update_grains()
+
+        # Step 2: Render grains to grain buffer
+        self.grain_buffer.bind()
+        self.apply_uniforms(time.time(), (self._frame_width, self._frame_height), self._audio_reactor)
+        # Draw fullscreen quad with grain shader (grains rendered as particles)
+        self._render_grains_to_buffer()
+        self.grain_buffer.unbind()
+
+        # Step 3: Apply feedback (optional)
+        if self.params["feedback"] > 0.0:
+            self._apply_feedback()
+
+        # Step 4: Composite with current frame
+        output = self._composite_with_frame(frame)
+
+        return output
+
+    def _update_grains(self):
+        """Update grain particle system. Can be GPU compute shader or CPU-side."""
+        # Implementation depends on chosen architecture
+        # Option A: Compute shader updates grain positions/ages
+        # Option B: CPU updates grain state and uploads as uniform arrays
+        pass
+
+    def _render_grains_to_buffer(self):
+        """Render grain particles to grain buffer."""
+        # Bind grain buffer FBO
+        # Use shader that reads grain state and renders grains as sprites
+        # Clear buffer, then draw each grain as textured quad
+        pass
+
+    def _apply_feedback(self):
+        """Apply feedback: blend grain buffer with previous frame."""
+        self.feedback_buffer.bind()
+        # Shader: mix(feedback_buffer_texture, grain_buffer_texture, feedback_amount)
+        self._render_feedback()
+        self.feedback_buffer.unbind()
+
+    def _composite_with_frame(self, frame: np.ndarray) -> np.ndarray:
+        """Composite granular output with original frame."""
+        # Upload current frame to texture
+        # Render fullscreen quad mixing grain buffer and original based on blend parameter
+        # Return numpy array
+        pass
+
+    def _render_feedback(self):
+        """Render feedback pass."""
+        pass
+
+    def get_metadata(self) -> Dict[str, Any]:
+        return self.METADATA
+
+    def __del__(self):
+        if self.grain_buffer:
+            self.grain_buffer.cleanup()
+        if self.feedback_buffer:
+            self.feedback_buffer.cleanup()
+```
+
+### 3. Parameters (0.0-10.0 or 0.0-1.0)
+
+| Parameter | Range | Default | Description |
+|-----------|-------|---------|-------------|
+| `intensity` | 0.0-10.0 | 5.0 | Grain spawn rate and activity |
+| `grain_size` | 0.0-1.0 | 0.2 | Size of individual grains (0.01-1.0) |
+| `density` | 0.0-1.0 | 0.5 | Number of grains per frame |
+| `spray` | 0.0-1.0 | 0.3 | Spatial randomness/jitter |
+| `feedback` | 0.0-1.0 | 0.1 | Feedback loop amount (trail persistence) |
+| `blend` | 0.0-1.0 | 0.8 | Mix: 0=all granular, 1=all original |
+| `audio_reactivity` | 0.0-1.0 | 0.7 | Sensitivity to audio signals |
+
+**Total:** 7 user-facing parameters
+
+### 4. GLSL Shaders
+
+**Main Fragment Shader (grain rendering):**
+
+```glsl
+#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform sampler2D u_grain_buffer;  // Previous grain buffer
+uniform sampler2D u_feedback_buffer; // Feedback buffer
+uniform float u_time;
+uniform vec2 u_resolution;
+
+// Parameters
+uniform float u_intensity;      // 0-10
+uniform float u_grain_size;    // 0-1
+uniform float u_density;       // 0-1
+uniform float u_spray;         // 0-1
+uniform float u_feedback;      // 0-1
+uniform float u_blend;         // 0-1
+uniform float u_audio_reactivity; // 0-1
+
+// Grain particle state (if using uniform arrays)
+#define MAX_GRAINS 1024
+uniform int u_num_grains;
+uniform vec3 u_grains[MAX_GRAINS];  // x, y, age/lifetime
+
+// Hash function
+float hash(vec2 p);
+
+void main() {
+    vec4 color = vec4(0.0);
+
+    // Render each grain as a sprite
+    for (int i = 0; i < u_num_grains; i++) {
+        vec2 grain_uv = u_grains[i].xy;
+        float grain_age = u_grains[i].z;
+
+        // Distance from current pixel to grain center
+        float dist = distance(uv, grain_uv);
+
+        // Grain radius based on grain_size
+        float radius = u_grain_size * 0.1;
+
+        // Circular grain with soft edge
+        if (dist < radius) {
+            float alpha = 1.0 - smoothstep(0.0, radius, dist);
+            alpha *= grain_age;  // Fade with age
+
+            // Sample from grain buffer at grain position (or use noise texture)
+            vec4 grain_color = texture(u_grain_buffer, grain_uv);
+            color += grain_color * alpha * u_intensity * 0.1;
+        }
+    }
+
+    // Apply feedback: mix with previous frame
+    if (u_feedback > 0.0) {
+        vec4 feedback_color = texture(u_feedback_buffer, uv);
+        color = mix(color, feedback_color, u_feedback * 0.9);
+    }
+
+    fragColor = color;
+}
+```
+
+**Feedback Shader:**
+
+```glsl
+#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform sampler2D u_feedback_buffer;
+uniform sampler2D u_grain_buffer;
+uniform float u_feedback;
+
+void main() {
+    vec4 prev = texture(u_feedback_buffer, uv);
+    vec4 current = texture(u_grain_buffer, uv);
+    fragColor = mix(prev, current, 1.0 - u_feedback * 0.9);
+}
+```
+
+**Composite Shader:**
+
+```glsl
+#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform sampler2D u_original_frame;
+uniform sampler2D u_grain_buffer;
+uniform float u_blend;  // 0=all granular, 1=all original
+
+void main() {
+    vec4 original = texture(u_original_frame, uv);
+    vec4 granular = texture(u_grain_buffer, uv);
+    fragColor = mix(granular, original, u_blend);
+}
+```
+
+### 5. Architecture Options
+
+**Option A: Compute Shader (Preferred)**
+- Use OpenGL compute shader for grain particle updates
+- SSBO (Shader Storage Buffer Object) stores grain state
+- GPU updates all grains in parallel
+- Highest performance, lowest CPU overhead
+
+**Option B: Transform Feedback**
+- Use vertex shader to update grain positions
+- Transform feedback captures updated positions
+- Good balance of GPU/CPU
+
+**Option C: CPU-side Uniform Arrays**
+- CPU updates grain arrays and uploads as uniforms each frame
+- Limited to ~1024 grains (uniform limits)
+- Simpler to implement, lower performance
+
+**Recommendation:** Start with Option C (uniform arrays) for simplicity, optimize to compute shader later if needed.
+
+### 6. Grain Particle System
+
+**Grain State (per grain):**
+- `x, y`: Position in normalized UV space (0-1)
+- `age`: Current age in frames (0 to lifetime)
+- `lifetime`: Total lifetime in frames
+- `size`: Individual grain size multiplier
+- `velocity_x, velocity_y`: Optional velocity for movement
+
+**Grain Spawn:**
+- Spawn count per frame = `density` × `intensity` × constant
+- Random position within frame
+- Random lifetime (e.g., 30-120 frames)
+- Initial age = 0
+
+**Grain Update (per frame):**
+- Age += 1
+- Position += velocity × spray
+- If age > lifetime, deactivate grain
+
+**Grain Rendering:**
+- Render each active grain as a sprite (textured quad or procedural noise)
+- Use point sprites or instanced quads for efficiency
+
+### 7. Audio Reactivity Mapping
+
+```python
+def _map_audio_to_parameters(self, audio_reactor):
+    if audio_reactor is None:
+        return
+
+    intensity = audio_reactor.get_feature(AudioFeature.BEAT_INTENSITY)  # 0-1
+    tempo = audio_reactor.get_feature(AudioFeature.TEMPO)  # 0-1
+    energy = audio_reactor.get_feature(AudioFeature.ENERGY)  # 0-1
+
+    # Map to parameters
+    self.params["intensity"] = 2.0 + intensity * 8.0
+    self.params["grain_size"] = 0.1 + tempo * 0.9
+    self.params["density"] = 0.2 + energy * 0.8
+    self.params["spray"] = intensity * 0.8
+    self.params["feedback"] = energy * 0.6
+    self.params["audio_reactivity"] = intensity
+
+    # Clamp
+    self.params["intensity"] = max(0.0, min(10.0, self.params["intensity"]))
+    for p in ["grain_size", "density", "spray", "feedback", "blend", "audio_reactivity"]:
+        self.params[p] = max(0.0, min(1.0, self.params[p]))
+```
+
+### 8. Presets (5 Minimum)
+
+1. **default**: intensity=5.0, grain_size=0.2, density=0.5, spray=0.3, feedback=0.1, blend=0.8, audio_reactivity=0.7
+2. **dense_grains**: intensity=8.0, grain_size=0.3, density=0.9, spray=0.2, feedback=0.0, blend=0.7, audio_reactivity=0.8
+3. **chaotic_spray**: intensity=6.0, grain_size=0.4, density=0.6, spray=0.9, feedback=0.3, blend=0.6, audio_reactivity=0.6
+4. **feedback_heavy**: intensity=4.0, grain_size=0.2, density=0.4, spray=0.1, feedback=0.9, blend=0.5, audio_reactivity=0.5
+5. **subtle_blend**: intensity=3.0, grain_size=0.1, density=0.2, spray=0.1, feedback=0.0, blend=0.95, audio_reactivity=0.4
+
+---
+
+## 🧪 Test Plan
+
+### Unit Tests (≥ 80% coverage)
+
+**test_arbhar_granularizer.py**
+
+1. **Parameter System**
+   - `test_all_7_parameters_present()`
+   - `test_parameter_range_clamping()`
+   - `test_set_parameter_valid()`
+   - `test_parameter_defaults_correct()`
+
+2. **Framebuffer Management**
+   - `test_framebuffer_creation()`
+   - `test_framebuffer_bind_unbind()`
+   - `test_framebuffer_cleanup()`
+   - `test_set_frame_size_creates_new_buffers()`
+
+3. **Audio Reactivity**
+   - `test_audio_mapping_intensity_from_beat()`
+   - `test_audio_mapping_grain_size_from_tempo()`
+   - `test_audio_mapping_density_from_energy()`
+   - `test_audio_mapping_spray_from_beat()`
+   - `test_audio_mapping_feedback_from_energy()`
+   - `test_audio_reactivity_clamps_parameters()`
+
+4. **Shader Integration**
+   - `test_apply_uniforms_sets_all_parameters()`
+   - `test_apply_uniforms_binds_buffers()`
+   - `test_apply_uniforms_without_audio_reactor()`
+
+5. **Processing Pipeline**
+   - `test_process_frame_returns_correct_shape()`
+   - `test_process_frame_calls_update_grains()`
+   - `test_process_frame_applies_feedback_when_enabled()`
+   - `test_process_frame_composites_with_blend()`
+
+6. **Grain System (Option C uniform arrays)**
+   - `test_grain_spawn_increases_count()`
+   - `test_grain_update_ages_grains()`
+   - `test_grain_death_when_age_exceeds_lifetime()`
+   - `test_grain_max_count_respected()`
+
+### Performance Tests
+
+- `test_fps_above_60_with_default_settings()`: Render 60s, assert FPS ≥ 60
+- `test_fps_above_60_with_max_density()`: Render with density=1.0, assert FPS ≥ 50
+- `test_memory_under_100mb()`: Two framebuffers at 1080p ≈ 2 × 6MB = 12MB, well under limit
+- `test_framebuffer_upload_time_under_2ms()`: Measure FBO bind/unbind overhead
+
+### Visual Regression Tests
+
+- Render reference frames for each preset
+- Compare against golden images (ΔE < 2.0)
+- Test feedback: render with feedback=0 vs feedback=0.9
+
+---
+
+## ⚙️ Implementation Notes
+
+### 1. Framebuffer Management
+
+Two framebuffers are needed:
+- **grain_buffer:** Stores rendered grain particles
+- **feedback_buffer:** Stores previous frame for feedback loop
+
+Both are same resolution as output. Memory: 2 × (1920×1080×3) ≈ 12 MB, negligible.
+
+### 2. Grain System Architecture
+
+**Option C (Uniform Arrays) - Simpler:**
+```python
+MAX_GRAINS = 1024
+self.grain_data = np.zeros((MAX_GRAINS, 3), dtype=np.float32)  # x, y, age
+self.grain_lifetimes = np.zeros(MAX_GRAINS, dtype=np.float32)
+self.active_grains = 0
+
+def _update_grains(self):
+    # Spawn new grains based on density
+    spawn_count = int(self.params["density"] * self.params["intensity"] * 10)
+    for _ in range(spawn_count):
+        if self.active_grains < MAX_GRAINS:
+            self.grain_data[self.active_grains, 0] = random.random()  # x
+            self.grain_data[self.active_grains, 1] = random.random()  # y
+            self.grain_data[self.active_grains, 2] = 0.0  # age
+            self.grain_lifetimes[self.active_grains] = random.uniform(30, 120)
+            self.active_grains += 1
+
+    # Update existing grains
+    for i in range(self.active_grains):
+        self.grain_data[i, 2] += 1  # age
+        # Apply spray to position
+        self.grain_data[i, 0] += (random.random() - 0.5) * self.params["spray"] * 0.01
+        self.grain_data[i, 1] += (random.random() - 0.5) * self.params["spray"] * 0.01
+        # Clamp to 0-1
+        self.grain_data[i, 0] = max(0.0, min(1.0, self.grain_data[i, 0]))
+        self.grain_data[i, 1] = max(0.0, min(1.0, self.grain_data[i, 1]))
+
+    # Remove dead grains
+    alive = []
+    for i in range(self.active_grains):
+        if self.grain_data[i, 2] < self.grain_lifetimes[i]:
+            alive.append(i)
+    # Compact arrays...
+```
+
+Upload to shader:
+```python
+glUniform3fv(loc_grain_positions, MAX_GRAINS, self.grain_data)
+glUniform1i(loc_num_grains, self.active_grains)
+```
+
+### 3. Rendering Pipeline Details
+
+**Step 1: _update_grains()**
+- CPU updates grain state (or compute shader)
+- Upload grain arrays to GPU
+
+**Step 2: _render_grains_to_buffer()**
+- Bind grain_buffer.fbo
+- Clear to transparent
+- Use shader that loops over grains and renders sprites
+- Can use point sprites or instanced quads
+- Unbind FBO
+
+**Step 3: _apply_feedback()**
+- Bind feedback_buffer.fbo
+- Render fullscreen quad mixing previous feedback with new grain buffer
+- Shader: `mix(prev, grain_buffer, feedback_amount)`
+- Unbind FBO
+
+**Step 4: _composite_with_frame(frame)**
+- Upload frame to texture
+- Render fullscreen quad mixing grain_buffer (or feedback_buffer) with original frame using blend parameter
+- Read back pixels with `glReadPixels` to return numpy array
+- **Optimization:** In production, this could be done as final pass to screen, not readback
+
+### 4. Shader Design
+
+**Grain Rendering Shader:**
+- Takes grain state as uniform arrays
+- For each grain, calculate distance from pixel to grain center
+- If within radius, draw grain with soft edge
+- Grain color can be sampled from grain_buffer itself (recursive) or from noise texture
+
+**Feedback Shader:**
+- Simple mix between two textures
+
+**Composite Shader:**
+- Mix between granular result and original frame
+
+### 5. Performance Considerations
+
+- **Grain count:** 1024 max is safe for uniform arrays. More would need SSBO.
+- **Framebuffer bandwidth:** Two FBOs, but resolution is full HD. Should be fine.
+- **Draw calls:** One fullscreen quad per pass (3 passes total = 3 draw calls)
+- **Uniform upload:** Grain arrays (1024 × 3 floats = 3072 floats) per frame, acceptable.
+- **Readback:** `glReadPixels` is slow. In production, avoid readback; render directly to screen or use PBOs.
+
+### 6. Memory Management
+
+- Two framebuffers: ~12 MB at 1080p
+- Grain arrays: ~12 KB (1024 × 3 × 4 bytes)
+- Minimal overhead
+
+Clean up in `__del__` by calling `cleanup()` on framebuffers.
+
+---
+
+## 🔒 Safety Rails Compliance
+
+| Rail | Status | Notes |
+|------|--------|-------|
+| **60 FPS Sacred** | ⚠️ Conditional | Target: 60 FPS with ≤ 512 grains; 1024 grains may drop to 50 FPS (marginal) |
+| **Offline-First** | ✅ Compliant | No network calls |
+| **Plugin Integrity** | ✅ Compliant | `METADATA` present; inherits from `Effect` |
+| **750-Line Limit** | ✅ Compliant | Estimated: 400 lines (effect) + 200 lines (shaders) + 300 lines (tests) = 900 → consolidate |
+| **Test Coverage ≥80%** | ✅ Planned | 25+ unit tests |
+| **No Silent Failures** | ✅ Compliant | Errors raise exceptions; FBO completeness checked |
+| **Resource Leak Prevention** | ✅ Compliant | Framebuffers cleaned up in `__del__` |
+| **Backward Compatibility** | ✅ Compliant | Parameter names match legacy |
+| **Security** | ✅ Compliant | No user input in shader |
+
+**⚠️ FPS Risk:** Grain rendering can be expensive with many particles. **Mitigation:** Start with 512 grain limit, increase to 1024 only if FPS allows. Use early fragment discard in shader.
+
+---
+
+## 🎨 Legacy Reference Analysis
+
+**Original Implementation:** `VJLive-2/core/effects/arbhar_granularizer.py` (ShaderBasedEffect)
+
+**Key features preserved:**
+- ✅ GPU-accelerated granular synthesis
+- ✅ 7 parameters: intensity, grain_size, density, spray, feedback, blend, audio_reactivity
+- ✅ Audio reactivity mapping (BEAT_INTENSITY, TEMPO, ENERGY)
+- ✅ Dual framebuffer architecture (grain buffer + feedback)
+- ✅ Feedback loop for trails
+- ✅ Blend control for mixing
+
+**Differences from legacy:**
+- Legacy uses custom `ShaderBasedEffect` base; VJLive3 uses standardized `Effect`
+- Legacy may have compute shader integration; VJLive3 will start with uniform arrays for simplicity
+- Legacy has `_update_grains()` and `_apply_feedback()` stubs; VJLive3 implements them fully
+- Legacy uses `Framebuffer` class; VJLive3 implements similar wrapper
+
+**Porting confidence:** 80% — GPU architecture is well-defined but requires careful shader design and performance tuning.
+
+---
+
+## 🚀 Implementation Phases
+
+### Phase 1: Foundation (Days 1-2)
+- [ ] Create `src/vjlive3/plugins/arbhar_granularizer.py`
+- [ ] Implement `Framebuffer` helper class
+- [ ] Initialize effect with 7 parameters
+- [ ] Implement `set_frame_size()` to create FBOs
+- [ ] Write basic unit tests for framebuffer
+
+### Phase 2: Core Rendering (Days 3-4)
+- [ ] Implement grain particle system (Option C: uniform arrays)
+- [ ] Write GLSL shaders: grain render, feedback, composite
+- [ ] Implement `_update_grains()` (CPU-side)
+- [ ] Implement `_render_grains_to_buffer()`
+- [ ] Implement `_apply_feedback()`
+- [ ] Implement `_composite_with_frame()`
+- [ ] Test shader compilation and basic rendering
+
+### Phase 3: Advanced Features (Days 5-6)
+- [ ] Implement audio reactivity in `apply_uniforms()`
+- [ ] Optimize grain rendering (use point sprites or instancing)
+- [ ] Implement preset system (5 presets)
+- [ ] Add performance tuning (grain count, batch rendering)
+- [ ] Complete unit tests
+
+### Phase 4: Testing & Validation (Days 7-8)
+- [ ] Complete all 25+ unit tests
+- [ ] Performance tests: FPS ≥ 60 (default), ≥ 50 (max density)
+- [ ] Visual regression tests for all presets
+- [ ] Audio reactivity test with synthetic signals
+- [ ] Memory leak test
+- [ ] Full test coverage ≥ 80%
+- [ ] Run `pytest --cov=src/vjlive3/plugins/arbhar_granularizer`
+
+---
+
+## ✅ Acceptance Criteria
+
+1. **Functional completeness:** All 7 parameters work; grain system spawns/updates; audio reactivity functional; feedback loop works
+2. **Performance:** ≥ 60 FPS with default settings; ≥ 50 FPS with max density; ≤ 100ms frame processing
+3. **Quality:** ≥ 80% test coverage; no memory leaks; no silent failures
+4. **Legacy parity:** Feature-for-feature match with VJLive-2 implementation
+5. **Safety:** Passes all safety rails; shaders compile; no GPU hangs
+6. **Documentation:** Code fully typed; docstrings present; METADATA complete
+
+---
+
+## 🔗 Dependencies
+
+- **Python:** `numpy`, `PyOpenGL`, `PyOpenGL_accelerate`
+- **Internal:** `src/vjlive3/plugins/base.py`, `src/vjlive3/audio/engine.py`
+- **Tests:** `pytest`, `pytest-cov`, `pytest-benchmark`
+
+---
+
+## 📊 Success Metrics
+
+- **Lines:** ≤ 400 (effect) + 200 (shaders) + 300 (tests) = 900 (consolidate to ≤ 750)
+- **Test coverage:** ≥ 80%
+- **FPS:** ≥ 60 (default), ≥ 50 (max)
+- **Memory:** ≤ 100 MB
+- **Grain count:** Up to 1024 active grains
+- **Audio latency:** ≤ 50ms
+
+---
+
+## 📝 Notes for Implementation Engineer
+
+- **Read legacy file carefully:** Understand the dual framebuffer architecture and feedback loop.
+- **Start simple:** Use uniform arrays for grain state (Option C). It's easier to get right. Optimize to compute shader later if needed.
+- **Framebuffer completeness:** Always check `glCheckFramebufferStatus` after setup.
+- **Grain rendering:** Use point sprites for simplicity: `gl_PointSize = grain_size; gl_Position = ...;` then fragment shader draws circular sprite.
+- **Feedback:** The feedback loop creates trails. Be careful with initialization (clear buffers on first frame).
+- **Audio reactivity:** The mapping formulas are given. Replicate exactly.
+- **Performance:** Profile grain count. If FPS < 60, reduce MAX_GRAINS to 512 or 256.
+- **Readback optimization:** `glReadPixels` is slow. In production, consider rendering directly to screen or using PBOs for async readback.
+
+**This is a complex GPU effect. Take it step by step: framebuffers → grain system → shaders → audio → feedback → composite.**

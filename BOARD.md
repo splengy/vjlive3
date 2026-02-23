@@ -88,9 +88,9 @@
 | P3-EXT006 | analog_tv (AnalogTVEffect) | P0 | ✅ Done | `src/vjlive3/plugins/analog_tv.py` — AnalogTVPlugin, 21 tests ✅ 2026-02-23 |
 | P3-EXT007 | arbhar_granular_engine (ArbharGranularEngine) | P0 | ✅ Done | `src/vjlive3/plugins/arbhar_granular_engine.py` — ArbharGranularEnginePlugin, 19 tests ✅ 2026-02-23 |
 | P3-EXT008 | arbhar_granularizer (ArbharGranularizer) | P0 | ✅ Done | `src/vjlive3/plugins/arbhar_granularizer.py` — ArbharGranularizerPlugin, 22 tests ✅ 2026-02-23 |
-| P3-EXT009 | raymarched_scenes (AudioReactiveRaymarchedScenes) | P0 | ✅ Done | *(duplicate — AudioReactiveRaymarchedScenes already shipped in P4/P5/P6/P7)* |
-| P3-EXT010 | audio_reactive_effects (AudioSpectrumTrails) | P0 | ✅ Done | *(duplicate — AudioSpectrumTrails already shipped in P4/P5/P6/P7)* |
-| P3-EXT011 | background_subtraction (BackgroundSubtractionEffect) | P0 | ✅ Done | *(duplicate — BackgroundSubtractionEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT009 | raymarched_scenes (AudioReactiveRaymarchedScenes) | P0 | ✅ Done | `src/vjlive3/plugins/audio_reactive_raymarched_scenes.py` — 14 tests ✅ 2026-02-23 |
+| P3-EXT010 | audio_reactive_effects (AudioSpectrumTrails) | P0 | ✅ Done | `src/vjlive3/plugins/audio_spectrum_trails.py` — 19 tests ✅ 2026-02-23 |
+| P3-EXT011 | background_subtraction (BackgroundSubtractionEffect) | P0 | ✅ Done | `src/vjlive3/plugins/background_subtraction.py` — 16 tests ✅ 2026-02-23 |
 | P3-EXT012 | depth_effects (BackgroundSubtractionEffect) | P0 | ✅ Done | *(duplicate — BackgroundSubtractionEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT013 | bad_trip_datamosh (BadTripDatamoshEffect) | P0 | ✅ Done | *(duplicate — BadTripDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT014 | bass_cannon_datamosh (BassCannonDatamoshEffect) | P0 | ✅ Done | *(duplicate — BassCannonDatamoshEffect already shipped in P4/P5/P6/P7)* |

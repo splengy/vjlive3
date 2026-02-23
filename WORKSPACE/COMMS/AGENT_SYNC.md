@@ -375,3 +375,74 @@ Awaiting next MCP task assignment.
 
 ## Next Steps
 Awaiting next MCP task assignment.
+
+---
+
+### 2026-02-23 00:20 - Beta
+**Module**: `P3-VD58 Depth Mosh Nexus Effect`
+**Status**: DONE
+**Coverage**: 90%+ (7/7 tests passed)
+
+## Completion State
+- Full EffectPlugin with dual-depth ping-pong temporal feedback pipeline implemented natively.
+- Loop-modulated displacement (loopIn/loopOut) ported faithfully from legacy DepthMoshNexus.
+- Neural feedback and synesthetic color tinting via HSV mapping tightly integrated cleanly.
+- Safety Rail #1: no unbounded loops — hash-based chaos function only.
+- Safety Rail #7: depth presence flags guard all depth-conditional branches.
+- Safety Rail #8: _free_fbos() explicitly deletes all GPU resources on cleanup.
+
+## Next Steps
+Awaiting next MCP task assignment.
+
+---
+
+### 2026-02-23 00:30 - Beta
+**Module**: `P3-VD59 Depth Motion Transfer Effect`
+**Status**: DONE
+**Coverage**: 90%+ (9/9 tests passed)
+
+## Completion State
+- CPU temporal depth-differencing motion field (prev_depth delta * Sobel gradient) ported faithfully.
+- GPU displacement shader with three force modes: radial, directional, curl/swirl.
+- Chromatic color smear along displacement vector retained from legacy.
+- Ping-pong FBO temporal feedback for persistent displacement trails.
+- Safety Rail #1: Sobel ksize fixed at 3; Gaussian blur kernel bounded at max 31x31.
+- Safety Rail #7: has_motion flag guards all motion-dependent branches.
+- Safety Rail #8: _free_resources() explicitly cleans all textures and FBOs.
+
+## Next Steps
+Awaiting next MCP task assignment.
+
+---
+
+### 2026-02-23 01:00 - Beta
+**Module**: `P3-VD61 Depth Particle Shred Effect`
+**Status**: DONE
+**Coverage**: 90%+ (8/8 tests passed — must run isolated to avoid coverage hang from sibling test files)
+
+## Completion State
+- GPGPU GL_POINTS approach: NxN UV grid VBO streamed to vertex shader which reads depth texture.
+- Depth-driven explosion displacement computed fully in GLSL (no CPU particle sim — Safety Rail #1).
+- Two-pass render: particle FBO then composite FBO with trail ping-pong.
+- Safety Rail #7: has_depth flag, depth_in guard.
+- Safety Rail #8: _free() method deletes all FBOs, textures, VAO, VBO on cleanup.
+
+## Next Steps
+Awaiting next MCP task assignment.
+
+---
+
+### 2026-02-23 01:30 - Beta
+**Module**: `P4-AU02 Audio Particle System`
+**Status**: DONE
+**Coverage**: 14/14 tests passed, >80%
+
+## Completion State
+- CPU particle sim (≤100 particles, velocity + position update, frequency band energy modulation)
+- Fragment shader renders soft-edge circles + trails via uniform arrays
+- Audio pulled from `context.inputs["audio_data"]` (bass/mid/treble/volume/spectrum)
+- Safety Rail #1: particle count bounded to MAX_PARTICLES=100
+- Safety Rail #8: cleanup() deletes program and VAO
+
+## Next Steps
+Proceeding to P4-AU03 AudioWaveformDistortion.
