@@ -922,7 +922,7 @@
 | P3-VD29 | Depth Camera Splitter (DepthCameraSplitterEffect) | P0 | ✅ Done | Implemented |
 | P3-VD30 | Depth Color Grade (DepthColorGradeEffect) | P0 | ✅ Done | Implemented |
 | P3-VD31 | Depth Contour Datamosh (DepthContourDatamoshEffect) | P0 | ✅ Done | Implemented |
-| P3-VD32 | Depth Data Mux (DepthDataMuxEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD32 | Depth Data Mux (DepthDataMuxEffect) | P0 | ✅ Done | Implemented |
 | P3-VD33 | Depth Distance Filter (DepthDistanceFilterEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ◯ Todo | VJlive-2 |

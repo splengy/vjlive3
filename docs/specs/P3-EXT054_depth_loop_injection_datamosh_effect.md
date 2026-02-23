@@ -1,83 +1,209 @@
-# P3-EXT054: Depth Loop Injection Datamosh Effect
+# P3-EXT054 Depth Loop Injection Datamosh Effect
 
 ## What This Module Does
-Creates a datamosh effect that injects looped patterns based on depth information. The effect creates repeating, glitchy patterns that are modulated by depth, producing a sense of depth-based rhythmic corruption. Useful for creating hypnotic, looping datamosh visuals.
+
+Depth Loop Injection Datamosh Effect creates datamosh effects where video frames are looped and injected back into the stream with depth-based modulation. This creates complex temporal distortions where different depth regions experience different loop behaviors, producing unique glitch art with depth-aware temporal manipulation.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthLoopInjectionDatamosh",
-    "version": "3.0.0",
-    "description": "Loop-based datamosh with depth modulation",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "datamosh",
-    "tags": ["depth", "datamosh", "loop", "injection", "rhythmic"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Loop Injection Datamosh Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Creates depth-modulated loop injection datamosh effects",
+    "category": "Depth Effects",
+    "tags": ["depth", "datamosh", "loop", "temporal", "injection"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "loop_count": {
+            "type": "integer",
+            "min": 1,
+            "max": 10,
+            "default": 3,
+            "description": "Number of loop iterations"
+        },
+        "loop_length": {
+            "type": "float",
+            "min": 0.01,
+            "max": 5.0,
+            "default": 0.5,
+            "description": "Length of each loop in seconds"
+        },
+        "loop_delay": {
+            "type": "float",
+            "min": 0.0,
+            "max": 5.0,
+            "default": 0.0,
+            "description": "Delay before loop injection"
+        },
+        "loop_injection": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Amount of loop injection"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth affects loop intensity"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "motion_sensitivity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Sensitivity to motion in loop injection"
+        },
+        "color_shift": {
+            "type": "float",
+            "min": -180.0,
+            "max": 180.0,
+            "default": 0.0,
+            "description": "Hue shift for looped frames"
+        },
+        "contrast_adjust": {
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Contrast adjustment for loops"
+        },
+        "brightness_adjust": {
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Brightness adjustment for loops"
+        },
+        "glitch_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Amount of glitch corruption in loops"
+        },
+        "glitch_pattern": {
+            "type": "enum",
+            "options": ["random", "scanline", "block", "pixel_sort", "compression"],
+            "default": "random",
+            "description": "Type of glitch pattern"
+        },
+        "feedback_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Amount of feedback in loop system"
+        },
+        "feedback_mode": {
+            "type": "enum",
+            "options": ["additive", "multiply", "screen", "difference", "xor"],
+            "default": "additive",
+            "description": "Blending mode for feedback"
+        },
+        "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 1000000,
+            "default": 42,
+            "description": "Random seed for loop patterns"
+        }
+    }
 }
 ```
 
-### Parameters
-- `loop_period: int` (default: 30, min: 5, max: 120) - Loop length in frames
-- `injection_strength: float` (default: 0.5, min: 0.0, max: 1.0) - How strongly loops are injected
-- `depth_modulation: float` (default: 0.7, min: 0.0, max: 1.0) - Depth's influence on injection pattern
-- `glitch_probability: float` (default: 0.1, min: 0.0, max: 0.5) - Chance of random glitches per frame
-- `pattern_scale: int` (default: 8, min: 2, max: 32) - Size of datamosh blocks
-- `loop_blend_mode: str` (default: "additive", options: ["additive", "alpha", "multiply"]) - How loops blend
-- `phase_shift: float` (default: 0.0, min: 0.0, max: 1.0) - Phase offset for loop start
-- `depth_threshold: float` (default: 0.3, min: 0.0, max: 1.0) - Minimum depth for injection
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `frame_count: int` (optional) - Current frame number for loop synchronization
-
-### Outputs
-- `video: Frame` (same format as input) - Video with loop injection datamosh
-
 ## What It Does NOT Do
-- Does NOT support arbitrary loop lengths beyond frame-based period
-- Does NOT perform audio-synced looping (frame count only)
-- Does NOT include loop point editing or manual control
-- Does NOT handle HDR metadata preservation
-- Does NOT support multiple simultaneous loops
-- Does NOT include loop visualization or debugging
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform audio-reactive loop timing
+- Does not support external loop sources
+- Does not handle infinite recursion (limited by loop_count)
 
 ## Test Plan
-1. Unit tests for loop buffer management
-2. Verify injection pattern follows depth modulation
-3. Test loop_period and phase_shift interactions
-4. Performance: ≥ 60 FPS at 1080p
-5. Memory: < 150MB additional RAM (loop buffers)
-6. Visual: verify looping creates rhythmic datamosh patterns
+
+1. **Loop Count Tests:**
+   - Test with single loop (no repetition)
+   - Test with maximum 10 loops
+   - Test with different loop counts
+
+2. **Loop Length Tests:**
+   - Test with very short loops (0.01s)
+   - Test with medium loops (0.5s)
+   - Test with long loops (5.0s)
+   - Test with different loop lengths
+
+3. **Loop Delay Tests:**
+   - Test with no delay (instant injection)
+   - Test with various delay times
+   - Test with maximum delay
+
+4. **Loop Injection Tests:**
+   - Test with zero injection (no effect)
+   - Test with maximum injection (full loop)
+   - Test with different injection amounts
+
+5. **Depth Response Tests:**
+   - Test linear depth response
+   - Test exponential depth response
+   - Test logarithmic depth response
+   - Test different exponent values
+
+6. **Glitch Pattern Tests:**
+   - Test random pattern generation
+   - Test scanline-based datamosh
+   - Test block-based datamosh
+   - Test pixel sort datamosh
+   - Test compression-based datamosh
+
+7. **Feedback Tests:**
+   - Test with no feedback
+   - Test with different feedback amounts
+   - Test with different feedback modes
+
+8. **Performance Tests:**
+   - Measure FPS with different loop counts
+   - Test with various resolutions
+   - Verify memory usage with multiple loops
+
+9. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth loop transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Maintain a circular buffer of previous frames of size loop_period
-- For each frame, compute injection weight based on depth and loop phase
-- Loop phase = ((frame_count + phase_shift) % loop_period) / loop_period
-- For each macroblock of size pattern_scale:
-  - If depth > depth_threshold and injection_weight > random:
-    - Replace with frame from loop buffer at phase offset
-    - Apply glitch effects if glitch_probability triggers
-- Blend injected blocks with original using loop_blend_mode
-- Use depth_modulation to scale injection_strength based on depth
-- Optimize with block-based processing and buffer reuse
-- Follow SAFETY_RAILS: cap buffer size, handle edge cases
+
+- Use frame buffer ping-pong for loop accumulation
+- Implement efficient depth-based loop modulation
+- Support real-time parameter adjustment
+- Provide loop preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_loop_injection_datamosh.py`
-- `tests/effects/test_depth_loop_injection_datamosh.py`
-- `docs/plugins/depth_loop_injection_datamosh.md`
+
+- `src/vjlive3/plugins/depth_loop_injection_datamosh.py` - Main plugin implementation
+- `tests/plugins/test_depth_loop_injection_datamosh.py` - Comprehensive test suite
+- `docs/plugins/depth_loop_injection_datamosh.md` - User documentation
+- `shaders/depth_loop_injection_datamosh.glsl` - GPU shader for loop processing
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Loop injection works with depth modulation
-- [x] Looping behavior is consistent
-- [x] 60 FPS at 1080p
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Depth-modulated loop injection with configurable parameters
+- ✅ Multiple loop counts and lengths with smooth transitions
+- ✅ Various glitch patterns and feedback options
+- ✅ Real-time performance with minimal FPS impact
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

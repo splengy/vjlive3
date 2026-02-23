@@ -1,87 +1,219 @@
-# P3-EXT055: Depth Mesh Effect
+# P3-EXT055 Depth Mesh Effect
 
 ## What This Module Does
-Generates a 3D mesh from the depth buffer and renders it with various visual effects. Creates a wireframe or solid mesh representation of the depth geometry, useful for visualizing depth structure or creating stylized 3D effects. The mesh can be rendered with different materials, lighting, and animation.
+
+Depth Mesh Effect generates 3D mesh structures based on depth information, creating wireframe or solid mesh visualizations that represent the depth structure of the scene. The effect converts depth data into geometric mesh representations, allowing for complex 3D visualizations that can be rendered over or instead of the original video.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthMeshEffect",
-    "version": "3.0.0",
-    "description": "3D mesh generation from depth buffer",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "mesh",
-    "tags": ["depth", "mesh", "3d", "wireframe", "geometry"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Mesh Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Generates 3D mesh structures from depth information",
+    "category": "Depth Effects",
+    "tags": ["depth", "mesh", "3d", "geometry", "wireframe"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "mesh_type": {
+            "type": "enum",
+            "options": ["wireframe", "solid", "points", "mixed"],
+            "default": "wireframe",
+            "description": "Type of mesh visualization"
+        },
+        "mesh_resolution": {
+            "type": "integer",
+            "min": 10,
+            "max": 200,
+            "default": 50,
+            "description": "Resolution of the mesh grid"
+        },
+        "depth_scale": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Scale factor for depth values"
+        },
+        "mesh_height": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Height of mesh extrusion"
+        },
+        "mesh_color": {
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Base color of the mesh"
+        },
+        "wireframe_thickness": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Thickness of wireframe lines"
+        },
+        "point_size": {
+            "type": "float",
+            "min": 1.0,
+            "max": 20.0,
+            "default": 5.0,
+            "description": "Size of mesh points"
+        },
+        "mesh_opacity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.7,
+            "description": "Opacity of the mesh"
+        },
+        "blend_mode": {
+            "type": "enum",
+            "options": ["normal", "additive", "screen", "multiply", "overlay"],
+            "default": "normal",
+            "description": "Blending mode with video"
+        },
+        "lighting_enable": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable lighting for 3D mesh"
+        },
+        "light_direction": {
+            "type": "vector3",
+            "default": "[0.5, 0.5, 1.0]",
+            "description": "Direction of light source"
+        },
+        "light_intensity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 2.0,
+            "default": 1.0,
+            "description": "Intensity of lighting"
+        },
+        "shading_enable": {
+            "type": "boolean",
+            "default": true,
+            "description": "Enable shading for mesh"
+        },
+        "shading_quality": {
+            "type": "enum",
+            "options": ["low", "medium", "high"],
+            "default": "medium",
+            "description": "Quality of shading calculation"
+        },
+        "wireframe_color": {
+            "type": "color",
+            "default": "#ff0000",
+            "description": "Color of wireframe lines"
+        },
+        "point_color": {
+            "type": "color",
+            "default": "#00ff00",
+            "description": "Color of mesh points"
+        },
+        "depth_threshold": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Minimum depth to include in mesh"
+        },
+        "depth_max": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 1.0,
+            "description": "Maximum depth to include in mesh"
+        }
+    }
 }
 ```
 
-### Parameters
-- `mesh_type: str` (default: "wireframe", options: ["wireframe", "solid", "points", "hidden_line"]) - Mesh rendering style
-- `mesh_density: float` (default: 0.5, min: 0.1, max: 1.0) - Vertex density (higher = more triangles)
-- `depth_scale: float` (default: 1.0, min: 0.1, max: 10.0) - Z-axis scaling
-- `mesh_color: list[float]` (default: [0.0, 1.0, 0.0]) - Mesh color (RGB 0-1)
-- `line_width: int` (default: 1, min: 1, max: 5) - Line width for wireframe
-- `enable_lighting: bool` (default: False) - Enable simple lighting
-- `light_direction: list[float]` (default: [0.0, 0.0, 1.0]) - Light direction
-- `enable_animation: bool` (default: False) - Animate mesh rotation
-- `rotation_speed: float` (default: 1.0, min: 0.1, max: 10.0) - Rotation speed when animated
-- `fill_opacity: float` (default: 0.3, min: 0.0, max: 1.0) - Opacity for solid mesh fill
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame (optional background)
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `timestamp: float` (optional) - Current time for animation
-
-### Outputs
-- `video: Frame` (same format as input) - Video with 3D mesh overlay
-
 ## What It Does NOT Do
-- Does NOT perform full 3D mesh reconstruction (simple height field only)
-- Does NOT support texture mapping or complex materials
-- Does NOT include advanced lighting models (simple directional only)
-- Does NOT handle HDR metadata preservation
-- Does NOT support mesh editing or deformation
-- Does NOT include mesh export functionality
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform real-time 3D reconstruction (static mesh only)
+- Does not handle complex topology (regular grid mesh only)
+- Does not support animated mesh deformation (static mesh only)
 
 ## Test Plan
-1. Unit tests for mesh vertex generation from depth
-2. Verify mesh density affects triangle count correctly
-3. Test all mesh_type options
-4. Performance: ≥ 60 FPS at 1080p with mesh_density=0.5
-5. Memory: < 150MB additional RAM
-6. Visual: verify mesh represents depth structure accurately
+
+1. **Mesh Type Tests:**
+   - Test wireframe mesh visualization
+   - Test solid mesh visualization
+   - Test point cloud visualization
+   - Test mixed visualization
+
+2. **Resolution Tests:**
+   - Test with minimum resolution (10)
+   - Test with maximum resolution (200)
+   - Test with different resolutions
+
+3. **Depth Scale Tests:**
+   - Test with small depth scale (0.1)
+   - Test with normal depth scale (1.0)
+   - Test with large depth scale (10.0)
+
+4. **Mesh Height Tests:**
+   - Test with zero height (flat mesh)
+   - Test with normal height (0.5)
+   - Test with maximum height (1.0)
+
+5. **Lighting Tests:**
+   - Test with lighting disabled
+   - Test with different light directions
+   - Test with different light intensities
+   - Test with shading enabled/disabled
+
+6. **Blend Mode Tests:**
+   - Test normal blending
+   - Test additive blending
+   - Test screen blending
+   - Test multiply blending
+   - Test overlay blending
+
+7. **Depth Threshold Tests:**
+   - Test with zero threshold (all depths)
+   - Test with different depth thresholds
+   - Test with different depth max values
+
+8. **Performance Tests:**
+   - Measure FPS with different resolutions
+   - Test with various mesh types
+   - Verify GPU memory usage
+
+9. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth mesh transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Convert depth buffer to height map
-- Generate vertices on a regular grid, with Z = depth * depth_scale
-- Create triangles by connecting adjacent vertices (two triangles per grid cell)
-- For wireframe: render triangle edges as lines
-- For solid: render filled triangles with optional fill_opacity
-- For points: render vertices as points
-- For hidden_line: render wireframe with hidden line removal
-- Apply simple lighting if enabled: intensity = dot(normal, light_direction)
-- If enable_animation: rotate mesh around Y axis based on timestamp * rotation_speed
-- Render mesh over original video (or on black background if video is None)
-- Optimize with indexed vertex buffers and batch rendering
-- Follow SAFETY_RAILS: cap mesh density, handle edge cases
+
+- Use GPU-based mesh generation and rendering
+- Implement efficient depth-to-mesh conversion
+- Support real-time parameter adjustment
+- Provide mesh preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_mesh.py`
-- `tests/effects/test_depth_mesh.py`
-- `docs/plugins/depth_mesh.md`
-- Optional: `shaders/depth_mesh.vert` and `shaders/depth_mesh.frag`
+
+- `src/vjlive3/plugins/depth_mesh.py` - Main plugin implementation
+- `tests/plugins/test_depth_mesh.py` - Comprehensive test suite
+- `docs/plugins/depth_mesh.md` - User documentation
+- `shaders/depth_mesh.glsl` - GPU shader for mesh rendering
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Mesh generates from depth correctly
-- [x] All mesh_type options render properly
-- [x] 60 FPS at 1080p with moderate mesh density
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ 3D mesh generation from depth information with configurable parameters
+- ✅ Multiple mesh types and visualization options
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Configurable lighting and shading
+- ✅ Various blend modes with video
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

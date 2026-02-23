@@ -1,92 +1,190 @@
-# P3-EXT056: Depth Modular Datamosh Effect
+# P3-EXT056 Depth Modular Datamosh Effect
 
 ## What This Module Does
-Provides a modular datamosh framework where different datamosh algorithms can be combined and configured. Uses depth information to control which modules are active and their parameters. Allows for customizable datamosh patterns by assembling different processing modules.
+
+Depth Modular Datamosh Effect creates datamosh effects using a modular system where different datamosh modules can be combined and configured based on depth information. This creates complex, customizable datamosh effects where different depth regions can have different datamosh behaviors, allowing for sophisticated glitch art with depth-aware modular processing.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthModularDatamosh",
-    "version": "3.0.0",
-    "description": "Modular datamosh with depth-controlled modules",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "datamosh",
-    "tags": ["depth", "datamosh", "modular", "configurable"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Modular Datamosh Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Creates modular datamosh effects with depth-based configuration",
+    "category": "Depth Effects",
+    "tags": ["depth", "datamosh", "modular", "glitch", "configurable"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "module_count": {
+            "type": "integer",
+            "min": 1,
+            "max": 8,
+            "default": 3,
+            "description": "Number of datamosh modules"
+        },
+        "depth_ranges": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "min": {"type": "float", "min": 0.0, "max": 1.0},
+                    "max": {"type": "float", "min": 0.0, "max": 1.0},
+                    "module": {"type": "integer", "min": 0, "max": 7}
+                }
+            },
+            "default": [
+                {"min": 0.0, "max": 0.33, "module": 0},
+                {"min": 0.33, "max": 0.66, "module": 1},
+                {"min": 0.66, "max": 1.0, "module": 2}
+            ],
+            "description": "Depth ranges and assigned modules"
+        },
+        "modules": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "enum",
+                        "options": ["random", "scanline", "block", "pixel_sort", "compression", "feedback", "loop", "echo"],
+                        "description": "Type of datamosh module"
+                    },
+                    "intensity": {"type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+                    "speed": {"type": "float", "min": 0.0, "max": 10.0, "default": 1.0},
+                    "color_shift": {"type": "float", "min": -180.0, "max": 180.0, "default": 0.0},
+                    "contrast_adjust": {"type": "float", "min": -1.0, "max": 1.0, "default": 0.0},
+                    "brightness_adjust": {"type": "float", "min": -1.0, "max": 1.0, "default": 0.0}
+                }
+            },
+            "default": [
+                {"type": "random", "intensity": 0.5, "speed": 1.0},
+                {"type": "scanline", "intensity": 0.4, "speed": 1.5},
+                {"type": "block", "intensity": 0.6, "speed": 0.8}
+            ],
+            "description": "Configuration for each datamosh module"
+        },
+        "global_intensity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.7,
+            "description": "Overall intensity of all modules"
+        },
+        "transition_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Speed of transitions between modules"
+        },
+        "motion_sensitivity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Sensitivity to motion in datamosh"
+        },
+        "feedback_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Amount of feedback in modular system"
+        },
+        "feedback_mode": {
+            "type": "enum",
+            "options": ["additive", "multiply", "screen", "difference", "xor"],
+            "default": "additive",
+            "description": "Blending mode for feedback"
+        },
+        "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 1000000,
+            "default": 42,
+            "description": "Random seed for module patterns"
+        }
+    }
 }
 ```
 
-### Parameters
-- `active_modules: list[str]` (default: ["block_copy", "color_shift"]) - Which modules to enable
-- `module_params: dict` (default: {}) - Parameters for each module
-- `depth_thresholds: dict` (default: {}) - Depth thresholds for module activation
-- `fallback_module: str` (default: "none") - Module to use when no thresholds met
-- `processing_order: list[str]` (default: []) - Order to apply modules (defaults to active_modules)
-- `enable_depth_gating: bool` (default: True) - Use depth to gate modules
-- `global_intensity: float` (default: 1.0, min: 0.0, max: 2.0) - Overall effect strength
-
-### Available Modules
-- `block_copy`: Copy macroblocks from previous frames
-- `color_shift`: Apply chromatic aberration
-- `pixel_sort`: Sort pixels within blocks
-- `edge_datamosh`: Datamosh only on depth edges
-- `glitch_inject`: Add random glitches
-- `temporal_blend`: Blend with previous frames
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `previous_frames: list[Frame]` (optional) - Frame history for modules
-
-### Outputs
-- `video: Frame` (same format as input) - Modularly datamoshed video
-
 ## What It Does NOT Do
-- Does NOT include all possible datamosh modules (limited to listed ones)
-- Does NOT support custom module development at runtime
-- Does NOT perform automatic module optimization
-- Does NOT handle HDR metadata preservation
-- Does NOT include module-specific parameter validation
-- Does NOT support hot-swapping modules mid-stream
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform audio-reactive modular timing
+- Does not support external module sources
+- Does not handle infinite recursion (limited by feedback)
 
 ## Test Plan
-1. Unit tests for module loading and initialization
-2. Verify each module produces expected output
-3. Test depth gating and threshold logic
-4. Performance: ≥ 60 FPS at 1080p with 3 active modules
-5. Memory: < 200MB additional RAM (module buffers)
-6. Integration: verify module combinations work correctly
+
+1. **Module Count Tests:**
+   - Test with single module (simple datamosh)
+   - Test with maximum 8 modules
+   - Test with different module counts
+
+2. **Depth Range Tests:**
+   - Test with different depth range configurations
+   - Test with overlapping depth ranges
+   - Test with non-overlapping depth ranges
+   - Test with edge depth ranges
+
+3. **Module Configuration Tests:**
+   - Test different module types
+   - Test different module intensities
+   - Test different module speeds
+   - Test different module color shifts
+
+4. **Global Intensity Tests:**
+   - Test with zero global intensity (no effect)
+   - Test with maximum global intensity (full effect)
+   - Test with different global intensities
+
+5. **Transition Tests:**
+   - Test with slow transitions
+   - Test with fast transitions
+   - Test with maximum transition speed
+
+6. **Feedback Tests:**
+   - Test with no feedback
+   - Test with different feedback amounts
+   - Test with different feedback modes
+
+7. **Performance Tests:**
+   - Measure FPS with different module counts
+   - Test with various resolutions
+   - Verify memory usage with multiple modules
+
+8. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth module transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Define module interface: `process(frame, depth, params, context) -> frame`
-- Load enabled modules from active_modules list
-- For each module in processing_order (or active_modules if not specified):
-  - Check if module should run based on depth_thresholds if enable_depth_gating
-  - Call module's process function with frame, depth, module_params[module]
-  - Update frame with module output
-  - Update context (e.g., frame history) for next module
-- If no module activates and fallback_module is set, apply fallback
-- Apply global_intensity as final blend with original
-- Provide sensible defaults for all module parameters
-- Optimize by sharing buffers between modules
-- Follow SAFETY_RAILS: validate module names, handle errors
+
+- Use modular architecture for datamosh processing
+- Implement efficient depth-based module routing
+- Support real-time parameter adjustment
+- Provide module preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_modular_datamosh.py`
-- `tests/effects/test_depth_modular_datamosh.py`
-- `docs/plugins/depth_modular_datamosh.md`
-- Module implementations: `src/vjlive3/effects/modules/` (block_copy, color_shift, etc.)
+
+- `src/vjlive3/plugins/depth_modular_datamosh.py` - Main plugin implementation
+- `tests/plugins/test_depth_modular_datamosh.py` - Comprehensive test suite
+- `docs/plugins/depth_modular_datamosh.md` - User documentation
+- `shaders/depth_modular_datamosh.glsl` - GPU shader for modular processing
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Modules load and execute in order
-- [x] Depth gating works correctly
-- [x] 60 FPS at 1080p with 3 modules
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Modular datamosh system with depth-based configuration
+- ✅ Multiple datamosh modules with configurable parameters
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Configurable depth ranges and module routing
+- ✅ Various feedback and transition options
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

@@ -1,92 +1,215 @@
-# P3-EXT057: Depth Mosh Nexus Effect
+# P3-EXT057 Depth Mosh Nexus Effect
 
 ## What This Module Does
-Creates a central "nexus" for depth-based mosh effects that combines multiple datamosh and distortion techniques into a unified, highly configurable effect. The nexus acts as a hub that routes depth information to various processing modules and combines their outputs in complex ways. Produces intense, chaotic visual effects suitable for high-energy performances.
+
+Depth Mosh Nexus Effect creates a central hub or nexus that coordinates multiple mosh and datamosh effects based on depth information. This effect acts as a master controller that routes different depth regions to different mosh algorithms, creating complex, multi-layered glitch compositions. The nexus can dynamically switch between mosh modes and blend them together based on depth thresholds.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthMoshNexus",
-    "version": "3.0.0",
-    "description": "Central hub for depth mosh effects",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "datamosh",
-    "tags": ["depth", "mosh", "nexus", "chaos", "intense"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Mosh Nexus Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Central nexus for coordinating multiple depth-based mosh effects",
+    "category": "Depth Effects",
+    "tags": ["depth", "mosh", "nexus", "hub", "coordinator"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "nexus_mode": {
+            "type": "enum",
+            "options": ["split", "blend", "sequence", "priority", "random"],
+            "default": "blend",
+            "description": "How the nexus combines different mosh effects"
+        },
+        "depth_zones": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "min": {"type": "float", "min": 0.0, "max": 1.0},
+                    "max": {"type": "float", "min": 0.0, "max": 1.0},
+                    "effect": {"type": "string"}
+                }
+            },
+            "default": [
+                {"min": 0.0, "max": 0.2, "effect": "random"},
+                {"min": 0.2, "max": 0.4, "effect": "scanline"},
+                {"min": 0.4, "max": 0.6, "effect": "block"},
+                {"min": 0.6, "max": 0.8, "effect": "pixel_sort"},
+                {"min": 0.8, "max": 1.0, "effect": "compression"}
+            ],
+            "description": "Depth zones and their assigned mosh effects"
+        },
+        "available_effects": {
+            "type": "array",
+            "items": {"type": "string"},
+            "default": ["random", "scanline", "block", "pixel_sort", "compression", "feedback", "loop", "echo"],
+            "description": "List of available mosh effects"
+        },
+        "transition_smoothness": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Smoothness of transitions between effects"
+        },
+        "global_intensity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.7,
+            "description": "Overall intensity of all mosh effects"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth affects mosh intensity"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "motion_sensitivity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Sensitivity to motion in mosh effects"
+        },
+        "feedback_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Amount of feedback in nexus system"
+        },
+        "feedback_mode": {
+            "type": "enum",
+            "options": ["additive", "multiply", "screen", "difference", "xor"],
+            "default": "additive",
+            "description": "Blending mode for feedback"
+        },
+        "color_shift": {
+            "type": "float",
+            "min": -180.0,
+            "max": 180.0,
+            "default": 0.0,
+            "description": "Global color shift for all effects"
+        },
+        "contrast_adjust": {
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Global contrast adjustment"
+        },
+        "brightness_adjust": {
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Global brightness adjustment"
+        },
+        "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 1000000,
+            "default": 42,
+            "description": "Random seed for effect patterns"
+        }
+    }
 }
 ```
 
-### Parameters
-- `active_effects: list[str]` (default: ["datamosh", "distortion", "color_shift"]) - Effects to include in nexus
-- `effect_intensities: dict` (default: {}) - Individual effect strengths
-- `depth_routing: str` (default: "parallel", options: ["parallel", "serial", "selective"]) - How effects process depth
-- `routing_thresholds: dict` (default: {}) - Depth thresholds for selective routing
-- `mix_mode: str` (default: "additive", options: ["additive", "multiply", "screen", "max"]) - Output mixing
-- `chaos_factor: float` (default: 0.5, min: 0.0, max: 1.0) - Randomness and unpredictability
-- `temporal_coherence: float` (default: 0.8, min: 0.0, max: 1.0) - Smoothness over time
-- `output_clamp: bool` (default: True) - Clamp final output to valid range
-
-### Available Effects
-- `datamosh`: Block-based corruption
-- `distortion`: Geometric warping
-- `color_shift`: Chromatic aberration
-- `edge_enhance`: Depth edge emphasis
-- `feedback`: Temporal feedback loop
-- `noise_inject`: Add depth-modulated noise
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `previous_frame: Frame` (optional) - Previous output for feedback effects
-- `timestamp: float` (optional) - Current time for animation
-
-### Outputs
-- `video: Frame` (same format as input) - Intensely moshed video
-
 ## What It Does NOT Do
-- Does NOT support infinite effect combinations (limited to available modules)
-- Does NOT perform automatic effect optimization based on content
-- Does NOT include preset management (all parameters manual)
-- Does NOT handle HDR metadata preservation
-- Does NOT support custom effect development at runtime
-- Does NOT include safety limits beyond temporal_coherence
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform audio-reactive mosh timing
+- Does not support external mosh effect sources
+- Does not handle infinite recursion (limited by feedback)
 
 ## Test Plan
-1. Unit tests for each effect module
-2. Verify depth routing logic works correctly
-3. Test mix_mode variations
-4. Performance: ≥ 60 FPS at 1080p with 4 active effects
-5. Memory: < 300MB additional RAM (multiple effect buffers)
-6. Visual: verify nexus produces intense, chaotic output
+
+1. **Nexus Mode Tests:**
+   - Test split mode (separate effects per depth zone)
+   - Test blend mode (mixed effects across zones)
+   - Test sequence mode (temporal effect switching)
+   - Test priority mode (highest priority effect wins)
+   - Test random mode (random effect selection)
+
+2. **Depth Zone Tests:**
+   - Test with different depth zone configurations
+   - Test with overlapping zones
+   - Test with non-overlapping zones
+   - Test with edge zones (0.0, 1.0)
+
+3. **Effect Configuration Tests:**
+   - Test different effect types in zones
+   - Test with invalid effect names (should fallback)
+   - Test with all available effects
+   - Test with custom effect combinations
+
+4. **Transition Tests:**
+   - Test with sharp transitions (0.0)
+   - Test with smooth transitions (1.0)
+   - Test with different transition smoothness
+
+5. **Global Intensity Tests:**
+   - Test with zero intensity (no effect)
+   - Test with maximum intensity (full effect)
+   - Test with different intensities
+
+6. **Depth Response Tests:**
+   - Test linear depth response
+   - Test exponential depth response
+   - Test logarithmic depth response
+   - Test different exponent values
+
+7. **Feedback Tests:**
+   - Test with no feedback
+   - Test with different feedback amounts
+   - Test with different feedback modes
+
+8. **Performance Tests:**
+   - Measure FPS with different nexus modes
+   - Test with various resolutions
+   - Verify memory usage with multiple effects
+
+9. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth effect transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Implement each effect as a separate module with standardized interface
-- For parallel routing: apply all active effects independently, then mix
-- For serial routing: apply effects in order, each receives previous output
-- For selective routing: use depth thresholds to determine which effects activate per-pixel
-- Use effect_intensities to scale each effect's contribution
-- Apply chaos_factor as random modulation of parameters or outputs
-- Use temporal_coherence to smooth parameter changes over time
-- Clamp output if output_clamp=True
-- Optimize with shared buffers and minimal copying between effects
-- Follow SAFETY_RAILS: validate effect names, handle parameter errors
+
+- Use modular architecture for effect coordination
+- Implement efficient depth-based effect routing
+- Support real-time parameter adjustment
+- Provide nexus preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_mosh_nexus.py`
-- `tests/effects/test_depth_mosh_nexus.py`
-- `docs/plugins/depth_mosh_nexus.md`
-- Effect modules: `src/vjlive3/effects/nexus_modules/`
+
+- `src/vjlive3/plugins/depth_mosh_nexus.py` - Main plugin implementation
+- `tests/plugins/test_depth_mosh_nexus.py` - Comprehensive test suite
+- `docs/plugins/depth_mosh_nexus.md` - User documentation
+- `shaders/depth_mosh_nexus.glsl` - GPU shader for nexus processing
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] All effects combine correctly
-- [x] Depth routing functions as expected
-- [x] 60 FPS at 1080p with 4 effects
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Central nexus for coordinating multiple depth-based mosh effects
+- ✅ Multiple nexus modes with configurable depth zones
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Configurable transitions and global parameters
+- ✅ Various feedback and blending options
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails
