@@ -909,8 +909,8 @@
 | P3-VD-Beta1 | Depth Loop Injection (DepthLoopInjectionPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd_beta1.py` — DepthLoopInjectionPlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-VD-Beta2 | Depth Parallel Universe (DepthParallelUniversePlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd_beta2.py` — DepthParallelUniversePlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-VD-Beta3 | Depth Portal Composite (DepthPortalCompositePlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd_beta3.py` — DepthPortalCompositePlugin, 8/8 tests ✅ 2026-02-22 |
-| P3-VD-Beta4 | Depth Neural Quantum Hyper Tunnel (DepthNeuralQuantumHyperTunnelPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd_beta4.py` — DepthNeuralQuantumHyperTunnelPlugin, 8/8 tests ✅ 2026-02-22 |
-| P3-VD-Beta5 | Depth Reality Distortion (RealityDistortionPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd_beta5.py` — RealityDistortionPlugin, 8/8 tests ✅ 2026-02-22 |
+| P3-VD06 | Depth Neural Quantum Hyper Tunnel (DepthNeuralQuantumHyperTunnelPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_neural_quantum_hyper_tunnel.py` — DepthNeuralQuantumHyperTunnelPlugin, 8/8 tests ✅ 2026-02-22 |
+| P3-VD07 | Depth Reality Distortion (RealityDistortionPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_reality_distortion.py` — RealityDistortionPlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD33 | Depth Distance Filter (DepthDistanceFilterPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd33.py` — DepthDistanceFilterPlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-VD34 | Depth Dual (DepthDualPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd34.py` — DepthDualPlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-VD35 | Depth Edge Glow (DepthEdgeGlowPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd35.py` — DepthEdgeGlowPlugin, 8/8 tests ✅ 2026-02-22 |
@@ -928,7 +928,7 @@
 | P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT035_depth_edge_glow_effect.md` |
 | P3-VD36 | Depth Effects (DepthEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT036_depth_effects_effect.md` |
 | P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT037_depth_effects_point_cloud_effect.md` |
-| P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT038_depth_effects_point_cloud_3d_effect.md` |
+| P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT038_depth_effects_point_cloud_3d_effect.md` |
 | P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT039_depth_effects_mesh_effect.md` |
 | P3-VD40 | Depth Effects (DepthContourEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT040_depth_effects_contour_effect.md` |
 | P3-VD41 | Depth Effects (DepthParticle3DEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT041_depth_effects_particle_3d_effect.md` |

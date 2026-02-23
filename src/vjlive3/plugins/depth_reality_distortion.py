@@ -14,17 +14,17 @@ from vjlive3.plugins.api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
-    "name": "R16 Depth Wave",
-    "description": "Sinusoidal wave distortions for high-precision depth maps.",
+    "name": "Reality Distortion",
+    "description": "Quantum reality manipulation via depth-mapped UV distortion.",
     "version": "1.0.0",
     "parameters": [
-        {"name": "wave_amplitude", "type": "float", "min": 0.0, "max": 1.0, "default": 0.1},
-        {"name": "wave_frequency", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "wave_speed", "type": "float", "min": -5.0, "max": 5.0, "default": 1.0},
-        {"name": "phase_offset", "type": "float", "min": 0.0, "max": 3.14159, "default": 0.0}
+        {"name": "distortion_amount", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "warp_frequency", "type": "float", "min": 0.0, "max": 10.0, "default": 2.0},
+        {"name": "depth_threshold", "type": "float", "min": 0.0, "max": 1.0, "default": 0.3},
+        {"name": "chromatic_aberration", "type": "float", "min": 0.0, "max": 1.0, "default": 0.2}
     ],
-    "inputs": ["video_in", "depth_raw_in"],
-    "outputs": ["video_out", "depth_raw_out"]
+    "inputs": ["video_in", "depth_in"],
+    "outputs": ["video_out"]
 }
 
 VERTEX_SHADER = """
@@ -41,67 +41,87 @@ void main() {
 FRAGMENT_SHADER = """
 #version 330 core
 in vec2 uv;
-
-// Dual MRT outputs for Framebuffer
-layout(location = 0) out vec4 fragColor_video;
-layout(location = 1) out float fragColor_depth;
+out vec4 fragColor_main;
 
 uniform sampler2D tex0;
-uniform sampler2D depthRawTex;
+uniform sampler2D depth_tex;
 uniform int has_depth;
 uniform float time;
 
-uniform float wave_amplitude;
-uniform float wave_frequency;
-uniform float wave_speed;
-uniform float phase_offset;
+uniform float distortion_amount;
+uniform float warp_frequency;
+uniform float depth_threshold;
+uniform float chromatic_aberration;
 
-// Triangle wave to fold UVs safely wrapping seamlessly back
+// Pseudo-random hash for noise
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
+// 2D Noise
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    float a = hash(i);
+    float b = hash(i + vec2(1.0, 0.0));
+    float c = hash(i + vec2(0.0, 1.0));
+    float d = hash(i + vec2(1.0, 1.0));
+    vec2 u = f*f*(3.0-2.0*f);
+    return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+// Mirroring UVs gracefully beyond boundaries
 vec2 safe_uv(vec2 coords) {
+    // Triangle wave to fold UVs safely wrapping seamlessly back
     return vec2(1.0) - abs(vec2(1.0) - mod(coords, 2.0));
 }
 
 void main() {
-    float amp = clamp(wave_amplitude, 0.0, 1.0);
-    float freq = clamp(wave_frequency, 0.0, 10.0);
-    float spd = clamp(wave_speed, -5.0, 5.0);
+    float safe_distortion = clamp(distortion_amount, 0.0, 1.0);
+    float safe_freq = clamp(warp_frequency, 0.0, 10.0);
+    float safe_thresh = clamp(depth_threshold, 0.0, 1.0);
+    float safe_chroma = clamp(chromatic_aberration, 0.0, 1.0);
     
-    // Calculate primary sinusoidal structure
-    float wave_time = time * spd + phase_offset;
-    
-    // Wave on X coordinates
-    float wave_x = sin(uv.y * freq + wave_time) * amp;
-    // Wave on Y coordinates
-    float wave_y = cos(uv.x * freq + wave_time) * amp;
-    
-    vec2 displacement = vec2(wave_x, wave_y);
-    vec2 distorted_uv = safe_uv(uv + displacement);
-    
-    // Output 0: Standard video color bleeding/distortion mapped to safe UV boundaries
-    fragColor_video = texture(tex0, distorted_uv);
-    
-    // Output 1: Pass the raw 16-bit depth output using the distorted UV mapping seamlessly
+    // Depth isolation scalar
+    float multiplier = 1.0;
     if (has_depth == 1) {
-        fragColor_depth = texture(depthRawTex, distorted_uv).r;
-    } else {
-        fragColor_depth = 0.0;
+        float d = texture(depth_tex, uv).r;
+        if (d < safe_thresh && safe_thresh > 0.0) {
+            multiplier = 1.0; 
+        } else {
+            // Logarithmic dropoff outside the threshold mapping
+            multiplier = max(0.0, 1.0 - (d - safe_thresh) * 5.0);
+        }
     }
+    
+    // Scale spatial UV deformations
+    float nx = noise(uv * safe_freq + time);
+    float ny = noise(uv * safe_freq - time);
+    
+    vec2 displace = vec2(nx - 0.5, ny - 0.5) * safe_distortion * multiplier * 0.2;
+    vec2 center_uv = safe_uv(uv + displace);
+    
+    // Chromatic separation based on proximity map
+    vec2 offset_r = displace * safe_chroma * 1.5;
+    vec2 offset_b = -displace * safe_chroma * 1.5;
+    
+    float r = texture(tex0, safe_uv(uv + offset_r)).r;
+    float g = texture(tex0, center_uv).g;
+    float b = texture(tex0, safe_uv(uv + offset_b)).b;
+    
+    fragColor_main = vec4(r, g, b, 1.0);
 }
 """
 
-class DepthR16WavePlugin(EffectPlugin):
-    """High-precision depth map wave distorter utilizing MRT architecture."""
+class RealityDistortionPlugin(EffectPlugin):
+    """Reality Distortion plugin applying spatial warp and chromatic bleeding."""
 
     def __init__(self):
         super().__init__()
         self._mock_mode = not HAS_GL
         self.prog = None
         self.fbo = None
-        
-        # Dual texture outputs
-        self.tex_video = None
-        self.tex_depth = None
-        
+        self.tex = None
         self.vao = None
         self.vbo = None
         self._width = 0
@@ -113,14 +133,14 @@ class DepthR16WavePlugin(EffectPlugin):
 
     def initialize(self, context: PluginContext) -> None:
         if self._mock_mode:
-            logger.warning("Initializing DepthR16Wave in Mock Mode (No OpenGL)")
+            logger.warning("Initializing RealityDistortion in Mock Mode (No OpenGL)")
             return
 
         try:
             self._compile_shader()
             self._setup_quad()
         except Exception as e:
-            logger.error(f"Failed to initialize OpenGL in DepthR16Wave: {e}")
+            logger.error(f"Failed to initialize OpenGL in RealityDistortion: {e}")
             self._mock_mode = True
 
     def _compile_shader(self):
@@ -173,52 +193,25 @@ class DepthR16WavePlugin(EffectPlugin):
         self._height = h
         
         self.fbo = gl.glGenFramebuffers(1)
+        self.tex = gl.glGenTextures(1)
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.tex)
         
-        textures = gl.glGenTextures(2)
-        self.tex_video = textures[0]
-        self.tex_depth = textures[1]
-        
-        # Attachment 0: Standard 8-bit RGBA texture for Video Output
-        gl.glBindTexture(gl.GL_TEXTURE_2D, self.tex_video)
         gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
-        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.tex_video, 0)
         
-        # Attachment 1: High-precision 16-bit float Red texture for Depth map output
-        gl.glBindTexture(gl.GL_TEXTURE_2D, self.tex_depth)
-        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_R16F, w, h, 0, gl.GL_RED, gl.GL_FLOAT, None)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_NEAREST)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_NEAREST)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
-        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
-        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT1, gl.GL_TEXTURE_2D, self.tex_depth, 0)
-        
-        # Enable MRT architecture natively via glDrawBuffers allowing our single fragment to output to both attachments
-        buffers = [gl.GL_COLOR_ATTACHMENT0, gl.GL_COLOR_ATTACHMENT1]
-        gl.glDrawBuffers(2, buffers)
-        
-        if gl.glCheckFramebufferStatus(gl.GL_FRAMEBUFFER) != gl.GL_FRAMEBUFFER_COMPLETE:
-            logger.error("Failed to construct complete dual-MRT FBO in DepthR16Wave.")
-
+        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.tex, 0)
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
 
     def _free_fbo(self):
         try:
-            tex_list = []
-            if self.tex_video is not None: tex_list.append(self.tex_video)
-            if self.tex_depth is not None: tex_list.append(self.tex_depth)
-            
-            if tex_list:
-                gl.glDeleteTextures(len(tex_list), tex_list)
-                
-            self.tex_video = None
-            self.tex_depth = None
-                
-            if self.fbo is not None:
+            if self.tex:
+                gl.glDeleteTextures(1, [self.tex])
+                self.tex = None
+            if self.fbo:
                 gl.glDeleteFramebuffers(1, [self.fbo])
                 self.fbo = None
         except Exception as e:
@@ -228,25 +221,20 @@ class DepthR16WavePlugin(EffectPlugin):
         if not input_texture or input_texture <= 0:
              return 0
              
-        inputs = getattr(context, "inputs", {})
-        depth_raw_in = inputs.get("depth_raw_in", 0)
-             
         if self._mock_mode:
             if hasattr(context, "outputs"):
                 context.outputs["video_out"] = input_texture
-                # Emulate missing depth logic passing 0 through outputs natively without crashing downstream components
-                context.outputs["depth_raw_out"] = depth_raw_in if depth_raw_in > 0 else 0
             return input_texture
              
+        inputs = getattr(context, "inputs", {})
+        depth_tex = inputs.get("depth_in", 0)
+        
         w, h = getattr(context, 'width', 1920), getattr(context, 'height', 1080)
         if w != self._width or h != self._height:
             self._allocate_buffers(w, h)
             
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
         gl.glViewport(0, 0, w, h)
-        
-        gl.glClearColor(0.0, 0.0, 0.0, 0.0)
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         
         gl.glUseProgram(self.prog)
         
@@ -255,26 +243,26 @@ class DepthR16WavePlugin(EffectPlugin):
         gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex0"), 0)
         
         gl.glActiveTexture(gl.GL_TEXTURE1)
-        gl.glBindTexture(gl.GL_TEXTURE_2D, depth_raw_in)
-        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depthRawTex"), 1)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, depth_tex)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_tex"), 1)
         
-        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "has_depth"), 1 if depth_raw_in > 0 else 0)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "has_depth"), 1 if depth_tex > 0 else 0)
         
         current_time = time.time() - self.start_time
         gl.glUniform1f(gl.glGetUniformLocation(self.prog, "time"), current_time)
         
         # Shader parameters
-        amp = float(params.get("wave_amplitude", 0.1))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "wave_amplitude"), amp)
+        distortion = float(params.get("distortion_amount", 0.5))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "distortion_amount"), distortion)
         
-        freq = float(params.get("wave_frequency", 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "wave_frequency"), freq)
+        freq = float(params.get("warp_frequency", 2.0))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "warp_frequency"), freq)
         
-        spd = float(params.get("wave_speed", 1.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "wave_speed"), spd)
+        thresh = float(params.get("depth_threshold", 0.3))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "depth_threshold"), thresh)
         
-        pha = float(params.get("phase_offset", 0.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "phase_offset"), pha)
+        chroma = float(params.get("chromatic_aberration", 0.2))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "chromatic_aberration"), chroma)
         
         gl.glBindVertexArray(self.vao)
         gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
@@ -283,10 +271,9 @@ class DepthR16WavePlugin(EffectPlugin):
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
         
         if hasattr(context, "outputs"):
-            context.outputs["video_out"] = self.tex_video
-            context.outputs["depth_raw_out"] = self.tex_depth
+            context.outputs["video_out"] = self.tex
             
-        return self.tex_video
+        return self.tex
 
     def cleanup(self) -> None:
         if self._mock_mode:
@@ -294,14 +281,14 @@ class DepthR16WavePlugin(EffectPlugin):
             
         try:
             self._free_fbo()
-            if self.vbo is not None:
+            if self.vbo:
                 gl.glDeleteBuffers(1, [self.vbo])
                 self.vbo = None
-            if self.vao is not None:
+            if self.vao:
                 gl.glDeleteVertexArrays(1, [self.vao])
                 self.vao = None
-            if self.prog is not None:
+            if self.prog:
                 gl.glDeleteProgram(self.prog)
                 self.prog = None
         except Exception as e:
-            logger.error(f"Cleanup Error in DepthR16Wave: {e}")
+            logger.error(f"Cleanup Error in RealityDistortion: {e}")

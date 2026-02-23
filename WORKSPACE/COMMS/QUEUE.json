@@ -146,28 +146,28 @@
   {
     "task_id": "P3-VD06",
     "spec_path": "docs/specs/P3-VD06_depth_neural_quantum_hyper_tunnel.md",
-    "status": "in_progress",
+    "status": "completed",
     "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:05:22.682803+00:00",
     "started_at": "2026-02-23T05:23:45.637524+00:00",
-    "completed_at": null
+    "completed_at": "2026-02-23T05:28:14.567141+00:00"
   },
   {
     "task_id": "P3-VD07",
     "spec_path": "docs/specs/P3-VD07_depth_reality_distortion.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:10:40.960284+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-23T05:28:31.593706+00:00",
+    "completed_at": "2026-02-23T05:31:42.562393+00:00"
   },
   {
     "task_id": "P3-VD08",
     "spec_path": "docs/specs/P3-VD08_depth_r16_wave.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:10:41.009444+00:00",
-    "started_at": null,
+    "started_at": "2026-02-23T05:32:01.184828+00:00",
     "completed_at": null
   },
   {
