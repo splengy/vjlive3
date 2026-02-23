@@ -30,9 +30,24 @@ from typing import Optional
 
 _logger = logging.getLogger("vjlive3.mcp.switchboard")
 
-_LOCKS_FILE = Path("WORKSPACE/COMMS/LOCKS.md")
-_AGENT_SYNC_FILE = Path("WORKSPACE/COMMS/AGENT_SYNC.md")
+# Resolve repo root from this module's own location so paths work
+# regardless of what CWD the process is started from.
+_MODULE_DIR = Path(__file__).resolve().parent          # mcp_servers/vjlive_switchboard/
+_REPO_ROOT   = _MODULE_DIR.parent.parent               # VJLive3_The_Reckoning/
+
+_LOCKS_FILE      = _REPO_ROOT / "WORKSPACE" / "COMMS" / "LOCKS.md"
+_AGENT_SYNC_FILE = _REPO_ROOT / "WORKSPACE" / "COMMS" / "AGENT_SYNC.md"
+_QUEUE_FILE      = _REPO_ROOT / "WORKSPACE" / "COMMS" / "QUEUE.json"
 _LOCK_EXPIRY_BUFFER_MINS = 15  # Auto-expire after ETA + buffer
+
+
+def set_repo_root(root: Path) -> None:
+    """Override all path globals (called by fastmcp_server.py at startup)."""
+    global _LOCKS_FILE, _AGENT_SYNC_FILE, _QUEUE_FILE, _REPO_ROOT
+    _REPO_ROOT       = Path(root)
+    _LOCKS_FILE      = _REPO_ROOT / "WORKSPACE" / "COMMS" / "LOCKS.md"
+    _AGENT_SYNC_FILE = _REPO_ROOT / "WORKSPACE" / "COMMS" / "AGENT_SYNC.md"
+    _QUEUE_FILE      = _REPO_ROOT / "WORKSPACE" / "COMMS" / "QUEUE.json"
 
 
 @dataclass
@@ -100,7 +115,6 @@ class VJLiveSwitchboard:
         _logger.info("VJLive Switchboard initialized. Agent communication hub is open.")
 
     def _persist_tasks_to_disk(self) -> None:
-        queue_file = Path("WORKSPACE/COMMS/QUEUE.json")
         try:
             data = [
                 {
@@ -114,16 +128,15 @@ class VJLiveSwitchboard:
                 }
                 for t in self._tasks.values()
             ]
-            queue_file.write_text(json.dumps(data, indent=2), encoding="utf-8")
+            _QUEUE_FILE.write_text(json.dumps(data, indent=2), encoding="utf-8")
         except OSError as e:
             _logger.warning("Could not persist tasks: %s", e)
 
     def _load_tasks_from_disk(self) -> None:
-        queue_file = Path("WORKSPACE/COMMS/QUEUE.json")
-        if not queue_file.exists():
+        if not _QUEUE_FILE.exists():
             return
         try:
-            data = json.loads(queue_file.read_text(encoding="utf-8"))
+            data = json.loads(_QUEUE_FILE.read_text(encoding="utf-8"))
             for item in data:
                 task = TaskEntry(
                     task_id=item["task_id"],

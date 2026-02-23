@@ -23,14 +23,9 @@ os.environ.setdefault(
 
 from mcp.server.fastmcp import FastMCP  # noqa: E402
 
-# Import business logic but patch paths to use absolute repo root
-from mcp_servers.vjlive_switchboard.server import VJLiveSwitchboard  # noqa: E402
-from mcp_servers.vjlive_switchboard.server import _LOCKS_FILE, _AGENT_SYNC_FILE  # noqa: E402
-
-# Patch the path globals to be absolute at import time
-import mcp_servers.vjlive_switchboard.server as _sw_mod  # noqa: E402
-_sw_mod._LOCKS_FILE = _REPO / "WORKSPACE" / "COMMS" / "LOCKS.md"
-_sw_mod._AGENT_SYNC_FILE = _REPO / "WORKSPACE" / "COMMS" / "AGENT_SYNC.md"
+# Import business logic and set absolute repo root (fixes all 3 path globals)
+from mcp_servers.vjlive_switchboard.server import VJLiveSwitchboard, set_repo_root  # noqa: E402
+set_repo_root(_REPO)
 
 logging.basicConfig(
     level=logging.INFO,
