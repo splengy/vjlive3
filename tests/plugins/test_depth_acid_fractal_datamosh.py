@@ -11,7 +11,7 @@ def mock_gl():
         mock_gl.glGetShaderiv.return_value = 1
         mock_gl.glGetProgramiv.return_value = 1
         mock_gl.glGenFramebuffers.return_value = 100
-        mock_gl.glGenTextures.side_effect = [200, 201]  # tex, prev_tex
+        mock_gl.glGenTextures.side_effect = range(200, 1000)
         mock_gl.glGenVertexArrays.return_value = 300
         mock_gl.glGenBuffers.return_value = 400
         mock_gl.glCheckFramebufferStatus.return_value = 36053 # GL_FRAMEBUFFER_COMPLETE

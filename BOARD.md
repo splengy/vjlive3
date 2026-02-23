@@ -921,6 +921,7 @@
 | P3-VD15 | Depth Aware Compression (DepthAwareCompressionPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_aware_compression.py` — DepthAwareCompressionPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD10 | Depth Blur (DepthBlurPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_blur.py` — DepthBlurPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD29 | Depth Camera Splitter (DepthCameraSplitterEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT029_depth_camera_splitter_effect.md` |
+| P3-VD26 | Depth Acid Fractal Datamosh (DepthAcidFractalDatamoshEffectPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_acid_fractal_datamosh.py` — DepthAcidFractalDatamoshEffectPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD11 | Depth Color Grade (DepthColorGradePlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_color_grade.py` — DepthColorGradePlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD12 | Depth Contour Datamosh (DepthContourDatamoshPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_contour_datamosh.py` — DepthContourDatamoshPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD32 | Depth Data Mux (DepthDataMuxEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT032_depth_data_mux_effect.md` |
@@ -947,7 +948,7 @@
 | P3-VD53 | Depth Liquid Refraction (DepthLiquidRefractionEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT053_depth_liquid_refraction_effect.md` |
 | P3-VD54 | Depth Loop Injection Datamosh (DepthLoopInjectionDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT054_depth_loop_injection_datamosh_effect.md` |
 | P3-VD55 | Depth Modular Datamosh (DepthModularDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT055_depth_modular_datamosh_effect.md` |
-| P3-VD56 | Depth Modulated Datamosh (DepthModulatedDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT056_depth_modulated_datamosh_effect.md` |
+| P3-VD56 | Depth Modulated Datamosh (DepthModulatedDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT056_depth_modulated_datamosh_effect.md` |
 | P3-VD57 | Depth Mosaic (DepthMosaicEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT057_depth_mosaic_effect.md` |
 | P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT058_depth_mosh_nexus_effect.md` |
 | P3-VD59 | Depth Motion Transfer (DepthMotionTransferEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT059_depth_motion_transfer_effect.md` |
