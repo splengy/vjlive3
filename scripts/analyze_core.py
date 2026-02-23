@@ -119,26 +119,28 @@ def main():
         doc_preview = c['doc'][:150].replace('\n', ' ') + '...' if c['doc'] else 'No docstring.'
         entry = f"- **{c['name']}** (`{c['file']}`): {doc_preview}"
         
+        domain = 'Other Core Logic'
         if 'audio' in name_lower or 'audio' in file_lower or 'midi' in name_lower or 'osc' in name_lower:
-            domains['Audio/MIDI/OSC Control'].append(entry)
+            domain = 'Audio/MIDI/OSC Control'
         elif 'ai' in name_lower or 'agent' in name_lower or 'llm' in name_lower or 'neural' in name_lower or 'crowd' in name_lower:
-            domains['AI/Agents/Crowd Analysis'].append(entry)
+            domain = 'AI/Agents/Crowd Analysis'
         elif 'quantum' in name_lower or 'consciousness' in name_lower or 'mood' in name_lower or 'semantic' in name_lower:
-            domains['Quantum/Consciousness/Mood'].append(entry)
+            domain = 'Quantum/Consciousness/Mood'
         elif 'hardware' in name_lower or 'camera' in name_lower or 'astra' in name_lower or 'realsense' in name_lower or 'vision' in name_lower or 'dmx' in name_lower:
-            domains['Hardware/Cameras/DMX'].append(entry)
+            domain = 'Hardware/Cameras/DMX'
         elif 'video' in name_lower or 'hap' in name_lower or 'ndi' in name_lower or 'streaming' in name_lower:
-            domains['Video/NDI/Streaming'].append(entry)
+            domain = 'Video/NDI/Streaming'
         elif 'web' in name_lower or 'socket' in name_lower or 'api' in name_lower or 'bridge' in name_lower or 'server' in name_lower:
-            domains['Web/API/Networking'].append(entry)
+            domain = 'Web/API/Networking'
         elif 'performance' in name_lower or 'monitor' in name_lower or 'profil' in name_lower or 'health' in name_lower or 'safety' in name_lower:
-            domains['Performance/Health/Safety'].append(entry)
+            domain = 'Performance/Health/Safety'
         elif 'shader' in name_lower or 'render' in name_lower or 'gl' in name_lower or 'texture' in name_lower:
-            domains['Rendering/Shaders'].append(entry)
+            domain = 'Rendering/Shaders'
         elif 'state' in name_lower or 'config' in name_lower or 'save' in name_lower or 'snapshot' in name_lower or 'project' in name_lower:
-            domains['State/Config/Projects'].append(entry)
-        else:
-            domains['Other Core Logic'].append(entry)
+            domain = 'State/Config/Projects'
+            
+        c['domain'] = domain
+        domains[domain].append(entry)
 
     out_path = "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/WORKSPACE/COMMS/STATUS/CORE_LOGIC_PARITY.md"
     with open(out_path, "w", encoding="utf-8") as f:
@@ -151,8 +153,54 @@ def main():
             for e in sorted(entries):
                 f.write(f"{e}\n")
             f.write("\n")
+
+    import json
+    import csv
+    output_dir = "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/output"
+    os.makedirs(output_dir, exist_ok=True)
+    
+    csv_path = os.path.join(output_dir, "core_logic_audit.csv")
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Class Name', 'Domain', 'File Path', 'Docstring'])
+        for c in missing_core:
+            writer.writerow([c['name'], c['domain'], c['file'], c.get('doc', '')])
             
+    json_path = os.path.join(output_dir, "core_logic_categories.json")
+    category_dict = defaultdict(list)
+    for c in missing_core:
+        category_dict[c['domain']].append(c['name'])
+        
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(category_dict, f, indent=2)
+        
+    yaml_path = os.path.join(output_dir, "implementation_roadmap.yaml")
+    phases = {
+        "Phase 1: Core Systems, State & APIs": [],
+        "Phase 2: Hardware, DMX & Distributed Nodes": [],
+        "Phase X: Future Extensions": []
+    }
+    for c in missing_core:
+        d = c['domain']
+        if d in ['State/Config/Projects', 'Web/API/Networking', 'Performance/Health/Safety', 'Other Core Logic', 'Rendering/Shaders']:
+            phases["Phase 1: Core Systems, State & APIs"].append(c['name'])
+        elif d in ['Hardware/Cameras/DMX', 'Video/NDI/Streaming', 'Audio/MIDI/OSC Control']:
+            phases["Phase 2: Hardware, DMX & Distributed Nodes"].append(c['name'])
+        else:
+            phases["Phase X: Future Extensions"].append(c['name'])
+            
+    with open(yaml_path, 'w', encoding='utf-8') as f:
+        f.write("implementation_roadmap:\n")
+        f.write("  phases:\n")
+        for phase, items in phases.items():
+            f.write(f"    '{phase}':\n")
+            if not items:
+                f.write("      []\n")
+            for item in sorted(set(items)):
+                f.write(f"      - {item}\n")
+                
     print(f"Core logic parity report written to {out_path} with {len(missing_core)} items.")
+    print("Core logic audit output datasets written to output/ directory.")
 
 if __name__ == "__main__":
     main()
