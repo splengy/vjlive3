@@ -1,86 +1,138 @@
-# P3-EXT045: Depth Displacement Effect
+# P3-EXT045 Depth Displacement Effect
 
 ## What This Module Does
-Applies displacement mapping to the video using depth information as the displacement source. Creates warping and distortion effects where depth values control the amount and direction of pixel displacement. Useful for creating ripple effects, heat haze, or other depth-based distortions.
+
+Depth Displacement Effect uses depth information to displace pixels in the video stream, creating a 3D-like distortion effect where closer objects appear to push forward or pull back the image. This creates a sense of physical depth and can be used for surreal, dreamlike visuals.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthDisplacementEffect",
-    "version": "3.0.0",
-    "description": "Displace video using depth as displacement map",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "distortion",
-    "tags": ["depth", "displacement", "warp", "distortion"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Displacement Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Displaces pixels based on depth values to create 3D distortion",
+    "category": "Depth Effects",
+    "tags": ["depth", "displacement", "3d", "distortion"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "displacement_strength": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Strength of displacement effect"
+        },
+        "displacement_mode": {
+            "type": "enum",
+            "options": ["push_forward", "pull_back", "both", "radial_out", "radial_in"],
+            "default": "push_forward",
+            "description": "Direction of displacement"
+        },
+        "center_x": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "X coordinate of displacement center (0-1)"
+        },
+        "center_y": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Y coordinate of displacement center (0-1)"
+        },
+        "depth_scale": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Scale factor for depth values"
+        },
+        "smoothness": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Smoothness of displacement transitions"
+        },
+        "edge_behavior": {
+            "type": "enum",
+            "options": ["clamp", "wrap", "reflect"],
+            "default": "clamp",
+            "description": "How to handle displaced pixels at edges"
+        }
+    }
 }
 ```
 
-### Parameters
-- `displacement_scale: float` (default: 0.1, min: 0.0, max: 1.0) - Maximum displacement amount
-- `displacement_axis: str` (default: "both", options: ["horizontal", "vertical", "both"]) - Direction of displacement
-- `displacement_source: str` (default: "depth", options: ["depth", "depth_inverted", "depth_gradient"]) - What to use as displacement map
-- `wrap_mode: str` (default: "clamp", options: ["clamp", "wrap", "mirror"]) - How to handle displaced pixels outside bounds
-- `filter_mode: str` (default: "bilinear", options: ["nearest", "bilinear", "bicubic"]) - Interpolation for displaced pixels
-- `animate: bool` (default: False) - Animate displacement over time
-- `animation_speed: float` (default: 1.0, min: 0.1, max: 10.0) - Speed of animation when animate=True
-- `animation_type: str` (default: "sine", options: ["sine", "cosine", "sawtooth", "triangle"]) - Animation waveform
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `timestamp: float` (optional) - Current time for animation
-
-### Outputs
-- `video: Frame` (same format as input) - Displaced video frame
-
 ## What It Does NOT Do
-- Does NOT perform 3D displacement (only 2D image warping)
-- Does NOT support arbitrary displacement maps (depth only)
-- Does NOT include temporal smoothing or motion compensation
-- Does NOT handle HDR metadata preservation
-- Does NOT support multi-layer displacement
-- Does NOT include displacement vector visualization
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform color correction or image enhancement
+- Does not handle multiple depth layers (single depth map only)
+- Does not support animated displacement centers (static center only)
 
 ## Test Plan
-1. Unit tests for displacement vector calculation
-2. Verify displacement amount matches scale parameter
-3. Test all wrap_mode options
-4. Performance: ≥ 60 FPS at 1080p with displacement_scale=0.2
-5. Memory: < 50MB additional RAM
-6. Visual: verify displacement creates expected warping
+
+1. **Basic Displacement Tests:**
+   - Test with uniform depth (should produce uniform displacement)
+   - Test with gradient depth (should produce smooth displacement gradient)
+   - Test with zero displacement strength (should pass through unchanged)
+   - Test with maximum displacement strength
+
+2. **Mode Tests:**
+   - Test push_forward mode (near objects push outward)
+   - Test pull_back mode (near objects pull inward)
+   - Test both mode (alternating push/pull)
+   - Test radial_out mode (displacement radiates from center)
+   - Test radial_in mode (displacement converges to center)
+
+3. **Center Tests:**
+   - Test with different center positions (top-left, center, bottom-right)
+   - Test with animated center (if supported)
+   - Verify radial modes respect center point
+
+4. **Edge Behavior Tests:**
+   - Test clamp mode (pixels beyond edge are clamped)
+   - Test wrap mode (pixels wrap around)
+   - Test reflect mode (pixels are reflected)
+
+5. **Performance Tests:**
+   - Measure FPS with different displacement strengths
+   - Test with various video resolutions
+   - Verify GPU memory usage
+
+6. **Quality Tests:**
+   - Check for artifacts at depth discontinuities
+   - Verify smoothness parameter effectiveness
+   - Test with noisy depth maps
 
 ## Implementation Notes
-- Compute displacement vectors from depth:
-  - If displacement_source="depth": use depth directly
-  - If "depth_inverted": use 1.0 - depth
-  - If "depth_gradient": use gradient magnitude of depth
-- For axis="horizontal": displace x by scale * depth
-- For axis="vertical": displace y by scale * depth
-- For axis="both": displace x and y by scale * depth (or gradient components)
-- If animate: modulate displacement_scale with animation waveform based on timestamp
-- Apply displacement using remap operation: output[x,y] = input[x+dx, y+dy]
-- Handle out-of-bounds according to wrap_mode
-- Use filter_mode for interpolation
-- Optimize with vectorized operations; consider GPU shader
-- Follow SAFETY_RAILS: validate parameters, handle edge cases
+
+- Use GPU shader for real-time displacement
+- Implement bilinear sampling for smooth results
+- Support both 8-bit and 16-bit depth formats
+- Provide real-time parameter adjustment
+- Include depth preview mode
 
 ## Deliverables
-- `src/vjlive3/effects/depth_displacement.py`
-- `tests/effects/test_depth_displacement.py`
-- `docs/plugins/depth_displacement.md`
-- Optional: `shaders/depth_displacement.frag`
+
+- `src/vjlive3/plugins/depth_displacement.py` - Main plugin implementation
+- `tests/plugins/test_depth_displacement.py` - Comprehensive test suite
+- `docs/plugins/depth_displacement.md` - User documentation
+- `shaders/depth_displacement.glsl` - GPU shader for displacement
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Displacement works correctly
-- [x] All parameters functional
-- [x] 60 FPS at 1080p
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Real-time displacement based on depth values
+- ✅ Multiple displacement modes with smooth transitions
+- ✅ Configurable center point for radial effects
+- ✅ Proper edge handling with all three modes
+- ✅ Minimal FPS impact (target <5% overhead)
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Documentation with visual examples
+- ✅ Passes all safety rails

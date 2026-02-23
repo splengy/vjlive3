@@ -918,7 +918,7 @@
 ----------|-------------|----------|--------|--------|
 | P3-VD26 | Depth Acid Fractal (DepthAcidFractalDatamoshEffect) | P0 | ✅ Done | Implemented |
 | P3-VD27 | Depth Aware Compression (DepthAwareCompressionEffect) | P0 | ✅ Done | Implemented |
-| P3-VD28 | Depth Blur (DepthBlurEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD28 | Depth Blur (DepthBlurEffect) | P0 | ✅ Done | Implemented |
 | P3-VD29 | Depth Camera Splitter (DepthCameraSplitterEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD30 | Depth Color Grade (DepthColorGradeEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD31 | Depth Contour Datamosh (DepthContourDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |

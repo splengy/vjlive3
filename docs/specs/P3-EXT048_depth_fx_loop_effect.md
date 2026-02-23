@@ -1,84 +1,185 @@
-# P3-EXT048: Depth FXLoop Effect
+# P3-EXT048 Depth FX Loop Effect
 
 ## What This Module Does
-Creates a feedback loop effect that processes the video through a series of depth-based effects in a cyclic manner. The output is fed back into the input with optional mixing, creating evolving and recursive visual patterns. Depth information controls the feedback strength and effect parameters, leading to organic, psychedelic results.
+
+Depth FX Loop Effect creates feedback loops where the video output is fed back into the input with depth-based modulation, creating complex recursive visual patterns. The depth information controls how the feedback is processed, creating evolving, self-generating visual systems that respond to the depth structure of the scene.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthFXLoop",
-    "version": "3.0.0",
-    "description": "Recursive depth effect feedback loop",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "feedback",
+    "name": "Depth FX Loop Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Creates depth-modulated feedback loops for recursive visuals",
+    "category": "Depth Effects",
     "tags": ["depth", "feedback", "loop", "recursive"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "feedback_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Amount of feedback in the loop"
+        },
+        "feedback_mode": {
+            "type": "enum",
+            "options": ["additive", "multiply", "screen", "difference", "xor"],
+            "default": "additive",
+            "description": "Blending mode for feedback"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth affects feedback intensity"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "loop_delay": {
+            "type": "float",
+            "min": 0.0,
+            "max": 5.0,
+            "default": 0.0,
+            "description": "Delay in seconds for feedback loop"
+        },
+        "loop_count": {
+            "type": "integer",
+            "min": 1,
+            "max": 10,
+            "default": 3,
+            "description": "Number of feedback iterations"
+        },
+        "motion_sensitivity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Sensitivity to motion in feedback"
+        },
+        "color_shift": {
+            "type": "float",
+            "min": -180.0,
+            "max": 180.0,
+            "default": 0.0,
+            "description": "Hue shift for feedback frames"
+        },
+        "contrast_adjust": {
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Contrast adjustment for feedback"
+        },
+        "brightness_adjust": {
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Brightness adjustment for feedback"
+        },
+        "feedback_filter": {
+            "type": "enum",
+            "options": ["none", "blur", "sharpen", "emboss", "edge_detect"],
+            "default": "none",
+            "description": "Filter applied to feedback frames"
+        },
+        "filter_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Intensity of feedback filter"
+        }
+    }
 }
 ```
 
-### Parameters
-- `loop_iterations: int` (default: 3, min: 1, max: 10) - Number of feedback passes
-- `feedback_strength: float` (default: 0.5, min: 0.0, max: 1.0) - How much to mix previous output
-- `depth_feedback_scale: float` (default: 1.0, min: 0.0, max: 2.0) - Depth's influence on feedback
-- `effect_chain: list[str]` (default: ["blur", "color_grade"]) - Effects to apply each loop
-- `effect_params: dict` (default: {}) - Parameters for each effect in chain
-- `mix_mode: str` (default: "additive", options: ["additive", "alpha", "screen", "multiply"]) - How to blend feedback
-- `initial_input_mix: float` (default: 1.0, min: 0.0, max: 1.0) - Original video contribution
-- `clamp_values: bool` (default: True) - Clamp output to valid range after each iteration
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `previous_frame: Frame` (optional) - Previous output for feedback (if not using internal buffer)
-
-### Outputs
-- `video: Frame` (same format as input) - Processed video frame
-
 ## What It Does NOT Do
-- Does NOT support infinite loops (hard limit on iterations)
-- Does NOT perform automatic convergence detection
-- Does NOT include effect-specific optimizations for feedback
-- Does NOT handle HDR metadata preservation through loops
-- Does NOT support dynamic effect chain changes mid-loop
-- Does NOT include loop visualization or debugging tools
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform audio-reactive feedback timing
+- Does not support external feedback sources
+- Does not handle infinite recursion (limited by loop_count)
 
 ## Test Plan
-1. Unit tests for feedback buffer management
-2. Verify loop iterations produce expected results
-3. Test mix_mode variations
-4. Performance: ≥ 60 FPS at 1080p with loop_iterations=3
-5. Memory: < 200MB additional RAM (buffers)
-6. Visual: verify feedback creates smooth, evolving patterns
+
+1. **Feedback Amount Tests:**
+   - Test with zero feedback (pass-through)
+   - Test with maximum feedback (full recursion)
+   - Test with different feedback amounts
+
+2. **Feedback Mode Tests:**
+   - Test additive feedback (accumulation)
+   - Test multiply feedback (intensity multiplication)
+   - Test screen feedback (lighten blend)
+   - Test difference feedback (pixel difference)
+   - Test XOR feedback (bitwise operation)
+
+3. **Depth Response Tests:**
+   - Test linear depth response
+   - Test exponential depth response
+   - Test logarithmic depth response
+   - Test different exponent values
+
+4. **Loop Delay Tests:**
+   - Test with zero delay (instant feedback)
+   - Test with various delay times
+   - Test with maximum delay
+
+5. **Loop Count Tests:**
+   - Test with single iteration (no feedback)
+   - Test with multiple iterations
+   - Test with maximum iterations
+
+6. **Filter Tests:**
+   - Test with no filter
+   - Test with blur filter
+   - Test with sharpen filter
+   - Test with emboss filter
+   - Test with edge detection filter
+
+7. **Performance Tests:**
+   - Measure FPS with different feedback amounts
+   - Test with various resolutions
+   - Verify memory usage with multiple iterations
+
+8. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth feedback transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Maintain a buffer for feedback (previous output)
-- For iteration i from 0 to loop_iterations-1:
-  - If i == 0: input = original_video * initial_input_mix + feedback * feedback_strength
-  - Else: input = previous_output
-  - Apply effect_chain to input using effect_params
-  - Modulate effect parameters with depth if needed
-  - Store output as feedback for next iteration
-  - Mix with accumulated result using mix_mode
-- Use depth to modulate feedback_strength per-pixel: effective_strength = feedback_strength * (depth * depth_feedback_scale)
-- If clamp_values: clamp each iteration's output to prevent overflow
-- Optimize by reusing buffers and minimizing copies
-- Follow SAFETY_RAILS: cap iterations, handle edge cases
+
+- Use frame buffer ping-pong for feedback accumulation
+- Implement efficient depth-based feedback modulation
+- Support real-time parameter adjustment
+- Provide feedback preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_fx_loop.py`
-- `tests/effects/test_depth_fx_loop.py`
-- `docs/plugins/depth_fx_loop.md`
+
+- `src/vjlive3/plugins/depth_fx_loop.py` - Main plugin implementation
+- `tests/plugins/test_depth_fx_loop.py` - Comprehensive test suite
+- `docs/plugins/depth_fx_loop.md` - User documentation
+- `shaders/depth_fx_loop.glsl` - GPU shader for feedback processing
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Feedback loop works correctly
-- [x] Depth modulates feedback as expected
-- [x] 60 FPS at 1080p with 3 iterations
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Depth-modulated feedback loops with configurable intensity
+- ✅ Multiple feedback modes and blending options
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Configurable delay and iteration count
+- ✅ Various filter options for feedback processing
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

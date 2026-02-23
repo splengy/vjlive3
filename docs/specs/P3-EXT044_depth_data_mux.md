@@ -1,85 +1,137 @@
-# P3-EXT044: Depth Data Mux Effect
+# P3-EXT044 Depth Data Mux
 
 ## What This Module Does
-Implements a depth-based data multiplexer that can route, combine, or switch between multiple depth sources or processing paths. Allows for complex depth manipulation by selecting different depth processing strategies based on conditions or mixing multiple depth streams. Useful for creating hybrid depth effects or managing multiple depth inputs.
+
+Depth Data Mux (Multiplexer) is a plugin that allows combining multiple depth sources into a single composite depth stream. This enables complex depth-based effects by mixing different depth inputs (cameras, simulated depth, AI-generated depth) with configurable blending modes and priority rules.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthDataMux",
-    "version": "3.0.0",
-    "description": "Multiplex and route depth data",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "utility",
-    "tags": ["depth", "mux", "multiplexer", "routing"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Data Mux",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Combines multiple depth sources into a single composite depth stream",
+    "category": "Depth Effects",
+    "tags": ["depth", "mux", "composite", "multi-source"],
+    "inputs": ["depth1", "depth2", "depth3", "depth4"],
+    "outputs": ["composite_depth"],
+    "parameters": {
+        "blend_mode": {
+            "type": "enum",
+            "options": ["average", "max", "min", "priority1", "priority2", "priority3", "priority4"],
+            "default": "average",
+            "description": "Blending mode for combining depth sources"
+        },
+        "priority_order": {
+            "type": "array",
+            "items": {"type": "integer"},
+            "default": [1, 2, 3, 4],
+            "description": "Priority order when using priority blending modes"
+        },
+        "weight1": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.25,
+            "description": "Weight for depth source 1"
+        },
+        "weight2": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.25,
+            "description": "Weight for depth source 2"
+        },
+        "weight3": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.25,
+            "description": "Weight for depth source 3"
+        },
+        "weight4": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.25,
+            "description": "Weight for depth source 4"
+        },
+        "normalize": {
+            "type": "boolean",
+            "default": true,
+            "description": "Normalize weights to sum to 1.0"
+        },
+        "fallback_depth": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Fallback depth value when no sources are available"
+        }
+    }
 }
 ```
 
-### Parameters
-- `mux_mode: str` (default: "select", options: ["select", "blend", "switch", "conditional"]) - Multiplexing mode
-- `depth_sources: list[str]` (default: []) - Source depth inputs (from other plugins or buffers)
-- `active_source: int` (default: 0, min: 0, max: 3) - Which source to use when mode="select"
-- `blend_weights: list[float]` (default: []) - Weights for blending sources (mode="blend")
-- `switch_condition: str` (default: "depth_range", options: ["depth_range", "time", "beat", "custom"]) - When to switch
-- `switch_threshold: float` (default: 0.5, min: 0.0, max: 1.0) - Threshold for switching
-- `conditional_rules: dict` (default: {}) - Custom conditions for mode="conditional"
-- `default_depth: float` (default: 0.5, min: 0.0, max: 1.0) - Fallback depth value
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Primary depth buffer
-- `depth_secondary: Frame` (optional) - Secondary depth source for blending
-- `depth_tertiary: Frame` (optional) - Tertiary depth source
-- `depth_quaternary: Frame` (optional) - Quaternary depth source
-- `timestamp: float` (optional) - Current time for time-based switching
-- `beat_phase: float` (optional) - Beat phase for beat-based switching
-
-### Outputs
-- `video: Frame` (same format as input) - Processed video frame
-- `depth_output: Frame` (optional) - Multiplexed depth buffer
-
 ## What It Does NOT Do
-- Does NOT generate depth data (only routes/processes existing depth)
-- Does NOT perform depth estimation or inference
-- Does NOT support more than 4 depth sources (hard limit)
-- Does NOT include depth enhancement or filtering (pure routing)
-- Does NOT handle HDR metadata preservation
-- Does NOT support dynamic source addition/removal at runtime
+
+- Does not perform depth estimation from 2D images (use Depth Simulator for that)
+- Does not handle color information, only depth data
+- Does not perform real-time depth alignment between sources (assumes pre-aligned inputs)
+- Does not support more than 4 depth sources (extend plugin for more)
 
 ## Test Plan
-1. Unit tests for each mux_mode
-2. Verify depth source selection and blending
-3. Test switch_condition logic
-4. Performance: ≥ 60 FPS at 1080p
-5. Memory: < 50MB additional RAM
-6. Integration: verify depth_output matches expected routing
+
+1. **Basic Functionality Tests:**
+   - Test with single depth source (should pass through unchanged)
+   - Test with two depth sources using different blend modes
+   - Test with all four depth sources
+   - Test with zero depth sources (should use fallback)
+
+2. **Blend Mode Tests:**
+   - Average mode: Verify weighted average calculation
+   - Max mode: Verify maximum depth selection
+   - Min mode: Verify minimum depth selection
+   - Priority modes: Verify correct source selection based on priority
+
+3. **Weight Tests:**
+   - Test with different weight combinations
+   - Test with normalize enabled/disabled
+   - Test with zero weights
+   - Test with weights summing to more than 1.0
+
+4. **Performance Tests:**
+   - Measure FPS impact with 1, 2, 3, and 4 depth sources
+   - Test with different resolution depths
+   - Verify memory usage remains stable
+
+5. **Edge Case Tests:**
+   - Test with invalid depth values (NaN, infinity)
+   - Test with different depth formats
+   - Test with depth sources of different resolutions
 
 ## Implementation Notes
-- For mode="select": output = depth_sources[active_source]
-- For mode="blend": output = weighted sum of depth_sources using blend_weights
-- For mode="switch": monitor switch_condition and toggle between sources
-- For mode="conditional": evaluate conditional_rules to select source
-- Sources can be other plugin outputs or internal buffers
-- If a source is None, use default_depth
-- Optimize with minimal copying; use views where possible
-- Follow SAFETY_RAILS: validate source indices, handle missing inputs
+
+- Use GPU acceleration for depth blending operations
+- Implement efficient memory pooling for depth buffers
+- Support both 8-bit and 16-bit depth formats
+- Provide real-time preview of composite depth
+- Include depth visualization mode for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_data_mux.py`
-- `tests/effects/test_depth_data_mux.py`
-- `docs/plugins/depth_data_mux.md`
+
+- `src/vjlive3/plugins/depth_data_mux.py` - Main plugin implementation
+- `tests/plugins/test_depth_data_mux.py` - Comprehensive test suite
+- `docs/plugins/depth_data_mux.md` - User documentation
+- `shaders/depth_mux.glsl` - GPU shader for depth blending
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] All mux modes work correctly
-- [x] Depth routing functions as expected
-- [x] 60 FPS at 1080p
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Combines up to 4 depth sources with configurable blending
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Supports multiple blend modes and priority rules
+- ✅ Handles edge cases gracefully (missing sources, invalid data)
+- ✅ Memory efficient with proper resource management
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Documentation complete with examples
+- ✅ Passes all safety rails (60 FPS, no silent failures, etc.)

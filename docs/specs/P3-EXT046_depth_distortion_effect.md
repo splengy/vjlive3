@@ -1,86 +1,160 @@
-# P3-EXT046: Depth Distortion Effect
+# P3-EXT046 Depth Distortion Effect
 
 ## What This Module Does
-Applies various distortion effects to the video based on depth values. Creates warping, bulging, pinching, and other geometric transformations that are controlled by the depth buffer. Useful for creating surreal visual effects where depth influences the shape and geometry of the image.
+
+Depth Distortion Effect applies geometric distortions to the video stream based on depth values, creating warping effects that simulate optical distortions, heat haze, or surreal spatial manipulations. Different depth regions are distorted differently, creating a sense of depth-based spatial transformation.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthDistortionEffect",
-    "version": "3.0.0",
-    "description": "Depth-based geometric distortion",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "distortion",
+    "name": "Depth Distortion Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Applies geometric distortion based on depth values",
+    "category": "Depth Effects",
     "tags": ["depth", "distortion", "warp", "geometry"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "distortion_type": {
+            "type": "enum",
+            "options": ["barrel", "pincushion", "wave", "ripple", "turbulence", "custom"],
+            "default": "barrel",
+            "description": "Type of geometric distortion to apply"
+        },
+        "distortion_strength": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Overall strength of distortion effect"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth values map to distortion intensity"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "center_x": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "X coordinate of distortion center"
+        },
+        "center_y": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Y coordinate of distortion center"
+        },
+        "frequency": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Frequency for wave/ripple distortions"
+        },
+        "amplitude": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.1,
+            "description": "Amplitude for wave/ripple distortions"
+        },
+        "turbulence_scale": {
+            "type": "float",
+            "min": 0.001,
+            "max": 0.1,
+            "default": 0.01,
+            "description": "Scale of turbulence noise"
+        },
+        "turbulence_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Animation speed for turbulence"
+        }
+    }
 }
 ```
 
-### Parameters
-- `distortion_type: str` (default: "bulge", options: ["bulge", "pinch", "twist", "wave", "ripple", "custom"]) - Distortion pattern
-- `distortion_strength: float` (default: 0.5, min: 0.0, max: 2.0) - Intensity of distortion
-- `center_x: float` (default: 0.5, min: 0.0, max: 1.0) - X coordinate of distortion center (normalized)
-- `center_y: float` (default: 0.5, min: 0.0, max: 1.0) - Y coordinate of distortion center (normalized)
-- `radius: float` (default: 0.5, min: 0.1, max: 1.0) - Radius of distortion effect (normalized)
-- `falloff: str` (default: "smooth", options: ["linear", "smooth", "constant"]) - Distortion falloff from center
-- `depth_influence: float` (default: 1.0, min: 0.0, max: 2.0) - How much depth modulates distortion
-- `animate: bool` (default: False) - Animate distortion over time
-- `animation_speed: float` (default: 1.0, min: 0.1, max: 10.0) - Animation speed
-- `wave_frequency: int` (default: 2, min: 1, max: 10) - Frequency for wave/ripple types
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `timestamp: float` (optional) - Current time for animation
-
-### Outputs
-- `video: Frame` (same format as input) - Distorted video frame
-
 ## What It Does NOT Do
-- Does NOT perform 3D geometry transformations (2D image warping only)
-- Does NOT support arbitrary displacement maps (depth-driven only)
-- Does NOT include mesh-based deformation (pixel-level remapping)
-- Does NOT handle HDR metadata preservation
-- Does NOT support multiple distortion centers
-- Does NOT include distortion vector visualization
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform color manipulation (only geometric transformation)
+- Does not support multiple distortion centers (single center only)
+- Does not handle 3D geometry reconstruction (2D warp only)
 
 ## Test Plan
-1. Unit tests for distortion vector field generation
-2. Verify each distortion_type produces expected pattern
-3. Test falloff variations
-4. Performance: ≥ 60 FPS at 1080p with distortion_strength=1.0
-5. Memory: < 100MB additional RAM
-6. Visual: verify distortion creates smooth, expected warping
+
+1. **Distortion Type Tests:**
+   - Test barrel distortion (bulging outward)
+   - Test pincushion distortion (pinching inward)
+   - Test wave distortion (sinusoidal displacement)
+   - Test ripple distortion (radial waves)
+   - Test turbulence distortion (noise-based)
+   - Test custom distortion (user-defined function)
+
+2. **Depth Response Tests:**
+   - Test linear response (direct depth mapping)
+   - Test exponential response (depth² mapping)
+   - Test logarithmic response (log(depth) mapping)
+   - Test different exponent values
+
+3. **Center Tests:**
+   - Test with different center positions
+   - Verify distortion radiates from correct center
+   - Test with animated center (if supported)
+
+4. **Parameter Tests:**
+   - Test with zero distortion strength (pass-through)
+   - Test with maximum distortion strength
+   - Test frequency and amplitude for wave modes
+   - Test turbulence scale and speed
+
+5. **Performance Tests:**
+   - Measure FPS with different distortion types
+   - Test with various resolutions
+   - Verify GPU memory usage
+
+6. **Quality Tests:**
+   - Check for artifacts at depth discontinuities
+   - Verify smooth transitions between depth regions
+   - Test with noisy depth maps
 
 ## Implementation Notes
-- Compute distortion offset for each pixel based on its distance from center
-- For bulge: push pixels away from center, strength proportional to distance
-- For pinch: pull pixels toward center
-- For twist: rotate pixels around center based on distance
-- For wave/ripple: apply sinusoidal displacement based on distance
-- Use depth to modulate distortion_strength: effective_strength = distortion_strength * (depth ^ depth_influence)
-- Apply falloff: linear = distance/radius, smooth = smoothstep, constant = 1 within radius
-- If animate: modulate strength or center with timestamp
-- Implement using coordinate remap: output[x,y] = input[x+dx, y+dy]
-- Optimize with precomputed distortion maps for static parameters
-- Follow SAFETY_RAILS: handle edge cases, no silent failures
+
+- Implement all distortion types as GPU shaders
+- Use procedural noise for turbulence effect
+- Support real-time parameter adjustment
+- Provide preview of distortion field
+- Include depth visualization mode
 
 ## Deliverables
-- `src/vjlive3/effects/depth_distortion.py`
-- `tests/effects/test_depth_distortion.py`
-- `docs/plugins/depth_distortion.md`
-- Optional: `shaders/depth_distortion.frag`
+
+- `src/vjlive3/plugins/depth_distortion.py` - Main plugin implementation
+- `tests/plugins/test_depth_distortion.py` - Comprehensive test suite
+- `docs/plugins/depth_distortion.md` - User documentation
+- `shaders/depth_distortion_*.glsl` - Shaders for each distortion type
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] All distortion types work correctly
-- [x] Depth modulates distortion as expected
-- [x] 60 FPS at 1080p
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Multiple distortion types with smooth implementation
+- ✅ Depth-based distortion intensity control
+- ✅ Configurable center point
+- ✅ Real-time performance with minimal FPS impact
+- ✅ No visual artifacts or aliasing
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

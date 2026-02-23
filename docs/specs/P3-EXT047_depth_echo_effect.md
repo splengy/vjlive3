@@ -1,84 +1,161 @@
-# P3-EXT047: Depth Echo Effect
+# P3-EXT047 Depth Echo Effect
 
 ## What This Module Does
-Creates echo/trailing effects based on depth information. The effect produces multiple delayed copies of the input video, with each copy's offset and opacity controlled by depth values. Creates ghostly afterimages that follow depth contours, producing a sense of depth-based motion blur or temporal smearing.
+
+Depth Echo Effect creates trailing echo effects where objects leave visual trails that fade over time, with the echo intensity and behavior varying based on depth. Closer objects leave stronger, longer-lasting echoes while distant objects have fainter, shorter trails. This creates a sense of motion and depth with temporal persistence.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthEchoEffect",
-    "version": "3.0.0",
-    "description": "Depth-based echo/trailing effect",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "temporal",
-    "tags": ["depth", "echo", "trail", "ghost", "temporal"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Echo Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Creates depth-based echo trails with temporal persistence",
+    "category": "Depth Effects",
+    "tags": ["depth", "echo", "trail", "temporal"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "echo_count": {
+            "type": "integer",
+            "min": 1,
+            "max": 10,
+            "default": 3,
+            "description": "Number of echo layers"
+        },
+        "echo_decay": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.7,
+            "description": "Decay rate for echo intensity"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth affects echo intensity"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "echo_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Speed of echo movement"
+        },
+        "echo_direction": {
+            "type": "enum",
+            "options": ["forward", "backward", "both", "radial_out", "radial_in"],
+            "default": "forward",
+            "description": "Direction of echo movement"
+        },
+        "echo_color": {
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Base color for echo trails"
+        },
+        "color_fade": {
+            "type": "boolean",
+            "default": true,
+            "description": "Fade echo color over time"
+        },
+        "motion_blur": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Motion blur amount for echoes"
+        },
+        "echo_blend": {
+            "type": "enum",
+            "options": ["additive", "screen", "multiply", "overlay"],
+            "default": "additive",
+            "description": "Blending mode for echo trails"
+        }
+    }
 }
 ```
 
-### Parameters
-- `num_echoes: int` (default: 3, min: 1, max: 10) - Number of echo copies
-- `echo_delay: float` (default: 0.1, min: 0.01, max: 0.5) - Time delay between echoes (seconds)
-- `echo_decay: float` (default: 0.7, min: 0.1, max: 1.0) - Opacity decay per echo
-- `max_offset: int` (default: 20, min: 1, max: 100) - Maximum pixel offset for echoes
-- `depth_scale: float` (default: 1.0, min: 0.1, max: 5.0) - How much depth affects offset
-- `depth_offset: float` (default: 0.0, min: -1.0, max: 1.0) - Depth bias for offset calculation
-- `direction: str` (default: "radial", options: ["radial", "horizontal", "vertical", "depth"]) - Echo direction
-- `blend_mode: str` (default: "additive", options: ["additive", "alpha", "screen"]) - Echo blending
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `timestamp: float` (optional) - Current time for echo animation
-
-### Outputs
-- `video: Frame` (same format as input) - Video with depth-based echoes
-
 ## What It Does NOT Do
-- Does NOT perform full temporal processing (simple frame buffering only)
-- Does NOT support motion estimation or optical flow
-- Does NOT include audio-reactive echo (depth-only)
-- Does NOT handle HDR metadata preservation through echoes
-- Does NOT support custom echo patterns beyond basic offsets
-- Does NOT include echo decay curve customization
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform motion detection (uses depth for motion cues)
+- Does not support echo persistence across scene changes
+- Does not handle audio-reactive echo timing
 
 ## Test Plan
-1. Unit tests for echo buffer management
-2. Verify depth-based offset calculation
-3. Test all direction options
-4. Performance: ≥ 60 FPS at 1080p with num_echoes=5
-5. Memory: < 150MB additional RAM (echo buffers)
-6. Visual: verify echoes create smooth trailing effect
+
+1. **Echo Count Tests:**
+   - Test with 1 echo layer (simple trail)
+   - Test with maximum 10 echo layers
+   - Test with different echo counts
+
+2. **Decay Tests:**
+   - Test with fast decay (short trails)
+   - Test with slow decay (long trails)
+   - Test with zero decay (permanent trails)
+   - Test with maximum decay (instant fade)
+
+3. **Depth Response Tests:**
+   - Test linear depth response
+   - Test exponential depth response
+   - Test logarithmic depth response
+   - Test different exponent values
+
+4. **Direction Tests:**
+   - Test forward echo movement
+   - Test backward echo movement
+   - Test both directions
+   - Test radial echo patterns
+
+5. **Color Tests:**
+   - Test with different echo colors
+   - Test color fading over time
+   - Test with color cycling
+   - Test with monochrome echoes
+
+6. **Performance Tests:**
+   - Measure FPS with different echo counts
+   - Test with various resolutions
+   - Verify memory usage with multiple echo layers
+
+7. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth echo transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Maintain a ring buffer of previous frames (size = num_echoes)
-- For each echo i (0 to num_echoes-1):
-  - offset = i * echo_delay * fps (in frames)
-  - Retrieve frame from buffer at appropriate offset
-  - Compute depth-based offset: depth_offset_pixels = max_offset * (depth * depth_scale + depth_offset)
-  - Apply directional offset: horizontal, vertical, radial, or depth-based
-  - Apply decay: opacity = echo_decay ^ i
-  - Blend with output using blend_mode
-- For radial: offset direction points away from center
-- For depth: offset magnitude controlled by depth value, direction based on gradient
-- Optimize with shared buffer and minimal copying
-- Follow SAFETY_RAILS: cap buffer size, handle missing frames
+
+- Use frame buffer ping-pong for echo accumulation
+- Implement efficient depth-based echo intensity calculation
+- Support real-time parameter adjustment
+- Provide echo preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_echo.py`
-- `tests/effects/test_depth_echo.py`
-- `docs/plugins/depth_echo.md`
+
+- `src/vjlive3/plugins/depth_echo.py` - Main plugin implementation
+- `tests/plugins/test_depth_echo.py` - Comprehensive test suite
+- `docs/plugins/depth_echo.md` - User documentation
+- `shaders/depth_echo.glsl` - GPU shader for echo processing
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Echo effect works with depth modulation
-- [x] All parameters functional
-- [x] 60 FPS at 1080p with 5 echoes
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Depth-based echo trails with configurable intensity
+- ✅ Multiple echo layers with smooth decay
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Various echo movement directions and patterns
+- ✅ Configurable color and blending options
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails
