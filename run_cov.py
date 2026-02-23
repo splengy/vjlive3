@@ -2,10 +2,10 @@ import coverage
 import pytest
 import sys
 
-cov = coverage.Coverage(source=['vjlive3.plugins.depth_aware_compression'])
+cov = coverage.Coverage(source=['vjlive3.plugins.depth_edge_glow'])
 cov.start()
 
-sys.argv = ['pytest', 'tests/plugins/test_depth_aware_compression.py', '-v']
+sys.argv = ['pytest', 'tests/plugins/test_depth_edge_glow.py', '-v']
 pytest.main()
 
 cov.stop()

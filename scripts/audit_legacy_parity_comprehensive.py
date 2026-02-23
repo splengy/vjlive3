@@ -210,6 +210,54 @@ def main():
             coll = p.get('collection', 'Unknown')
             print(f"  - {p.get('class_name', 'Unknown')} ({coll})")
 
+    # Enforce output directory
+    output_dir = VJLIVE3_ROOT / "output"
+    output_dir.mkdir(exist_ok=True)
+
+    # 1. missing_plugins.csv
+    csv_path = output_dir / "missing_plugins.csv"
+    import csv
+    with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Class Name', 'Category', 'Source File', 'Collection'])
+        for p in missing_plugins:
+            writer.writerow([
+                p.get('class_name', 'Unknown'),
+                p.get('category', 'uncategorized'),
+                p.get('file', 'Unknown'),
+                p.get('collection', 'Unknown')
+            ])
+
+    # 2. plugin_categorization.json
+    json_path = output_dir / "plugin_categorization.json"
+    categorization_data = {
+        cat: [p.get('class_name', 'Unknown') for p in plugs]
+        for cat, plugs in categories.items()
+    }
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(categorization_data, f, indent=2)
+
+    # 3. priority_matrix.yaml
+    yaml_path = output_dir / "priority_matrix.yaml"
+    priority_data = {"phases": {
+        "Phase 3: Depth & Spatiotemporal": categories.get("Depth", []) + categories.get("Spatiotemporal", []),
+        "Phase 4: Audio Families & Generators": categories.get("Audio", []) + categories.get("Generator", []),
+        "Phase 5: Datamosh & Glitch": categories.get("Datamosh", []) + categories.get("Glitch", []),
+        "Phase 6: Quantum & AI": categories.get("Quantum", []) + categories.get("AI", []),
+        "Phase 7: Utility & Core": categories.get("Utility", []) + categories.get("Core", [])
+    }}
+    
+    # Write a simple YAML manually to avoid PyYAML dependency issues
+    with open(yaml_path, 'w', encoding='utf-8') as f:
+        f.write("priority_matrix:\n")
+        f.write("  phases:\n")
+        for phase, plugins in priority_data["phases"].items():
+            f.write(f"    '{phase}':\n")
+            if not plugins:
+                f.write("      []\n")
+            for p in plugins:
+                f.write(f"      - {p.get('class_name', 'Unknown')}\n")
+
     # Generate detailed report
     report_path = VJLIVE3_ROOT / "docs" / "audit_report_comprehensive.json"
     report = {
@@ -225,7 +273,12 @@ def main():
     with open(report_path, 'w') as f:
         json.dump(report, f, indent=2)
 
-    print(f"\n\nDetailed audit report saved to: {report_path}")
+    print(f"\n\nFiles generated:")
+    print(f"  - {report_path}")
+    print(f"  - {csv_path}")
+    print(f"  - {json_path}")
+    print(f"  - {yaml_path}")
+
     print("\nNext steps:")
     print("  1. Review the audit report")
     print("  2. Update P0-INF2 specification with accurate counts")

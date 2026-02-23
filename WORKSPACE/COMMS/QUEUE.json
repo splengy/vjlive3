@@ -236,19 +236,19 @@
   {
     "task_id": "P3-VD16",
     "spec_path": "docs/specs/P3-VD16_depth_edge_glow.md",
-    "status": "in_progress",
+    "status": "completed",
     "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:26:36.668069+00:00",
     "started_at": "2026-02-23T06:08:11.212218+00:00",
-    "completed_at": null
+    "completed_at": "2026-02-23T06:11:46.404023+00:00"
   },
   {
     "task_id": "P0-INF2",
     "spec_path": "docs/specs/P0-INF2_legacy_feature_parity.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-23T00:18:31.964401+00:00",
-    "started_at": null,
+    "started_at": "2026-02-23T06:12:03.065954+00:00",
     "completed_at": null
   },
   {
