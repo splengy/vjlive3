@@ -17,7 +17,6 @@ from urllib.parse import urlencode
 
 import requests
 
-from vjlive3.plugins.api import PluginBase, PluginContext
 from vjlive3.plugins.license_server import LicenseServer
 
 _logger = logging.getLogger("vjlive3.plugins.marketplace")
@@ -67,7 +66,7 @@ class InstalledPlugin:
     path: str
 
 
-class PluginMarketplace(PluginBase):
+class PluginMarketplace(object):
     """
     Plugin Marketplace Integration.
     Complies with P7-B2 specifications for plugin discovery, download, and installation.
@@ -97,7 +96,7 @@ class PluginMarketplace(PluginBase):
         # Requests session for pooling/auth
         self._session = requests.Session()
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         """Initialize parameters from context and prepare directories."""
         super().initialize(context)
         

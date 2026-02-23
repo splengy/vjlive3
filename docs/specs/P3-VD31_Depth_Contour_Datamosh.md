@@ -2,7 +2,7 @@
 
 ## What This Module Does
 
-Implements `DepthContourDatamoshEffect` — a depth-aware datamosh effect that creates contour-based glitch patterns following depth edges and boundaries. This effect analyzes depth contours to generate targeted datamosh artifacts that trace object boundaries and depth transitions, creating organic, flowing glitch patterns that respond to the geometry of the scene.
+This module implements the `DepthContourDatamoshEffect`, ported from the legacy `VJlive-2/plugins/vdepth/depth_contour_datamosh.py` codebase. It treats the stereoscopic depth map as a topographic 3D heightfield and extracts mathematical contour lines at regular intervals. It calculates tangents perpendicular to the depth gradient, and then forces datamosh displacement artifacts to flow smoothly *along* those contour lines rather than across them, creating an organic, terrain-like corruption aesthetic.
 
 ## Public Interface
 
@@ -121,24 +121,19 @@ class DepthContourDatamoshEffect(Effect):
 ## Implementation Notes
 
 ### Legacy References
-- `vjlive/vdepth/depth_contour_datamosh.py` — Original implementation
-- `VJlive-2/plugins/p3_vd31.py` — Existing port (if present)
+- **Source Codebase**: `VJlive-2`
+- **File Paths**: `plugins/vdepth/depth_contour_datamosh.py`
+- **Architectural Soul**: The legacy shader calculates a `contour_tangent` function by rotating the depth gradient normal by 90 degrees (`vec2(-normal.y, normal.x)`). Datamosh UV displacement vectors are then scaled along this tangent. It also features a `topographic_steps` quantizer and temporal multi-pass feedback with spatial accumulation. This exact flow logic must be preserved for visual parity.
 
 ### Key Algorithms
-1. **Contour Extraction**: Use depth gradient magnitude to identify edges
-2. **Displacement Vector Generation**: Create glitch patterns following contour directions
-3. **Color Channel Swapping**: Apply selective color channel shifts during displacement
-4. **Audio Reactivity**: Modulate glitch intensity and direction based on audio features
+1. **Topographic Quantization**: Slices continuous depth into discrete map layers using `floor(depth / interval) * interval` and `smoothstep`.
+2. **Tangent Vector Field Tracking**: Generates continuous UV flow lines perpendicular to the depth normals for directional datamosh.
+3. **Contour Neon Glow**: Explicitly isolates the boundaries to render independent stylistic neon outlines before feedback blending.
 
-### Performance Targets
-- 1080p @ 60fps: <18ms per frame
-- Memory: <25 MB additional (contour buffer)
-- CPU: Optimized using NumPy vectorization and sparse processing
-
-### Safety Rails
-- **RAIL 1**: Must maintain 60fps target
-- **RAIL 6**: Handle missing depth source gracefully (fallback to uniform glitch)
-- **RAIL 8**: No GPU memory leaks in texture allocation
+### Optimization Constraints & Safety Rails
+- **Optimization Constraint (Safety Rail #1):** Like its sister VDepth plugins, this script repeatedly calls `glTexImage2D(GL_TEXTURE_2D, 0, GL_RED...` in the `apply_uniforms` draw loop. This VRAM reallocation must be modernized to `glTexSubImage2D` with a pre-sized FBO upon initialization in VJLive3.
+- **Handling Missing Dual Inputs**: The legacy shader probes `tex1` via `bool hasDualInput = (testB.r + testB.g + testB.b) > 0.01;`. Make sure to safely bind a 1x1 black pixel texture to `tex1` if no secondary source is active.
+- **Cleanup Requirement (Safety Rail #8):** The shader's raw OpenGL bindings must be destroyed via an explicit `.cleanup()` method, rather than solely relying upon the legacy Python `__del__` garbage collector hook.
 
 ## Deliverables
 

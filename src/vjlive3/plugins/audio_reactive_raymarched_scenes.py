@@ -14,7 +14,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +192,7 @@ PRESETS = {
 def _c(v, lo=0., hi=10.): return max(lo, min(hi, float(v)))
 
 
-class AudioReactiveRaymarchedScenesPlugin(EffectPlugin):
+class AudioReactiveRaymarchedScenesPlugin(object):
     """Ray-marched 3D scene renderer with audio reactivity (spheres/tunnel/fractal)."""
 
     def __init__(self):

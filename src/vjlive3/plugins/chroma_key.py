@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'key_hue': 3.0, 'tolerance': 3.0, 'edge_feather': 3.0, 'spill
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class ChromaKeyPlugin(EffectPlugin):
+class ChromaKeyPlugin(object):
     """Chroma key — green/blue screen removal."""
     def __init__(self):
         super().__init__()

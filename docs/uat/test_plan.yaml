@@ -1,0 +1,32 @@
+# docs/uat/test_plan.yaml
+version: "1.0"
+title: "VJLive3 User Acceptance Testing Plan"
+description: "Comprehensive UAT plan for Phase 8 validation"
+
+roles:
+  - id: "VJ-Pro"
+    description: "Professional club/festival VJ"
+    minimum_participants: 5
+  - id: "VJ-Junior"
+    description: "Occasional/hobbyist VJ"
+    minimum_participants: 5
+
+phases:
+  - id: "core_workflows"
+    name: "Core Workflows"
+    scenarios:
+      - "UAT-CORE-01"
+      - "UAT-CORE-02"
+      - "UAT-CORE-03"
+    criteria: "All participants can complete within target time without P0 bugs."
+
+  - id: "performance_stress"
+    name: "Performance Under Load"
+    scenarios:
+      - "UAT-PERF-01"
+    criteria: "Maintains 55+ FPS under sustained load."
+
+sign_off_criteria:
+  - "Zero P0 blocker bugs."
+  - "Overall satisfaction rating > 4.0/5.0."
+  - "Performance baseline met."

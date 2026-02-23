@@ -1,0 +1,417 @@
+# P3-EXT003: AdvancedParticle3DSystem
+
+## Overview
+Advanced 3D particle system with full physics simulation, GPU instancing, and audio reactivity. This is a TouchDesigner-level particle system with 50,000 max particles, force fields, emitters, and 3D camera controls.
+
+## Implementation Details
+
+### Core Architecture
+- **Base Class**: `Effect` (from VJLive3 render engine)
+- **Language**: Python 3.11+ with OpenGL 3.3+ (GLSL 330)
+- **GPU Architecture**: VAO/VBO instancing for 50,000 particles
+- **Physics**: Velocity Verlet integration with force accumulation
+- **Audio Integration**: AudioAnalyzer with AudioReactor for parameter modulation
+
+### Key Components
+
+#### Particle State Management
+```python
+@dataclass
+class Particle:
+    position: np.ndarray  # (x, y, z) in normalized device coordinates [-1, 1]
+    velocity: np.ndarray  # (vx, vy, vz) in world units per second
+    lifetime: float       # Normalized [0.0, 1.0] where 0 = dead, 1 = full life
+    age: float           # Time since birth in seconds
+    mass: float          # For physics calculations
+```
+
+#### Emitters
+```python
+@dataclass
+class ParticleEmitter:
+    type: EmitterType     # POINT, SPHERE, BOX, CONE, DISC
+    position: np.ndarray  # World space position
+    velocity: np.ndarray  # Initial velocity
+    rate: float           # Particles per second
+    lifetime: float       # Particle lifetime in seconds
+    color_range: Tuple[np.ndarray, np.ndarray]  # (min_color, max_color)
+    size_range: Tuple[float, float]  # (min_size, max_size)
+    spread: float         # Initial velocity spread
+    enabled: bool
+```
+
+#### Forces
+```python
+@dataclass
+class ParticleForce:
+    type: ForceType       # GRAVITY, WIND, ATTRACTOR, REPELLER, MAGNETIC, NOISE
+    position: np.ndarray  # World space position (for point forces)
+    strength: float       # Force magnitude
+    falloff: float        # Distance falloff exponent
+    enabled: bool
+```
+
+### Shader Architecture
+
+#### Vertex Shader (GLSL 330)
+```glsl
+#version 330 core
+layout (location = 0) in vec3 a_position;
+layout (location = 1) in vec3 a_velocity;
+layout (location = 2) in float a_lifetime;
+
+uniform mat4 mvp_matrix;
+uniform float particle_size;
+uniform vec3 particle_color;
+uniform float time;
+uniform float audio_bass;
+uniform float audio_mid;
+uniform float audio_treble;
+
+out vec3 v_position;
+out float v_lifetime;
+
+void main() {
+    // Transform particle position
+    vec4 world_pos = vec4(a_position, 1.0);
+    gl_Position = mvp_matrix * world_pos;
+    
+    // Apply size modulation from audio
+    float size_mod = 1.0 + audio_bass * 0.5;
+    gl_PointSize = particle_size * size_mod;
+    
+    v_position = a_position;
+    v_lifetime = a_lifetime;
+}
+```
+
+#### Fragment Shader (GLSL 330)
+```glsl
+#version 330 core
+in vec3 v_position;
+in float v_lifetime;
+out vec4 frag_color;
+
+uniform vec3 particle_color;
+uniform float time;
+
+void main() {
+    // Simple particle rendering with lifetime fade
+    float alpha = v_lifetime * 0.8;
+    frag_color = vec4(particle_color, alpha);
+    
+    // Add some visual interest with position-based color
+    float dist = length(v_position);
+    vec3 color = particle_color * (1.0 + dist * 0.2);
+    frag_color.rgb = mix(particle_color, color, 0.3);
+}
+```
+
+## Parameters (0.0-10.0 range)
+
+### System Parameters
+- **num_particles**: Number of active particles (0.0-50.0, representing 0-50,000 particles)
+- **particle_size**: Base particle size in pixels (0.0-10.0)
+- **particle_color**: Base particle color (0.0-10.0, mapped to RGB)
+- **lifetime**: Base particle lifetime in seconds (0.0-10.0)
+- **gravity**: Gravity force strength (0.0-10.0)
+- **wind**: Wind force strength (0.0-10.0)
+- **attractor_strength**: Attractor force strength (0.0-10.0)
+- **repeller_strength**: Repeller force strength (0.0-10.0)
+- **magnetic_strength**: Magnetic force strength (0.0-10.0)
+- **noise_strength**: Noise force strength (0.0-10.0)
+- **flocking_separation**: Separation force strength (0.0-10.0)
+- **flocking_alignment**: Alignment force strength (0.0-10.0)
+- **flocking_cohesion**: Cohesion force strength (0.0-10.0)
+- **camera_distance**: Camera distance from origin (0.0-10.0)
+- **camera_fov**: Camera field of view in degrees (0.0-10.0)
+- **camera_rotation_x**: Camera X rotation in degrees (0.0-10.0)
+- **camera_rotation_y**: Camera Y rotation in degrees (0.0-10.0)
+- **mix**: Blend factor with input texture (0.0-10.0)
+
+### Emitter Parameters (per-emitter, but exposed as system parameters)
+- **emit_rate**: Particles per second (0.0-10.0)
+- **emit_lifetime**: Particle lifetime (0.0-10.0)
+- **emit_size**: Particle size (0.0-10.0)
+- **emit_spread**: Initial velocity spread (0.0-10.0)
+
+## Presets
+
+### 1. Basic Fireworks
+```json
+{
+  "name": "basic_fireworks",
+  "params": {
+    "num_particles": 5.0,
+    "particle_size": 3.0,
+    "particle_color": 5.0,
+    "lifetime": 8.0,
+    "gravity": 6.0,
+    "wind": 2.0,
+    "attractor_strength": 0.0,
+    "repeller_strength": 0.0,
+    "magnetic_strength": 0.0,
+    "noise_strength": 1.0,
+    "flocking_separation": 0.0,
+    "flocking_alignment": 0.0,
+    "flocking_cohesion": 0.0,
+    "camera_distance": 5.0,
+    "camera_fov": 6.0,
+    "camera_rotation_x": 0.0,
+    "camera_rotation_y": 0.0,
+    "mix": 5.0,
+    "emit_rate": 8.0,
+    "emit_lifetime": 7.0,
+    "emit_size": 4.0,
+    "emit_spread": 6.0
+  }
+}
+```
+
+### 2. Flocking Birds
+```json
+{
+  "name": "flocking_birds",
+  "params": {
+    "num_particles": 3.0,
+    "particle_size": 2.0,
+    "particle_color": 3.0,
+    "lifetime": 6.0,
+    "gravity": 1.0,
+    "wind": 3.0,
+    "attractor_strength": 0.0,
+    "repeller_strength": 0.0,
+    "magnetic_strength": 0.0,
+    "noise_strength": 2.0,
+    "flocking_separation": 6.0,
+    "flocking_alignment": 7.0,
+    "flocking_cohesion": 5.0,
+    "camera_distance": 6.0,
+    "camera_fov": 7.0,
+    "camera_rotation_x": 2.0,
+    "camera_rotation_y": 1.0,
+    "mix": 4.0,
+    "emit_rate": 4.0,
+    "emit_lifetime": 5.0,
+    "emit_size": 2.0,
+    "emit_spread": 3.0
+  }
+}
+```
+
+### 3. Audio Reactive
+```json
+{
+  "name": "audio_reactive",
+  "params": {
+    "num_particles": 4.0,
+    "particle_size": 4.0,
+    "particle_color": 7.0,
+    "lifetime": 7.0,
+    "gravity": 3.0,
+    "wind": 4.0,
+    "attractor_strength": 2.0,
+    "repeller_strength": 1.0,
+    "magnetic_strength": 3.0,
+    "noise_strength": 5.0,
+    "flocking_separation": 2.0,
+    "flocking_alignment": 3.0,
+    "flocking_cohesion": 2.0,
+    "camera_distance": 4.0,
+    "camera_fov": 5.0,
+    "camera_rotation_x": 0.0,
+    "camera_rotation_y": 0.0,
+    "mix": 6.0,
+    "emit_rate": 7.0,
+    "emit_lifetime": 6.0,
+    "emit_size": 3.0,
+    "emit_spread": 4.0
+  }
+}
+```
+
+### 4. Space Simulation
+```json
+{
+  "name": "space_simulation",
+  "params": {
+    "num_particles": 2.0,
+    "particle_size": 1.0,
+    "particle_color": 8.0,
+    "lifetime": 10.0,
+    "gravity": 8.0,
+    "wind": 0.0,
+    "attractor_strength": 6.0,
+    "repeller_strength": 4.0,
+    "magnetic_strength": 7.0,
+    "noise_strength": 0.0,
+    "flocking_separation": 0.0,
+    "flocking_alignment": 0.0,
+    "flocking_cohesion": 0.0,
+    "camera_distance": 8.0,
+    "camera_fov": 8.0,
+    "camera_rotation_x": 3.0,
+    "camera_rotation_y": 2.0,
+    "mix": 3.0,
+    "emit_rate": 2.0,
+    "emit_lifetime": 8.0,
+    "emit_size": 1.0,
+    "emit_spread": 1.0
+  }
+}
+```
+
+### 5. Abstract Art
+```json
+{
+  "name": "abstract_art",
+  "params": {
+    "num_particles": 6.0,
+    "particle_size": 5.0,
+    "particle_color": 4.0,
+    "lifetime": 4.0,
+    "gravity": 2.0,
+    "wind": 5.0,
+    "attractor_strength": 3.0,
+    "repeller_strength": 2.0,
+    "magnetic_strength": 1.0,
+    "noise_strength": 8.0,
+    "flocking_separation": 4.0,
+    "flocking_alignment": 3.0,
+    "flocking_cohesion": 3.0,
+    "camera_distance": 3.0,
+    "camera_fov": 4.0,
+    "camera_rotation_x": 1.0,
+    "camera_rotation_y": 1.0,
+    "mix": 7.0,
+    "emit_rate": 6.0,
+    "emit_lifetime": 3.0,
+    "emit_size": 4.0,
+    "emit_spread": 5.0
+  }
+}
+```
+
+## Test Plan
+
+### Unit Tests
+1. **Parameter Range Tests**: Verify all parameters accept 0.0-10.0 range
+2. **Shader Compilation Tests**: Test vertex and fragment shader compilation
+3. **VAO/VBO Management**: Test buffer creation, updating, and deletion
+4. **Particle Array Resizing**: Test dynamic particle count changes
+5. **Audio Integration**: Test AudioReactor parameter modulation
+
+### Rendering Tests
+1. **Basic Rendering**: Verify particles render correctly with default parameters
+2. **Performance Test**: Ensure 50,000 particles maintain 60 FPS
+3. **Camera Controls**: Test all camera parameters (distance, FOV, rotation)
+4. **Force Field Tests**: Verify each force type (gravity, wind, attractor, etc.)
+5. **Flocking Behavior**: Test separation, alignment, and cohesion behaviors
+
+### Integration Tests
+1. **Audio Reactivity**: Test audio-driven parameter modulation
+2. **Scene Integration**: Test with different input textures and render chains
+3. **Memory Management**: Test for memory leaks with long-running sessions
+4. **Resource Cleanup**: Verify proper OpenGL resource cleanup
+
+### Performance Benchmarks
+- **50,000 particles**: Target 60 FPS
+- **25,000 particles**: Target 90 FPS
+- **10,000 particles**: Target 120 FPS
+- **Memory usage**: < 500MB for 50,000 particles
+- **GPU memory**: < 200MB for particle buffers
+
+## Safety Rails Compliance
+
+### 60 FPS Sacred
+- **Implementation**: VAO/VBO instancing with minimal CPU overhead
+- **Optimization**: Batch particle updates, use NumPy for vector operations
+- **Monitoring**: Performance test with 50,000 particles
+
+### 750-Line Limit
+- **Current**: ~400 lines (including shader code)
+- **Buffer**: Well under limit with room for future enhancements
+
+### Test Coverage Gate
+- **Target**: 80%+ coverage
+- **Strategy**: Comprehensive unit tests for all methods, integration tests for rendering pipeline
+
+### No Silent Failures
+- **Error Handling**: OpenGL error checking, parameter validation
+- **Logging**: Detailed error messages for shader compilation failures
+- **Resource Management**: Proper cleanup in destructor
+
+## File Structure
+
+### Source File
+```
+src/vjlive3/plugins/particles_3d.py
+```
+
+### Test File
+```
+tests/plugins/test_particles_3d.py
+```
+
+### Shader Files (embedded)
+- Vertex shader: `_get_vertex_shader()` method
+- Fragment shader: `_get_fragment_shader()` method
+
+## Implementation Notes
+
+### Performance Optimizations
+1. **GPU Instancing**: Use VAO/VBO for particle data storage
+2. **Batch Updates**: Update all particles in NumPy arrays
+3. **Minimal State Changes**: Reduce OpenGL state changes
+4. **Shader Efficiency**: Simple fragment shader with minimal calculations
+
+### Audio Integration
+- **AudioAnalyzer**: Provides bass, mid, treble features
+- **AudioReactor**: Maps audio features to particle parameters
+- **Real-time Modulation**: Audio affects particle size, color, emission rate
+
+### Camera System
+- **3D Navigation**: Full 3D camera with distance, FOV, and rotation controls
+- **Perspective Projection**: Standard perspective matrix
+- **View Matrix**: Simple camera transform with rotation
+
+### Force System
+- **Multiple Force Types**: Gravity, wind, attractor, repeller, magnetic, noise
+- **Force Accumulation**: Sum all forces per particle per frame
+- **Physics Integration**: Velocity Verlet for stable simulation
+
+## Migration Notes
+
+### From Legacy VJLive-2
+- **Source**: `plugins/vparticles/particles_3d.py`
+- **Key Differences**: Modern OpenGL (3.3+), Python 3.11+, improved architecture
+- **Preserved Features**: All original functionality with performance improvements
+
+### From VJLive
+- **Source**: `core/effects/particles_3d.py`
+- **Enhancements**: Better performance, more features, cleaner code structure
+- **Compatibility**: Maintains same parameter interface for backward compatibility
+
+## Future Enhancements (Post-MVP)
+
+### Advanced Features
+1. **Particle Textures**: Support for custom particle textures
+2. **Collision Detection**: Particle-object collision system
+3. **GPU Compute**: Move physics simulation to compute shaders
+4. **Instanced Rendering**: Support for different particle types
+
+### Integration Features
+1. **Depth Integration**: Use depth buffer for particle occlusion
+2. **Post-Processing**: Add particle-specific post-processing effects
+3. **Network Sync**: Synchronize particle systems across distributed nodes
+4. **AI Control**: Neural network-based particle behavior control
+
+---
+
+**Specification Complete**: This specification provides a comprehensive implementation plan for the AdvancedParticle3DSystem, including all technical details, parameters, presets, and test plans required for development.
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

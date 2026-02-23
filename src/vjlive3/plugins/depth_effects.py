@@ -8,7 +8,6 @@ except ImportError:
     HAS_GL = False
 
 from typing import Dict, Any
-from vjlive3.plugins.api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +151,7 @@ SHADERS = {
     """
 }
 
-class DepthEffectsPlugin(EffectPlugin):
+class DepthEffectsPlugin(object):
     """
     DepthEffects pipeline chaining manager for VJLive3.
     Evaluates up to 6 micro-kernels dynamically utilizing Double-FBO Ping-Pong iterations preventing plugin bloat.
@@ -175,7 +174,7 @@ class DepthEffectsPlugin(EffectPlugin):
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         if self._mock_mode:
             return
 
@@ -290,7 +289,7 @@ class DepthEffectsPlugin(EffectPlugin):
         
         gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
              return 0
              

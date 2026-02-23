@@ -10,7 +10,6 @@ from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock, patch
 
 from vjlive3.plugins.license_server import LicenseServer, License, ValidationResult
-from vjlive3.plugins.api import PluginContext
 
 # Test fixture config
 TEST_DB_PATH = ":memory:"
@@ -21,7 +20,7 @@ def license_server():
     """Provides a fresh, in-memory LicenseServer instance."""
     server = LicenseServer(secret_key=TEST_SECRET, db_path=TEST_DB_PATH)
     # Mock plugin context
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock(spec=MagicMock())
     context.get_parameter.return_value = None
     server.initialize(context)
     yield server
@@ -30,7 +29,7 @@ def license_server():
 def test_init_no_hardware():
     """Module starts without crashing and handles database connections."""
     server = LicenseServer(secret_key=TEST_SECRET, db_path=TEST_DB_PATH)
-    assert server.name == "Unknown Plugin"  # From PluginBase unless overridden in class definition (we use METADATA)
+    assert server.name == "Unknown Plugin"  # From MagicMock() unless overridden in class definition (we use METADATA)
     assert server.METADATA["name"] == "License Server"
     server.cleanup()
     

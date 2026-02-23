@@ -1,0 +1,293 @@
+# P1-A4: Multi-Source Audio Input
+
+## Overview
+
+**Task ID**: P1-A4  
+**Phase**: Phase 1 - Core Infrastructure  
+**Priority**: P1 (Important)  
+**Status**: ⬜ Todo  
+**Description**: Multi-source audio input system with device management and fallback
+
+**Objective**: Port the multi-source audio input system that can handle multiple audio devices simultaneously, with automatic fallback and device management for robust audio analysis.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/audio/analyzer.py` (lines 35-50)
+- **Class**: `AudioAnalyzer`
+- **Key Features**:
+  - Device enumeration and selection
+  - Fallback to default device
+  - Device hot-plugging detection
+  - Multi-channel support
+  - Buffer management for different sample rates
+
+### Supporting Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/audio/engine.py`
+- **Class**: `AudioEngine`
+- **Key Features**:
+  - Advanced device management
+  - Audio routing matrix
+  - Sample rate conversion
+  - Multi-device synchronization
+  - Audio device profiles
+
+### Related Modules
+- `../vjlive/core/audio/beat.py` - Beat detection (uses audio input)
+- `../VJlive-2/core/audio/quantum_analyzer.py` - Advanced audio analysis
+- `../vjlive/core/audio/rhythm_engine.py` - Rhythm processing
+- `../VJlive-2/core/audio/reactor.py` - Audio reactor system
+
+---
+
+## What This Module Does
+
+This task implements a robust multi-source audio input system that:
+
+1. **Device Enumeration**: Lists all available audio input devices (microphones, line-ins, virtual devices)
+2. **Device Selection**: Allows user to select preferred audio source
+3. **Multi-Device Support**: Can handle multiple audio sources simultaneously
+4. **Sample Rate Management**: Handles different sample rates (44.1kHz, 48kHz, 96kHz)
+5. **Buffer Management**: Manages audio buffers for different devices
+6. **Hot-Plugging**: Detects when devices are connected/disconnected
+7. **Automatic Fallback**: Switches to backup device if primary fails
+8. **Audio Routing**: Routes audio from different sources to different analyzers
+9. **Device Profiles**: Saves/loads device configurations
+10. **Performance Optimization**: Maintains low latency across devices
+
+---
+
+## Implementation Plan
+
+### Phase 1: Device Management
+1. Implement device enumeration using `sounddevice` or `pyaudio`
+2. Create device selection interface
+3. Add device hot-plugging detection
+4. Implement device profiles (save/load configurations)
+
+### Phase 2: Multi-Source Support
+1. Create audio source manager for multiple devices
+2. Implement sample rate conversion
+3. Add buffer synchronization across devices
+4. Create audio routing matrix
+
+### Phase 3: Fallback & Recovery
+1. Implement automatic fallback to backup devices
+2. Add device health monitoring
+3. Create recovery procedures for device loss
+4. Implement graceful degradation
+
+### Phase 4: Integration
+1. Integrate with `AudioAnalyzer` (P1-A1)
+2. Connect to `AudioReactivityBus` (P1-A3)
+3. Add device selection to UI
+4. Create device status monitoring
+
+### Phase 5: Testing & Validation
+1. Unit tests for device enumeration
+2. Integration tests with multiple devices
+3. Performance benchmarks (latency, CPU, memory)
+4. Hardware compatibility tests
+
+---
+
+## Public Interface
+
+### AudioSourceManager Class
+
+```python
+# src/vjlive3/audio/sources.py
+class AudioSourceManager:
+    def __init__(self):
+        """Initialize audio source manager"""
+    
+    def enumerate_devices(self) -> List[AudioDeviceInfo]:
+        """Get list of available audio input devices"""
+    
+    def get_default_device(self) -> Optional[AudioDeviceInfo]:
+        """Get default audio input device"""
+    
+    def set_active_device(self, device_id: str) -> None:
+        """Set active audio input device"""
+    
+    def get_active_device(self) -> Optional[AudioDeviceInfo]:
+        """Get currently active audio input device"""
+    
+    def add_audio_analyzer(self, analyzer: AudioAnalyzer, device_id: Optional[str] = None) -> None:
+        """Add audio analyzer to specific device"""
+    
+    def remove_audio_analyzer(self, analyzer: AudioAnalyzer) -> None:
+        """Remove audio analyzer from device"""
+    
+    def get_device_status(self, device_id: str) -> DeviceStatus:
+        """Get status of audio device"""
+    
+    def save_device_profile(self, profile_name: str) -> None:
+        """Save current device configuration"""
+    
+    def load_device_profile(self, profile_name: str) -> None:
+        """Load device configuration"""
+```
+
+### AudioDeviceInfo Data Structure
+
+```python
+@dataclass
+class AudioDeviceInfo:
+    id: str                    # Unique device identifier
+    name: str                  # Human-readable name
+    channels: int              # Number of input channels
+    sample_rates: List[int]    # Supported sample rates
+    default_sample_rate: int   # Default sample rate
+    is_default: bool           # Is this the system default?
+    is_active: bool            # Is this device currently active?
+    latency: float             # Round-trip latency in ms
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| Device enumeration | System audio API | List of available audio devices |
+| Device selection | User/UI | Preferred audio source |
+| Audio stream | Selected device | PCM audio data |
+| Sample rate | Device/config | Hz (44.1kHz, 48kHz, etc.) |
+| Buffer size | Configuration | Samples per frame |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| Device list | UI/Configuration | Available audio devices |
+| Audio stream | AudioAnalyzer | PCM audio data |
+| Device status | Monitoring | Health and performance metrics |
+| Configuration | Storage | Device profiles and settings |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** create audio devices (uses system audio API)
+- ❌ Does **not** perform audio analysis (uses P1-A1 + P1-A2)
+- ❌ Does **not** handle audio output (separate output module)
+- ❌ Does **not** manage audio effects (use EffectManager)
+- ❌ Does **not** provide audio recording (use Recorder module)
+- ❌ Does **not** handle MIDI audio (use MIDIController)
+
+---
+
+## Testing & Validation
+
+### Unit Tests
+
+```python
+def test_device_enumeration():
+    """Verify all audio devices are detected"""
+    
+def test_device_selection():
+    """Test setting/getting active device"""
+    
+def test_sample_rate_conversion():
+    """Verify sample rate conversion works correctly"""
+    
+def test_hot_plugging():
+    """Test device connection/disconnection detection"""
+```
+
+### Integration Tests
+
+- Real-time processing with multiple audio devices
+- Device switching during operation
+- Sample rate conversion accuracy
+- Buffer synchronization across devices
+
+### Performance Benchmarks
+
+| Metric | Target |
+|--------|--------|
+| Device enumeration time | < 1 second |
+| Device switching time | < 500ms |
+| Audio latency | < 50ms |
+| CPU overhead | < 1% per device |
+| Memory per device | < 10MB |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] Device enumeration completes in < 1 second
+- [ ] All unit tests pass (≥80% coverage)
+- [ ] Audio latency < 50ms with single device
+- [ ] Automatic fallback works within 2 seconds of device loss
+- [ ] Hot-plugging detection within 1 second
+- [ ] Thread-safe: no race conditions in device management
+- [ ] Works with at least 3 different audio devices
+- [ ] Supports sample rates: 44.1kHz, 48kHz, 96kHz
+
+### Should Pass (Best Effort)
+
+- [ ] Multi-device support (2+ devices simultaneously)
+- [ ] Sample rate conversion accuracy > 99%
+- [ ] Device profiles save/load correctly
+- [ ] Low-latency mode for live performance (< 20ms)
+- [ ] Device status monitoring with health metrics
+
+---
+
+## Dependencies
+
+- **Audio Analysis**: Requires P1-A1 (AudioAnalyzer) to process audio
+- **Device API**: Requires sounddevice or pyaudio Python packages
+- **State Management**: Requires P1-N3 (State Persistence) for profiles
+- **UI Integration**: Requires P1-N4 (Node Graph UI) for device selection
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Device enumeration fails on some systems | Medium | Medium | Fallback to default device, comprehensive error handling |
+| Sample rate conversion artifacts | Low | Medium | High-quality conversion, configurable quality settings |
+| Thread safety issues | Low | High | Lock-free design, atomic operations |
+| Memory leaks from device handles | Low | Medium | Reference counting, cleanup on device removal |
+| Platform differences (Windows/Linux/macOS) | High | Medium | Abstract audio backend, CI on all platforms |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/audio/analyzer.py` - AudioAnalyzer with device management
+- `../VJlive-2/core/audio/engine.py` - AudioEngine with advanced device management
+- `../vjlive/core/audio/beat.py` - Beat detection (uses audio input)
+- `../VJlive-2/core/audio/quantum_analyzer.py` - Advanced audio analysis
+
+### Related Tasks
+- P1-A1: AudioAnalyzer (consumes audio input)
+- P1-A2: BeatDetector (uses audio input)
+- P1-A3: AudioReactivityBus (publishes audio analysis)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created |
+
+
+
+## Legacy References
+- **Key Algorithms**: TBD (Extract from legacy source)
+- **Parameter Mappings**: 1:1 mapping with legacy plugin configurations
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

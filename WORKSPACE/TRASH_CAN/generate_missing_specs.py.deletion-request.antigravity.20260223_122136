@@ -1,0 +1,118 @@
+import os
+import re
+from pathlib import Path
+import time
+
+def sanitize_filename(name: str) -> str:
+    name = re.sub(r'[^\w\-_\.]', '_', name)
+    name = re.sub(r'_+', '_', name)
+    return name.strip('_').lower()
+
+def create_spec(task_id: str, desc: str, specs_dir: Path, template_content: str):
+    # Parse description: e.g., "vtempi (ProgramPage)" or just "vtempi"
+    match = re.search(r'^(.*?)(?:\s*\((.*?)\))?$', desc)
+    if match:
+        base_name = match.group(1).strip()
+    else:
+        base_name = desc.strip()
+        
+    safe_name = sanitize_filename(base_name)
+    if not safe_name:
+        safe_name = "unknown_module"
+        
+    filename = f"{task_id}_{safe_name}.md"
+    filepath = specs_dir / filename
+    
+    if filepath.exists():
+        # Already done by Roo Code or us!
+        return False
+        
+    # Prepare content
+    module_name = desc
+    phase_match = re.search(r'^(P\d+)', task_id)
+    phase = phase_match.group(1) if phase_match else "Unknown Phase"
+    
+    content = template_content
+    content = content.replace("[TASK-ID]", task_id)
+    content = content.replace("[Module Name]", module_name)
+    content = content.replace("[e.g. Phase 2 / P2-H3]", f"{phase} / {task_id}")
+    content = content.replace("[Agent name]", "Antigravity/Roo")
+    content = content.replace("[YYYY-MM-DD]", time.strftime("%Y-%m-%d"))
+    
+    # Inject legacy references
+    injection = "\n## Legacy References\n"
+    injection += "- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories\n"
+    injection += "- **File Paths**: `TBD`\n"
+    injection += "- **Class Names**: `TBD`\n"
+    injection += "- **Key Algorithms**: TBD (Extract from legacy source)\n"
+    injection += "- **Parameter Mappings**: 1:1 mapping with legacy plugin configurations\n"
+    injection += "- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)\n\n"
+    
+    # Insert before END OF SPECIFICATION
+    footer_idx = content.find("---")
+    if "END OF SPECIFICATION" in content:
+        footer_idx = content.rfind("---", 0, content.rfind("END OF SPECIFICATION"))
+        
+    if footer_idx != -1:
+         content = content[:footer_idx] + injection + content[footer_idx:]
+    else:
+        content += injection
+        
+    filepath.write_text(content, encoding='utf-8')
+    return True
+
+def main():
+    root = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning")
+    board_path = root / "BOARD.md"
+    specs_dir = root / "docs/specs"
+    template_path = specs_dir / "_TEMPLATE.md"
+    
+    with open(board_path, 'r', encoding='utf-8') as f:
+        board_content = f.read()
+        
+    template_content = template_path.read_text(encoding='utf-8')
+
+    # Find all tasks
+    # Match lines like | P9-MISS490 | vtempi (ProgramPage) | P0 | ⬜ Todo | Legacy |
+    tasks = []
+    for line in board_content.split('\n'):
+        match = re.search(r'\|\s*(P[0-9]+-[A-Z0-9]+)\s*\|\s*(.*?)\s*\|', line)
+        if match:
+            task_id = match.group(1).strip()
+            desc = match.group(2).strip()
+            tasks.append((task_id, desc))
+            
+    print(f"Total tasks found in BOARD.md: {len(tasks)}")
+    
+    # Sort backward to start from the end
+    tasks.reverse()
+    
+    generated_count = 0
+    skipped_count = 0
+    
+    print("Generating missing specs backwards...")
+    
+    for task_id, desc in tasks:
+        # We only really want to target P9-MISS and P4-COR or any missing
+        # But safely checking if file exists works for all.
+        
+        # Roo might have named the file slightly differently if there's a strict name match or not
+        # So first let's check if ANY file in specs_dir starts with task_id
+        existing = list(specs_dir.glob(f"{task_id}_*.md"))
+        if existing:
+            skipped_count += 1
+            continue
+            
+        success = create_spec(task_id, desc, specs_dir, template_content)
+        if success:
+            generated_count += 1
+            if generated_count % 100 == 0:
+                print(f"  ...generated {generated_count} specs so far (currently at {task_id})")
+        else:
+            skipped_count += 1
+            
+    print(f"\nFinished! Generated {generated_count} new tracking specs.")
+    print(f"Skipped {skipped_count} tasks (specs already exist).")
+
+if __name__ == "__main__":
+    main()

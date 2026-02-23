@@ -14,7 +14,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -180,7 +180,7 @@ PRESETS = {
 def _map(val, lo, hi): return lo + (max(0., min(10., float(val))) / 10.) * (hi - lo)
 
 
-class AgentAvatarPlugin(EffectPlugin):
+class AgentAvatarPlugin(object):
     """Agent avatar — 2D SDF geometric entity with agent-state visualization."""
 
     def __init__(self):

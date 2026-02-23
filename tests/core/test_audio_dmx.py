@@ -1,5 +1,4 @@
 import pytest
-from vjlive3.core.dmx.audio_dmx import AudioDmxLink
 
 def test_beat_trigger_mapping():
     link = AudioDmxLink()

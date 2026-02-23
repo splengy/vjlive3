@@ -1,0 +1,178 @@
+import os
+import re
+import ast
+from pathlib import Path
+import time
+
+def sanitize_filename(name: str) -> str:
+    name = re.sub(r'[^\w\-_\.]', '_', name)
+    name = re.sub(r'_+', '_', name)
+    return name.strip('_').lower()
+
+def build_legacy_catalog(legacy_dirs):
+    catalog = {}
+    for ldir, source_name in legacy_dirs:
+        for py_file in Path(ldir).rglob("*.py"):
+            try:
+                content = py_file.read_text(encoding='utf-8', errors='ignore')
+                tree = ast.parse(content)
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        class_name = node.name
+                        
+                        methods = [m.name for m in node.body if isinstance(m, ast.FunctionDef)]
+                        
+                        params = []
+                        for m in node.body:
+                            if isinstance(m, ast.FunctionDef) and m.name == '__init__':
+                                params = [a.arg for a in m.args.args if a.arg != 'self']
+                                break
+                                
+                        catalog[class_name.lower()] = {
+                            "source": source_name,
+                            "filepath": str(py_file),
+                            "class_name": class_name,
+                            "methods": methods,
+                            "params": params
+                        }
+            except Exception:
+                pass
+    return catalog
+
+def fuzzy_match(desc: str, catalog: dict):
+    class_target = ""
+    match = re.search(r'^(.*?)(?:\s*\((.*?)\))?$', desc)
+    if match:
+        base_name = match.group(1).strip()
+        class_target = match.group(2).strip() if match.group(2) else ""
+    else:
+        base_name = desc.strip()
+        
+    if class_target.lower() in catalog:
+        return catalog[class_target.lower()]
+    if base_name.lower() in catalog:
+        return catalog[base_name.lower()]
+        
+    clean_base = re.sub(r'^(BF|BG|V):\s*', '', base_name)
+    clean_base_no_space = clean_base.replace(" ", "").lower()
+    
+    v_prefixed = "v" + clean_base_no_space
+    if v_prefixed in catalog:
+        return catalog[v_prefixed]
+        
+    if clean_base_no_space in catalog:
+        return catalog[clean_base_no_space]
+        
+    alpha_only = re.sub(r'[^a-z]', '', clean_base_no_space)
+    v_alpha = "v" + alpha_only
+    if v_alpha in catalog:
+        return catalog[v_alpha]
+        
+    return None
+
+def flesh_out_spec(filepath: Path, catalog: dict, board_tasks: dict):
+    content = filepath.read_text(encoding='utf-8')
+    
+    # Check if it has the literal placeholder
+    placeholder = "*2–3 sentences. What problem does it solve? What does it produce?*"
+    if placeholder not in content:
+        return False
+        
+    # Extract task id from filename (e.g., P4-COR123_something.md)
+    match = re.match(r'^(P\d+-[A-Z0-9]+)_', filepath.name)
+    if not match: return False
+    task_id = match.group(1)
+    
+    desc = board_tasks.get(task_id, "")
+    if not desc: return False
+    
+    rich_info = fuzzy_match(desc, catalog)
+    if not rich_info: return False
+    
+    class_name = rich_info['class_name']
+    source = rich_info['source']
+    methods = rich_info['methods']
+    params = rich_info['params']
+    
+    # 1. Replace "What This Module Does"
+    desc_str = f"This module implements the `{class_name}` component, ported from the legacy `{source}` codebase. It provides the core algorithms and state management corresponding to the `{desc}` feature."
+    content = content.replace(placeholder, desc_str)
+    
+    # 2. Replace "What It Does NOT Do"
+    scope_placeholder = "*Scope boundary. What is explicitly out of scope?*"
+    scope_str = f"Modifying core pipeline state outside the immediate scope of `{class_name}`. Hardware-specific rendering (GPU) implementations should be deferred to the overarching rendering pipeline."
+    content = content.replace(scope_placeholder, scope_str)
+    
+    # 3. Replace "Public Interface" code block
+    interface_placeholder = """```python
+# Paste planned class/function signatures here before coding
+
+class MyModule:
+    def __init__(self, param: Type) -> None: ...
+    def method(self, arg: Type) -> ReturnType: ...
+```"""
+    
+    stub = f"```python\nclass {class_name}:\n"
+    if params:
+        param_list = ", ".join([f"{p}: Any" for p in params])
+        stub += f"    def __init__(self, {param_list}) -> None: ...\n"
+    else:
+        stub += f"    def __init__(self) -> None: ...\n"
+        
+    for m in methods:
+        if m != "__init__":
+            stub += f"    def {m}(self, *args, **kwargs) -> Any: ...\n"
+    stub += "```"
+    
+    content = content.replace(interface_placeholder, stub)
+    
+    # 4. Replace "Inputs and Outputs" table
+    io_placeholder = """| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `param` | `type` | What it is | Range / valid values |"""
+
+    io_table = "| Name | Type | Description | Constraints |\n|------|------|-------------|-------------|\n"
+    if params:
+        for p in params:
+            io_table += f"| `{p}` | `Any` | Legacy parameter mapped from {source} | Extracted dynamically |\n"
+    else:
+        io_table += "| `config` | `dict` | Configuration dictionary | N/A |\n"
+        
+    content = content.replace(io_placeholder, io_table)
+    
+    filepath.write_text(content, encoding='utf-8')
+    return True
+
+def main():
+    root = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning")
+    board_path = root / "BOARD.md"
+    specs_dir = root / "docs/specs"
+    
+    legacy_dirs = [
+        ("/home/happy/Desktop/claude projects/vjlive", "vjlive"),
+        ("/home/happy/Desktop/claude projects/VJlive-2", "VJlive-2")
+    ]
+    
+    print("Building fuzzy catalog...")
+    catalog = build_legacy_catalog(legacy_dirs)
+    
+    # Parse BOARD to get descriptions
+    board_tasks = {}
+    board_content = board_path.read_text(encoding='utf-8')
+    for line in board_content.split('\n'):
+        match = re.search(r'\|\s*(P[0-9]+-[A-Z0-9]+)\s*\|\s*(.*?)\s*\|', line)
+        if match:
+            board_tasks[match.group(1).strip()] = match.group(2).strip()
+            
+    fixed = 0
+    print("Fleshing out specs...")
+    for spec in specs_dir.glob("*.md"):
+        if flesh_out_spec(spec, catalog, board_tasks):
+            fixed += 1
+            if fixed % 100 == 0:
+                print(f"  ...fleshed out {fixed} garbage specs so far")
+                
+    print(f"\nFinished! Fleshed out {fixed} specs with rich AST structural content.")
+
+if __name__ == "__main__":
+    main()

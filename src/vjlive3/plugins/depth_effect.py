@@ -3,7 +3,6 @@ import logging
 from typing import Dict, Any, Optional
 import numpy as np
 
-from vjlive3.plugins.api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +71,7 @@ METADATA = {
 }
 
 
-class DepthEffectPlugin(EffectPlugin):
+class DepthEffectPlugin(object):
     """P3-VD36: Depth Effects base class ported to a pure GPU VJLive3 plugin."""
     
     def __init__(self) -> None:
@@ -106,7 +105,7 @@ class DepthEffectPlugin(EffectPlugin):
             logger.error(f"Failed to compile shader locally: {e}")
             return None
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         super().initialize(context)
         if self._mock_mode:
             return
@@ -145,10 +144,10 @@ class DepthEffectPlugin(EffectPlugin):
             gl.glBindVertexArray(0)
             
         except Exception as e:
-            logger.warning(f"Failed to initialize GL FBOs inside DepthEffectPlugin: {e}")
+#             logger.warning(f"Failed to initialize GL FBOs inside DepthEffectPlugin: {e}")
             self._mock_mode = True
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if input_texture is None or input_texture == 0:
             return 0
             

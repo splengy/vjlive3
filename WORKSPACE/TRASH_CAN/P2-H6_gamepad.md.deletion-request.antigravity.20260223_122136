@@ -1,0 +1,115 @@
+# Spec Template — P2-H6 Gamepad Input (GLFW Backend)
+
+**File naming:** `docs/specs/P2-H6_gamepad.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P2-H6 — Gamepad Input (GLFW Backend)
+
+**Phase:** Phase 2
+**Assigned To:** Worker Beta
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module integrates gamepads/controllers (Xbox, PlayStation, Generic) into VJLive3's reactivity engine using the GLFW backend. It scans for connected joysticks, polls their axes and buttons every frame, normalizes the inputs, and maps them to control parameters in the `Matrix` (node graph).
+
+---
+
+## What It Does NOT Do
+
+- It does NOT rely on the `inputs` Python library (as specified, it uses the GLFW backend).
+- It does NOT map directly to hardware specific visual outputs; it generates normalized control signals (0.0 to 1.0 or -1.0 to 1.0) that can be mapped generically by users.
+
+---
+
+## Public Interface
+
+```python
+import glfw
+from typing import Dict, List, Callable, Optional, Tuple
+from vjlive3.plugins.api import Plugin, VJLiveAPI
+
+class GamepadState:
+    """Snapshot of a controller's current axes and buttons."""
+    def __init__(self, jid: int, name: str) -> None:
+        self.jid = jid
+        self.name = name
+        self.axes: List[float] = []
+        self.buttons: List[int] = []
+        self.connected: bool = True
+
+class GamepadInputPlugin(Plugin):
+    """Plugin wrapping GLFW joystick input."""
+    def __init__(self, api: VJLiveAPI) -> None: ...
+    def on_load(self) -> None: ...
+    def _scan_joysticks(self) -> None: ...
+    def process(self, context) -> None: ...
+    def on_unload(self) -> None: ...
+    def get_gamepad_state(self, jid: int) -> Optional[GamepadState]: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Input | Type | Description |
+|-------|------|-------------|
+| Hardware | GLFW Events | Detected via `glfw.joystick_present()`, `glfw.get_joystick_axes()`, and `glfw.get_joystick_buttons()`. |
+
+| Output | Type | Description |
+|--------|------|-------------|
+| Parameter Updates | Float / Int | Triggers parameter changes in VJLive3's `Matrix` based on bound axes/buttons. |
+
+---
+
+## Edge Cases and Error Handling
+
+- **Headless Mode**: If GLFW cannot be initialized or there is no active window context, the plugin MUST log a warning and silently do nothing (return empty states) rather than crashing. (SAFETY RAIL #6 - Hardware Integration Safety).
+- **Hot-Plugging**: The plugin should gracefully handle controllers being plugged in or disconnected at runtime. `glfw.set_joystick_callback` should be utilized, or if polling, disconnected devices should be handled without raising exceptions.
+- **Dead Zones**: Analog sticks often jitter. The plugin should implement a configurable deadzone (e.g., ignore values between -0.1 and 0.1).
+
+---
+
+## Dependencies
+
+- Python dependencies: `glfw`.
+- Expected to run alongside the VJLive3 core loop, which assumes an active OpenGL context initialized by `P1-R1`.
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_gamepad_headless_fallback` | Instantiating the plugin without an active GLFW context falls back cleanly and doesn't throw exceptions. |
+| `test_gamepad_deadzone` | Small raw axis inputs are clamped to zero. |
+| `test_gamepad_state_update` | The `GamepadState` struct accurately reflects simulated button presses and axis movements. |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-2] P2-H6: Gamepad input (GLFW backend)` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **File Paths**: `TBD`
+- **Key Algorithms**: TBD (Extract from legacy source)
+

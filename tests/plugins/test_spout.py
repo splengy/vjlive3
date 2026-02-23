@@ -4,7 +4,6 @@ import sys
 from unittest.mock import patch, MagicMock
 
 import vjlive3.plugins.spout as spout_mod
-from vjlive3.plugins.api import PluginContext
 
 def test_spout_mock_fallback_on_linux():
     """On non-Windows platforms, or if the library is missing, instantiation creates Mock objects without crashing."""
@@ -41,7 +40,7 @@ def test_spout_receiver_mock_read():
 def test_spout_plugin_api():
     """Ensure the plugin wrapper implements the factory correctly."""
     plugin = spout_mod.SpoutPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock(spec=MagicMock())
     
     plugin.initialize(context)
     assert plugin.manager is not None

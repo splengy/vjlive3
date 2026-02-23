@@ -20,7 +20,6 @@ sys.modules['OpenGL']    = MagicMock()
 sys.modules['OpenGL.GL'] = _g
 
 from vjlive3.plugins.adaptive_contrast import AdaptiveContrastPlugin, METADATA, PRESETS
-from vjlive3.plugins.api import PluginContext
 
 
 @pytest.fixture(autouse=True)
@@ -40,7 +39,7 @@ def plugin(): return AdaptiveContrastPlugin()
 
 @pytest.fixture
 def ctx():
-    c = PluginContext(MagicMock())
+    c = MagicMock()(MagicMock())
     c.width = 64; c.height = 48; c.time = 0.0
     c.inputs = {"video_in": 10}; c.outputs = {}
     return c

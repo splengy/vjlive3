@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'lut_intensity': 8.0, 'saturation': 5.0, 'contrast': 5.0, 'te
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class LUTGradingPlugin(EffectPlugin):
+class LUTGradingPlugin(object):
     """LUT grading — 1D look-up table colour grade."""
     def __init__(self):
         super().__init__()

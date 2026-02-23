@@ -24,7 +24,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +110,7 @@ def _effect_mode(v): return int(min(2, int(_c(v)/10.*2.)))
 def _blur_kernel(v): return max(0, int(_c(v)*2.)|1)
 
 
-class BackgroundSubtractionPlugin(EffectPlugin):
+class BackgroundSubtractionPlugin(object):
     """Background subtraction via MOG2 with GPU blending for silhouette/ghosting effects."""
 
     def __init__(self):

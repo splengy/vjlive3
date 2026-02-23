@@ -1,0 +1,1016 @@
+# Phase E: Config & Presets
+
+**Document Version**: 1.0  
+**Created**: 2026-02-23  
+**Status**: Ready for Review  
+**Author**: Manager Agent (Lead Systems Engineer)  
+
+---
+
+## 1. Executive Summary
+
+This specification defines the implementation of a centralized configuration management and preset system for VJLive3. It provides persistent storage, loading, and cloud synchronization of plugin parameters, project settings, and user preferences.
+
+**Critical Objectives:**
+- Save and restore complete plugin states (all parameters)
+- Support project files with plugin configurations
+- Enable cloud sync for cross-device preset sharing
+- Provide CLI and UI for preset management
+- Maintain backward compatibility with existing preset formats
+- Ensure atomic save/load operations (no corruption)
+- Support preset versioning and migration
+
+---
+
+## 2. Current State Analysis
+
+### 2.1 Existing Configuration Code
+
+**Current State**: `ui/cli.py` has `ParamStore` but it's not integrated with main app.
+
+```python
+# ui/cli.py (current)
+class ParamStore:
+    """Store and retrieve parameter values."""
+    
+    def __init__(self, store_path: Path):
+        self.store_path = store_path
+        self.store_path.mkdir(parents=True, exist_ok=True)
+    
+    def save_preset(self, name: str, params: Dict[str, Dict]):
+        """Save preset to JSON file."""
+        path = self.store_path / f"{name}.json"
+        with open(path, 'w') as f:
+            json.dump(params, f, indent=2)
+    
+    def load_preset(self, name: str) -> Dict[str, Dict]:
+        """Load preset from JSON file."""
+        path = self.store_path / f"{name}.json"
+        with open(path) as f:
+            return json.load(f)
+```
+
+**Problems:**
+1. **Not Integrated**: `ParamStore` exists but `app.py` and `engine.py` don't use it
+2. **No Plugin Mapping**: Presets save raw params but don't map to plugin IDs
+3. **No Versioning**: Schema changes break old presets
+4. **No Cloud Sync**: Only local file storage
+5. **No UI Integration**: Desktop GUI can't save/load presets
+6. **No Validation**: Corrupted presets crash the app
+
+### 2.2 Legacy Patterns
+
+**vjlive/**:
+- No preset system; manual parameter entry
+- Configuration in hardcoded defaults
+
+**VJlive-2/**:
+- Basic preset save/load to JSON
+- No versioning or migration
+- No cloud sync
+
+**Proven Strengths:**
+- JSON format (human-readable, portable)
+- Simple file-based storage
+
+**Weaknesses to Fix:**
+- No atomic operations (can corrupt on crash)
+- No schema validation
+- No cloud backup
+- No preset browsing UI
+
+---
+
+## 3. Solution Architecture
+
+### 3.1 ConfigManager Class
+
+**Purpose**: Central configuration authority for all VJLive3 settings.
+
+```python
+from dataclasses import dataclass, asdict
+from typing import Dict, List, Optional, Any
+from pathlib import Path
+import json
+import shutil
+
+@dataclass
+class PluginState:
+    """Serializable state of a single plugin."""
+    id: str
+    class_name: str
+    params: Dict[str, Any]
+    enabled: bool = True
+    position: Optional[Dict] = None  # For UI layout
+    
+    def to_dict(self) -> Dict:
+        return asdict(self)
+    
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'PluginState':
+        return cls(**data)
+
+@dataclass
+class Project:
+    """Complete project state."""
+    name: str
+    version: str = "1.0.0"
+    plugins: List[PluginState] = field(default_factory=list)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    created_at: float = 0.0
+    modified_at: float = 0.0
+    
+    def to_dict(self) -> Dict:
+        return asdict(self)
+    
+    @classmethod
+    def from_dict(cls, data: Dict) -> 'Project':
+        # Handle version migration
+        data = migrate_project(data)
+        return cls(**data)
+
+class ConfigManager:
+    """Central configuration and preset management."""
+    
+    def __init__(self, project_root: Path):
+        self.project_root = project_root
+        self.presets_dir = project_root / "presets"
+        self.projects_dir = project_root / "projects"
+        self.backup_dir = project_root / "presets_backup"
+        
+        # Ensure directories exist
+        self.presets_dir.mkdir(parents=True, exist_ok=True)
+        self.projects_dir.mkdir(parents=True, exist_ok=True)
+        self.backup_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Cloud sync client (optional)
+        self.cloud_client: Optional[CloudSyncClient] = None
+        
+        # Schema version
+        self.schema_version = "1.0.0"
+    
+    def save_preset(self, name: str, plugins: List[EffectPlugin], 
+                   metadata: Optional[Dict] = None) -> Path:
+        """
+        Save current plugin states as a preset.
+        
+        Args:
+            name: Preset name (no spaces, alphanumeric)
+            plugins: List of plugin instances
+            metadata: Optional metadata (author, tags, etc.)
+            
+        Returns:
+            Path to saved preset file
+        """
+        # Validate name
+        if not re.match(r'^[a-zA-Z0-9_-]+$', name):
+            raise ValueError(f"Invalid preset name: {name}")
+        
+        # Build preset data
+        preset = {
+            "schema_version": self.schema_version,
+            "name": name,
+            "created_at": time.time(),
+            "metadata": metadata or {},
+            "plugins": []
+        }
+        
+        for plugin in plugins:
+            plugin_state = PluginState(
+                id=plugin.id,
+                class_name=plugin.__class__.__name__,
+                params=plugin.get_params(),
+                enabled=plugin.enabled,
+                position=None  # TODO: UI position
+            )
+            preset["plugins"].append(plugin_state.to_dict())
+        
+        # Atomic write: write to temp file then rename
+        preset_path = self.presets_dir / f"{name}.json"
+        temp_path = preset_path.with_suffix(".json.tmp")
+        
+        with open(temp_path, 'w') as f:
+            json.dump(preset, f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+        
+        # Atomic rename
+        shutil.move(str(temp_path), str(preset_path))
+        
+        # Backup previous version if exists
+        if preset_path.exists():
+            backup_path = self.backup_dir / f"{name}_{int(time.time())}.json"
+            shutil.copy2(preset_path, backup_path)
+        
+        # Cloud sync
+        if self.cloud_client:
+            self.cloud_client.upload_preset(preset_path, preset)
+        
+        return preset_path
+    
+    def load_preset(self, name: str, plugins: List[EffectPlugin]) -> bool:
+        """
+        Apply preset to matching plugins.
+        
+        Args:
+            name: Preset name
+            plugins: List of plugin instances to configure
+            
+        Returns:
+            True if successful, False if preset not found
+        """
+        preset_path = self.presets_dir / f"{name}.json"
+        
+        if not preset_path.exists():
+            logger.error(f"Preset not found: {name}")
+            return False
+        
+        try:
+            with open(preset_path) as f:
+                preset_data = json.load(f)
+            
+            # Validate schema version
+            preset_version = preset_data.get("schema_version", "1.0.0")
+            if preset_version != self.schema_version:
+                logger.warning(f"Preset version mismatch: {preset_version} vs {self.schema_version}")
+                preset_data = migrate_preset(preset_data, self.schema_version)
+            
+            # Build plugin lookup
+            plugin_map = {p.id: p for p in plugins}
+            
+            # Apply params to matching plugins
+            for plugin_state_data in preset_data["plugins"]:
+                plugin_state = PluginState.from_dict(plugin_state_data)
+                
+                if plugin_state.id in plugin_map:
+                    plugin = plugin_map[plugin_state.id]
+                    plugin.set_params(plugin_state.params)
+                    plugin.enabled = plugin_state.enabled
+                    logger.debug(f"Applied preset to plugin {plugin_state.id}")
+                else:
+                    logger.warning(f"Plugin {plugin_state.id} not found in current project")
+            
+            logger.info(f"Preset '{name}' loaded successfully")
+            return True
+            
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse preset {name}: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Failed to load preset {name}: {e}")
+            return False
+    
+    def list_presets(self) -> List[Dict[str, Any]]:
+        """List all available presets with metadata."""
+        presets = []
+        
+        for preset_path in self.presets_dir.glob("*.json"):
+            try:
+                with open(preset_path) as f:
+                    data = json.load(f)
+                
+                presets.append({
+                    "name": data["name"],
+                    "created_at": data["created_at"],
+                    "metadata": data.get("metadata", {}),
+                    "plugin_count": len(data.get("plugins", [])),
+                    "file_size": preset_path.stat().st_size
+                })
+            except Exception as e:
+                logger.warning(f"Failed to read preset {preset_path}: {e}")
+        
+        return sorted(presets, key=lambda x: x["created_at"], reverse=True)
+    
+    def delete_preset(self, name: str) -> bool:
+        """Delete a preset."""
+        preset_path = self.presets_dir / f"{name}.json"
+        
+        if not preset_path.exists():
+            return False
+        
+        # Move to backup before deleting
+        backup_path = self.backup_dir / f"{name}_deleted_{int(time.time())}.json"
+        shutil.move(str(preset_path), str(backup_path))
+        
+        logger.info(f"Preset '{name}' deleted (backed up)")
+        return True
+    
+    def save_project(self, name: str, plugins: List[EffectPlugin],
+                    metadata: Optional[Dict] = None) -> Path:
+        """
+        Save complete project state.
+        
+        Similar to preset but includes all project-level settings.
+        """
+        project = Project(
+            name=name,
+            version=self.schema_version,
+            plugins=[],
+            metadata=metadata or {},
+            created_at=time.time(),
+            modified_at=time.time()
+        )
+        
+        for plugin in plugins:
+            plugin_state = PluginState(
+                id=plugin.id,
+                class_name=plugin.__class__.__name__,
+                params=plugin.get_params(),
+                enabled=plugin.enabled
+            )
+            project.plugins.append(plugin_state)
+        
+        # Atomic write
+        project_path = self.projects_dir / f"{name}.vj3"
+        temp_path = project_path.with_suffix(".vj3.tmp")
+        
+        with open(temp_path, 'w') as f:
+            json.dump(project.to_dict(), f, indent=2)
+            f.flush()
+            os.fsync(f.fileno())
+        
+        shutil.move(str(temp_path), str(project_path))
+        
+        # Cloud sync
+        if self.cloud_client:
+            self.cloud_client.upload_project(project_path, project)
+        
+        return project_path
+    
+    def load_project(self, name: str, plugins: List[EffectPlugin]) -> bool:
+        """Load complete project state."""
+        project_path = self.projects_dir / f"{name}.vj3"
+        
+        if not project_path.exists():
+            logger.error(f"Project not found: {name}")
+            return False
+        
+        try:
+            with open(project_path) as f:
+                project_data = json.load(f)
+            
+            project = Project.from_dict(project_data)
+            
+            # Apply plugin states
+            plugin_map = {p.id: p for p in plugins}
+            
+            for plugin_state in project.plugins:
+                if plugin_state.id in plugin_map:
+                    plugin = plugin_map[plugin_state.id]
+                    plugin.set_params(plugin_state.params)
+                    plugin.enabled = plugin_state.enabled
+            
+            logger.info(f"Project '{name}' loaded successfully")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to load project {name}: {e}")
+            return False
+    
+    def list_projects(self) -> List[Dict[str, Any]]:
+        """List all available projects."""
+        projects = []
+        
+        for project_path in self.projects_dir.glob("*.vj3"):
+            try:
+                with open(project_path) as f:
+                    data = json.load(f)
+                
+                projects.append({
+                    "name": data["name"],
+                    "version": data.get("version", "1.0.0"),
+                    "created_at": data.get("created_at", 0),
+                    "modified_at": data.get("modified_at", 0),
+                    "plugin_count": len(data.get("plugins", [])),
+                    "file_size": project_path.stat().st_size
+                })
+            except Exception as e:
+                logger.warning(f"Failed to read project {project_path}: {e}")
+        
+        return sorted(projects, key=lambda x: x["modified_at"], reverse=True)
+```
+
+### 3.2 Cloud Sync (Optional)
+
+**Purpose**: Sync presets across devices via cloud storage.
+
+```python
+class CloudSyncClient:
+    """Abstract cloud sync client."""
+    
+    def __init__(self, provider: str, credentials: Dict):
+        self.provider = provider
+        if provider == "dropbox":
+            self.client = DropboxClient(credentials)
+        elif provider == "google_drive":
+            self.client = GoogleDriveClient(credentials)
+        elif provider == "s3":
+            self.client = S3Client(credentials)
+        else:
+            raise ValueError(f"Unknown provider: {provider}")
+    
+    def upload_preset(self, local_path: Path, preset_data: Dict):
+        """Upload preset to cloud."""
+        remote_path = f"/vjlive3/presets/{local_path.name}"
+        self.client.upload(local_path, remote_path)
+    
+    def download_preset(self, name: str) -> Dict:
+        """Download preset from cloud."""
+        remote_path = f"/vjlive3/presets/{name}.json"
+        return self.client.download(remote_path)
+    
+    def list_remote_presets(self) -> List[Dict]:
+        """List presets available in cloud."""
+        return self.client.list("/vjlive3/presets/")
+```
+
+**Configuration:**
+```yaml
+# config/cloud.yaml
+cloud_sync:
+  enabled: false
+  provider: "dropbox"  # or "google_drive", "s3"
+  credentials:
+    access_token: "YOUR_TOKEN"
+  sync_interval: 300  # seconds
+```
+
+### 3.3 Integration with App
+
+**app.py**:
+
+```python
+# src/vjlive3/app.py
+class VJLiveApp:
+    def __init__(self, project_root: Path):
+        self.project_root = project_root
+        self.config_manager = ConfigManager(project_root)
+        
+        # Load cloud sync config
+        cloud_config = self.load_config("config/cloud.yaml")
+        if cloud_config.get("enabled", False):
+            self.config_manager.cloud_client = CloudSyncClient(
+                cloud_config["provider"],
+                cloud_config["credentials"]
+            )
+        
+        # Load default preset if specified
+        default_preset = self.load_config("config/defaults.yaml").get("preset")
+        if default_preset:
+            self.config_manager.load_preset(default_preset, self.plugins)
+    
+    def save_preset(self, name: str):
+        """Save current state as preset."""
+        path = self.config_manager.save_preset(name, self.plugins)
+        logger.info(f"Preset saved to {path}")
+        
+        # Notify UI
+        self.ui.preset_saved(name)
+    
+    def load_preset(self, name: str):
+        """Load preset by name."""
+        success = self.config_manager.load_preset(name, self.plugins)
+        if success:
+            self.ui.preset_loaded(name)
+        else:
+            self.ui.show_error(f"Failed to load preset: {name}")
+    
+    def save_project(self, name: str):
+        """Save complete project."""
+        path = self.config_manager.save_project(name, self.plugins)
+        logger.info(f"Project saved to {path}")
+        self.ui.project_saved(name)
+    
+    def load_project(self, name: str):
+        """Load complete project."""
+        success = self.config_manager.load_project(name, self.plugins)
+        if success:
+            self.ui.project_loaded(name)
+        else:
+            self.ui.show_error(f"Failed to load project: {name}")
+```
+
+### 3.4 CLI Integration
+
+**ui/cli.py**:
+
+```python
+# src/vjlive3/ui/cli.py
+def create_cli_parser():
+    parser = argparse.ArgumentParser(description="VJLive3 Command Line Interface")
+    
+    # Preset commands
+    preset_group = parser.add_argument_group("Preset Management")
+    preset_group.add_argument("--preset-save", metavar="NAME",
+                             help="Save current plugin states as preset")
+    preset_group.add_argument("--preset-load", metavar="NAME",
+                             help="Load preset by name")
+    preset_group.add_argument("--preset-list", action="store_true",
+                             help="List all available presets")
+    preset_group.add_argument("--preset-delete", metavar="NAME",
+                             help="Delete a preset")
+    
+    # Project commands
+    project_group = parser.add_argument_group("Project Management")
+    project_group.add_argument("--project-save", metavar="NAME",
+                              help="Save complete project")
+    project_group.add_argument("--project-load", metavar="NAME",
+                              help="Load project by name")
+    project_group.add_argument("--project-list", action="store_true",
+                              help="List all available projects")
+    
+    return parser
+
+def main():
+    parser = create_cli_parser()
+    args = parser.parse_args()
+    
+    # Initialize app
+    app = VJLiveApp(project_root=Path("."))
+    
+    # Handle commands
+    if args.preset_save:
+        app.save_preset(args.preset_save)
+    elif args.preset_load:
+        app.load_preset(args.preset_load)
+    elif args.preset_list:
+        presets = app.config_manager.list_presets()
+        for p in presets:
+            print(f"{p['name']} ({p['plugin_count']} plugins)")
+    elif args.preset_delete:
+        app.config_manager.delete_preset(args.preset_delete)
+    elif args.project_save:
+        app.save_project(args.project_save)
+    elif args.project_load:
+        app.load_project(args.project_load)
+    elif args.project_list:
+        projects = app.config_manager.list_projects()
+        for p in projects:
+            print(f"{p['name']} ({p['plugin_count']} plugins)")
+    else:
+        # Normal GUI mode
+        app.run()
+```
+
+### 3.5 UI Integration
+
+**desktop_gui.py**:
+
+```python
+# src/vjlive3/ui/desktop_gui.py
+class VJLiveGUIApp:
+    def __init__(self, app: VJLiveApp):
+        self.app = app
+        self.setup_menus()
+    
+    def setup_menus(self):
+        """Add preset/project menu items."""
+        menubar = self.menuBar()
+        
+        # File menu
+        file_menu = menubar.addMenu("File")
+        
+        # Preset submenu
+        preset_menu = file_menu.addMenu("Presets")
+        preset_menu.addAction("Save Preset...", self.on_save_preset)
+        preset_menu.addAction("Load Preset...", self.on_load_preset)
+        preset_menu.addSeparator()
+        
+        # Dynamically populate recent presets
+        self.recent_presets_menu = preset_menu.addMenu("Recent Presets")
+        self.update_recent_presets()
+        
+        # Project submenu
+        project_menu = file_menu.addMenu("Projects")
+        project_menu.addAction("Save Project", self.on_save_project)
+        project_menu.addAction("Load Project", self.on_load_project)
+    
+    def on_save_preset(self):
+        """Handle save preset action."""
+        name, ok = QInputDialog.getText(self, "Save Preset", "Preset name:")
+        if ok and name:
+            self.app.save_preset(name)
+            self.update_recent_presets()
+    
+    def on_load_preset(self):
+        """Handle load preset action."""
+        presets = self.app.config_manager.list_presets()
+        names = [p["name"] for p in presets]
+        
+        name, ok = QInputDialog.getItem(self, "Load Preset", "Select preset:", names, 0, True)
+        if ok and name:
+            self.app.load_preset(name)
+    
+    def update_recent_presets(self):
+        """Update recent presets submenu."""
+        self.recent_presets_menu.clear()
+        
+        presets = self.app.config_manager.list_presets()[:10]  # Top 10
+        for preset in presets:
+            action = self.recent_presets_menu.addAction(preset["name"])
+            action.triggered.connect(lambda checked, n=preset["name"]: self.app.load_preset(n))
+    
+    def preset_saved(self, name: str):
+        """Callback when preset saved."""
+        self.statusBar().showMessage(f"Preset '{name}' saved", 3000)
+        self.update_recent_presets()
+    
+    def preset_loaded(self, name: str):
+        """Callback when preset loaded."""
+        self.statusBar().showMessage(f"Preset '{name}' loaded", 3000)
+```
+
+---
+
+## 4. Implementation Plan
+
+### 4.1 Phase E1: Core ConfigManager (Day 1)
+
+**Tasks:**
+1. Create `src/vjlive3/core/config.py` with `ConfigManager`, `PluginState`, `Project`
+2. Implement save/load with atomic writes
+3. Add backup and versioning support
+4. Write comprehensive unit tests
+
+**Files to Create:**
+```
+src/vjlive3/core/
+├── config.py
+└── tests/
+    ├── test_config_manager.py
+    ├── test_plugin_state.py
+    └── test_project.py
+```
+
+**Test Cases:**
+- Save preset and verify file created
+- Load preset and verify params applied
+- Atomic write (crash during write shouldn't corrupt)
+- Backup creation
+- Schema version migration
+- Invalid preset handling
+
+### 4.2 Phase E2: App Integration (Day 2)
+
+**Tasks:**
+1. Instantiate `ConfigManager` in `app.py`
+2. Add CLI arguments for preset/project operations
+3. Wire UI callbacks (menu items)
+4. Test end-to-end save/load
+
+**Files to Modify:**
+```
+src/vjlive3/
+├── app.py  # Add ConfigManager
+├── ui/
+│   ├── desktop_gui.py  # Add menus
+│   └── cli.py  # Add CLI commands
+└── tests/
+    └── test_config_integration.py
+```
+
+### 4.3 Phase E3: Cloud Sync (Day 3)
+
+**Tasks:**
+1. Implement `CloudSyncClient` abstract base class
+2. Create provider implementations (Dropbox, Google Drive, S3)
+3. Add config file `config/cloud.yaml`
+4. Implement background sync thread
+5. Handle conflicts (local vs remote)
+
+**Files to Create:**
+```
+src/vjlive3/core/
+├── cloud_sync.py
+├── providers/
+│   ├── __init__.py
+│   ├── dropbox.py
+│   ├── google_drive.py
+│   └── s3.py
+└── tests/
+    └── test_cloud_sync.py
+```
+
+**Cloud Sync Strategy:**
+- Bi-directional sync (local ↔ cloud)
+- Conflict resolution: "last write wins" with timestamp
+- Background sync every 5 minutes (configurable)
+- Offline mode: queue changes, sync when online
+
+### 4.4 Phase E4: Migration & Validation (Day 4)
+
+**Tasks:**
+1. Create migration scripts for old preset formats
+2. Add preset validation (schema, required fields)
+3. Implement preset import/export (shareable .vjpreset files)
+4. Add preset tagging and search
+5. Write migration tests
+
+**Files to Create:**
+```
+src/vjlive3/core/
+├── preset_validator.py
+├── preset_migrator.py
+└── tests/
+    └── test_preset_migration.py
+```
+
+**Preset Validation:**
+```python
+def validate_preset(preset_data: Dict) -> List[str]:
+    """Validate preset schema. Returns list of errors."""
+    errors = []
+    
+    required_fields = ["schema_version", "name", "plugins"]
+    for field in required_fields:
+        if field not in preset_data:
+            errors.append(f"Missing required field: {field}")
+    
+    if "plugins" in preset_data:
+        for i, plugin_data in enumerate(preset_data["plugins"]):
+            if "id" not in plugin_data:
+                errors.append(f"Plugin {i}: missing 'id'")
+            if "params" not in plugin_data:
+                errors.append(f"Plugin {i}: missing 'params'")
+    
+    return errors
+```
+
+---
+
+## 5. Migration Strategy
+
+### 5.1 Legacy Preset Formats
+
+**VJlive-2 Presets**: Simple JSON with plugin params only.
+
+**Migration:**
+```python
+def migrate_vjlive2_preset(old_data: Dict) -> Dict:
+    """Migrate VJlive-2 preset to VJLive3 format."""
+    new_data = {
+        "schema_version": "1.0.0",
+        "name": old_data.get("name", "imported_preset"),
+        "created_at": time.time(),
+        "metadata": {"source": "vjlive2", "original_name": old_data.get("name")},
+        "plugins": []
+    }
+    
+    for plugin_id, params in old_data.get("plugins", {}).items():
+        new_data["plugins"].append({
+            "id": plugin_id,
+            "class_name": infer_class_name(plugin_id),  # Map old ID to new class
+            "params": params,
+            "enabled": True
+        })
+    
+    return new_data
+```
+
+### 5.2 Versioning Schema
+
+**Version Format**: `MAJOR.MINOR.PATCH`
+
+**Breaking Changes**: Increment MAJOR, provide migration script
+**Additive Changes**: Increment MINOR, backward compatible
+**Bug Fixes**: Increment PATCH, no migration needed
+
+**Migration Functions:**
+```python
+MIGRATIONS = {
+    ("0.9.0", "1.0.0"): migrate_vjlive2_preset,
+    ("1.0.0", "1.1.0"): migrate_add_plugin_positions,
+    # ...
+}
+
+def migrate_project(data: Dict, target_version: str) -> Dict:
+    """Migrate project data through intermediate versions."""
+    current_version = data.get("schema_version", "0.9.0")
+    
+    while current_version != target_version:
+        next_version = get_next_version(current_version, target_version)
+        migration_key = (current_version, next_version)
+        
+        if migration_key not in MIGRATIONS:
+            raise ValueError(f"No migration path from {current_version} to {next_version}")
+        
+        data = MIGRATIONS[migration_key](data)
+        current_version = next_version
+    
+    return data
+```
+
+---
+
+## 6. Testing Strategy
+
+### 6.1 Unit Tests
+
+**ConfigManager Tests:**
+```python
+def test_save_and_load_preset(tmp_path):
+    """Save preset and load it back."""
+    manager = ConfigManager(tmp_path)
+    plugin = MockPlugin(id="test_plugin", params={"x": 1.0, "y": 2.0})
+    
+    manager.save_preset("test_preset", [plugin])
+    
+    # Create fresh plugin instance
+    plugin2 = MockPlugin(id="test_plugin")
+    success = manager.load_preset("test_preset", [plugin2])
+    
+    assert success
+    assert plugin2.get_params() == {"x": 1.0, "y": 2.0}
+
+def test_atomic_write(tmp_path):
+    """Write should be atomic."""
+    manager = ConfigManager(tmp_path)
+    plugin = MockPlugin(id="test", params={"value": 42})
+    
+    # Simulate crash during write
+    with mock.patch("builtins.open", side_effect=IOError("disk full")):
+        with pytest.raises(IOError):
+            manager.save_preset("test", [plugin])
+    
+    # Preset file should not exist (temp file was cleaned up)
+    preset_path = tmp_path / "presets" / "test.json"
+    assert not preset_path.exists()
+
+def test_preset_validation():
+    """Invalid presets should be rejected."""
+    invalid_data = {"name": "test"}  # Missing plugins
+    errors = validate_preset(invalid_data)
+    assert "Missing required field: plugins" in errors
+```
+
+### 6.2 Integration Tests
+
+```python
+def test_preset_workflow(tmp_path):
+    """Full preset save/load workflow."""
+    app = VJLiveApp(project_root=tmp_path)
+    
+    # Create plugins
+    plugin1 = DepthBlurPlugin(id="blur1")
+    plugin1.set_params({"blur_radius": 5.0})
+    plugin2 = DepthMotionTransferPlugin(id="motion1")
+    plugin2.set_params({"displacement_strength": 0.8})
+    
+    app.plugins = [plugin1, plugin2]
+    
+    # Save preset
+    app.save_preset("my_preset")
+    
+    # Modify plugins
+    plugin1.set_params({"blur_radius": 10.0})
+    plugin2.set_params({"displacement_strength": 0.2})
+    
+    # Load preset
+    app.load_preset("my_preset")
+    
+    # Verify params restored
+    assert plugin1.get_params()["blur_radius"] == 5.0
+    assert plugin2.get_params()["displacement_strength"] == 0.8
+
+def test_project_save_load(tmp_path):
+    """Full project save/load."""
+    app = VJLiveApp(project_root=tmp_path)
+    app.plugins = [DepthBlurPlugin(id="blur1"), DepthMotionTransferPlugin(id="motion1")]
+    
+    # Save project
+    app.save_project("my_project")
+    
+    # Create new app instance
+    app2 = VJLiveApp(project_root=tmp_path)
+    app2.plugins = [DepthBlurPlugin(id="blur1"), DepthMotionTransferPlugin(id="motion1")]
+    
+    # Load project
+    success = app2.load_project("my_project")
+    assert success
+    
+    # Verify plugin states
+    assert app2.plugins[0].get_params() == app.plugins[0].get_params()
+```
+
+### 6.3 Cloud Sync Tests
+
+```python
+def test_cloud_sync_upload_download(tmp_path):
+    """Test cloud upload and download."""
+    # Mock cloud client
+    mock_client = MockCloudSyncClient()
+    manager = ConfigManager(tmp_path)
+    manager.cloud_client = mock_client
+    
+    plugin = MockPlugin(id="test", params={"value": 42})
+    manager.save_preset("cloud_test", [plugin])
+    
+    # Verify upload called
+    assert len(mock_client.uploads) == 1
+    assert mock_client.uploads[0]["name"] == "cloud_test"
+    
+    # Download
+    manager.download_preset("cloud_test")
+    assert "cloud_test" in manager.list_presets()
+```
+
+---
+
+## 7. Performance Considerations
+
+### 7.1 Save/Load Overhead
+
+- **Save**: ~10-50ms for 50 plugins (JSON serialization + disk I/O)
+- **Load**: ~10-50ms for 50 plugins (JSON parsing + param application)
+- **Impact**: Blocking operation; show progress dialog in UI
+
+### 7.2 Memory Usage
+
+- Preset in memory: ~1KB per plugin (JSON as dict)
+- 50 plugins → ~50KB (negligible)
+- Projects larger (include metadata) → ~100KB
+
+### 7.3 Optimization
+
+- **Async I/O**: Use thread pool for disk operations in UI
+- **Compression**: Optional gzip for large presets
+- **Incremental save**: Only save changed plugins (future)
+
+---
+
+## 8. Security Considerations
+
+### 8.1 Input Validation
+
+- Validate preset schema before loading
+- Sandbox plugin param values (type checking, range checking)
+- Prevent path traversal in file operations
+
+### 8.2 Cloud Security
+
+- Encrypt credentials in config file
+- Use OAuth tokens (not passwords)
+- HTTPS only for cloud transfers
+- User consent for cloud sync
+
+---
+
+## 9. Success Criteria
+
+- ✅ `ConfigManager` implemented with atomic save/load
+- ✅ Preset save/load works for all 80+ plugins
+- ✅ Project save/load includes all plugin states
+- ✅ CLI commands functional (`--preset-save`, `--preset-load`, etc.)
+- ✅ UI menu integration (File → Presets/Projects)
+- ✅ Preset listing with metadata
+- ✅ Backup system (previous versions retained)
+- ✅ Schema versioning and migration
+- ✅ Cloud sync (optional) with conflict resolution
+- ✅ Preset validation prevents corrupted files
+- ✅ All unit tests pass (>90% coverage)
+- ✅ Integration tests verify end-to-end workflow
+- ✅ Performance: save/load <50ms for 50 plugins
+
+---
+
+## 10. Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Preset corruption on crash | High | Atomic writes (temp file + rename) |
+| Schema changes break old presets | High | Versioning + migration scripts |
+| Cloud sync conflicts | Medium | Last-write-wins with user notification |
+| Slow save/load blocks UI | Medium | Async I/O with progress dialog |
+| Malicious preset file | High | Schema validation; sandbox param values |
+| Large presets consume memory | Low | Streaming JSON parser for huge projects |
+
+---
+
+## 11. Next Steps
+
+1. **Approve this specification** → Manager
+2. **Queue Phase E task via MCP switchboard** → Manager
+3. **Begin implementation** → Implementation Engineer
+
+---
+
+**Document Status**: Ready for Manager approval. Once approved, the implementation task will be queued for execution.
+
+**Dependencies**: Phase A (Context Object) must be completed before Phase E can begin.
+
+**Estimated Effort**: 3-4 days
+
+**Deliverables:**
+- `src/vjlive3/core/config.py` with `ConfigManager`, `PluginState`, `Project`
+- `src/vjlive3/core/cloud_sync.py` with provider implementations (optional)
+- Updated `app.py` with config manager instantiation
+- Updated `ui/desktop_gui.py` with preset/project menus
+- Updated `ui/cli.py` with preset/project commands
+- Unit and integration tests (>90% coverage)
+- Migration scripts for legacy preset formats
+
+**Future Enhancements:**
+- Preset tagging and search
+- Preset sharing via cloud marketplace
+- Collaborative preset editing
+- A/B testing with preset blending

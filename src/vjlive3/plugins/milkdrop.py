@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'preset_mix': 5.0, 'wave_size': 5.0, 'warp_amount': 5.0, 'col
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class MilkdropPlugin(EffectPlugin):
+class MilkdropPlugin(object):
     """Milkdrop — classic Winamp-style audio visualizer."""
     def __init__(self):
         super().__init__()

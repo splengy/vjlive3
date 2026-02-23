@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'luma_min': 0.0, 'luma_max': 10.0, 'chroma_hue': 5.0, 'chroma
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class LumaChromaMaskPlugin(EffectPlugin):
+class LumaChromaMaskPlugin(object):
     """Luma/chroma mask — HSL-based selection mask."""
     def __init__(self):
         super().__init__()

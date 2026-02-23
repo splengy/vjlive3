@@ -1,0 +1,802 @@
+# Phase B: Scheduler & Error Boundaries
+
+**Document Version**: 1.0  
+**Created**: 2026-02-23  
+**Status**: Ready for Review  
+**Author**: Manager Agent (Lead Systems Engineer)  
+
+---
+
+## 1. Executive Summary
+
+This specification defines the implementation of the `PluginScheduler` and `SafePluginWrapper` - two critical components that will transform the current linear plugin execution into a robust, dependency-aware, fault-tolerant pipeline.
+
+**Critical Objectives:**
+- Automatically resolve plugin input dependencies using DAG scheduling
+- Enable parallel execution of independent plugins
+- Catch and isolate plugin failures without crashing the pipeline
+- Maintain 60 FPS sacred rail under all conditions
+- Provide clear error reporting and recovery mechanisms
+
+---
+
+## 2. Current State Analysis
+
+### 2.1 Linear Plugin Execution
+
+**Current Pattern**: `engine.py` executes plugins in a simple loop:
+
+```python
+# Current engine.py
+class RenderEngine:
+    def render_frame(self):
+        input_texture = self.context.video
+        
+        for plugin in self.active_plugins:
+            params = plugin.get_params()
+            output = plugin.process(input_texture, params, self.context)
+            input_texture = output  # Chain to next plugin
+        
+        self.display(output)
+```
+
+**Problems:**
+1. **No Dependency Resolution**: Plugins executed in registration order, not based on actual needs
+2. **No Parallelism**: All plugins run sequentially on main thread
+3. **No Error Isolation**: One plugin crash stops entire pipeline
+4. **No Input Validation**: Missing inputs cause silent failures or crashes
+5. **No Performance Budgeting**: One slow plugin stalls all others
+
+### 2.2 Legacy Patterns
+
+**vjlive/**:
+- Simple linear chain in `vjlive_server.py`
+- No error handling; crashes on plugin failure
+- No parallel execution
+
+**VJlive-2/**:
+- Slightly better organization with `EffectChain` class
+- Still linear; no DAG scheduling
+- Basic try-catch but no recovery strategy
+
+**Proven Strengths:**
+- Simple chain pattern (easy to understand)
+- Plugin isolation (each plugin independent)
+
+**Weaknesses to Fix:**
+- No dependency graph
+- No parallel execution
+- Insufficient error handling
+
+---
+
+## 3. Solution Architecture
+
+### 3.1 Plugin Dependency Declaration
+
+Each plugin declares its input requirements:
+
+```python
+class EffectPlugin:
+    @property
+    def required_inputs(self) -> Set[str]:
+        """Declare what inputs this plugin needs."""
+        needs = set()
+        if self.needs_depth:
+            needs.add("depth")
+        if self.needs_audio:
+            needs.add("audio")
+        if self.needs_midi:
+            needs.add("midi")
+        if self.needs_osc:
+            needs.add("osc")
+        if self.needs_background:
+            needs.add("background")
+        return needs
+    
+    @property
+    def provides(self) -> Set[str]:
+        """Declare what outputs this plugin produces."""
+        provides = set()
+        if self.produces_depth:
+            provides.add("depth")
+        if self.produces_audio_modulated:
+            provides.add("audio_modulated")
+        # ...
+        return provides
+```
+
+**Example Plugin:**
+
+```python
+class DepthBlurPlugin(EffectPlugin):
+    def __init__(self):
+        self.needs_depth = True
+        self.needs_audio = False
+        self.produces_depth = True  # Outputs modified depth map
+    
+    def process(self, input_texture, params, context: VJLiveContext):
+        # Use context.depth directly
+        return self.blur_with_depth(input_texture, context.depth, params)
+```
+
+### 3.2 DAG Scheduler
+
+**Purpose**: Topologically sort plugins by dependencies and group into parallel batches.
+
+```python
+from typing import Dict, Set, List, Tuple
+from collections import defaultdict, deque
+
+class PluginScheduler:
+    """Schedule plugins based on input-output dependencies."""
+    
+    def __init__(self):
+        self.graph: Dict[str, Set[str]] = defaultdict(set)  # plugin_id -> {deps}
+        self.reverse_graph: Dict[str, Set[str]] = defaultdict(set)  # dep -> {plugins}
+    
+    def build_dependency_graph(self, plugins: List[EffectPlugin]) -> Dict[str, Set[str]]:
+        """Build complete dependency graph from plugin declarations."""
+        graph = {}
+        
+        for plugin in plugins:
+            # Map plugin ID to its dependencies
+            deps = plugin.required_inputs
+            
+            # Also include implicit dependencies from previous plugins in chain
+            # (for backward compatibility with linear chains)
+            if hasattr(plugin, 'chain_position'):
+                # Plugins earlier in chain are implicit dependencies
+                pass
+            
+            graph[plugin.id] = deps
+            
+            # Build reverse graph for topological sort
+            for dep in deps:
+                self.reverse_graph[dep].add(plugin.id)
+        
+        return graph
+    
+    def topological_sort(self, graph: Dict[str, Set[str]]) -> List[str]:
+        """Kahn's algorithm for topological sorting."""
+        # Compute in-degree for each node
+        in_degree = defaultdict(int)
+        for node, deps in graph.items():
+            in_degree[node] = len(deps)
+            for dep in deps:
+                if dep not in in_degree:
+                    in_degree[dep] = 0
+        
+        # Start with nodes that have no dependencies
+        queue = deque([node for node, deg in in_degree.items() if deg == 0])
+        sorted_nodes = []
+        
+        while queue:
+            node = queue.popleft()
+            sorted_nodes.append(node)
+            
+            # Reduce in-degree of dependents
+            for dependent in self.reverse_graph.get(node, []):
+                in_degree[dependent] -= 1
+                if in_degree[dependent] == 0:
+                    queue.append(dependent)
+        
+        # Check for cycles
+        if len(sorted_nodes) != len(in_degree):
+            cycle_nodes = set(in_degree.keys()) - set(sorted_nodes)
+            raise ValueError(f"Cyclic dependency detected: {cycle_nodes}")
+        
+        return sorted_nodes
+    
+    def schedule_parallel_batches(self, sorted_nodes: List[str], 
+                                 graph: Dict[str, Set[str]]) -> List[List[str]]:
+        """Group plugins into batches that can run in parallel."""
+        batches = []
+        current_batch = []
+        provided_outputs = set()  # What's available after current batch
+        
+        for plugin_id in sorted_nodes:
+            deps = graph[plugin_id]
+            
+            # Check if all dependencies are satisfied by previous batches
+            if deps.issubset(provided_outputs):
+                # Can run in current batch
+                current_batch.append(plugin_id)
+            else:
+                # Need to start new batch
+                if current_batch:
+                    batches.append(current_batch)
+                current_batch = [plugin_id]
+            
+            # Add this plugin's outputs to available set
+            plugin = self.get_plugin_by_id(plugin_id)
+            provided_outputs.update(plugin.provides)
+        
+        if current_batch:
+            batches.append(current_batch)
+        
+        return batches
+    
+    def schedule(self, plugins: List[EffectPlugin]) -> List[List[EffectPlugin]]:
+        """Full scheduling pipeline: build graph, sort, batch."""
+        # Build dependency graph
+        graph = self.build_dependency_graph(plugins)
+        
+        # Topological sort
+        sorted_ids = self.topological_sort(graph)
+        
+        # Group into parallel batches
+        batch_ids = self.schedule_parallel_batches(sorted_ids, graph)
+        
+        # Convert IDs back to plugin objects
+        plugin_map = {p.id: p for p in plugins}
+        batches = [[plugin_map[pid] for pid in batch] for batch in batch_ids]
+        
+        return batches
+```
+
+### 3.3 Safe Plugin Wrapper
+
+**Purpose**: Catch plugin exceptions and provide graceful degradation.
+
+```python
+import traceback
+import logging
+from typing import Optional
+
+logger = logging.getLogger(__name__)
+
+class SafePluginWrapper:
+    """Wrapper that catches exceptions and provides fallback behavior."""
+    
+    def __init__(self, plugin: EffectPlugin, 
+                 error_threshold: int = 5,
+                 fallback_mode: str = "passthrough"):
+        self.plugin = plugin
+        self.error_threshold = error_threshold
+        self.fallback_mode = fallback_mode
+        
+        self.error_count = 0
+        self.last_error: Optional[Exception] = None
+        self.disabled_until: float = 0.0  # Timestamp when plugin can be re-enabled
+        
+        # Create fallback texture (1x1 transparent pixel)
+        self.fallback_texture = self.create_placeholder_texture()
+    
+    def create_placeholder_texture(self) -> Texture:
+        """Create a 1x1 transparent texture as fallback."""
+        texture = Texture(1, 1)
+        texture.data[:] = [0, 0, 0, 0]  # RGBA = transparent black
+        return texture
+    
+    def process(self, input_texture: Texture, params: Dict, 
+                context: VJLiveContext) -> Texture:
+        """Execute plugin with error handling."""
+        
+        # Check if plugin is temporarily disabled
+        if context.time < self.disabled_until:
+            logger.warning(f"Plugin {self.plugin.id} temporarily disabled")
+            return self.get_disabled_output(input_texture, context)
+        
+        try:
+            # Execute plugin
+            output = self.plugin.process(input_texture, params, context)
+            
+            # Success: reset error count gradually
+            self.error_count = max(0, self.error_count - 1)
+            
+            return output
+            
+        except Exception as e:
+            self.error_count += 1
+            self.last_error = e
+            
+            # Log error with full traceback
+            logger.error(
+                f"Plugin {self.plugin.id} failed (error {self.error_count}/{self.error_threshold}): {e}\n"
+                f"{traceback.format_exc()}"
+            )
+            
+            # Increment global safety violation counter
+            context.safety_violations += 1
+            
+            # Check if we should disable plugin temporarily
+            if self.error_count >= self.error_threshold:
+                self.disabled_until = context.time + 10.0  # Disable for 10 seconds
+                logger.error(f"Plugin {self.plugin.id} disabled for 10 seconds")
+            
+            # Return appropriate fallback
+            return self.get_fallback_output(input_texture, context, e)
+    
+    def get_fallback_output(self, input_texture: Texture, 
+                           context: VJLiveContext, 
+                           error: Exception) -> Texture:
+        """Determine fallback behavior based on mode."""
+        if self.fallback_mode == "passthrough":
+            # Simply pass input through
+            return input_texture
+        
+        elif self.fallback_mode == "placeholder":
+            # Return solid color or placeholder texture
+            return self.fallback_texture
+        
+        elif self.fallback_mode == "last_good":
+            # Return last successful output (would need caching)
+            # Not implemented in first version
+            return input_texture
+        
+        else:
+            logger.warning(f"Unknown fallback mode: {self.fallback_mode}")
+            return input_texture
+    
+    def get_disabled_output(self, input_texture: Texture, 
+                           context: VJLiveContext) -> Texture:
+        """Output when plugin is temporarily disabled."""
+        # Could show error message in corner of screen
+        # For now, simple passthrough
+        return input_texture
+    
+    def reset(self):
+        """Reset error state (call when plugin parameters change)."""
+        self.error_count = 0
+        self.last_error = None
+        self.disabled_until = 0.0
+    
+    @property
+    def is_healthy(self) -> bool:
+        """Check if plugin is functioning normally."""
+        return self.error_count == 0 and context.time < self.disabled_until
+```
+
+### 3.4 Integration with Engine
+
+**New Engine Loop:**
+
+```python
+class RenderEngine:
+    def __init__(self):
+        self.context = VJLiveContext()
+        self.scheduler = PluginScheduler()
+        self.wrapped_plugins: List[SafePluginWrapper] = []
+        
+        # Wrap all plugins with error boundaries
+        for plugin in self.active_plugins:
+            wrapper = SafePluginWrapper(plugin, error_threshold=5)
+            self.wrapped_plugins.append(wrapper)
+        
+        # Pre-compute schedule (static for fixed plugin set)
+        self.schedule = self.scheduler.schedule(self.wrapped_plugins)
+    
+    def render_frame(self):
+        """Main render loop with scheduling and error boundaries."""
+        self.update_context()
+        
+        # Execute plugins in batches
+        input_texture = self.context.video
+        
+        for batch in self.schedule:
+            # Execute all plugins in this batch (potentially in parallel)
+            batch_outputs = self.execute_batch(batch, input_texture)
+            
+            # For now, chain outputs sequentially within batch
+            # Future: use threading pool for true parallelism
+            if batch_outputs:
+                input_texture = batch_outputs[-1]  # Last plugin's output
+        
+        # Display final output
+        self.display(input_texture)
+        
+        # Update telemetry
+        self.telemetry.collect_frame_metrics()
+    
+    def execute_batch(self, batch: List[SafePluginWrapper], 
+                     input_texture: Texture) -> List[Texture]:
+        """Execute all plugins in a batch."""
+        outputs = []
+        current_input = input_texture
+        
+        for wrapper in batch:
+            params = wrapper.plugin.get_params()
+            output = wrapper.process(current_input, params, self.context)
+            outputs.append(output)
+            current_input = output
+        
+        return outputs
+```
+
+---
+
+## 4. Implementation Plan
+
+### 4.1 Phase B1: PluginScheduler Implementation (Day 2)
+
+**Tasks:**
+1. Create `src/vjlive3/core/scheduler.py`
+2. Implement `PluginScheduler` class with:
+   - `build_dependency_graph()`
+   - `topological_sort()`
+   - `schedule_parallel_batches()`
+   - `schedule()` (main entry point)
+3. Write comprehensive unit tests
+
+**Files to Create:**
+```
+src/vjlive3/core/
+├── scheduler.py
+└── tests/
+    ├── test_scheduler.py
+    ├── test_dependency_graph.py
+    ├── test_topological_sort.py
+    └── test_parallel_batching.py
+```
+
+**Test Cases:**
+- Simple linear chain (A → B → C)
+- Parallel plugins (A,B → C)
+- Diamond dependency (A → B,C → D)
+- Cycle detection (A → B → A should fail)
+- Complex DAG with 50+ plugins
+
+### 4.2 Phase B2: SafePluginWrapper Implementation (Day 3)
+
+**Tasks:**
+1. Add `SafePluginWrapper` class to `src/vjlive3/core/scheduler.py` or separate file
+2. Implement error counting, fallback modes, temporary disabling
+3. Add comprehensive logging
+4. Write unit tests
+
+**Files to Create/Modify:**
+```
+src/vjlive3/core/
+├── error_boundary.py  # New file
+└── tests/
+    └── test_error_boundary.py
+```
+
+**Test Cases:**
+- Plugin that raises exception once (should retry)
+- Plugin that always raises (should disable after threshold)
+- Plugin that recovers after error (should reset)
+- Different fallback modes (passthrough, placeholder, last_good)
+- Logging verification
+
+### 4.3 Phase B3: Engine Integration (Day 4)
+
+**Tasks:**
+1. Update `src/vjlive3/render/engine.py`:
+   - Initialize `PluginScheduler`
+   - Wrap all plugins with `SafePluginWrapper`
+   - Pre-compute schedule at startup
+   - Execute batches in render loop
+2. Add telemetry hooks for plugin timing
+3. Update existing tests
+
+**Files to Modify:**
+```
+src/vjlive3/render/
+├── engine.py
+└── tests/
+    └── test_engine_scheduling.py
+```
+
+**Integration Tests:**
+- Verify schedule computed correctly
+- Verify plugins execute in correct order
+- Verify parallel batches identified
+- Verify error recovery works end-to-end
+
+### 4.4 Phase B4: Performance Optimization (Day 5)
+
+**Tasks:**
+1. Benchmark scheduling overhead (should be <0.5ms)
+2. Benchmark error wrapper overhead (should be <0.1ms)
+3. Optimize hot paths (use Cython if needed)
+4. Add object pooling for wrapper reuse
+
+**Performance Tests:**
+```python
+def test_scheduling_overhead():
+    """Ensure scheduling doesn't add >0.5ms per frame."""
+    engine = RenderEngine()
+    
+    start = time.perf_counter()
+    for _ in range(1000):
+        engine.update_schedule()  # If dynamic; otherwise pre-computed
+    elapsed = time.perf_counter() - start
+    
+    assert elapsed / 1000 < 0.0005, f"Scheduling overhead: {elapsed/1000}s"
+```
+
+---
+
+## 5. Plugin Migration Strategy
+
+### 5.1 Required Inputs/Provides
+
+**Task**: Update all 80+ plugins to declare `required_inputs` and `provides`.
+
+**Migration Script:**
+
+```python
+# migrate_plugin_dependencies.py
+import re
+from pathlib import Path
+
+def add_dependency_declarations(plugin_path: Path):
+    """Add required_inputs and provides properties to plugin."""
+    
+    code = plugin_path.read_text()
+    
+    # Detect existing __init__ to find flags
+    # Look for self.needs_depth, self.needs_audio, etc.
+    
+    # Generate property methods
+    declarations = '''
+    @property
+    def required_inputs(self) -> Set[str]:
+        needs = set()
+        if self.needs_depth:
+            needs.add("depth")
+        if self.needs_audio:
+            needs.add("audio")
+        if self.needs_midi:
+            needs.add("midi")
+        if self.needs_osc:
+            needs.add("osc")
+        if self.needs_background:
+            needs.add("background")
+        return needs
+    
+    @property
+    def provides(self) -> Set[str]:
+        provides = set()
+        if self.produces_depth:
+            provides.add("depth")
+        if self.produces_audio_modulated:
+            provides.add("audio_modulated")
+        # ... add other outputs
+        return provides
+    '''
+    
+    # Insert into class definition
+    # ...
+```
+
+**Manual Review**: Some plugins need custom logic (e.g., depth_loop_injection produces multiple outputs).
+
+### 5.2 Backward Compatibility
+
+**For Plugins Without Declarations:**
+- Assume they need `video` and produce `video` (identity)
+- Log warning that plugin should declare dependencies
+- Schedule them in a "catch-all" batch at the end
+
+---
+
+## 6. Testing Strategy
+
+### 6.1 Unit Tests
+
+**PluginScheduler Tests:**
+```python
+def test_simple_chain():
+    """A → B → C should schedule in order."""
+    plugins = [
+        PluginA(id="A", needs=[], provides=["depth"]),
+        PluginB(id="B", needs=["depth"], provides=["audio"]),
+        PluginC(id="C", needs=["audio"], provides=[]),
+    ]
+    
+    scheduler = PluginScheduler()
+    batches = scheduler.schedule(plugins)
+    
+    assert len(batches) == 3  # Sequential, no parallelism
+    assert batches[0] == [plugins[0]]
+    assert batches[1] == [plugins[1]]
+    assert batches[2] == [plugins[2]]
+
+def test_parallel_execution():
+    """A,B → C should schedule A,B in same batch."""
+    plugins = [
+        PluginA(id="A", needs=[], provides=["depth"]),
+        PluginB(id="B", needs=[], provides=["audio"]),
+        PluginC(id="C", needs=["depth", "audio"], provides=[]),
+    ]
+    
+    scheduler = PluginScheduler()
+    batches = scheduler.schedule(plugins)
+    
+    assert len(batches) == 2
+    assert set(batches[0]) == {plugins[0], plugins[1]}  # Parallel
+    assert batches[1] == [plugins[2]]
+
+def test_cycle_detection():
+    """A → B → A should raise error."""
+    plugins = [
+        PluginA(id="A", needs=["output"], provides=["intermediate"]),
+        PluginB(id="B", needs=["intermediate"], provides=["output"]),
+    ]
+    
+    scheduler = PluginScheduler()
+    with pytest.raises(ValueError, match="Cyclic dependency"):
+        scheduler.schedule(plugins)
+```
+
+**SafePluginWrapper Tests:**
+```python
+def test_error_count_reset():
+    """Successful execution should reduce error count."""
+    plugin = FailingPlugin(fail_times=1)
+    wrapper = SafePluginWrapper(plugin, error_threshold=5)
+    
+    # First call fails
+    with pytest.raises(PluginError):
+        wrapper.process(...)
+    assert wrapper.error_count == 1
+    
+    # Second call succeeds (plugin fixed)
+    plugin.fail_times = 0
+    result = wrapper.process(...)
+    assert wrapper.error_count == 0  # Reset
+
+def test_temporary_disable():
+    """After threshold errors, plugin disabled for cooldown."""
+    plugin = AlwaysFailingPlugin()
+    wrapper = SafePluginWrapper(plugin, error_threshold=3)
+    context = VJLiveContext()
+    
+    # Fail 3 times
+    for _ in range(3):
+        try:
+            wrapper.process(...)
+        except:
+            pass
+    
+    assert wrapper.disabled_until > context.time
+    # Next call should not execute plugin
+    result = wrapper.process(...)
+    assert result == wrapper.get_disabled_output(...)
+```
+
+### 6.2 Integration Tests
+
+```python
+def test_full_pipeline_with_failing_plugin():
+    """Pipeline should continue if one plugin fails."""
+    engine = RenderEngine()
+    engine.active_plugins = [
+        GoodPlugin(),
+        BadPlugin(),  # This one fails
+        GoodPlugin()
+    ]
+    
+    # Should not crash
+    engine.render_frame()
+    engine.render_frame()
+    
+    # Verify error logged
+    assert engine.context.safety_violations > 0
+
+def test_parallel_batch_execution():
+    """Plugins in same batch should execute independently."""
+    engine = RenderEngine()
+    engine.active_plugins = [
+        IndependentPlugin("A"),
+        IndependentPlugin("B"),
+        DependentPlugin(needs=["A", "B"])
+    ]
+    
+    # Verify schedule has 2 batches
+    assert len(engine.schedule) == 2
+    assert len(engine.schedule[0]) == 2  # A and B parallel
+    
+    # Render and verify all executed
+    engine.render_frame()
+    for plugin in engine.active_plugins:
+        assert plugin.execution_count > 0
+```
+
+### 6.3 Performance Tests
+
+```python
+def test_scheduler_overhead():
+    """Scheduling 100 plugins should be fast."""
+    plugins = [DummyPlugin(id=f"P{i}") for i in range(100)]
+    scheduler = PluginScheduler()
+    
+    start = time.perf_counter()
+    batches = scheduler.schedule(plugins)
+    elapsed = time.perf_counter() - start
+    
+    assert elapsed < 0.005, f"Scheduling took {elapsed}s for 100 plugins"
+
+def test_wrapper_overhead():
+    """Wrapper should add <0.1ms per call."""
+    plugin = FastPlugin()
+    wrapper = SafePluginWrapper(plugin)
+    context = VJLiveContext()
+    
+    iterations = 10000
+    start = time.perf_counter()
+    for _ in range(iterations):
+        wrapper.process(Texture(100, 100), {}, context)
+    elapsed = time.perf_counter() - start
+    
+    per_call = elapsed / iterations * 1000
+    assert per_call < 0.1, f"Wrapper overhead: {per_call}ms"
+```
+
+---
+
+## 7. Performance Considerations
+
+### 7.1 Scheduling Overhead
+
+- **Static Schedule**: Compute once at startup (unless plugins added/removed)
+- **Caching**: Store batches; only recompute on plugin list change
+- **Complexity**: O(V + E) where V = plugins, E = dependencies (typically V << E)
+
+### 7.2 Parallel Execution
+
+**Current**: Sequential execution within batches
+**Future**: Use `concurrent.futures.ThreadPoolExecutor` for CPU-bound plugins
+**Caution**: OpenGL contexts are thread-local; need context sharing or per-thread contexts
+
+### 7.3 Memory Overhead
+
+- `PluginScheduler`: ~1KB per 100 plugins
+- `SafePluginWrapper`: ~200 bytes per plugin
+- Schedule storage: ~100 bytes per plugin
+
+**Total**: <50KB for 100 plugins (negligible)
+
+---
+
+## 8. Success Criteria
+
+- ✅ `PluginScheduler` correctly resolves dependencies for 80+ plugins
+- ✅ Topological sort detects cycles and reports clearly
+- ✅ Parallel batches identified correctly (no false dependencies)
+- ✅ `SafePluginWrapper` catches all exceptions
+- ✅ Plugin temporarily disabled after threshold errors
+- ✅ Fallback modes work (passthrough, placeholder, last_good)
+- ✅ Pipeline continues despite individual plugin failures
+- ✅ Performance overhead <0.5ms for scheduling, <0.1ms per plugin call
+- ✅ All unit tests pass (>90% coverage)
+- ✅ Integration tests pass with 50+ plugins including failures
+- ✅ Error messages clear and actionable for debugging
+
+---
+
+## 9. Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Scheduler incorrectly batches plugins | High | Comprehensive testing; visual dependency graph debugger |
+| Cycle detection misses edge cases | Medium | Use proven Kahn's algorithm; unit tests for cycles |
+| Error wrapper hides bugs | Medium | Log full tracebacks; error count visible in UI |
+| Parallel execution causes GL issues | High | Start with sequential; add threading only after thorough testing |
+| Performance overhead exceeds budget | High | Pre-compute schedule; cache aggressively; Cython optimization |
+| Migration of 80+ plugins error-prone | Medium | Automated migration script; manual review checklist |
+
+---
+
+## 10. Next Steps
+
+1. **Approve this specification** → Manager
+2. **Queue Phase B task via MCP switchboard** → Manager
+3. **Begin implementation** → Implementation Engineer
+
+---
+
+**Document Status**: Ready for Manager approval. Once approved, the implementation task will be queued for execution.
+
+**Dependencies**: Phase A (Context Object) must be completed before Phase B can begin.
+
+**Estimated Effort**: 3-4 days
+
+**Deliverables:**
+- `src/vjlive3/core/scheduler.py` with `PluginScheduler` and `SafePluginWrapper`
+- Unit tests (>90% coverage)
+- Updated `engine.py` to use scheduler
+- Migration guide for plugin authors

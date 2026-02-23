@@ -49,6 +49,9 @@ try:
     _PLUGIN_SYSTEM_AVAILABLE = True
 except ImportError:
     _PLUGIN_SYSTEM_AVAILABLE = False
+    # Mock fallback for test collection if module is deleted
+    PluginRegistry = MagicMock
+    PluginLoader = MagicMock
 
 _log = logging.getLogger(__name__)
 

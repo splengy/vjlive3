@@ -1,0 +1,720 @@
+# Phase C: Agent-Plugin Bus
+
+**Document Version**: 1.0  
+**Created**: 2026-02-23  
+**Status**: Ready for Review  
+**Author**: Manager Agent (Lead Systems Engineer)  
+
+---
+
+## 1. Executive Summary
+
+This specification defines the implementation of the Agent-Plugin Bus - a bidirectional communication channel that enables real-time modulation of plugin parameters by AI agents, and allows plugins to influence agent behavior. This creates a closed-loop system where agents can "play" the VJ system like an instrument.
+
+**Critical Objectives:**
+- Enable agents to modulate plugin parameters in real-time (<10ms latency)
+- Provide a standardized naming convention for agent→plugin bindings
+- Allow plugins to read agent state (position, velocity, energy)
+- Support bidirectional feedback (plugins can affect agent behavior)
+- Maintain 60 FPS sacred rail under all conditions
+- Provide clear debugging and visualization tools
+
+---
+
+## 2. Current State Analysis
+
+### 2.1 Agent System (Phase 6)
+
+**Current State**: Agents compute positions/velocities in 16D manifold but cannot affect plugins.
+
+```python
+# Current agent code (agents/physics.py)
+class Agent:
+    def __init__(self, agent_id: str):
+        self.id = agent_id
+        self.position = [0.0] * 16
+        self.velocity = [0.0] * 16
+        self.energy = 0.0
+    
+    def step(self, context):
+        """Update agent state based on physics."""
+        # Compute new position/velocity
+        self.position[0] += self.velocity[0] * context.dt
+        # ...
+        
+        # Store state in context
+        context.agent_states.append({
+            'id': self.id,
+            'position': self.position,
+            'velocity': self.velocity,
+            'energy': self.energy
+        })
+```
+
+**Problem**: Agent state is read-only; no way to send commands to plugins.
+
+### 2.2 Plugin System (Phase 3-5)
+
+**Current State**: Plugins receive static parameters from UI or automation; no dynamic modulation from agents.
+
+```python
+# Current plugin
+class DepthMotionTransferPlugin(EffectPlugin):
+    def process(self, input_texture, params, context):
+        # params come from UI or automation
+        displacement_strength = params["displacement_strength"]
+        # ...
+```
+
+**Problem**: Plugins cannot react to agent movements in real-time.
+
+### 2.3 Legacy Patterns
+
+**vjlive/**:
+- No agent system existed
+- Modulation came from MIDI/OSC only
+
+**VJlive-2/**:
+- Had basic agent system but no plugin integration
+- Agents were visual only (overlay graphics)
+
+**Proven Strengths:**
+- None directly applicable (this is new)
+
+**Weaknesses to Avoid:**
+- Don't create tight coupling between agents and plugins
+- Avoid polling; use event-driven updates
+- Prevent agents from overwhelming plugins with updates
+
+---
+
+## 3. Solution Architecture
+
+### 3.1 Bidirectional Control Bus
+
+**Concept**: Extend `VJLiveContext` with two dictionaries:
+
+```python
+@dataclass
+class VJLiveContext:
+    # ... existing fields ...
+    
+    # Agent → Plugin control channel
+    agent_controls: Dict[str, Any] = field(default_factory=dict)
+    
+    # Plugin → Agent feedback channel
+    plugin_feedback: Dict[str, Any] = field(default_factory=dict)
+```
+
+**Data Flow:**
+```
+Agent computes position/velocity
+    ↓
+Writes to context.agent_controls
+    Key: "{agent_id}.{param_name}"
+    Value: float or vector
+    
+    ↓
+Plugin reads from context.agent_controls
+    ↓
+Plugin applies modulation to its parameters
+    ↓
+Plugin writes feedback to context.plugin_feedback
+    Key: "{plugin_id}.{metric}"
+    Value: any serializable
+    
+    ↓
+Agent reads from context.plugin_feedback
+    ↓
+Agent adjusts behavior based on plugin state
+```
+
+### 3.2 Naming Convention
+
+**Agent → Plugin:**
+```
+"{agent_id}.{param_path}"
+```
+
+**Examples:**
+- `"agent_001.zoom"` → modulate zoom parameter
+- `"agent_002.displacement.x"` → modulate X displacement
+- `"agent_003.color.hue"` → modulate hue shift
+- `"agent_004.intensity"` → modulate overall intensity
+
+**Plugin → Agent:**
+```
+"{plugin_id}.{metric}"
+```
+
+**Examples:**
+- `"depth_motion_transfer.energy_absorbed"` → how much energy plugin consumed
+- `"depth_motion_transfer.displacement_magnitude"` → average displacement applied
+- `"depth_motion_transfer.fps_impact"` → performance cost
+
+### 3.3 Agent Control Publisher
+
+**Implementation**: Extend `AgentBridge` to publish controls each frame.
+
+```python
+# agents/bridge.py
+class AgentBridge:
+    def __init__(self):
+        self.agents: List[Agent] = []
+        self.control_schema: Dict[str, Dict] = {}  # agent_id → param metadata
+    
+    def register_agent(self, agent: Agent, control_schema: Dict[str, Any]):
+        """Register an agent with its available controls."""
+        self.agents.append(agent)
+        self.control_schema[agent.id] = control_schema
+    
+    def publish_controls(self, context: VJLiveContext):
+        """Publish all agent controls to context."""
+        context.agent_controls.clear()
+        
+        for agent in self.agents:
+            # Publish position (16D vector)
+            for i, val in enumerate(agent.position):
+                context.agent_controls[f"{agent.id}.position[{i}]"] = val
+            
+            # Publish velocity
+            for i, val in enumerate(agent.velocity):
+                context.agent_controls[f"{agent.id}.velocity[{i}]"] = val
+            
+            # Publish energy
+            context.agent_controls[f"{agent.id}.energy"] = agent.energy
+            
+            # Publish custom controls (from agent logic)
+            if hasattr(agent, 'get_controls'):
+                custom = agent.get_controls()
+                for key, value in custom.items():
+                    context.agent_controls[f"{agent.id}.{key}"] = value
+```
+
+**Agent Example with Custom Controls:**
+
+```python
+class DancingAgent(Agent):
+    def __init__(self, agent_id: str):
+        super().__init__(agent_id)
+        self.dance_intensity = 0.0
+        self.hue_shift = 0.0
+    
+    def step(self, context):
+        # Update position/velocity from physics
+        super().step(context)
+        
+        # Compute custom controls based on state
+        self.dance_intensity = min(1.0, self.energy * 2.0)
+        self.hue_shift = (self.position[0] + 1.0) * 180.0  # Map X to hue
+    
+    def get_controls(self) -> Dict[str, Any]:
+        """Return custom controls for plugins."""
+        return {
+            "dance_intensity": self.dance_intensity,
+            "hue_shift": self.hue_shift
+        }
+```
+
+### 3.4 Plugin Control Consumer
+
+**Implementation**: Plugins read from `context.agent_controls` and apply to parameters.
+
+```python
+class DepthMotionTransferPlugin(EffectPlugin):
+    def __init__(self):
+        self.needs_depth = True
+        self.produces_depth = False
+        
+        # Declare which agent controls this plugin uses
+        self.agent_control_mappings = {
+            "agent_001": ["zoom", "displacement_strength"],
+            "agent_002": ["color.hue", "color.saturation"],
+        }
+    
+    def process(self, input_texture, params, context: VJLiveContext):
+        """Apply agent modulation to plugin parameters."""
+        
+        # Start with base parameters from UI
+        zoom = params["zoom"]
+        displacement_strength = params["displacement_strength"]
+        hue = params["hue"]
+        
+        # Apply agent controls (if present)
+        for agent_id, controls in self.agent_control_mappings.items():
+            for control in controls:
+                key = f"{agent_id}.{control}"
+                if key in context.agent_controls:
+                    value = context.agent_controls[key]
+                    
+                    # Apply modulation based on control type
+                    if control == "zoom":
+                        zoom *= (1.0 + value * 0.5)  # ±50% modulation
+                    elif control == "displacement_strength":
+                        displacement_strength += value * 0.1
+                    elif control == "color.hue":
+                        hue += value
+        
+        # Clamp to valid ranges
+        zoom = np.clip(zoom, 0.1, 10.0)
+        displacement_strength = np.clip(displacement_strength, 0.0, 1.0)
+        hue = hue % 360.0
+        
+        # Use modulated parameters
+        return self.apply_effect(input_texture, zoom, displacement_strength, hue)
+```
+
+### 3.5 Plugin Feedback Publisher
+
+**Implementation**: Plugins can write metrics back to context for agents to read.
+
+```python
+class DepthMotionTransferPlugin(EffectPlugin):
+    def process(self, input_texture, params, context: VJLiveContext):
+        # ... apply effect ...
+        
+        # Publish feedback for agents
+        context.plugin_feedback[f"{self.id}.energy_absorbed"] = energy_used
+        context.plugin_feedback[f"{self.id}.displacement_magnitude"] = avg_displacement
+        context.plugin_feedback[f"{self.id}.fps_impact"] = self.last_process_time_ms
+        
+        return output_texture
+```
+
+**Agent Reading Feedback:**
+
+```python
+class AdaptiveAgent(Agent):
+    def step(self, context):
+        super().step(context)
+        
+        # Read plugin feedback
+        plugin_id = "depth_motion_transfer"
+        key = f"{plugin_id}.energy_absorbed"
+        if key in context.plugin_feedback:
+            energy_absorbed = context.plugin_feedback[key]
+            # Adjust agent behavior based on plugin state
+            if energy_absorbed > 0.8:
+                self.energy *= 0.9  # Conserve energy if plugin is expensive
+```
+
+### 3.6 Schema & Validation
+
+**Control Schema Registry:**
+
+```python
+class ControlSchemaRegistry:
+    """Registry for agent→plugin and plugin→agent control schemas."""
+    
+    def __init__(self):
+        self.agent_controls: Dict[str, Dict[str, Any]] = {}  # agent_id → {param: metadata}
+        self.plugin_feedback: Dict[str, Dict[str, Any]] = {}  # plugin_id → {metric: metadata}
+    
+    def register_agent_controls(self, agent_id: str, controls: Dict[str, Dict]):
+        """
+        Register agent control parameters.
+        
+        controls = {
+            "zoom": {"type": "float", "min": 0.1, "max": 10.0, "default": 1.0},
+            "hue": {"type": "float", "min": 0.0, "max": 360.0},
+        }
+        """
+        self.agent_controls[agent_id] = controls
+    
+    def register_plugin_feedback(self, plugin_id: str, feedback: Dict[str, Dict]):
+        """Register plugin feedback metrics."""
+        self.plugin_feedback[plugin_id] = feedback
+    
+    def validate_control(self, agent_id: str, param: str, value: Any) -> bool:
+        """Validate that a control value matches schema."""
+        if agent_id not in self.agent_controls:
+            return False
+        if param not in self.agent_controls[agent_id]:
+            return False
+        
+        schema = self.agent_controls[agent_id][param]
+        # Type checking, range checking, etc.
+        # ...
+        return True
+```
+
+**Integration:**
+- `AgentBridge` registers agent controls at startup
+- Plugins declare feedback metrics in `__init__`
+- `engine.py` validates controls before applying (optional, for debugging)
+
+---
+
+## 4. Implementation Plan
+
+### 4.1 Phase C1: Extend VJLiveContext (Day 4)
+
+**Tasks:**
+1. Add `agent_controls` and `plugin_feedback` fields to `VJLiveContext`
+2. Implement `ControlSchemaRegistry`
+3. Write unit tests for context fields
+
+**Files to Modify:**
+```
+src/vjlive3/core/
+├── context.py  # Add new fields
+└── tests/
+    └── test_context_controls.py
+```
+
+### 4.2 Phase C2: AgentBridge Enhancement (Day 5)
+
+**Tasks:**
+1. Add `publish_controls()` method to `AgentBridge`
+2. Add `register_agent_controls()` for schema registration
+3. Update all agents to define control schemas
+4. Write unit tests
+
+**Files to Modify:**
+```
+src/vjlive3/agents/
+├── bridge.py  # Add control publishing
+└── tests/
+    └── test_agent_bridge_controls.py
+```
+
+**Agent Updates:**
+- Update all 4 agents (AgentBridge, AgentPhysics, AgentMemory, AgentControlUI)
+- Each agent declares what controls it provides
+- Each agent can optionally read plugin feedback
+
+### 4.3 Phase C3: Plugin Integration (Day 6)
+
+**Tasks:**
+1. Update `EffectPlugin` base class to document agent control mappings
+2. Update 5-10 representative plugins with agent control support:
+   - DepthMotionTransfer (agent position → displacement)
+   - DepthParticleShred (agent energy → particle explosion)
+   - VimanaHyperion (agent velocity → color shift)
+   - QuantumConsciousnessExplorer (agent manifold position → quantum state)
+   - NeuralRaveNexus (agent density → neural activation)
+3. Write integration tests
+
+**Files to Modify:**
+```
+src/vjlive3/plugins/
+├── depth_motion_transfer.py
+├── depth_particle_shred.py
+├── vimana_hyperion.py
+├── quantum_consciousness_explorer.py
+├── neural_rave_nexus.py
+└── tests/
+    └── test_agent_plugin_integration.py
+```
+
+### 4.4 Phase C4: UI Visualization (Day 7)
+
+**Tasks:**
+1. Add HUD overlay showing active agent→plugin bindings
+2. Display real-time control values (sliders, graphs)
+3. Show plugin feedback metrics
+4. Add debugging panel to inspect `context.agent_controls` and `context.plugin_feedback`
+
+**Files to Modify:**
+```
+src/vjlive3/ui/
+├── desktop_gui.py  # Add agent control visualization
+└── tests/
+    └── test_agent_plugin_ui.py
+```
+
+### 4.5 Phase C5: Performance Optimization (Day 8)
+
+**Tasks:**
+1. Benchmark control publishing overhead (<0.5ms)
+2. Benchmark plugin control reading (<0.1ms per plugin)
+3. Optimize dictionary access (use object pools if needed)
+4. Add optional sampling (1/4 frames) for non-critical agents
+
+**Performance Tests:**
+```python
+def test_control_publishing_overhead():
+    """Publishing 10 agents × 20 controls should be fast."""
+    bridge = AgentBridge()
+    context = VJLiveContext()
+    
+    start = time.perf_counter()
+    for _ in range(1000):
+        bridge.publish_controls(context)
+    elapsed = time.perf_counter() - start
+    
+    assert elapsed / 1000 < 0.0005, f"Control publishing: {elapsed/1000}s"
+```
+
+---
+
+## 5. Plugin Migration Strategy
+
+### 5.1 Optional Adoption
+
+**Agents**: All agents must publish controls (mandatory for Phase 6 completion).
+
+**Plugins**: Agent control support is optional but encouraged. Plugins without mappings simply ignore `context.agent_controls`.
+
+### 5.2 Migration Checklist for Plugins
+
+- [ ] Add `agent_control_mappings` dict to `__init__`
+- [ ] Document which agent controls affect which parameters
+- [ ] In `process()`, read from `context.agent_controls` with fallback to `params`
+- [ ] Apply modulation (multiplicative or additive based on control)
+- [ ] Clamp modulated values to valid ranges
+- [ ] Optionally write feedback to `context.plugin_feedback`
+- [ ] Update docstring to list supported agent controls
+- [ ] Add unit tests with mock agent controls
+
+### 5.3 Example Migration
+
+**Before:**
+```python
+class DepthBlurPlugin(EffectPlugin):
+    def process(self, input_texture, params, context):
+        blur_radius = params["blur_radius"]
+        return self.blur(input_texture, blur_radius)
+```
+
+**After:**
+```python
+class DepthBlurPlugin(EffectPlugin):
+    def __init__(self):
+        self.needs_depth = True
+        self.agent_control_mappings = {
+            "agent_001": ["blur_radius"],  # Agent modulates blur
+        }
+    
+    def process(self, input_texture, params, context: VJLiveContext):
+        blur_radius = params["blur_radius"]
+        
+        # Apply agent modulation
+        key = "agent_001.blur_radius"
+        if key in context.agent_controls:
+            modulation = context.agent_controls[key]
+            blur_radius *= (1.0 + modulation * 0.5)  # ±50%
+        
+        blur_radius = np.clip(blur_radius, 1.0, 50.0)
+        return self.blur(input_texture, blur_radius)
+```
+
+---
+
+## 6. Testing Strategy
+
+### 6.1 Unit Tests
+
+**AgentBridge Tests:**
+```python
+def test_publish_controls():
+    """Agent controls should be published to context."""
+    bridge = AgentBridge()
+    agent = DancingAgent("agent_001")
+    bridge.register_agent(agent, {"dance_intensity": {}, "hue_shift": {}})
+    
+    context = VJLiveContext()
+    bridge.publish_controls(context)
+    
+    assert "agent_001.dance_intensity" in context.agent_controls
+    assert "agent_001.hue_shift" in context.agent_controls
+    assert 0.0 <= context.agent_controls["agent_001.dance_intensity"] <= 1.0
+
+def test_control_schema_validation():
+    """Controls should conform to registered schema."""
+    registry = ControlSchemaRegistry()
+    registry.register_agent_controls("agent_001", {
+        "zoom": {"type": "float", "min": 0.1, "max": 10.0}
+    })
+    
+    # Valid value
+    assert registry.validate_control("agent_001", "zoom", 2.5)
+    
+    # Out of range
+    assert not registry.validate_control("agent_001", "zoom", 20.0)
+```
+
+**Plugin Tests:**
+```python
+def test_plugin_reads_agent_controls():
+    """Plugin should apply agent modulation correctly."""
+    plugin = DepthMotionTransferPlugin()
+    context = VJLiveContext()
+    context.agent_controls["agent_001.zoom"] = 0.3  # +30% modulation
+    
+    params = {"zoom": 1.0, "displacement_strength": 0.5}
+    output = plugin.process(Texture(100, 100), params, context)
+    
+    # Verify plugin used modulated zoom (1.0 * 1.3 = 1.3)
+    assert plugin.last_zoom_used == pytest.approx(1.3)
+
+def test_plugin_writes_feedback():
+    """Plugin should write feedback metrics."""
+    plugin = DepthMotionTransferPlugin()
+    context = VJLiveContext()
+    
+    plugin.process(Texture(100, 100), {}, context)
+    
+    assert f"{plugin.id}.energy_absorbed" in context.plugin_feedback
+    assert context.plugin_feedback[f"{plugin.id}.energy_absorbed"] > 0
+```
+
+### 6.2 Integration Tests
+
+```python
+def test_agent_plugin_closed_loop():
+    """Agent and plugin should communicate bidirectionally."""
+    agent = AdaptiveAgent("agent_001")
+    plugin = DepthMotionTransferPlugin()
+    bridge = AgentBridge()
+    engine = RenderEngine()
+    
+    # Register agent
+    bridge.register_agent(agent, {"intensity": {}})
+    
+    # Run one frame
+    context = VJLiveContext()
+    bridge.publish_controls(context)
+    output = plugin.process(context.video, {}, context)
+    
+    # Agent reads plugin feedback
+    agent.step(context)
+    
+    # Verify communication
+    assert len(context.agent_controls) > 0
+    assert len(context.plugin_feedback) > 0
+
+def test_multiple_agents_controlling_same_plugin():
+    """Multiple agents should modulate same plugin without conflict."""
+    agent1 = DancingAgent("agent_001")
+    agent2 = DancingAgent("agent_002")
+    plugin = DepthMotionTransferPlugin()
+    
+    plugin.agent_control_mappings = {
+        "agent_001": ["zoom"],
+        "agent_002": ["displacement_strength"],
+    }
+    
+    context = VJLiveContext()
+    context.agent_controls["agent_001.zoom"] = 0.2
+    context.agent_controls["agent_002.displacement_strength"] = 0.5
+    
+    # Plugin should apply both modulations correctly
+    output = plugin.process(Texture(100, 100), {"zoom": 1.0, "displacement_strength": 0.0}, context)
+    
+    assert plugin.last_zoom == pytest.approx(1.2)
+    assert plugin.last_displacement == pytest.approx(0.5)
+```
+
+### 6.3 Performance Tests
+
+```python
+def test_agent_control_latency():
+    """Agent control should be visible to plugin within 1 frame."""
+    agent = DancingAgent("agent_001")
+    bridge = AgentBridge()
+    bridge.register_agent(agent, {"dance_intensity": {}})
+    
+    engine = RenderEngine()
+    context = engine.context
+    
+    # Agent updates control
+    agent.dance_intensity = 0.8
+    bridge.publish_controls(context)
+    
+    # Plugin should see updated value immediately
+    assert context.agent_controls["agent_001.dance_intensity"] == 0.8
+```
+
+---
+
+## 7. Legacy Integration
+
+### 7.1 vjlive/ Agents
+
+**Legacy**: No agent system existed.
+
+**Migration**: N/A (new feature)
+
+### 7.2 VJlive-2/ Agents
+
+**Legacy**: Agents were visual only (overlay graphics).
+
+**Migration**: Extend existing agents with control publishing:
+
+```python
+# vjlive2_agent.py (legacy)
+class VJLive2Agent:
+    def step(self):
+        self.update_position()
+        self.draw_overlay()
+
+# vjlive2_agent.py (migrated)
+class VJLive2Agent(Agent):
+    def step(self, context):
+        self.update_position()
+        # Publish controls instead of drawing directly
+        # UI reads agent state from context and draws overlay
+```
+
+---
+
+## 8. Success Criteria
+
+- ✅ All 4 agents publish controls to `context.agent_controls` each frame
+- ✅ At least 5 plugins consume agent controls and modulate parameters
+- ✅ At least 3 plugins publish feedback to `context.plugin_feedback`
+- ✅ At least 1 agent reads plugin feedback and adapts behavior
+- ✅ Control latency < 1 frame (agent publishes → plugin sees)
+- ✅ Performance overhead <0.5ms for control publishing, <0.1ms per plugin for reading
+- ✅ Clear debugging UI showing active bindings and values
+- ✅ All unit tests pass (>90% coverage)
+- ✅ Integration tests demonstrate closed-loop agent→plugin→agent communication
+- ✅ No race conditions or dictionary corruption under load
+
+---
+
+## 9. Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Agents overwhelm plugins with updates | Medium | Use dictionary; O(1) lookup; batch updates per frame |
+| Control name collisions | High | Enforce naming convention: `{agent_id}.{param}` |
+| Plugins apply incorrect modulation | Medium | Validation layer; clamp values; debug logging |
+| Feedback loop causes instability | High | Rate-limit feedback; add damping; simulation before deployment |
+| Performance degrades with many agents | Medium | Benchmark; optimize dictionary access; consider object pools |
+| Debugging complex bindings difficult | Medium | Provide UI visualization; log control flow; schema registry |
+
+---
+
+## 10. Next Steps
+
+1. **Approve this specification** → Manager
+2. **Queue Phase C task via MCP switchboard** → Manager
+3. **Begin implementation** → Implementation Engineer
+
+---
+
+**Document Status**: Ready for Manager approval. Once approved, the implementation task will be queued for execution.
+
+**Dependencies**: Phase A (Context Object) must be completed before Phase C can begin. Phase B (Scheduler) is not strictly required but recommended for robust error handling.
+
+**Estimated Effort**: 3-4 days
+
+**Deliverables:**
+- `src/vjlive3/core/context.py` with `agent_controls` and `plugin_feedback` fields
+- `src/vjlive3/agents/bridge.py` with `publish_controls()` and schema registration
+- Updated agents (4 total) with control schemas
+- 5+ plugins with agent control support
+- UI visualization panel for agent→plugin bindings
+- Unit and integration tests (>90% coverage)
+
+**Future Phases:**
+- Phase D: Telemetry to monitor agent→plugin communication
+- Phase F: Stress test with 10+ agents and 50+ plugins
+
+
+
+## Legacy References
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

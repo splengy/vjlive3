@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'speed': 5.0, 'radius': 5.0, 'twist': 3.0, 'star_density': 5.
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class HyperspaceTunnelPlugin(EffectPlugin):
+class HyperspaceTunnelPlugin(object):
     """Hyperspace tunnel — warp-speed star field tunnel."""
     def __init__(self):
         super().__init__()

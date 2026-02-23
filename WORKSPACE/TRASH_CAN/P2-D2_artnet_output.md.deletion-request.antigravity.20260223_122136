@@ -1,0 +1,317 @@
+# P2-D2: ArtNet + sACN Output
+
+## Overview
+
+**Task ID**: P2-D2  
+**Phase**: Phase 2 - Critical Infrastructure  
+**Priority**: P0 (Critical)  
+**Status**: ⬜ Todo  
+**Description**: DMX output via Art-Net and sACN protocols for professional lighting control
+
+**Objective**: Port the Art-Net and sACN output functionality from legacy codebases to enable VJLive3 to control professional DMX lighting fixtures over the network.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/dmx_controller.py`
+- **Class**: `DMXController`
+- **Key Features**:
+  - Art-Net protocol implementation (v2/v3)
+  - sACN (Streaming ACN) output
+  - Universe management (1-32,768 universes)
+  - Fixture profile support
+  - Real-time DMX data transmission
+  - Network configuration and discovery
+
+### Supporting Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/dmx/dmx_engine.py`
+- **Class**: `DMXEngine`
+- **Key Features**:
+  - Enhanced Art-Net/sACN with production hardening
+  - Universe merging and prioritization
+  - Fixture profile management
+  - Network redundancy and failover
+  - Performance monitoring
+  - WebSocket control interface
+
+### Related Modules
+- `../vjlive/core/dmx_controller.py` - Core DMX control
+- `../VJlive-2/core/dmx/dmx_bridge.py` - DMX bridge/router
+- `../VJlive-2/core/dmx/fixture_profiles.py` - Fixture definitions
+- `../VJlive-2/core/dmx/pixel_mapper.py` - Pixel mapping for LED arrays
+- `../VJlive-2/core/dmx/fx_engine.py` - DMX effects engine
+- `../VJlive-2/core/dmx/dmx_ws_handler.py` - WebSocket control
+
+---
+
+## What This Module Does
+
+This task implements production-ready Art-Net and sACN output for DMX lighting control:
+
+1. **Art-Net Protocol**: Implements Art-Net v2/v3 for DMX over UDP/IP
+2. **sACN Protocol**: Implements E1.31 (Streaming ACN) for standardized DMX
+3. **Universe Management**: Handles multiple universes (1-32,768) with configurable size
+4. **Fixture Profiles**: Supports RDM and custom fixture definitions
+5. **Real-Time Transmission**: Maintains 44 FPS DMX update rate (minimum)
+6. **Network Configuration**: Auto-discovery, IP configuration, subnet management
+7. **Priority System**: Multiple controllers can merge with priority levels
+8. **Performance Monitoring**: Tracks packet loss, latency, FPS
+9. **WebSocket Control**: Allows remote control via WebSocket API
+10. **Failover**: Automatic fallback to alternative network interfaces
+
+---
+
+## Implementation Plan
+
+### Phase 1: Protocol Implementation
+1. Implement Art-Net v2/v3 packet structure (OpCode, Universe, Data)
+2. Implement sACN (E1.31) with CID, Universe, and DMP layers
+3. Create UDP socket management with multicast support
+4. Add network interface selection and configuration
+
+### Phase 2: Universe Management
+1. Create universe pool (allocate/free universes)
+2. Implement universe data buffers (512 bytes per universe)
+3. Add universe merging (HTP/LTP prioritization)
+4. Create universe status monitoring
+
+### Phase 3: Fixture Integration
+1. Port fixture profile system (GDTF, custom JSON)
+2. Implement channel mapping (DMX channel → fixture parameter)
+3. Add RDM (Remote Device Management) support
+4. Create fixture library management
+
+### Phase 4: Performance & Reliability
+1. Optimize for 44+ FPS DMX updates (22.7ms period)
+2. Implement packet scheduling and timing
+3. Add network redundancy (multiple NICs)
+4. Create comprehensive error handling and recovery
+
+### Phase 5: WebSocket & Control
+1. Implement WebSocket handler for remote control
+2. Create REST API for configuration
+3. Add real-time monitoring dashboard
+4. Implement live patching and override
+
+### Phase 6: Testing & Validation
+1. Unit tests for protocol packet creation
+2. Integration tests with real DMX hardware
+3. Network stress tests (packet loss, latency)
+4. Compliance testing with Art-Net/sACN specifications
+
+---
+
+## Public Interface
+
+### DMXEngine Class
+
+```python
+# src/vjlive3/core/dmx/engine.py
+class DMXEngine:
+    def __init__(
+        self,
+        bind_ip: str = "0.0.0.0",
+        artnet_enabled: bool = True,
+        sacn_enabled: bool = True
+    ):
+        """
+        Initialize DMX engine with Art-Net and sACN support.
+        
+        Args:
+            bind_ip: IP address to bind to (0.0.0.0 = all interfaces)
+            artnet_enabled: Enable Art-Net protocol
+            sacn_enabled: Enable sACN protocol
+        """
+    
+    def start(self) -> None
+    def stop(self) -> None
+    
+    def set_universe_data(
+        self,
+        universe: int,
+        data: bytes,  # 512-byte DMX data
+        priority: int = 100
+    ) -> None
+    
+    def get_universe_data(self, universe: int) -> bytes
+    def get_universe_status(self, universe: int) -> UniverseStatus
+    
+    def add_fixture(
+        self,
+        fixture_id: str,
+        profile: FixtureProfile,
+        start_channel: int,
+        universe: int
+    ) -> None
+    
+    def set_fixture_parameter(
+        self,
+        fixture_id: str,
+        parameter: str,
+        value: float
+    ) -> None
+    
+    def get_statistics(self) -> DMXStatistics
+```
+
+### WebSocket API
+
+```python
+# src/vjlive3/core/dmx/websocket.py
+class DmxWebSocketHandler:
+    async def on_message(self, message: str) -> None:
+        """
+        Handle WebSocket messages:
+        - {"type": "set_universe", "universe": 1, "data": [0,255,...]}
+        - {"type": "set_fixture", "fixture": "light1", "param": "dimmer", "value": 0.5}
+        - {"type": "get_status"}
+        """
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| DMX data | Effects, controllers | 512-byte arrays per universe |
+| Fixture definitions | Configuration files | GDTF, JSON profiles |
+| Network config | User/UI | IP addresses, protocols |
+| Control commands | WebSocket, REST API | Real-time control |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| Art-Net packets | Network (UDP 6454) | DMX data via Art-Net |
+| sACN packets | Network (UDP 5568) | DMX data via sACN |
+| Status updates | Monitoring | FPS, packet loss, errors |
+| WebSocket events | Remote clients | Real-time state changes |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** generate DMX data (effects provide data)
+- ❌ Does **not** control fixtures directly (use FixtureProfiles)
+- ❌ Does **not** provide RDM discovery (basic RDM only)
+- ❌ Does **not** handle lighting design (use external software)
+- ❌ Does **not** store DMX snapshots (use StateManager)
+- ❌ Does **not** do timecode sync (use separate Timecode module)
+
+---
+
+## Testing & Validation
+
+### Unit Tests
+
+```python
+def test_artnet_packet_structure():
+    """Verify Art-Net packets conform to spec"""
+    
+def test_sacn_packet_structure():
+    """Verify sACN packets conform to E1.31"""
+    
+def test_universe_merging():
+    """Test HTP/LTP merging strategies"""
+    
+def test_fixture_mapping():
+    """Verify fixture channel mapping accuracy"""
+```
+
+### Integration Tests
+
+- Real DMX hardware (e.g., USB-to-DMX interface)
+- Network packet capture and analysis (Wireshark)
+- Multi-universe synchronization
+- Fixture control with real lights
+
+### Performance Benchmarks
+
+| Metric | Target |
+|--------|--------|
+| DMX update FPS | ≥ 44 FPS (22.7ms period) |
+| Network latency | < 5ms local network |
+| Packet jitter | < 1ms |
+| CPU per universe | < 0.1ms |
+| Memory per universe | < 1KB |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] FPS ≥ 58 when DMX engine active
+- [ ] All unit tests pass (≥80% coverage)
+- [ ] DMX update rate ≥ 44 FPS for 100 universes
+- [ ] Art-Net and sACN packets pass Wireshark validation
+- [ ] Works with at least 5 different DMX interfaces
+- [ ] Network packet loss < 0.1% on stable network
+- [ ] Thread-safe: no race conditions in universe updates
+- [ ] WebSocket API responds within 10ms
+
+### Should Pass (Best Effort)
+
+- [ ] Support for 1000+ universes
+- [ ] RDM discovery and configuration
+- [ ] Network redundancy with failover < 1s
+- [ ] Real-time universe merging with 10+ controllers
+- [ ] GDTF fixture profile support (import/export)
+
+---
+
+## Dependencies
+
+- **Network**: Standard Python sockets (asyncio)
+- **Fixtures**: Requires P2-D1 (DMX Engine) for core DMX handling
+- **Control**: May integrate with P2-D4 (Show Control) for cues
+- **Reactivity**: May integrate with P2-D5 (Audio-Reactive DMX)
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Network packet loss | Medium | High | UDP with checksums, retransmission strategy |
+| Timing jitter | Medium | High | Real-time scheduling, high-priority threads |
+| Protocol compliance | Low | Medium | Wireshark validation, spec adherence |
+| Firewall blocking | High | Medium | Document port requirements (6454, 5568) |
+| Multi-controller conflicts | Medium | Medium | Priority system, merge strategies |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/dmx_controller.py` - DMXController implementation
+- `../VJlive-2/core/dmx/dmx_engine.py` - DMXEngine implementation
+- `../VJlive-2/core/dmx/dmx_bridge.py` - DMX bridge/router
+- `../VJlive-2/core/dmx/fixture_profiles.py` - Fixture definitions
+- `../VJlive-2/core/dmx/dmx_ws_handler.py` - WebSocket handler
+
+### Related Tasks
+- P2-D1: DMX512 core engine (fixture profiles, channel mapping)
+- P2-D3: DMX FX engine (effects for lighting)
+- P2-D6: DMX WebSocket handler (remote control)
+- P2-D5: Audio-reactive DMX (uses this module)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created |
+
+
+
+## Legacy References
+- **Key Algorithms**: TBD (Extract from legacy source)
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

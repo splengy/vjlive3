@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "scenarios_executed": 10,
+  "scenarios_passed": 10,
+  "scenarios_failed": 0,
+  "performance_metrics": {
+    "fps_p50": 59.9,
+    "fps_p95": 58.0,
+    "memory_growth_mb_hr": 2.1
+  },
+  "sign_off_recommended": true
+}

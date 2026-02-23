@@ -2,7 +2,6 @@ import sys
 import logging
 import numpy as np
 from typing import Optional, List
-from vjlive3.plugins.api import PluginBase, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +151,7 @@ class SpoutManager:
         return senders
 
 
-class SpoutPlugin(PluginBase):
+class SpoutPlugin(object):
     """Exposes Spout capability to the VJLive3 Plugin API."""
     
     name = "Spout Integration"
@@ -164,7 +163,7 @@ class SpoutPlugin(PluginBase):
         self.active_senders: List[SpoutSender] = []
         self.active_receivers: List[SpoutReceiver] = []
     
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         super().initialize(context)
         self.manager = SpoutManager()
         

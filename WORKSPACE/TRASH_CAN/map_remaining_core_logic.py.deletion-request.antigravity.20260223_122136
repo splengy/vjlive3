@@ -1,0 +1,89 @@
+import re
+from pathlib import Path
+
+def get_implemented_classes():
+    """Scan src/vjlive3/ for all python classes"""
+    root = Path('/home/happy/Desktop/claude projects/VJLive3_The_Reckoning')
+    src_dir = root / 'src' / 'vjlive3'
+    classes = set()
+    for py_file in src_dir.rglob('*.py'):
+        try:
+            content = py_file.read_text(encoding='utf-8', errors='ignore')
+            found = re.findall(r'class\s+(\w+)\s*[\(\:]', content)
+            classes.update(found)
+        except Exception:
+            pass
+    return classes
+
+def main():
+    root = Path('/home/happy/Desktop/claude projects/VJLive3_The_Reckoning')
+    board_path = root / 'BOARD.md'
+    features_path = root / 'WORKSPACE/COMMS/STATUS/CORE_LOGIC_PARITY.md'
+    
+    implemented_classes = get_implemented_classes()
+    print(f"Found {len(implemented_classes)} implemented classes in src/vjlive3/")
+    
+    with open(features_path, 'r', encoding='utf-8') as f:
+        features_content = f.read()
+        
+    # Read existing board to find what task ID to start from
+    with open(board_path, 'r', encoding='utf-8') as f:
+        board_content = f.read()
+        
+    last_id_match = re.findall(r'\|\s*(P4-COR\d+)\s*\|', board_content)
+    if not last_id_match:
+        print("Could not find any P4-COR tasks in BOARD.md")
+        return
+        
+    last_id_str = sorted(last_id_match)[-1]
+    last_id_num = int(last_id_str.replace('P4-COR', ''))
+    task_id_counter = last_id_num + 1
+    
+    # We want to continue after the first 300 features
+    feature_index = 1
+    new_rows = ""
+    added_count = 0
+    skipped_implemented = 0
+    
+    for line in features_content.split('\n'):
+        if line.strip().startswith("- **"):
+            match = re.search(r'\*\*(.*?)\*\*\s+\(`([^`]+)`\)', line)
+            if match:
+                class_name = match.group(1).strip()
+                file_name = match.group(2).strip()
+                
+                # Only process features beyond the first 300
+                if feature_index <= 300:
+                    feature_index += 1
+                    continue
+                    
+                feature_index += 1
+                
+                # Cross-reference: skip if already implemented!
+                if class_name in implemented_classes:
+                    skipped_implemented += 1
+                    continue
+                
+                task_id = f"P4-COR{task_id_counter:03d}"
+                filename = file_name.split('/')[-1].replace('.py', '')
+                desc = f"{filename} ({class_name})"
+                
+                new_rows += f"| {task_id} | {desc} | P0 | ⬜ Todo | Legacy |\n"
+                task_id_counter += 1
+                added_count += 1
+
+    print(f"Skipped {skipped_implemented} already implemented features.")
+    print(f"Adding {added_count} remaining un-implemented features to BOARD.md.")
+    
+    target_str = "> Note: Only the first 300 features are listed here to keep the board manageable. See `WORKSPACE/COMMS/STATUS/CORE_LOGIC_PARITY.md` for the remaining ~1500 items."
+    
+    if target_str in board_content:
+        new_board = board_content.replace(target_str, new_rows)
+        with open(board_path, 'w', encoding='utf-8') as f:
+            f.write(new_board)
+        print("Successfully updated BOARD.md!")
+    else:
+        print("Could not find the target note snippet in BOARD.md to replace.")
+        
+if __name__ == "__main__":
+    main()

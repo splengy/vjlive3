@@ -1,0 +1,95 @@
+# P3-VD42: Depth Effects Plugin
+
+## What This Module Does
+Provides a comprehensive depth effects suite combining multiple common depth-based operations into a single, highly configurable plugin. Offers a unified interface for applying various depth effects with real-time performance optimization. Designed to be the primary depth effect plugin for most use cases.
+
+## Public Interface
+
+### METADATA Constants
+```python
+METADATA = {
+    "name": "DepthEffectsSuite",
+    "version": "3.0.0",
+    "description": "Comprehensive depth effects suite",
+    "author": "VJLive3 Team",
+    "license": "GPLv3",
+    "plugin_type": "depth_effect",
+    "category": "utility",
+    "tags": ["depth", "effects", "suite", "comprehensive"],
+    "priority": 1,
+    "dependencies": ["DepthBuffer"],
+    "incompatible": ["NoDepthSupport"]
+}
+```
+
+### Parameters
+- `enable_blur: bool` (default: False) - Enable depth-based blur
+- `blur_radius: int` (default: 5, min: 1, max: 50) - Blur radius when enabled
+- `blur_focus_range: list[float]` (default: [0.3, 0.7]) - Focused depth range
+- `enable_color_grade: bool` (default: False) - Enable depth-based color grading
+- `near_color: list[float]` (default: [1.0, 1.0, 1.0]) - Color for near objects
+- `far_color: list[float]` (default: [0.8, 0.9, 1.0]) - Color for far objects
+- `enable_fog: bool` (default: False) - Enable depth-based fog
+- `fog_density: float` (default: 0.5, min: 0.0, max: 1.0) - Fog strength
+- `fog_color: list[float]` (default: [0.7, 0.8, 1.0]) - Fog color
+- `enable_edge_glow: bool` (default: False) - Enable edge glow
+- `glow_intensity: float` (default: 0.5, min: 0.0, max: 2.0) - Glow strength
+- `glow_radius: int` (default: 3, min: 1, max: 15) - Glow blur radius
+- `edge_threshold: float` (default: 0.1, min: 0.01, max: 0.5) - Edge detection threshold
+- `enable_distortion: bool` (default: False) - Enable depth-based distortion
+- `distortion_strength: float` (default: 0.1, min: 0.0, max: 1.0) - Distortion amount
+- `distortion_type: str` (default: "bulge", options: ["bulge", "pinch", "wave"]) - Distortion pattern
+- `quality_preset: str` (default: "balanced", options: ["performance", "balanced", "quality"]) - Quality/performance tradeoff
+
+### Inputs
+- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
+- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
+
+### Outputs
+- `video: Frame` (same format as input) - Processed video frame
+
+## What It Does NOT Do
+- Does NOT include effects beyond the listed ones (blur, color_grade, fog, edge_glow, distortion)
+- Does NOT support custom effect chaining (fixed pipeline order)
+- Does NOT perform HDR tone mapping or advanced color grading
+- Does NOT include temporal processing (per-frame only)
+- Does NOT support effect-specific parameter fine-tuning beyond provided controls
+- Does NOT handle HDR metadata preservation
+
+## Test Plan
+1. Unit tests for each enabled effect
+2. Verify effect combinations work correctly
+3. Test quality_preset performance variations
+4. Performance: ≥ 60 FPS at 1080p with all effects enabled (quality preset)
+5. Memory: < 250MB additional RAM with all effects
+6. Visual: verify effects combine without conflicts
+
+## Implementation Notes
+- Check each `enable_*` flag to determine which effects to apply
+- Apply effects in fixed order: blur → color_grade → fog → edge_glow → distortion
+- Use quality_preset to adjust internal resolution or sampling rates
+- Share intermediate buffers between effects to minimize memory
+- Optimize with early exits if no effects enabled
+- Provide sensible defaults for all parameters
+- Follow SAFETY_RAILS: validate all parameters, handle errors
+
+## Deliverables
+- `src/vjlive3/effects/depth_effects_suite.py`
+- `tests/effects/test_depth_effects_suite.py`
+- `docs/plugins/depth_effects_suite.md`
+
+## Success Criteria
+- [x] Plugin loads via METADATA
+- [x] All effect toggles work correctly
+- [x] Effects combine without artifacts
+- [x] 60 FPS at 1080p with all effects on quality preset
+- [x] Test coverage ≥ 80%
+- [x] No safety rail violations
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **Class Names**: `TBD`
+- **Key Algorithms**: TBD (Extract from legacy source)
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

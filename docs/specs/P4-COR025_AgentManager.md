@@ -1,250 +1,157 @@
-# P4-COR025: AgentManager — Agent Lifecycle & Coordination System
+# P4-COR025_AgentManager.md
 
-## Mission Context
-The `AgentManager` is the central coordinator for all autonomous agents in VJLive3. It manages the initialization, configuration, and lifecycle of the Agent Performance System, including agent personas, collaboration orchestration, and performance bridges. This is core infrastructure that enables AI-driven visual performance automation.
+**Phase:** Phase 4 / P4-COR025  
+**Assigned To:** Implementation Engineer  
+**Spec Written By:** Manager (Antigravity)  
+**Date:** 2026-02-23  
 
-## Technical Requirements
+---
 
-### Core Responsibilities
-1. **Agent Lifecycle Management**
-   - Initialize, start, stop, and cleanup agents
-   - Agent registration and discovery
-   - Configuration loading and validation
-   - Resource allocation and cleanup
+## Task: P4-COR025 — AgentManager
 
-2. **Agent Coordination**
-   - Multi-agent orchestration and communication
-   - Conflict resolution and priority management
-   - State synchronization across agents
-   - Performance mode switching (ADVISE, COLLABORATE, AUTONOMOUS)
+**Priority:** P0 (Critical)  
+**Status:** ⬜ Todo  
+**Source:** `VJlive-2/core/extensions/agents/agent_manager.py`  
+**Legacy Class:** `AgentManager`  
 
-3. **Persona Management**
-   - Hot-swappable agent personalities
-   - Personality database integration
-   - Memory and learning persistence
-   - Personality trait configuration
+---
 
-4. **Performance Integration**
-   - Bridge between agents and VJLive performance system
-   - Manifold navigation and music reactivity
-   - User interaction handling
-   - Suggestion queuing and execution
+## What This Module Does
 
-5. **Health Monitoring**
-   - Agent status tracking (active, idle, error)
-   - Performance metrics and logging
-   - Error detection and recovery
-   - Resource usage monitoring
+`AgentManager` is the primary Dependency Injection (DI) hub and initialization orchestrator for the entire Agent Performance Subsystem. During application startup, it consumes a reference to the global `app_context` to instantiate, bind, and monkey-patch all high-level AI dependencies, including `AgentPerformanceBridge`, `PerformanceAgent`, `PerceptionBuffer`, `GravityWellAPI`, and the `LUMEN` Scripting engine. It also manages the automatic parsing and execution of the default `.lumen` show script on boot.
 
-### Architecture Constraints
-- **Singleton Pattern**: One global `AgentManager` instance coordinated via `AIIntegration`
-- **Async Operations**: Agent processing must be non-blocking
-- **Thread Safety**: Lock-free or fine-grained locking for real-time performance
-- **Error Resilience**: Agent failures must not crash the system; graceful degradation
-- **Configuration-Driven**: All agent parameters loaded from ConfigManager
+---
 
-### Key Interfaces
+## What It Does NOT Do
+
+- Does NOT contain active processing loops (it simply instantiates the worker objects and attaches them back to `self.app`).
+- Does NOT own the instances long-term; it serves as a bootstrapping factory.
+- Does NOT load visual UI components directly.
+
+---
+
+## Public Interface
+
 ```python
-class AgentManager:
-    def __init__(self, config: AgentConfig, event_bus: Optional[EventBus] = None):
-        """Initialize agent manager with configuration."""
-        pass
+from typing import Any, Optional
+from vjlive3.plugins.base import BasePlugin
 
+class AgentManager(BasePlugin):
+    """
+    Manages the initialization and lifecycle of the Agent Performance System.
+    Acts as a Dependency Injection hub binding AI components to the global application context.
+    """
+    
+    METADATA = {
+        "id": "AgentManager",
+        "type": "manager",
+        "version": "1.0.0",
+        "legacy_ref": "agent_manager (AgentManager)"
+    }
+    
+    def __init__(self, app_context: Any) -> None:
+        """Stores the initial app context and nullifies system references."""
+        pass
+        
     def initialize(self) -> None:
-        """Load agent personas, initialize all agents, start coordination."""
+        """
+        Instantiates specific AI subsystems and attaches them back onto the
+        app_context. Also handles initializing the LUMEN evaluator callbacks.
+        """
         pass
-
-    def start(self) -> None:
-        """Begin agent processing and coordination."""
-        pass
-
-    def stop(self) -> None:
-        """Pause all agent activity."""
-        pass
-
-    def cleanup(self) -> None:
-        """Shutdown all agents, release resources."""
-        pass
-
-    def register_agent(self, agent: IAgent) -> None:
-        """Register a new agent with the manager."""
-        pass
-
-    def unregister_agent(self, agent_id: str) -> None:
-        """Remove an agent from the manager."""
-        pass
-
-    def get_agent(self, agent_id: str) -> Optional[IAgent]:
-        """Retrieve a registered agent."""
-        pass
-
-    def list_agents(self) -> List[AgentInfo]:
-        """List all registered agents and their status."""
-        pass
-
-    def set_mode(self, mode: AgentInteractionMode) -> None:
-        """Set the agent interaction mode (ADVISE, COLLABORATE, AUTONOMOUS)."""
-        pass
-
-    def get_suggestion(self, context: AgentContext) -> Optional[AgentSuggestion]:
-        """Get a suggestion from the active agent(s)."""
-        pass
-
-    def execute_suggestion(self, suggestion: AgentSuggestion) -> None:
-        """Execute a queued agent suggestion."""
-        pass
-
-    def get_performance_bridge(self) -> AgentPerformanceBridge:
-        """Get the bridge to the VJLive performance system."""
-        pass
-
-    def get_status(self) -> AgentManagerStatus:
-        """Return health status and agent statistics."""
+        
+    def load_default_lumen_script(self) -> None:
+        """
+        Attempts to read and execute the first `.lumen` script found in the
+        standard `show_scripts` directory.
+        """
         pass
 ```
 
-### Dependencies
-- **ConfigManager**: Load `AgentConfig` (personas, modes, performance settings)
-- **EventBus**: Publish `AgentRegistered`, `SuggestionQueued`, `ModeChanged` events
-- **HealthMonitor**: Report agent manager health and agent statuses
-- **AIIntegration**: Coordinate with other AI subsystems
-- **IAgent Interface**: Standard interface for all agents
-- **AgentPersona**: Personality definitions and traits
-- **AgentPerformanceBridge**: Bridge to performance system
-- **AgentOrchestrator**: LangGraph orchestration for complex agent workflows
+---
+
+## Inputs and Outputs
+
+### Constructor Parameters
+
+| Name | Type | Description |
+|------|------|-------------|
+| `app_context` | `Any` | Weakly-typed duck-typing interface. Expected to contain attributes: `mood_manifold`, `websocket_gateway`, `effect_chain`, `audio_reactor`, `audio_analyzer`, `config`, `fps`, `node_graph_bridge`. |
+
+### `initialize()` State Mutations
+
+This method fundamentally mutates the `app_context` object passed during initialization. It instantiates the following systems and dynamically attaches them using `setattr(self.app, name, instance)` logic:
+1. `self.app.agent_bridge = AgentPerformanceBridge(...)`
+2. `self.app.performance_agent = PerformanceAgent(...)`
+3. `self.app.perception_buffer = PerceptionBuffer(...)`
+4. `self.app.telemetry_streamer = TelemetryStreamer()`
+5. `self.app.perception_stream_telemetry = PerceptionStreamTelemetry(...)`
+6. `self.app.gravity_well_api = GravityWellAPI(...)`
+7. `self.app.intent_vectorizer = IntentVectorizer(...)`
+8. `self.app.script_executor = ScriptExecutor(...)`
+
+_Note: It also conditionally connects `self.app.agent_avatar` and `self.app.text_overlay` to the `AgentBridge` if those attributes exist on the context._
+
+---
+
+## Edge Cases and Error Handling
+
+### Missing Dependencies
+- The `load_default_lumen_script` method relies on filesystem access to `./show_scripts`. If this directory does not exist, or contains no `.lumen` files, the method must log a debug message and exit safely without raising `FileNotFoundError` or crashing the startup sequence.
+- During conditional hookups (avatar and overlay), it must use `hasattr(self.app, 'agent_avatar')` to prevent `AttributeError` crashes if the UI layers failed to load earlier in the boot sequence.
+
+### Invalid Parameters
+- `app_context.config.system.llm_provider/model` might be malformed. The `PerformanceAgent` initialization passes these blindly; it is the responsibility of `PerformanceAgent` to handle bad API keys, not the Manager.
+
+---
+
+## Dependencies
+
+### External Libraries
+- `os` (standard library) for path resolution of LUMEN scripts.
+
+### Internal Modules
+- Intimately coupled to the initialization signatures of:
+    - `AgentPerformanceBridge`
+    - `PerformanceAgent`
+    - `PerceptionBuffer`
+    - `GravityWellAPI`
+    - `IntentVectorizer`, `LUMENScriptParser`, `ScriptExecutor`
+    - `TelemetryStreamer`, `PerceptionStreamTelemetry`
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|------------------|
+| `test_initialization_state_mutations` | Passes a Mock `app_context` into `initialize()` and asserts that `app.agent_bridge` and all other AI systems are successfully bound as attributes. |
+| `test_conditional_ui_hookups` | If `app_context` has Mock `agent_avatar`, asserts `set_agent_bridge` is called on the avatar. |
+| `test_missing_lumen_directory` | Temporarily patches `os.path.exists` to return `False`. Asserts `load_default_lumen_script` logs a debug string and exits without error. |
+| `test_lumen_auto_load_success` | Patches filesystem and file reads to return a fake script, asserts `performance_agent.load_script()` and `start_execution()` are called. |
+
+**Minimum coverage:** 90% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 300 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-4] P4-COR025: AgentManager` message
+- [ ] BOARD.md updated (Status → ✅ Done)
+- [ ] Lock released
+
+---
 
 ## Implementation Notes
 
-### Agent Types
-- **PerformanceAgent**: High-level agent managing LUMEN script execution
-- **GhostAgent**: Autonomous VJ operation system for generative performances
-- **StrobeAgent**: Simplified agent for beat-synced strobe effects
-- **WorkerAgent**: Distributed agent running on Orange Pi nodes
-- **DreamerAgent**: Autonomous agent exploring the Mood Manifold
-- **CompositeAgent**: Combines suggestions from multiple specialized agents
+### Quality Standards
+- Preserve the lazy binding format `fps_getter=lambda: self.app.fps`. Because `fps` fluctuates, passing it by value at startup would break metrics.
+- Keep the `graph_callbacks` mapping dictionary in `ScriptExecutor` instantiation exactly matched to the legacy hook paths (`_on_graph_add_node`, etc.).
 
-### Persona System
-- **Personality Traits**: Creativity, precision, energy, etc.
-- **Memory Database**: Persistent agent memories and learned patterns
-- **Hot-Swapping**: Change agent personality without restarting
-- **Banter Generation**: Contextual agent communication and collaboration
-
-### Performance Modes
-- **ADVISE**: Agents provide suggestions, human executes
-- **COLLABORATE**: Agents and human work together on canvas
-- **AUTONOMOUS**: Agents take full control of performance
-
-### Coordination Patterns
-- **LangGraph Orchestration**: Complex multi-agent workflows
-- **Suggestion Queue**: FIFO queue for agent suggestions
-- **Conflict Resolution**: Priority-based suggestion arbitration
-- **State Synchronization**: Shared state across all agents
-
-### Error Handling
-- **Agent Crash**: Detect and restart failed agents
-- **Resource Exhaustion**: Throttle agent processing if system overloaded
-- **Configuration Errors**: Validate persona files, fallback to defaults
-- **Communication Failures**: Retry logic for agent messaging
-
-## Verification Checkpoints
-
-### 1. Unit Tests (≥80% coverage)
-- [ ] `tests/agents/test_agent_manager.py`: Lifecycle, registration, mode switching
-- [ ] `tests/agents/test_personas.py`: Personality loading, hot-swapping, traits
-- [ ] `tests/agents/test_coordination.py`: Multi-agent orchestration, conflict resolution
-- [ ] `tests/agents/test_performance_bridge.py`: Bridge to performance system
-- [ ] `tests/agents/test_error_handling.py`: Agent failures, recovery, fallback
-
-### 2. Integration Tests
-- [ ] AgentManager + AIIntegration: Unified AI subsystem coordination
-- [ ] AgentManager + RenderEngine: Agent-driven visual effects
-- [ ] AgentManager + EventBus: Agent events trigger visual responses
-- [ ] Multi-agent collaboration: Multiple agents working together
-
-### 3. Performance Tests
-- [ ] Agent overhead: <5% CPU for 5 active agents
-- [ ] Suggestion latency: <100 ms from context to suggestion
-- [ ] Memory usage: <100 MB for agent manager + 5 agents
-- [ ] Startup time: <2 seconds to initialize all agents
-
-### 4. Manual QA
-- [ ] Load multiple agent personas, verify personality differences
-- [ ] Switch interaction modes mid-performance
-- [ ] Simulate agent failure, verify recovery
-- [ ] Test agent collaboration on canvas
-- [ ] Verify autonomous mode generates coherent performances
-
-## Resources
-
-### Legacy References
-- `vjlive/agents/agent_manager.py` — AgentManager (legacy implementation)
-- `vjlive/agents/agent_orchestrator.py` — LangGraph orchestration
-- `vjlive/agents/agent_bridge.py` — Performance bridge
-- `vjlive/agents/agent_persona.py` — Personality system
-- `vjlive/agents/awesome_collaborative_creation.py` — Multi-agent collaboration
-
-### Existing VJLive3 Code
-- `src/vjlive3/core/ai_integration.py` — AI subsystem coordination
-- `src/vjlive3/core/event_bus.py` — Event bus for agent events
-- `src/vjlive3/plugins/astra.py` — Threaded capture pattern
-- `src/vjlive3/render/engine.py` — Render loop integration example
-
-### External Documentation
-- LangGraph documentation: https://langchain-ai.github.io/langgraph/
-- Autonomous agent patterns: "ReAct: Synergizing Reasoning and Acting in LLMs"
-- Multi-agent systems: "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation"
-
-## Success Criteria
-
-### Functional Completeness
-- [ ] AgentManager can initialize and manage at least 5 different agent types
-- [ ] Agent personas load correctly with distinct personalities
-- [ ] Performance modes (ADVISE, COLLABORATE, AUTONOMOUS) work as expected
-- [ ] Agent suggestions are relevant and timely (<100 ms latency)
-- [ ] Multi-agent collaboration produces coherent results
-
-### Performance
-- [ ] CPU usage: <5% for 5 active agents during performance
-- [ ] Memory usage: <100 MB for agent manager + 5 agents
-- [ ] Startup time: <2 seconds to initialize all agents
-- [ ] Suggestion latency: <100 ms from context to suggestion
-
-### Reliability
-- [ ] System recovers gracefully from agent crashes
-- [ ] No crashes during 24-hour continuous operation
-- [ ] All exceptions logged with context, no silent failures
-- [ ] Unit test coverage ≥ 80%
-
-### Integration
-- [ ] AgentManager integrates with AIIntegration for unified AI coordination
-- [ ] Agent events trigger visual responses via event bus
-- [ ] Configuration persists across application restarts
-- [ ] Works in headless mode (no display) for server deployments
-
-## Dependencies (Blocking)
-- P4-COR009: AIIntegration (for AI subsystem coordination)
-- P4-COR068: IAgent interface (standard agent interface)
-- P4-COR030: AgentPersona (personality system)
-- P4-COR027: AgentOrchestrator (LangGraph orchestration)
-- P4-COR024: AgentPerformanceBridge (performance system bridge)
-- ConfigManager: For loading `AgentConfig`
-- EventBus: For publishing agent events
-
-## Notes for Implementation Engineer (Alpha)
-
-This is a **core coordination** component. It must be:
-- **Robust**: Agent failures must not crash the system
-- **Well-tested**: 80% coverage mandatory, include failure simulations
-- **Performant**: Minimal overhead for multiple concurrent agents
-- **Documented**: Every public method has docstring with parameter/return types
-
-Start by:
-1. Reading `vjlive/agents/agent_manager.py` to understand legacy design
-2. Defining `AgentConfig` Pydantic model (if not already defined)
-3. Implementing `IAgent` interface and base agent class
-4. Building agent registration and lifecycle management
-5. Adding persona system with hot-swapping
-6. Implementing performance bridge and suggestion queue
-7. Writing tests alongside implementation (TDD style)
-
-The spec is **auto-approved**. Proceed to implementation following the workflow: SPEC → CODE → TEST → VERIFY → COMMIT → UPDATE BOARD.
+### Porting Strategy
+This file is the literal architectural "glue" of the AI system. Because VJLive3 utilizes a new plugin loader architecture, the implementation engineer must ensure the `AgentManager` hooks into VJLive3's main initialization phase cleanly, likely after the `NodeGraph` is constructed but before the UI launches.

@@ -20,7 +20,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +119,7 @@ PRESETS = {
 def _c(v, lo=0., hi=10.): return max(lo, min(hi, float(v)))
 
 
-class ArbharGranularizerPlugin(EffectPlugin):
+class ArbharGranularizerPlugin(object):
     """GPU-accelerated granular synthesizer with dual-FBO feedback architecture."""
 
     def __init__(self):

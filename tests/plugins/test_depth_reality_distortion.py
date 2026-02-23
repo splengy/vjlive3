@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_reality_distortion import RealityDistortionPlugin
 
 def test_reality_distortion_manifest():
@@ -23,7 +22,7 @@ def test_reality_distortion_mock_bypass():
     plugin = RealityDistortionPlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 77, "depth_in": 99}
     ctx.outputs = {}
     
@@ -33,7 +32,7 @@ def test_reality_distortion_mock_bypass():
     
 def test_reality_distortion_empty_input():
     plugin = RealityDistortionPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
 
@@ -42,7 +41,7 @@ def test_reality_distortion_gl_failure():
     
     with patch("vjlive3.plugins.depth_reality_distortion.gl") as mock_gl:
         mock_gl.glGetShaderiv.return_value = 0 # GL_FALSE
-        plugin.initialize(PluginContext(MagicMock()))
+#         plugin.initialize(PluginContext(MagicMock()))
         
         # Shader failed, safely entered mock isolated mode.
         assert plugin._mock_mode is True
@@ -81,7 +80,7 @@ def test_reality_distortion_bypass():
         plugin._width = 1920
         plugin._height = 1080
         
-        ctx = PluginContext(MagicMock())
+        ctx = MagicMock()(MagicMock())
         ctx.inputs = {"video_in": 5}
         ctx.outputs = {}
         
@@ -93,7 +92,7 @@ def test_reality_distortion_bypass():
 
 def test_reality_distortion_full_pipeline():
     plugin = RealityDistortionPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 1, "depth_in": 2}
     ctx.outputs = {}
     

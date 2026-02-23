@@ -16,7 +16,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -225,7 +225,7 @@ void main() {
 }
 """
 
-class DepthFxLoopPlugin(EffectPlugin):
+class DepthFxLoopPlugin(object):
     """Depth FX Loop mapping Send/Return matrices safely within internal FBOs."""
 
     def __init__(self):
@@ -275,7 +275,7 @@ class DepthFxLoopPlugin(EffectPlugin):
         gl.glDeleteShader(fs)
         return prog
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             logger.warning("Mock mode engaged. Skipping GL initialization.")
             self._initialized = True
@@ -336,7 +336,7 @@ class DepthFxLoopPlugin(EffectPlugin):
         """Map generic 0-10 bounds to a safe GLSL multiplier."""
         return (max(0.0, min(10.0, float(val))) / 10.0) * max_v
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
             return 0
              

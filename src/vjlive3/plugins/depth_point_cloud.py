@@ -9,7 +9,7 @@ synthetic sinusoidal noise.
 from typing import Dict, Any, Optional
 import ctypes
 import OpenGL.GL as gl
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 METADATA = {
     "name": "DepthPointCloud",
@@ -81,7 +81,7 @@ void main() {
 }
 """
 
-class DepthPointCloudPlugin(EffectPlugin):
+class DepthPointCloudPlugin(object):
     """
     Depth Point Cloud Effect for VJLive3.
     Applies a colorized noise pass over standard video guided by a depth texture.
@@ -98,7 +98,7 @@ class DepthPointCloudPlugin(EffectPlugin):
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         """Compile internal shader and generate FBO."""
         if not hasattr(gl, 'glCreateProgram'):
             return False
@@ -164,7 +164,7 @@ class DepthPointCloudPlugin(EffectPlugin):
             
         return prog
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         """Render the depth point cloud false color mapping."""
         if not self._initialized or self.program == 0:
             return input_texture
@@ -293,5 +293,5 @@ class DepthPointCloudPlugin(EffectPlugin):
             
         self._initialized = False
 
-def create_plugin() -> EffectPlugin:
+def create_plugin() -> None:
     return DepthPointCloudPlugin()

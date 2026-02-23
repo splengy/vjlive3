@@ -1,0 +1,32 @@
+# Spec: P3-EXT142 R16SimulatedDepth
+
+## Legacy Source
+
+### v2: `plugins/vdepth/r16_simulated_depth.py`
+- **Classes:** `R16SimulatedDepth(BaseNode)`
+- **Key logic:**
+  - Originally a CPU-bound bridge node taking an RGB image, converting to grayscale `cv2.cvtColor`, modifying contrast, and optionally inverting.
+  - Generates a "fake" depth map where bright pixels = near, or dark pixels = near (if inverted).
+  - Scaled a 0.0-1.0 float mapping to a target meter range `[min_depth, max_depth]`.
+  - Converted the final meter distance into an R16 raw value by multiplying `depth_m * 1000.0` to cast to `np.uint16` offline arrays because 65535 unit mapped to 65.535 meters in the legacy depth pipeline.
+
+### Port Decision
+Port `R16SimulatedDepth` strictly into a high-performance, GPU-accelerated `EffectPlugin`.
+- **Pipeline Role:** Converts a standard 2D video `input_texture` into a `depth_out` map.
+- **Rendering:** Instead of offline `np.uint16` operations, we will build an OpenGL FBO backed by a natively scaled `GL_R16` (or `GL_R32F` / `GL_R16F`) texture. A fragment shader will sample `tex0`'s luminance, apply the contrast/invert math, scale by `min_depth` and `max_depth` parameters, and divide by `65.535` to output the normalized normalized unit value.
+- **Outputs:**
+  - `context.outputs["video_out"]` = Passes through the original `input_texture` directly.
+  - `context.outputs["depth_out"]` = The FBO rendering the new GL depth texture.
+- **Parameters:**
+  - `min_depth`: Float (default 0.0) -> Near plane mapping in meters.
+  - `max_depth`: Float (default 5.0) -> Far plane mapping in meters.
+  - `invert`: Float (0.0 or 1.0, default 0.0) -> 0 = Bright is near, 1 = Dark is near.
+  - `contrast`: Float (default 1.0) -> Midpoint contrast expansion.
+  - `smoothing`: Float (default 0.0) -> Unused/Temporal smoothing stub.
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

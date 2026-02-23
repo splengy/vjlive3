@@ -7,7 +7,6 @@ import logging
 import glfw
 from typing import List, Optional, Dict
 
-from vjlive3.plugins.api import PluginBase, PluginContext
 
 _logger = logging.getLogger("vjlive3.plugins.gamepad")
 
@@ -21,7 +20,7 @@ class GamepadState:
         self.connected: bool = True
 
 
-class GamepadPlugin(PluginBase):
+class GamepadPlugin(object):
     """Plugin wrapping GLFW joystick input."""
     
     name = "Gamepad Input"
@@ -33,7 +32,7 @@ class GamepadPlugin(PluginBase):
         self.deadzone = 0.1
         self._glfw_initialized = False
         
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         super().initialize(context)
         # Check if GLFW is actually initialized by the core engine
         if not glfw.init():

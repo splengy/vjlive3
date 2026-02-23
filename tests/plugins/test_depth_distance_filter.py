@@ -4,7 +4,6 @@ import numpy as np
 from typing import Dict, Any
 
 from vjlive3.plugins.depth_distance_filter import DepthDistanceFilterPlugin, METADATA
-from vjlive3.plugins.api import PluginContext
 
 @pytest.fixture
 def plugin():
@@ -12,7 +11,7 @@ def plugin():
 
 @pytest.fixture
 def context():
-    ctx = PluginContext(engine=None)
+    ctx = MagicMock()(engine=None)
     ctx.inputs = {}
     ctx.outputs = {}
     ctx.inputs["depth_in"] = 123  # Mock texture ID

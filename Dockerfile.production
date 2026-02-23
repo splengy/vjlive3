@@ -1,54 +1,38 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# VJLive3 Production Dockerfile
-# Python version matches pyproject.toml requires-python = ">=3.9"
-# Using 3.11 slim for security/performance balance.
-# ─────────────────────────────────────────────────────────────────────────────
-FROM python:3.11-slim
-
-LABEL maintainer="VJLive Team <team@vjlive.com>"
-LABEL org.opencontainers.image.description="VJLive3 — Next-Generation Visual Performance System"
+# Build stage
+FROM python:3.11-slim as builder
 
 WORKDIR /app
-
-# Create non-root user before any file operations
-RUN groupadd -r vjlive && useradd -r -g vjlive -u 1000 vjlive
-
-# Install system dependencies:
-#   - curl: used by HEALTHCHECK
-#   - gcc/g++/libffi-dev: native Python extension compilation
-#   - libopencv-dev: OpenCV headless support (avoids X11 requirement)
-# Clean apt lists immediately to minimise layer size.
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    gcc \
-    g++ \
-    libffi-dev \
-    libssl-dev \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# ── Install Python dependencies ───────────────────────────────────────────────
-# Copy only the project manifest first so Docker layer cache is preserved when
-# source code changes but dependencies do not.
-COPY pyproject.toml README.md ./
+COPY pyproject.toml .
+RUN pip install --no-cache-dir hatchling
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -e .
 
-# Install the package in non-editable mode with the 'distributed' extra.
-# Pin pip to avoid resolver surprises.
-RUN pip install --upgrade pip --no-cache-dir \
-    && pip install --no-cache-dir ".[distributed]"
+# Production stage
+FROM python:3.11-slim
 
-# ── Copy application source ───────────────────────────────────────────────────
-COPY src/ ./src/
-COPY config/ ./config/
+RUN groupadd -r vjlive && useradd -m -r -g vjlive -u 1000 vjlive
+WORKDIR /app
 
-# ── Final permissions ─────────────────────────────────────────────────────────
-RUN mkdir -p /run/secrets && chown -R vjlive:vjlive /app /run/secrets
+# Install runtime dependencies ONLY (no dreamer deps)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install python dependencies
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/pyproject.toml .
+# Install safe prod dependencies exactly
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir /wheels/* numpy scipy PyQt6 PyOpenGL PyOpenGL-accelerate PyZMQ python-osc pydantic
+
+COPY src/vjlive3 ./vjlive3
+
 USER vjlive
-
-# ── Runtime ───────────────────────────────────────────────────────────────────
 EXPOSE 5000
 
-# Healthcheck uses curl (now installed above).
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -fsSL http://localhost:5000/health || exit 1
-
-CMD ["python", "-m", "vjlive3.main"]
+CMD ["python", "-m", "vjlive3.main", "--headless"]

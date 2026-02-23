@@ -1,0 +1,295 @@
+# P1-A3: Audio-Reactive Effect Framework
+
+## Overview
+
+**Task ID**: P1-A3  
+**Phase**: Phase 1 - Core Infrastructure  
+**Priority**: P0 (Critical)  
+**Status**: ⬜ Todo  
+**Description**: Framework for audio-reactive effects with real-time parameter modulation
+
+**Objective**: Port the audio-reactive effect framework that allows VJ effects to respond to audio analysis in real-time. This provides the bridge between audio analysis and visual effects.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/mood/audio_reactivity.py`
+- **Class**: `AudioReactivity` (or similar)
+- **Integration**: Works with `UnifiedMatrix` and `AudioAnalyzer`
+- **Key Features**:
+  - Real-time parameter modulation based on audio features
+  - Effect parameter mapping (bass → scale, mid → rotation, etc.)
+  - Smooth interpolation between audio states
+  - Effect activation/deactivation based on audio triggers
+  - Performance optimization for 60 FPS
+
+### Supporting Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/mood/audio_reactivity.py`
+- **Class**: `AudioReactivity` (enhanced)
+- **Integration**: Works with `AudioReactivityBus` and `MoodManager`
+- **Key Enhancements**:
+  - Advanced interpolation curves (exponential, logarithmic)
+  - Multi-effect coordination
+  - Audio-driven effect transitions
+  - Mood-based audio reactivity
+  - Real-time parameter automation
+
+### Related Modules
+- `../vjlive/core/mood/mood_manager.py` - Mood management system
+- `../VJlive-2/core/mood/mood_manager.py` - Enhanced mood system
+- `../vjlive/core/mood/coordinate_broadcaster.py` - State broadcasting
+- `../VJlive-2/core/mood/coordinate_broadcaster.py` - Enhanced broadcasting
+
+---
+
+## What This Module Does
+
+This task implements a framework that allows visual effects to respond to audio analysis in real-time:
+
+1. **Audio-to-Parameter Mapping**: Maps audio features (bass, mid, high, beat) to effect parameters
+2. **Real-Time Modulation**: Continuously updates effect parameters based on audio analysis
+3. **Smooth Transitions**: Interpolates between parameter values to avoid jumps
+4. **Effect Activation**: Triggers effects based on audio events (beat, silence, etc.)
+5. **Performance Optimization**: Maintains 60 FPS while processing audio
+6. **Multi-Effect Coordination**: Coordinates multiple effects responding to same audio
+7. **Mood Integration**: Adapts reactivity based on current mood/atmosphere
+8. **Parameter Automation**: Allows audio-driven parameter automation curves
+
+---
+
+## Implementation Plan
+
+### Phase 1: Core Framework
+1. Create `AudioReactivity` class with parameter mapping system
+2. Implement audio feature to parameter mapping (bass → scale, mid → rotation, etc.)
+3. Add smooth interpolation (linear, exponential, logarithmic)
+4. Create effect registration system
+
+### Phase 2: Real-Time Processing
+1. Subscribe to `AudioReactivityBus` (P1-A1 + P1-A2)
+2. Process audio analysis results in real-time
+3. Update effect parameters based on mappings
+4. Implement performance optimizations (frame skipping, caching)
+
+### Phase 3: Effect Integration
+1. Create effect interface for audio reactivity
+2. Implement parameter binding system
+3. Add effect activation/deactivation logic
+4. Create effect coordination system
+
+### Phase 4: Advanced Features
+1. Implement mood-based reactivity (different mappings for different moods)
+2. Add parameter automation curves (audio-driven LFOs)
+3. Create effect transition system
+4. Add performance monitoring and optimization
+
+### Phase 5: Testing & Validation
+1. Unit tests for parameter mapping accuracy
+2. Integration tests with real audio files
+3. Performance benchmarks (FPS, CPU, memory)
+4. Effect coordination tests
+
+---
+
+## Public Interface
+
+### AudioReactivity Class
+
+```python
+# src/vjlive3/audio/reactivity.py
+class AudioReactivity:
+    def __init__(self):
+        """Initialize audio reactivity framework"""
+    
+    def register_effect(self, effect: AudioReactiveEffect) -> None:
+        """Register an effect for audio reactivity"""
+    
+    def unregister_effect(self, effect: AudioReactiveEffect) -> None:
+        """Unregister an effect"""
+    
+    def set_mapping(self, effect_id: str, parameter: str, mapping: AudioMapping) -> None:
+        """Set parameter mapping for an effect"""
+    
+    def update(self, analysis: Dict[str, Any]) -> None:
+        """Update all registered effects with new audio analysis"""
+    
+    def set_mood(self, mood_id: str) -> None:
+        """Set current mood (changes reactivity behavior)"""
+```
+
+### AudioReactiveEffect Interface
+
+```python
+class AudioReactiveEffect:
+    def __init__(self, effect_id: str):
+        """Initialize effect with unique ID"""
+    
+    def get_parameters(self) -> Dict[str, Any]:
+        """Get current parameter values"""
+    
+    def set_parameter(self, name: str, value: float) -> None:
+        """Set parameter value"""
+    
+    def on_audio_event(self, event: AudioEvent) -> None:
+        """Handle audio events (beat, silence, etc.)"""
+```
+
+### AudioMapping Data Structure
+
+```python
+@dataclass
+class AudioMapping:
+    audio_feature: str          # "bass", "mid", "high", "beat", "rms"
+    parameter: str             # Effect parameter name
+    mapping_type: str          # "linear", "exponential", "logarithmic", "threshold"
+    min_value: float           # Minimum parameter value
+    max_value: float           # Maximum parameter value
+    smoothing: float           # Smoothing factor (0-1)
+    activation_threshold: Optional[float] = None  # For threshold mappings
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| Audio analysis | AudioReactivityBus | Real-time audio features |
+| Effect parameters | Registered effects | Current parameter values |
+| Mood state | MoodManager | Current mood/atmosphere |
+| User mappings | Configuration | Parameter mapping definitions |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| Parameter updates | Effects | Real-time parameter changes |
+| Audio events | Effects | Beat, silence, clipping events |
+| Performance metrics | Monitoring | FPS, CPU usage |
+| State changes | MoodManager | Mood transitions |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** create effects (effects are separate modules)
+- ❌ Does **not** handle audio analysis (uses P1-A1 + P1-A2)
+- ❌ Does **not** manage effect lifecycle (use EffectManager)
+- ❌ Does **not** provide visual rendering (use Renderer)
+- ❌ Does **not** handle MIDI input (use MIDIController)
+- ❌ Does **not** store effect states (use StateManager)
+
+---
+
+## Testing & Validation
+
+### Unit Tests
+
+```python
+def test_parameter_mapping_accuracy():
+    """Verify audio features map correctly to parameters"""
+    
+def test_smoothing_behavior():
+    """Test parameter smoothing prevents jumps"""
+    
+def test_effect_activation():
+    """Verify effects activate/deactivate based on audio"""
+    
+def test_mood_transitions():
+    """Test mood changes affect reactivity behavior"""
+```
+
+### Integration Tests
+
+- Real-time processing with audio file input
+- Multi-effect coordination
+- Performance under load (100+ effects)
+- Mood transition smoothness
+
+### Performance Benchmarks
+
+| Metric | Target |
+|--------|--------|
+| FPS impact | < 2ms per frame |
+| Memory per effect | < 1MB |
+| CPU per effect | < 0.5ms |
+| Parameter update latency | < 16ms (60 FPS) |
+| Effect activation latency | < 50ms |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] FPS ≥ 58 when audio reactivity active
+- [ ] All unit tests pass (≥80% coverage)
+- [ ] Parameter updates within 16ms (60 FPS)
+- [ ] Smooth transitions: no parameter jumps > 0.1 units
+- [ ] Effect activation within 50ms of audio event
+- [ ] Thread-safe: no race conditions in parameter updates
+- [ ] Works with at least 50 simultaneous effects
+- [ ] Memory usage < 50MB for 100 effects
+
+### Should Pass (Best Effort)
+
+- [ ] Support for 100+ simultaneous effects
+- [ ] Mood transitions within 2 seconds
+- [ ] Parameter mapping accuracy > 95%
+- [ ] Low-latency mode for live performance (< 10ms)
+- [ ] Effect coordination without conflicts
+
+---
+
+## Dependencies
+
+- **Audio Analysis**: Requires P1-A1 (AudioAnalyzer) + P1-A2 (BeatDetector)
+- **Effect System**: Requires P1-P1 (Plugin Registry) + P1-P2 (Plugin Loading)
+- **Mood System**: Requires P1-N1 (Node Registry) + P1-N2 (Node Types)
+- **State Management**: Requires P1-N3 (State Persistence)
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Performance degradation with many effects | Medium | High | Frame skipping, effect prioritization |
+| Parameter conflicts between effects | Medium | Medium | Effect coordination, parameter namespaces |
+| Audio latency affecting reactivity | Low | Medium | Buffer management, real-time priority |
+| Memory leaks from effect registration | Low | Medium | Reference counting, cleanup on unregister |
+| Thread safety issues | Low | High | Lock-free design, atomic operations |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/mood/audio_reactivity.py` - Audio reactivity implementation
+- `../VJlive-2/core/mood/audio_reactivity.py` - Enhanced reactivity
+- `../vjlive/core/mood/mood_manager.py` - Mood management
+- `../VJlive-2/core/mood/mood_manager.py` - Enhanced mood system
+
+### Related Tasks
+- P1-A1: AudioAnalyzer (provides input)
+- P1-A2: BeatDetector (provides beat info)
+- P1-P1: Plugin Registry (manages effects)
+- P1-N1: Node Registry (manages mood system)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created |
+
+
+
+## Legacy References
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

@@ -1,0 +1,223 @@
+# P3-EXT068 Dithering Effect
+
+## What This Module Does
+
+Dithering Effect applies various dithering algorithms to the video based on depth information, creating artistic quantization effects that vary with depth. This effect simulates limited color palettes, pixel sorting, and other digital artifacts with depth-based modulation, producing retro-digital aesthetics with depth-aware characteristics.
+
+## Public Interface
+
+```python
+METADATA = {
+    "name": "Dithering Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Applies depth-based dithering and quantization effects",
+    "category": "Depth Effects",
+    "tags": ["depth", "dither", "quantization", "retro", "digital"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "dither_algorithm": {
+            "type": "enum",
+            "options": ["none", "ordered", "random", "error_diffusion", "pixel_sort", "color_reduce"],
+            "default": "ordered",
+            "description": "Dithering algorithm to apply"
+        },
+        "dither_strength": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Overall strength of dithering effect"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth affects dithering intensity"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "color_bits": {
+            "type": "integer",
+            "min": 1,
+            "max": 8,
+            "default": 4,
+            "description": "Bits per color channel for quantization"
+        },
+        "palette_size": {
+            "type": "integer",
+            "min": 2,
+            "max": 256,
+            "default": 16,
+            "description": "Size of color palette for reduction"
+        },
+        "palette_type": {
+            "type": "enum",
+            "options": ["adaptive", "fixed", "grayscale", "custom"],
+            "default": "adaptive",
+            "description": "Type of color palette"
+        },
+        "custom_palette": {
+            "type": "array",
+            "items": {"type": "color"},
+            "default": ["#000000", "#ffffff"],
+            "description": "Custom palette colors (if palette_type=custom)"
+        },
+        "pixel_sort_threshold": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Threshold for pixel sorting"
+        },
+        "pixel_sort_direction": {
+            "type": "enum",
+            "options": ["horizontal", "vertical", "both", "radial"],
+            "default": "horizontal",
+            "description": "Direction for pixel sorting"
+        },
+        "error_diffusion_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.7,
+            "description": "Amount of error diffusion"
+        },
+        "ordered_pattern_size": {
+            "type": "integer",
+            "min": 2,
+            "max": 16,
+            "default": 4,
+            "description": "Size of ordered dithering pattern"
+        },
+        "ordered_pattern_type": {
+            "type": "enum",
+            "options": ["bayer", "halftone", "line", "dot"],
+            "default": "bayer",
+            "description": "Type of ordered dithering pattern"
+        },
+        "random_seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 1000000,
+            "default": 42,
+            "description": "Random seed for dithering patterns"
+        },
+        "temporal_dither": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable temporal dithering (flicker)"
+        },
+        "temporal_dither_speed": {
+            "type": "float",
+            "min": 1.0,
+            "max": 60.0,
+            "default": 30.0,
+            "description": "Speed of temporal dithering"
+        }
+    }
+}
+```
+
+## What It Does NOT Do
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform full color management (simple quantization only)
+- Does not support animated custom palettes (static palettes only)
+- Does not handle HDR content (SDR only)
+
+## Test Plan
+
+1. **Algorithm Tests:**
+   - Test no dithering (pass-through)
+   - Test ordered dithering (Bayer matrix)
+   - Test random dithering
+   - Test error diffusion (Floyd-Steinberg)
+   - Test pixel sorting
+   - Test color reduction
+
+2. **Dither Strength Tests:**
+   - Test with zero strength (no effect)
+   - Test with maximum strength (full dithering)
+   - Test with different strengths
+
+3. **Depth Response Tests:**
+   - Test linear depth response
+   - Test exponential depth response
+   - Test logarithmic depth response
+   - Test different exponent values
+
+4. **Color Quantization Tests:**
+   - Test with different bit depths (1-8)
+   - Test with different palette sizes (2-256)
+   - Test with different palette types
+   - Test with custom palettes
+
+5. **Pixel Sort Tests:**
+   - Test with different thresholds
+   - Test with different directions
+   - Test with combined dithering
+
+6. **Error Diffusion Tests:**
+   - Test with different diffusion amounts
+   - Test with different diffusion matrices
+
+7. **Ordered Pattern Tests:**
+   - Test with different pattern sizes
+   - Test with different pattern types
+   - Test with pattern rotation
+
+8. **Temporal Dither Tests:**
+   - Test with temporal dithering disabled
+   - Test with different temporal speeds
+   - Verify flicker is not excessive
+
+9. **Performance Tests:**
+   - Measure FPS with different algorithms
+   - Test with various resolutions
+   - Verify GPU memory usage
+
+10. **Quality Tests:**
+    - Check for visual artifacts
+    - Verify smooth dithering transitions
+    - Test with moving objects
+    - Test with static scenes
+
+## Implementation Notes
+
+- Use GPU shader for real-time dithering
+- Implement multiple dithering algorithms
+- Support real-time parameter adjustment
+- Provide dithering preview mode
+- Include depth visualization for debugging
+
+## Deliverables
+
+- `src/vjlive3/plugins/dithering.py` - Main plugin implementation
+- `tests/plugins/test_dithering.py` - Comprehensive test suite
+- `docs/plugins/dithering.md` - User documentation
+- `shaders/dithering_*.glsl` - GPU shaders for dithering algorithms
+
+## Success Criteria
+
+- ✅ Multiple dithering algorithms with depth-based modulation
+- ✅ Color quantization with configurable palette
+- ✅ Pixel sorting and error diffusion options
+- ✅ Real-time performance with minimal FPS impact
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **Class Names**: `TBD`
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

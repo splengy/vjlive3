@@ -15,7 +15,6 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import List, Optional, Any, Dict
 
-from vjlive3.plugins.api import PluginBase, PluginContext
 
 _logger = logging.getLogger("vjlive3.plugins.analytics")
 
@@ -78,7 +77,7 @@ class UserActivity:
     recent_events: List[Dict[str, Any]]
 
 
-class AnalyticsDashboard(PluginBase):
+class AnalyticsDashboard(object):
     """
     Analytics Dashboard Integration.
     Complies with P7-B3 specifications for performance and usage tracking.
@@ -105,7 +104,7 @@ class AnalyticsDashboard(PluginBase):
         
         self._init_db()
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         """Initialize parameters from context and reset connection if db_path changed."""
         super().initialize(context)
         

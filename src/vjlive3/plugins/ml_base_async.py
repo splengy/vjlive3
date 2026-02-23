@@ -12,7 +12,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +99,7 @@ def _map(val: float, out_min: float, out_max: float) -> float:
     return out_min + t * (out_max - out_min)
 
 
-class MLBaseAsyncPlugin(EffectPlugin):
+class MLBaseAsyncPlugin(object):
     """ML async base — backbone for async ML-driven video effects."""
 
     def __init__(self):
@@ -138,7 +138,7 @@ class MLBaseAsyncPlugin(EffectPlugin):
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
         return fbo, tex
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             self._initialized = True; return True
         try:
@@ -152,7 +152,7 @@ class MLBaseAsyncPlugin(EffectPlugin):
     def _u(self, n: str) -> int:
         return gl.glGetUniformLocation(self.prog, n)
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0: return 0
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             if hasattr(context, "outputs"): context.outputs["video_out"] = input_texture

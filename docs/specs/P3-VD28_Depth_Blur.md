@@ -2,8 +2,7 @@
 
 ## What This Module Does
 
-Implements `DepthBlurEffect` — a depth-aware blur effect that applies variable blur intensity based on depth information. This effect creates realistic depth-of-field effects where foreground elements remain sharp while background elements become progressively more blurred, simulating camera focus and depth perception.
-
+This module implements the `DepthBlurEffect`, ported from the legacy `VJlive-2/plugins/vdepth/depth_blur.py` codebase. It is vastly more complex than a standard Gaussian blur. It is a highly advanced cinematic depth-of-field (DOF) simulator that utilizes the physical depth camera data (or a spatial gradient) to calculate a distinct Circle of Confusion (CoC) per pixel. It then applies a mathematically accurate Bokeh blur kernel—employing Golden Angle distribution and optional hexagonal/polygonal aperture shapes—capped off with chromatic fringing (aberration) at the bokeh edges.
 ## Public Interface
 
 ```python
@@ -128,24 +127,19 @@ class DepthBlurEffect(Effect):
 ## Implementation Notes
 
 ### Legacy References
-- `vjlive/vdepth/depth_blur.py` — Original implementation
-- `VJlive-2/plugins/p3_vd28.py` — Existing port (if present)
+- **Source Codebase**: `VJlive-2`
+- **File Paths**: `plugins/vdepth/depth_blur.py`
+- **Architectural Soul**: The legacy shader contains an incredible bespoke implementation of Golden Angle (`2.399963` radians) sample distribution to simulate realistic camera lens aperture blades (with variable shapes based on the `aperture` parameter). This procedural GLSL math MUST be ported exactly as written to maintain the project's visual signature style. 
 
 ### Key Algorithms
-1. **Depth-Based Blur Calculation**: Compute blur radius based on depth distance from focus point
-2. **Gaussian Blur Application**: Apply separable Gaussian blur with variable radius
-3. **Bokeh Simulation**: Add circular highlights in out-of-focus areas
-4. **Depth Sensitivity Mapping**: Modulate blur intensity based on depth gradient
+1. **Bokeh Simulation**: Add circular highlights in out-of-focus areas via procedural Golden Angle distribution sampling rather than separate horizontal/vertical passes.
+2. **Circle of Confusion (CoC)**: Manually calculated CoC sizes modulated by independent foreground/background multipliers.
+3. **Tilt-Shift Fallback**: Supports a purely spatial UV gradient blur when depth data is disabled or `tilt_shift > 0.1`.
 
-### Performance Targets
-- 1080p @ 60fps: <12ms per frame
-- Memory: <20 MB additional (blur kernel cache)
-- CPU: Optimized using NumPy vectorization and separable filters
-
-### Safety Rails
-- **RAIL 1**: Must maintain 60fps target
-- **RAIL 6**: Handle missing depth source gracefully (fallback to uniform blur)
-- **RAIL 8**: No GPU memory leaks in texture allocation
+### Optimization Constraints & Safety Rails
+- **Optimization Constraint (Safety Rail #1):** The legacy `apply_uniforms` allocates the texture correctly the first time (`glGenTextures(1)`), but critically uses `glTexImage2D` (a reallocation call) instead of `glTexSubImage2D` (a memory-replace call). This VRAM allocation stall must be fixed. The 8-bit uint8 depth array needs to be dynamically sub-imaged into a pre-allocated static dimension FBO.
+- **Handling Missing Depth Data:** If `depth_frame` is `None`, the script must gracefully fall back. Passing a static 1x1 black pixel texture (indicating depth=0.0) is the safest GPU fallback.
+- **Cleanup Requirement (Safety Rail #8):** The FBO handle for `self.depth_texture` must be explicitly destroyed in a `cleanup()` method, rather than waiting for unstable Python `__del__` garbage collection.
 
 ## Deliverables
 

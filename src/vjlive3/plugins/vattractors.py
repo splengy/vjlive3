@@ -20,7 +20,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -163,8 +163,8 @@ def _normalize(v: float, scale: float = 30.0) -> float:
 _MAX_TRAIL = 2048
 
 
-class VAttractorsPlugin(EffectPlugin):
-    """All five chaotic attractor visualizers packaged in a single VJLive3 EffectPlugin."""
+class VAttractorsPlugin(object):
+#     """All five chaotic attractor visualizers packaged in a single VJLive3 EffectPlugin."""
 
     def get_metadata(self) -> dict: return METADATA
 
@@ -203,7 +203,7 @@ class VAttractorsPlugin(EffectPlugin):
 
     # ── Lifecycle ────────────────────────────────────────────────────────────
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if not HAS_GL or not hasattr(gl, 'glCreateProgram'):
             self._initialized = True
             return True
@@ -258,7 +258,7 @@ class VAttractorsPlugin(EffectPlugin):
                  _normalize(self._tho.z, 5.0) + _normalize(self._sak.z)) / 4.0
             return x, y, z
 
-    def process_frame(self, input_texture: int, params: dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: dict[str, Any], context) -> int:
         if not input_texture:
             return 0
 

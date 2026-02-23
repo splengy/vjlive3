@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_r16_wave import DepthR16WavePlugin
 
 def test_r16_wave_manifest():
@@ -24,7 +23,7 @@ def test_r16_wave_mock_bypass():
     plugin = DepthR16WavePlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 100, "depth_raw_in": 200}
     ctx.outputs = {}
     
@@ -37,7 +36,7 @@ def test_r16_wave_mock_missing_depth():
     plugin = DepthR16WavePlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 100} # missing depth_raw_in
     ctx.outputs = {}
     
@@ -48,7 +47,7 @@ def test_r16_wave_mock_missing_depth():
     
 def test_r16_wave_empty_input():
     plugin = DepthR16WavePlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
 
@@ -112,7 +111,7 @@ def test_r16_wave_bypass():
         plugin._width = 1920
         plugin._height = 1080
         
-        ctx = PluginContext(MagicMock())
+        ctx = MagicMock()(MagicMock())
         ctx.inputs = {"video_in": 5}
         ctx.outputs = {}
         
@@ -125,7 +124,7 @@ def test_r16_wave_bypass():
 
 def test_r16_wave_full_pipeline():
     plugin = DepthR16WavePlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 1, "depth_raw_in": 2}
     ctx.outputs = {}
     

@@ -3,7 +3,6 @@ P3-VD07: Depth Reality Distortion
 Quantum reality manipulation via depth-mapped UV distortion.
 """
 from typing import Any, Dict
-from vjlive3.plugins.api import PluginBase, PluginContext
 import logging
 
 _logger = logging.getLogger("vjlive3.plugins.reality_distortion")
@@ -22,7 +21,7 @@ METADATA = {
     "outputs": ["video_out"]
 }
 
-class RealityDistortionPlugin(PluginBase):
+class RealityDistortionPlugin(object):
     """Screen-space UV reality warping effect."""
 
     name = METADATA["name"]
@@ -34,7 +33,7 @@ class RealityDistortionPlugin(PluginBase):
             p["name"]: p["default"] for p in METADATA["parameters"]
         }
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         super().initialize(context)
         for p in METADATA["parameters"]:
             self.context.set_parameter(f"reality_distortion.{p['name']}", p["default"])

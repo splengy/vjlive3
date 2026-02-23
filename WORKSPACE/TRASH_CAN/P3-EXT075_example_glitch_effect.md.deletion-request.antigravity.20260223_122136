@@ -1,0 +1,29 @@
+# Spec: P3-EXT075 ExampleGlitch Effect
+
+## Legacy Source
+
+### v1: `vjlive/effects/example_glitch.py`
+- **Classes:** `ExampleGlitchEffect(BaseEffect)`
+- **Key logic:**
+  - A comprehensive glitch toolkit originally written as an OpenCV array-manipulation stub.
+  - Generates 5 distinct glitch types controlled by a master audio-reactive `intensity` proxy (or individual levels):
+    1. **Corruption**: Random pixel noise and block-level RGB square injections (`np.random.randint`).
+    2. **Pixelation**: Downscales and upscales using nearest-neighbor (`cv2.resize`).
+    3. **Color Shift**: Horizontal convolution roll of Red/Green channels in opposing directions (`np.roll`).
+    4. **Scan lines**: Every alternate row of pixels is darkened (`frame[y] *= 0.7`).
+    5. **Temporal Displacement**: A ring-buffer storing the last 8 frames, blending the current frame with frame N-4 at 50% opacity.
+  - The legacy file explicitly generated a random static frame `np.random.randint` instead of taking incoming video. We will fix this by wrapping it natively over the actual video feed.
+  - The file looked for `example_glitch.frag` but fell back to CPU NumPy loops when missing.
+
+### Port Decision
+Port `ExampleGlitchEffect` as a GPU shader `EffectPlugin` in VJLive3.
+- Map the CPU OpenCV manipulations directly to a single-pass GLSL shader for pixelation, color shift, scan lines, and organic block corruption (via GLSL `hash()` geometry).
+- Drop the temporal displacement ring buffer because simulating 8 discrete 1080p textures for a simple echo is too heavy for a basic example glitch effect. We will replace it with a standard single-frame FBO previous-buffering blend (alpha echo) to respect the temporal aspect without detonating VRAM.
+- Expose the exact legacy parameters `intensity`, `corruption_level`, `pixelation_level`, `color_shift`, `scan_lines`, and `temporal_displacement`.
+- Bind audio `treble` implicitly to modulate `intensity` (legacy behavior).
+
+
+
+## Legacy References
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

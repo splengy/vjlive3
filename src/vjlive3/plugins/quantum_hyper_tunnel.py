@@ -3,7 +3,6 @@ P3-VD06: Depth Neural Quantum Hyper Tunnel
 Infinite depth-modulated feedback tunnel with non-linear color routing.
 """
 from typing import Any, Dict
-from vjlive3.plugins.api import PluginBase, PluginContext
 import logging
 
 _logger = logging.getLogger("vjlive3.plugins.quantum_hyper_tunnel")
@@ -23,7 +22,7 @@ METADATA = {
     "outputs": ["video_out"]
 }
 
-class DepthNeuralQuantumHyperTunnelPlugin(PluginBase):
+class DepthNeuralQuantumHyperTunnelPlugin(object):
     """Deep feedback tunnel modulated by depth."""
 
     name = METADATA["name"]
@@ -40,7 +39,7 @@ class DepthNeuralQuantumHyperTunnelPlugin(PluginBase):
         self._fbo_b_active = False
         self._ping_pong_state = 0
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         super().initialize(context)
         for p in METADATA["parameters"]:
             self.context.set_parameter(f"quantum_tunnel.{p['name']}", p["default"])

@@ -1,0 +1,384 @@
+# P4-COR229: MultiCameraManager — Multi-Camera Vision System Coordinator
+
+## Mission Context
+The `MultiCameraManager` is the central coordinator for multiple camera systems in VJLive3, managing depth cameras (Astra, RealSense), network cameras (NDI, IP), and standard webcams. It handles camera discovery, configuration, fusion of multiple depth streams, and provides a unified video source interface to the rest of the system. This is critical hardware infrastructure for depth-based effects and multi-camera performances.
+
+## Technical Requirements
+
+### Core Responsibilities
+1. **Camera Discovery and Enumeration**
+   - Detect all connected camera devices (USB, network, NDI)
+   - Identify camera types (depth, RGB, infrared, NDI, IP)
+   - Read camera capabilities (resolution, frame rate, depth range)
+   - Monitor for hot-plug events (camera connect/disconnect)
+
+2. **Multi-Camera Coordination**
+   - Manage multiple simultaneous camera streams
+   - Handle camera selection and priority (primary, secondary, auxiliary)
+   - Synchronize timestamps across multiple cameras
+   - Coordinate frame capture to minimize latency
+
+3. **Depth Camera Fusion**
+   - Fuse depth data from multiple depth cameras
+   - Align depth streams in 3D space (spial registration)
+   - Handle overlapping fields of view
+   - Generate composite depth maps from multiple sources
+
+4. **Camera Configuration Management**
+   - Load camera profiles (intrinsics, extrinsics, calibration)
+   - Manage camera settings (exposure, gain, depth range)
+   - Support camera presets for different performance scenarios
+   - Persist camera configurations across sessions
+
+5. **Performance Optimization**
+   - Thread-safe frame capture from multiple cameras
+   - Efficient frame buffer management and pooling
+   - Configurable frame rates and resolution per camera
+   - Minimal overhead for camera status monitoring
+
+### Architecture Constraints
+- **Singleton Pattern**: One global `MultiCameraManager` instance coordinated via `HardwareManager`
+- **Thread Safety**: Camera capture runs in dedicated threads per camera
+- **Hot-Plug Support**: Dynamic camera addition and removal without restart
+- **Configuration-Driven**: Camera profiles and settings loaded from ConfigManager
+- **Fallback Strategies**: Graceful degradation when cameras fail
+
+### Key Interfaces
+```python
+class MultiCameraManager:
+    def __init__(self, config: CameraManagerConfig, event_bus: Optional[EventBus] = None):
+        """Initialize multi-camera manager with configuration."""
+        pass
+
+    def initialize(self) -> None:
+        """Discover cameras, load profiles, start monitoring."""
+        pass
+
+    def start(self) -> None:
+        """Start all active camera streams."""
+        pass
+
+    def stop(self) -> None:
+        """Stop all camera streams gracefully."""
+        pass
+
+    def cleanup(self) -> None:
+        """Cleanup all camera resources."""
+        pass
+
+    def list_cameras(self) -> List[CameraInfo]:
+        """List all detected cameras."""
+        pass
+
+    def get_camera(self, camera_id: str) -> Optional[CameraSource]:
+        """Get a specific camera source."""
+        pass
+
+    def add_camera(self, camera_config: CameraConfig) -> str:
+        """Add and start a new camera."""
+        pass
+
+    def remove_camera(self, camera_id: str) -> None:
+        """Stop and remove a camera."""
+        pass
+
+    def select_primary_camera(self, camera_id: str) -> None:
+        """Set the primary camera for depth processing."""
+        pass
+
+    def get_primary_frame(self) -> Optional[CameraFrame]:
+        """Get latest frame from primary camera."""
+        pass
+
+    def get_all_frames(self) -> Dict[str, CameraFrame]:
+        """Get latest frames from all active cameras."""
+        pass
+
+    def get_fused_depth(self) -> Optional[np.ndarray]:
+        """Get fused depth map from all depth cameras."""
+        pass
+
+    def calibrate_cameras(self, calibration_data: CalibrationData) -> None:
+        """Calibrate multiple cameras for spatial alignment."""
+        pass
+
+    def get_camera_status(self, camera_id: str) -> CameraStatus:
+        """Get status of a specific camera."""
+        pass
+
+    def get_manager_status(self) -> MultiCameraManagerStatus:
+        """Return manager status and statistics."""
+        pass
+```
+
+### Dependencies
+- **ConfigManager**: Load `CameraManagerConfig` and camera profiles
+- **EventBus**: Publish `CameraConnected`, `CameraDisconnected`, `FrameReady` events
+- **HealthMonitor**: Report camera manager health and camera statuses
+- **HardwareManager**: Coordinate with hardware subsystem for device management
+- **VisionSource**: Abstract base for camera sources (Astra, RealSense, NDI, etc.)
+- **CameraCalibration**: Calibration data and spatial registration
+- **DepthCameraCalibration**: Depth-specific calibration utilities
+
+## Implementation Notes
+
+### Camera Source Abstraction
+```python
+class CameraSource(ABC):
+    """Abstract base for all camera sources."""
+
+    def __init__(self, camera_id: str, config: CameraConfig):
+        self.camera_id = camera_id
+        self.config = config
+        self._thread: Optional[threading.Thread] = None
+        self._running = False
+        self._latest_frame: Optional[CameraFrame] = None
+        self._frame_lock = threading.RLock()
+
+    @abstractmethod
+    def open(self) -> bool:
+        """Open camera device."""
+        pass
+
+    @abstractmethod
+    def close(self) -> None:
+        """Close camera device."""
+        pass
+
+    @abstractmethod
+    def read_frame(self) -> Optional[CameraFrame]:
+        """Read a single frame from camera."""
+        pass
+
+    def start_capture(self) -> None:
+        """Start continuous capture in background thread."""
+        self._running = True
+        self._thread = threading.Thread(target=self._capture_loop, daemon=True)
+        self._thread.start()
+
+    def stop_capture(self) -> None:
+        """Stop capture thread."""
+        self._running = False
+        if self._thread:
+            self._thread.join(timeout=2.0)
+
+    def get_latest_frame(self) -> Optional[CameraFrame]:
+        """Get the most recent frame (thread-safe)."""
+        with self._frame_lock:
+            return self._latest_frame
+
+    def _capture_loop(self) -> None:
+        """Background capture loop."""
+        while self._running:
+            try:
+                frame = self.read_frame()
+                if frame is not None:
+                    with self._frame_lock:
+                        self._latest_frame = frame
+            except Exception as e:
+                logger.error(f"Camera {self.camera_id} capture error: {e}")
+                time.sleep(0.1)  # Avoid tight loop on error
+
+class CameraFrame:
+    """Container for a camera frame."""
+
+    camera_id: str
+    timestamp: float
+    color: Optional[np.ndarray]  # RGB image
+    depth: Optional[np.ndarray]  # Depth map (millimeters or normalized)
+    infrared: Optional[np.ndarray]  # IR image
+    point_cloud: Optional[np.ndarray]  # 3D points (X, Y, Z, RGB)
+    metadata: Dict[str, Any]  # Camera metadata (exposure, gain, etc.)
+```
+
+### Concrete Camera Implementations
+```python
+class AstraCameraSource(CameraSource):
+    """Orbbec Astra depth camera."""
+
+    def open(self) -> bool:
+        # Use OpenNI2 or PyUSB to open Astra device
+        pass
+
+    def read_frame(self) -> Optional[CameraFrame]:
+        # Read depth and IR frames
+        # Return CameraFrame with depth and infrared data
+        pass
+
+class RealSenseCameraSource(CameraSource):
+    """Intel RealSense depth camera."""
+
+    def open(self) -> bool:
+        # Use pyrealsense2 library
+        pass
+
+    def read_frame(self) -> Optional[CameraFrame]:
+        # Read depth, color, and IR frames
+        # Return CameraFrame with all streams
+        pass
+
+class NDICameraSource(CameraSource):
+    """Network NDI camera stream."""
+
+    def open(self) -> bool:
+        # Use NDI library to receive stream
+        pass
+
+    def read_frame(self) -> Optional[CameraFrame]:
+        # Receive NDI video frame
+        # Return CameraFrame with color data
+        pass
+
+class USBCameraSource(CameraSource):
+    """Standard USB webcam."""
+
+    def open(self) -> bool:
+        # Use OpenCV VideoCapture
+        pass
+
+    def read_frame(self) -> Optional[CameraFrame]:
+        # Read frame with cv2.VideoCapture
+        # Return CameraFrame with color data
+        pass
+```
+
+### Depth Camera Fusion
+```python
+class DepthFusion:
+    """Fuse depth maps from multiple cameras."""
+
+    def __init__(self, calibration_data: CalibrationData):
+        self.calibration = calibration_data
+        self._fusion_method = FusionMethod.WEIGHTED_AVERAGE
+
+    def fuse_depth_maps(self, depth_maps: Dict[str, np.ndarray], 
+                       camera_poses: Dict[str, CameraPose]) -> np.ndarray:
+        """Fuse multiple depth maps into a single composite."""
+        # Transform all depth maps to common reference frame
+        # Combine using weighted average or volumetric integration
+        # Handle occlusions and conflicts
+        # Return fused depth map
+        pass
+
+    def _transform_depth(self, depth: np.ndarray, pose: CameraPose) -> np.ndarray:
+        """Transform depth map to reference frame using camera pose."""
+        # Apply extrinsic calibration (rotation, translation)
+        # Reproject to 3D points, transform, then project back
+        pass
+
+    def _weighted_average(self, depth_maps: List[np.ndarray], 
+                         weights: List[np.ndarray]) -> np.ndarray:
+        """Combine depth maps using weighted average."""
+        # Weight by confidence, proximity, etc.
+        pass
+```
+
+### Camera Calibration
+```python
+class CameraCalibration:
+    """Camera calibration data and utilities."""
+
+    def __init__(self, camera_id: str):
+        self.camera_id = camera_id
+        self.intrinsics: Optional[CameraIntrinsics] = None
+        self.extrinsics: Optional[CameraExtrinsics] = None
+        self.distortion_coeffs: Optional[np.ndarray] = None
+
+    def load_from_file(self, filepath: str) -> None:
+        """Load calibration from .npz or .yaml file."""
+        pass
+
+    def save_to_file(self, filepath: str) -> None:
+        """Save calibration to file."""
+        pass
+
+    def rectify_image(self, image: np.ndarray) -> np.ndarray:
+        """Rectify image using calibration."""
+        pass
+
+    def project_point(self, point_3d: np.ndarray) -> Tuple[int, int]:
+        """Project 3D point to 2D pixel coordinates."""
+        pass
+
+    def backproject_point(self, pixel: Tuple[int, int], depth: float) -> np.ndarray:
+        """Backproject 2D pixel + depth to 3D point."""
+        pass
+```
+
+### Configuration Structure
+```python
+class CameraManagerConfig(BaseModel):
+    """Multi-camera manager configuration."""
+
+    enabled: bool = True
+    auto_discovery: bool = True
+    primary_camera: Optional[str] = None
+    camera_profiles: Dict[str, CameraProfile] = {}
+    fusion_enabled: bool = False
+    fusion_method: FusionMethod = FusionMethod.WEIGHTED_AVERAGE
+    frame_buffer_size: int = 3
+    capture_timeout: float = 1.0  # seconds
+
+class CameraProfile(BaseModel):
+    """Camera profile configuration."""
+
+    camera_type: CameraType
+    device_path: str  # e.g., "/dev/video0", "ndi://source-name"
+    resolution: Tuple[int, int]
+    fps: int
+    depth_range: Tuple[float, float] = (0.5, 5.0)  # min, max in meters
+    exposure: Optional[int] = None
+    gain: Optional[int] = None
+    calibration_file: Optional[str] = None
+    enabled: bool = True
+
+class CameraType(Enum):
+    DEPTH_ASTRA = "depth_astra"
+    DEPTH_REALSENSE = "depth_realsense"
+    RGB_USB = "rgb_usb"
+    RGB_NDI = "rgb_ndi"
+    RGB_IP = "rgb_ip"
+    INFRARED = "infrared"
+```
+
+## Verification Checkpoints
+
+### 1. Unit Tests (≥80% coverage)
+- [ ] `tests/cameras/test_manager.py`: Camera manager lifecycle, camera management
+- [ ] `tests/cameras/test_sources.py`: Camera source implementations (Astra, RealSense, NDI, USB)
+- [ ] `tests/cameras/test_fusion.py`: Depth fusion algorithms, spatial alignment
+- [ ] `tests/cameras/test_calibration.py`: Calibration loading, rectification, projection
+- [ ] `tests/cameras/test_discovery.py`: Camera discovery and hot-plug detection
+- [ ] `tests/cameras/test_config.py`: Configuration loading and validation
+
+### 2. Integration Tests
+- [ ] MultiCameraManager + HardwareManager: Camera discovery and initialization
+- [ ] MultiCameraManager + RenderEngine: Camera frames feed into render pipeline
+- [ ] MultiCameraManager + DepthEffects: Depth cameras drive depth-based effects
+- [ ] Multi-camera fusion: Multiple depth cameras produce composite depth map
+- [ ] Hot-plug simulation: Camera connect/disconnect events handled correctly
+
+### 3. Performance Tests
+- [ ] Camera enumeration latency: <1 second for all camera types
+- [ ] Frame capture latency: <33 ms per camera (30 FPS minimum)
+- [ ] Fusion overhead: <5 ms for fusing 4 depth cameras at 640x480
+- [ ] Memory usage: <100 MB for manager + 4 cameras (excluding frame buffers)
+- [ ] CPU usage: <10% for 4 simultaneous camera captures
+
+### 4. Manual QA
+- [ ] Connect Astra camera: System detects and displays depth stream
+- [ ] Connect multiple cameras: All cameras appear in inventory
+- [ ] Test camera switching: Primary camera can be changed on the fly
+- [ ] Test depth fusion: Multiple depth cameras produce coherent composite
+- [ ] Simulate camera failure: System recovers, logs error, continues
+- [ ] Test calibration: Calibration file loads, rectification works
+- [ ] Verify hot-plug: USB camera connect/disconnect detected automatically
+
+## Resources
+
+#
+
+## Legacy References
+- **Parameter Mappings**: 1:1 mapping with legacy plugin configurations
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

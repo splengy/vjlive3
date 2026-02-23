@@ -8,7 +8,6 @@ except ImportError:
     HAS_GL = False
 
 from typing import Dict, Any
-from vjlive3.plugins.api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +125,7 @@ void main() {
 }
 """
 
-class DepthFractureDatamoshPlugin(EffectPlugin):
+class DepthFractureDatamoshPlugin(object):
     """Depth Fracture Datamosh computing edge extraction natively over ping-pong buffers."""
 
     def __init__(self):
@@ -148,7 +147,7 @@ class DepthFractureDatamoshPlugin(EffectPlugin):
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         if self._mock_mode:
             logger.warning("Initializing DepthFractureDatamosh in Mock Mode")
             return
@@ -260,7 +259,7 @@ class DepthFractureDatamoshPlugin(EffectPlugin):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
              return 0
              

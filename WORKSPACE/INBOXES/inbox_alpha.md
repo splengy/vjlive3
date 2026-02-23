@@ -1,455 +1,66 @@
-## 📋 Task Overview
+# Task Assignment: P3-EXT113 - NebulaParticles
 
-**Task ID:** P3-EXT017  
-**Title:** BenDayDotsEffect  
+**Agent:** Implementation Engineer (Alpha)  
+**Task ID:** P3-EXT113  
 **Priority:** P0  
-**Status:** Ready for Assignment  
-**Assignee:** TBD  
-
-**Specification Location:** `docs/specs/P3-EXT017_ben_day_dots.md`
+**Assigned:** 2026-02-23  
+**Status:** Ready for Implementation
 
 ---
 
-## 🎯 Core Concept
+## Specification Summary
 
-Port **BenDayDotsEffect** from VJLive-2 to VJLive3. This is a Pop Art style halftone dot effect inspired by Roy Lichtenstein's comic book aesthetic. It converts the video into a grid of dots whose size is determined by brightness, creating an authentic CMYK printing simulation.
+Implement the NebulaParticles plugin - a Shadertoy-based particle system that creates nebula/gas cloud effects with organic, flowing motion and audio-reactive behaviors.
 
-**Key Features:**
-- Halftone dot grid with configurable density
-- Dot size scales with image luminance (brighter = smaller dots)
-- Authentic Pop Art color palette (Primary Red, Metallic Yellow)
-- Audio reactivity via `adrenaline` parameter (dots expand with energy)
-- Simple, performant shader (~106 lines)
-- 4 user parameters + 2 color uniforms
+**Spec File:** `docs/specs/P3-EXT113_NebulaParticles.md`
 
----
+### Key Requirements
 
-## 📁 File Structure
+- Build on `ShadertoyParticles` base class
+- Implement 300 particles with organic flow motion
+- Add audio-reactive swirling (mid frequencies) and expansion (bass frequencies)
+- Support real-time audio input (volume, bass, mid, treble, beat)
+- Achieve 60 FPS at 1080p on RTX 4070 Ti Super
+- ≥ 85% test coverage
+- Zero safety rail violations
+- ≤ 750 lines of code, full type hints, no stubs
 
-```
-src/vjlive3/plugins/ben_day_dots.py
-tests/plugins/test_ben_day_dots.py
-```
+### Deliverables
 
----
+1. `src/vjlive3/plugins/nebula_particles.py` - Main plugin implementation
+2. `tests/plugins/test_nebula_particles.py` - Comprehensive test suite  
+3. `docs/plugins/nebula_particles.md` - User documentation
+4. Update `MODULE_MANIFEST.md` with plugin entry
 
-## 1. Class Hierarchy
+### Success Criteria
 
-```python
-from core.effects.shader_base import Effect
-from core.audio_reactor import AudioReactor
-import logging
-
-logger = logging.getLogger(__name__)
-
-class BenDayDotsEffect(Effect):
-    """Ben-Day Dots Effect (Roy Lichtenstein Style)."""
-
-    def __init__(self):
-        # Inline shader (106 lines)
-        fragment_source = self._get_fragment_shader()
-        super().__init__("ben_day_dots", fragment_source)
-
-        self.description = "Comic book halftone dots in Pop Art style"
-        self.category = "Style"
-
-        # Color palette (Pop Art colors)
-        self.primary_color = [0.996, 0.0, 0.0]      # Primary Red #FE0000
-        self.secondary_color = [0.996, 0.839, 0.082] # Metallic Yellow #FED715
-
-        # Parameters (0.0-10.0)
-        self.parameters = {
-            'dot_scale': 1.0,      # Overall dot size multiplier
-            'grid_density': 80.0,  # Number of dots per width (cells)
-            'mix': 1.0,            # Effect blend amount (0=original, 1=full dots)
-            'adrenaline_boost': 0.0  # Audio-driven expansion (set dynamically)
-        }
-
-        self.audio_reactor = None
-
-    def _get_fragment_shader(self) -> str:
-        """Return the 106-line GLSL shader (see spec)."""
-        return """#version 330 core
-        // Full shader from spec - 106 lines
-        // Includes: 7 uniforms, main() with halftone math
-        """
-
-    def set_audio_reactor(self, audio_reactor: AudioReactor):
-        """Set audio reactor for adrenaline parameter."""
-        self.audio_reactor = audio_reactor
-
-    def apply_uniforms(self, time: float, resolution: tuple,
-                       audio_reactor=None, semantic_layer=None):
-        """Apply all uniforms including colors and audio-derived adrenaline."""
-        super().apply_uniforms(time, resolution, audio_reactor, semantic_layer)
-
-        # Set Pop Art colors
-        self.shader.set_uniform("u_primary_color", self.primary_color)
-        self.shader.set_uniform("u_secondary_color", self.secondary_color)
-
-        # Get adrenaline from audio reactor or use 0
-        adrenaline = 0.0
-        if audio_reactor:
-            # Try multiple methods for compatibility
-            if hasattr(audio_reactor, 'get_adrenaline_level'):
-                adrenaline = audio_reactor.get_adrenaline_level()
-            elif hasattr(audio_reactor, 'audio_energy'):
-                adrenaline = getattr(audio_reactor, 'audio_energy', 0.0)
-            elif hasattr(audio_reactor, 'get_feature_level'):
-                # Use bass as proxy for adrenaline
-                try:
-                    from core.audio_analyzer import AudioFeature
-                    adrenaline = audio_reactor.get_feature_level(AudioFeature.BASS)
-                except:
-                    adrenaline = 0.0
-
-        self.shader.set_uniform("u_adrenaline", adrenaline)
-
-        # Set other parameters
-        self.shader.set_uniform("u_dot_scale", self.parameters['dot_scale'])
-        self.shader.set_uniform("u_grid_density", self.parameters['grid_density'])
-        self.shader.set_uniform("u_mix", self.parameters['mix'])
-
-    def __del__(self):
-        """Cleanup if needed."""
-        try:
-            if hasattr(super(), '__del__'): super().__del__()
-        except: pass
-
-def create_ben_day_dots():
-    return BenDayDotsEffect()
-```
+- ✅ All unit tests pass (≥ 85% coverage)
+- ✅ 60 FPS at 1080p on RTX 4070 Ti Super
+- ✅ Audio-reactive effects verified with real audio input
+- ✅ Zero safety rail violations
+- ✅ Works with real depth maps
+- ✅ Clean code: ≤ 750 lines, no stubs, full type hints
 
 ---
 
-## 2. Parameters (0.0-10.0)
+## Implementation Instructions
 
-All parameters are in the standard 0.0-10.0 range and are mapped to appropriate GLSL ranges.
+1. Read the full spec: `docs/specs/P3-EXT113_NebulaParticles.md`
+2. Study existing particle system plugins for patterns (e.g., `shadertoy_particles.py`, `particles_3d.py`)
+3. Implement the plugin following VJLive3 architecture standards
+4. Write comprehensive tests before/during implementation (TDD approach)
+5. Verify all safety rails are enforced
+6. Profile performance and optimize as needed
+7. Document the plugin with docstrings and user guide
+8. Update `MODULE_MANIFEST.md` with plugin metadata
 
-| Parameter | Shader Uniform | Default | GLSL Range | Description |
-|-----------|----------------|---------|------------|-------------|
-| `dot_scale` | `u_dot_scale` | 1.0 | 0.0-10.0 (multiplier) | Overall dot size multiplier. 1.0 = base size, >1.0 larger dots, <1.0 smaller dots |
-| `grid_density` | `u_grid_density` | 80.0 | 10.0-200.0 (cells) | Number of dot cells across the screen width. Higher = smaller, more numerous dots |
-| `mix` | `u_mix` | 1.0 | 0.0-1.0 | Blend factor: 0.0 = original video, 1.0 = full dot effect |
-| `adrenaline_boost` | `u_adrenaline` | 0.0 | 0.0-1.0 (set dynamically) | Audio-driven dot expansion. Not user-controlled; set via `apply_uniforms` from audio reactor |
+### References
 
-**Note:** `adrenaline_boost` is not a user parameter; it's computed each frame from audio.
-
----
-
-## 3. GLSL Fragment Shader (106 lines)
-
-```glsl
-#version 330 core
-in vec2 v_texcoord;
-out vec4 fragColor;
-
-uniform sampler2D tex0;
-uniform float u_adrenaline;
-uniform float u_dot_scale;
-uniform float u_grid_density;
-uniform vec3 u_primary_color;
-uniform vec3 u_secondary_color;
-uniform float u_mix;
-
-void main() {
-    // Sample original video
-    vec4 tex = texture(tex0, v_texcoord);
-
-    // Convert to grayscale (luminance)
-    float gray = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
-
-    // Calculate grid cell coordinates
-    vec2 grid = fract(v_texcoord * u_grid_density);
-
-    // Distance from cell center (0,0) to cell pixel
-    float dist = distance(grid, vec2(0.5));
-
-    // Base radius: darker pixels = larger dots
-    // gray=0 (black) → radius=0.5, gray=1 (white) → radius=0
-    float base_radius = 0.5 * (1.0 - gray);
-
-    // Adrenaline boost: audio energy expands dots
-    float adrenaline_boost = u_adrenaline * 0.2;
-
-    // Final radius with scale and adrenaline
-    float radius = base_radius * u_dot_scale + adrenaline_boost;
-
-    // Create circular mask: 1 inside dot, 0 outside
-    float mask = step(radius, dist);
-
-    // Color: interpolate between primary and secondary based on gray
-    vec3 color = mix(u_primary_color, u_secondary_color, gray);
-
-    // Apply mask: dot color where mask=0, background where mask=1
-    vec3 final_color = color * mask;
-
-    // Blend with original video based on u_mix
-    final_color = mix(tex.rgb, final_color, u_mix);
-
-    fragColor = vec4(final_color, tex.a);
-}
-```
-
-**Line Count:** 42 lines (compact). The legacy inline shader is 42 lines; we'll keep it concise.
-
-**Uniforms:**
-- `tex0` - input video
-- `u_adrenaline` - audio-driven expansion (0-1)
-- `u_dot_scale` - dot size multiplier (0-10)
-- `u_grid_density` - number of cells (10-200)
-- `u_primary_color` - RGB vec3 for dots
-- `u_secondary_color` - RGB vec3 for background
-- `u_mix` - blend amount (0-1)
+- Base class: `src/vjlive3/plugins/shadertoy_particles.py` (ShadertoyParticles)
+- Similar implementation: `src/vjlive3/plugins/shadertoy_particles.py` (FireParticles)
+- Test examples: `tests/plugins/test_shadertoy_particles.py`
+- Architecture: `docs/specs/P3-EXT113_NebulaParticles.md`
 
 ---
 
-## 4. Audio Reactivity
-
-The effect responds to audio via the `adrenaline` uniform:
-
-**Source:** `audio_reactor` (passed to `apply_uniforms` or set via `set_audio_reactor`)
-
-**Mapping:**
-- Try `audio_reactor.get_adrenaline_level()` (preferred)
-- Fallback: `audio_reactor.audio_energy`
-- Fallback: `audio_reactor.get_feature_level(AudioFeature.BASS)`
-- Default: 0.0 if no audio reactor or methods fail
-
-**Effect on Shader:**
-```glsl
-float adrenaline_boost = u_adrenaline * 0.2;
-float radius = base_radius * u_dot_scale + adrenaline_boost;
-```
-When audio energy is high, dots expand by up to 0.2 units, making the halftone pattern more pronounced during bass hits.
-
----
-
-## 5. Color Palette
-
-The effect uses authentic Pop Art colors from the legacy `PopArtColorPalette` class:
-
-**Default Palette:**
-- **Primary Red:** `[0.996, 0.0, 0.0]` (#FE0000)
-- **Metallic Yellow:** `[0.996, 0.839, 0.082]` (#FED715)
-
-These are hardcoded in the plugin for simplicity. The legacy code loads from a JSON preset, but we'll use defaults directly.
-
-**Future Extension:** Could add `set_color_palette(primary, secondary)` method for runtime changes.
-
----
-
-## 6. Presets (5 Minimum)
-
-Create 5 presets demonstrating different Pop Art styles:
-
-### 1. `classic_lichtenstein` (Legacy)
-- **Description:** Authentic Roy Lichtenstein comic book style
-- **Parameters:**
-  - `dot_scale`: 1.0
-  - `grid_density`: 80.0
-  - `mix`: 1.0
-- **Colors:** Primary Red + Metallic Yellow (default)
-
-### 2. `high_contrast` (Legacy)
-- **Description:** More dramatic dots with higher contrast
-- **Parameters:**
-  - `dot_scale`: 1.5
-  - `grid_density`: 60.0
-  - `mix`: 1.0
-
-### 3. `subtle_halftone` (Legacy)
-- **Description:** Subtle newspaper printing effect
-- **Parameters:**
-  - `dot_scale`: 0.7
-  - `grid_density`: 120.0
-  - `mix`: 0.6 (blend more with original)
-
-### 4. `adrenaline_punk` (New)
-- **Description:** Audio-reactive expanding dots for high-energy sets
-- **Parameters:**
-  - `dot_scale`: 1.2
-  - `grid_density`: 70.0
-  - `mix`: 1.0
-- **Audio:** Adrenaline boost prominent
-
-### 5. `retro_comic` (New)
-- **Description:** Bold, exaggerated Pop Art with large dots
-- **Parameters:**
-  - `dot_scale`: 2.0
-  - `grid_density`: 50.0
-  - `mix`: 1.0
-
-**Preset Storage:** Store as dicts with parameter values. Colors are fixed (not part of presets).
-
----
-
-## 7. Unit Tests (≥ 80% coverage)
-
-**Test File:** `tests/plugins/test_ben_day_dots.py`
-
-### Critical Tests:
-
-#### Initialization
-- [ ] `test_plugin_creates_with_correct_name()`
-- [ ] `test_plugin_initializes_default_parameters()`
-- [ ] `test_plugin_has_4_parameters()`
-- [ ] `test_plugin_initializes_pop_art_colors()`
-- [ ] `test_plugin_creates_shader_with_40_plus_lines()`
-
-#### Parameter System
-- [ ] `test_set_parameter_valid_range_0_to_10()`
-- [ ] `test_set_parameter_rejects_negative()`
-- [ ] `test_set_parameter_rejects_over_10()`
-- [ ] `test_get_parameter_returns_current_value()`
-- [ ] `test_parameters_persist_across_frames()`
-
-#### Shader Compilation
-- [ ] `test_shader_compiles_without_errors()`
-- [ ] `test_shader_has_all_required_uniforms()`
-- [ ] `test_shader_has_7_uniforms()`
-- [ ] `test_shader_uses_correct_texture_unit_for_tex0()`
-
-#### Halftone Math
-- [ ] `test_gray_conversion_correct()`
-- [ ] `test_grid_calculation_with_density_80()`
-- [ ] `test_base_radius_inversely_proportional_to_gray()`
-- [ ] `test_radius_includes_dot_scale_and_adrenaline()`
-- [ ] `test_mask_step_function_creates_circle()`
-
-#### Color & Blend
-- [ ] `test_primary_and_secondary_colors_set_correctly()`
-- [ ] `test_color_mix_interpolates_by_gray()`
-- [ ] `test_final_color_blends_with_original_by_mix()`
-- [ ] `test_mix_0_returns_original()`
-- [ ] `test_mix_1_returns_full_dots()`
-
-#### Audio Reactivity
-- [ ] `test_audio_reactor_set_and_used()`
-- [ ] `test_adrenaline_from_get_adrenaline_level()`
-- [ ] `test_adrenaline_fallback_to_audio_energy()`
-- [ ] `test_adrenaline_fallback_to_bass_feature()`
-- [ ] `test_adrenaline_defaults_to_0_without_reactor()`
-- [ ] `test_adrenaline_boost_in_radius_calculation()`
-
-#### Uniform Application
-- [ ] `test_apply_uniforms_sets_all_parameters()`
-- [ ] `test_apply_uniforms_sets_colors()`
-- [ ] `test_apply_uniforms_sets_adrenaline_from_audio()`
-- [ ] `test_apply_uniforms_calls_super()`
-
-#### Edge Cases
-- [ ] `test_black_pixel_produces_large_dot()`
-- [ ] `test_white_pixel_produces_no_dot()`
-- [ ] `test_gray_mid_produces_medium_dot()`
-- [ ] `test_extreme_grid_density_handled()`
-- [ ] `test_zero_dot_scale_results_in_no_dots()`
-
-#### Performance
-- [ ] `test_frame_budget_under_1ms()`
-- [ ] `test_shader_compile_time_under_20ms()`
-
-**Target Coverage:** 85% (35+ tests)
-
----
-
-## 8. Performance Tests
-
-- **Frame Budget:** ≤ 1.0ms per frame (very simple shader)
-- **Shader Compilation:** ≤ 20ms
-- **Memory:** Minimal (no extra textures)
-- **Texture Binds:** 1 (tex0 only)
-- **GPU:** Should run easily on integrated GPUs at 4K resolution
-
----
-
-## 9. Visual Regression Tests
-
-Capture reference frames with:
-1. **Original video** (mix=0) vs **full effect** (mix=1)
-2. **Grid density variations:** 40, 80, 160
-3. **Dot scale variations:** 0.5, 1.0, 2.0
-4. **Brightness gradient:** Test black→white dot size progression
-5. **Adrenaline boost:** No audio vs high bass (dots expand)
-6. **Color palette:** Red/Yellow vs alternative colors
-7. **Edge cases:** All-black frame, all-white frame, noise
-
-Compare against legacy reference images.
-
----
-
-## 10. Implementation Phases
-
-### Phase 1: Foundation (Day 1)
-- Create plugin file `src/vjlive3/plugins/ben_day_dots.py`
-- Implement `__init__` with parameters and colors
-- Implement `_get_fragment_shader()` with inline 106-line GLSL
-- Write 10 initial unit tests
-
-**Success:** Plugin loads, shader compiles, parameters accessible
-
-### Phase 2: Audio Reactivity (Day 2)
-- Implement `set_audio_reactor()`
-- Implement `apply_uniforms()` with audio-derived adrenaline
-- Write 10 audio reactivity tests
-
-**Success:** Adrenaline uniform updates correctly from audio
-
-### Phase 3: Testing & Validation (Day 2-3)
-- Complete unit tests (reach 85% coverage)
-- Performance testing
-- Visual regression captures
-- Create 5 presets
-- Safety Rails compliance verification
-
-**Success:** All tests pass, performance within budget, presets functional
-
----
-
-## 🔒 Safety Rails Compliance
-
-| Rail | Requirement | Compliance |
-|------|-------------|------------|
-| **60 FPS Sacred** | ≤ 16.67ms per frame | Target ≤ 1ms; extremely simple shader ✓ |
-| **Offline-First** | No cloud dependencies | No network calls ✓ |
-| **Plugin Integrity** | METADATA constant | Add to plugin ✓ |
-| **750-Line Limit** | ≤ 750 lines of code | Estimate ~120 lines ✓ |
-| **80% Test Coverage** | ≥ 80% coverage | Target 85% (35+ tests) ✓ |
-| **No Silent Failures** | All errors logged | Validate audio_reactor methods ✓ |
-| **Resource Leak Prevention** | GL resources cleaned | No extra resources allocated ✓ |
-| **Backward Compatibility** | No breaking changes | New plugin ✓ |
-| **Security** | No exec/eval | No dynamic code ✓ |
-
-**Special Considerations:**
-- **Strobe Risk:** None (no flashing)
-- **Texture Units:** Uses only 1 texture unit (very low impact)
-- **Performance:** This is one of the lightest effects; suitable for low-end hardware
-
----
-
-## 🔗 Dependencies
-
-```python
-from core.effects.shader_base import Effect
-from core.audio_reactor import AudioReactor
-import logging
-```
-
-**External:** None beyond VJLive3 core
-
----
-
-## 📊 Success Metrics
-
-- ✅ Shader compiles without errors on all target GPUs
-- ✅ 35/35 unit tests pass, ≥85% coverage
-- ✅ ≤ 1ms/frame average (should be ~0.3ms)
-- ✅ Audio reactivity: adrenaline uniform updates at 60 FPS
-- ✅ 5 presets load and demonstrate distinct characters
-- ✅ All 10 Safety Rails satisfied
-
----
-
-**Specification Version:** 1.0  
-**Task Assigned:** 2025-02-23  
-**Assigned To:** Implementation Engineer (inbox_alpha)
+**Start implementation when ready. Report progress via the switchboard.**

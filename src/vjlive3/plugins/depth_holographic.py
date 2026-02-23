@@ -15,7 +15,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -248,7 +248,7 @@ void main() {
 }
 """
 
-class DepthHolographicPlugin(EffectPlugin):
+class DepthHolographicPlugin(object):
     """Depth Holographic Iridescence single-pass thin-film physics simulation."""
 
     def __init__(self):
@@ -290,7 +290,7 @@ class DepthHolographicPlugin(EffectPlugin):
         gl.glDeleteShader(fs)
         return prog
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             logger.warning("Mock mode engaged. Skipping GL initialization.")
             self._initialized = True
@@ -339,7 +339,7 @@ class DepthHolographicPlugin(EffectPlugin):
     def _map_norm(self, val: float, max_v: float = 1.0, min_v: float = 0.0) -> float:
         return min_v + (max(0.0, min(10.0, float(val))) / 10.0) * (max_v - min_v)
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
             return 0
              

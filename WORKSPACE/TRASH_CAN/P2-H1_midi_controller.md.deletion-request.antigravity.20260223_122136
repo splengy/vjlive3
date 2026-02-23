@@ -1,0 +1,325 @@
+# P2-H1: MIDI Controller Input
+
+## Overview
+
+**Task ID**: P2-H1  
+**Phase**: Phase 2 - Hardware & External IO  
+**Priority**: P0 (Critical)  
+**Status**: ⬜ Todo  
+**Description**: MIDI controller input system for hardware control surfaces
+
+**Objective**: Port the MIDI controller input system that enables VJLive3 to receive input from MIDI hardware controllers (knobs, faders, buttons, pads) for real-time performance control.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/midi_controller.py`
+- **Class**: `MIDIController`
+- **Key Features**:
+  - MIDI device enumeration and selection
+  - Real-time MIDI message parsing (Note On/Off, CC, PC, Sysex)
+  - Control surface mapping (knobs → parameters)
+  - Preset management for controllers
+  - MIDI learn functionality
+  - Feedback output (LEDs, displays)
+
+### Supporting Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/input/midi.py`
+- **Class**: `MIDIInput`
+- **Key Features**:
+  - Enhanced device management with hot-plugging
+  - Multiple controller support
+  - Advanced mapping system with conditions
+  - MIDI over USB and network (rtpMIDI)
+  - Integration with `InputManager` and `NodeGraph`
+  - Comprehensive error handling and logging
+
+### Related Modules
+- `../vjlive/core/inputs/midi.py` - Low-level MIDI I/O
+- `../VJlive-2/core/input/gamepad.py` - Gamepad/joystick support (similar pattern)
+- `../vjlive/core/osc_controller.py` - OSC controller (parallel system)
+- `../VJlive-2/core/input/keyboard.py` - Keyboard input (similar pattern)
+
+---
+
+## What This Module Does
+
+This task implements a comprehensive MIDI controller input system that:
+
+1. **MIDI Device Management**: Enumerates, selects, and manages MIDI devices
+2. **Real-Time Input**: Receives and parses MIDI messages in real-time
+3. **Control Mapping**: Maps MIDI controls (CC, notes) to VJLive3 parameters
+4. **MIDI Learn**: Allows users to "learn" controls by moving them
+5. **Preset System**: Saves/loads controller configurations
+6. **Multiple Controllers**: Supports multiple MIDI devices simultaneously
+7. **Feedback**: Sends MIDI output to controller LEDs/displays
+8. **Hot-Plugging**: Detects device connection/disconnection
+9. **Network MIDI**: Supports rtpMIDI for network-based controllers
+10. **Performance**: Maintains <1ms latency for real-time control
+
+---
+
+## Implementation Plan
+
+### Phase 1: Low-Level MIDI I/O
+1. Choose MIDI library (`mido`, `python-rtmidi`, or `pygame.midi`)
+2. Implement device enumeration and selection
+3. Create MIDI input thread with lock-free queue
+4. Parse MIDI messages (Note, CC, PC, Sysex)
+5. Add timestamping for latency measurement
+
+### Phase 2: Control Mapping
+1. Define mapping data structure (MIDI message → VJLive3 parameter)
+2. Implement mapping engine with filtering
+3. Add mapping modes (absolute, relative, toggle)
+4. Create mapping editor UI
+5. Implement MIDI learn (capture next MIDI message)
+
+### Phase 3: Preset System
+1. Define preset format (JSON/YAML)
+2. Implement preset save/load
+3. Create preset browser UI
+4. Add preset sharing/import/export
+5. Implement preset templates for common controllers
+
+### Phase 4: Multiple Controllers
+1. Extend to multiple MIDI devices
+2. Implement device routing and merging
+3. Add controller-specific profiles
+4. Create device status monitoring
+
+### Phase 5: Feedback & Output
+1. Implement MIDI output for feedback
+2. Map parameter changes to MIDI CC/note messages
+3. Support for controller LEDs, displays, motors
+4. Add feedback configuration UI
+
+### Phase 6: Advanced Features
+1. Implement rtpMIDI for network MIDI
+2. Add MIDI over USB and Bluetooth
+3. Create macro system (multiple actions per MIDI message)
+4. Implement conditional mapping (based on state)
+
+### Phase 7: Testing & Validation
+1. Unit tests for MIDI message parsing
+2. Integration tests with real MIDI controllers
+3. Latency benchmarks (MIDI in → parameter change)
+4. Compatibility tests with 20+ controllers
+
+---
+
+## Public Interface
+
+### MIDIController Class
+
+```python
+# src/vjlive3/input/midi_controller.py
+class MIDIController:
+    def __init__(self):
+        """Initialize MIDI controller system"""
+    
+    def enumerate_devices(self) -> List[MIDIDeviceInfo]:
+        """Get list of available MIDI devices"""
+    
+    def connect(self, device_id: str) -> None
+    def disconnect(self, device_id: str) -> None
+    def is_connected(self, device_id: str) -> bool
+    
+    def add_mapping(
+        self,
+        midi_type: str,  # "note_on", "control_change", etc.
+        channel: int,
+        number: int,
+        target: str,     # "effect.scale", "dmx.channel.1", etc.
+        parameter: str,
+        mode: MappingMode = MappingMode.ABSOLUTE,
+        min_value: float = 0.0,
+        max_value: float = 1.0
+    ) -> None
+    
+    def remove_mapping(self, mapping_id: str) -> None
+    def get_mappings(self) -> List[MIDIMapping]
+    
+    def start_learning(self, target: str, parameter: str) -> LearningSession
+    def cancel_learning(self, session_id: str) -> None
+    
+    def send_feedback(
+        self,
+        device_id: str,
+        message: MIDIMessage  # Note, CC, etc.
+    ) -> None
+    
+    def save_preset(self, name: str, filepath: str) -> None
+    def load_preset(self, filepath: str) -> None
+```
+
+### MIDIMapping Data Structure
+
+```python
+@dataclass
+class MIDIMapping:
+    id: str
+    device_id: str
+    midi_type: str
+    channel: int
+    number: int
+    target: str
+    parameter: str
+    mode: MappingMode
+    min_value: float
+    max_value: float
+    enabled: bool = True
+
+class MappingMode(Enum):
+    ABSOLUTE = "absolute"     # 0-127 → min-max
+    RELATIVE = "relative"     # Incremental changes
+    TOGGLE = "toggle"         # On/off toggle
+    TRIGGER = "trigger"       # Momentary trigger
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| MIDI messages | Hardware/Network MIDI devices | Note On/Off, CC, PC, Sysex |
+| Device selection | User/UI | Which MIDI device to use |
+| Mapping config | Presets/UI | MIDI → parameter bindings |
+| Learning requests | UI | MIDI learn capture mode |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| Parameter updates | VJLive3 parameters | Real-time control values |
+| MIDI feedback | Controller devices | LED, display, motor feedback |
+| Mapping events | UI, Logging | Mapping changes, learning |
+| Device status | Monitoring | Connection state, errors |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** generate audio (use AudioEngine)
+- ❌ Does **not** control DMX directly (use DMXEngine)
+- ❌ Does **not** provide visual effects (use EffectEngine)
+- ❌ Does **not** handle OSC input (use OSCController)
+- ❌ Does **not** store show data (use ShowControl)
+- ❌ Does **not** manage user permissions (use Auth)
+
+---
+
+## Testing & Validation
+
+### Unit Tests
+
+```python
+def test_midi_message_parsing():
+    """Verify MIDI messages parse correctly"""
+    
+def test_mapping_conversion():
+    """Test MIDI value → parameter conversion"""
+    
+def test_learning_capture():
+    """Test MIDI learn captures next message"""
+    
+def test_multiple_devices():
+    """Verify multiple controllers work simultaneously"""
+```
+
+### Integration Tests
+
+- Real MIDI controllers (Novation, Akai, Behringer, etc.)
+- MIDI learn functionality
+- Feedback output to controller LEDs
+- Latency measurement (MIDI in → parameter change)
+
+### Performance Benchmarks
+
+| Metric | Target |
+|--------|--------|
+| Input latency | < 1ms |
+| Output latency | < 1ms |
+| CPU per message | < 0.1ms |
+| Memory per device | < 5MB |
+| Message throughput | 1000+ messages/sec |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] FPS ≥ 58 when MIDI active
+- [ ] All unit tests pass (≥80% coverage)
+- [ ] MIDI input latency < 1ms
+- [ ] MIDI output latency < 1ms
+- [ ] Supports at least 10 different MIDI controllers
+- [ ] MIDI learn works reliably (captures within 5 seconds)
+- [ ] Thread-safe: no race conditions in message handling
+- [ ] Hot-plugging detection within 500ms
+
+### Should Pass (Best Effort)
+
+- [ ] Support for 20+ controllers simultaneously
+- [ ] rtpMIDI network MIDI support
+- [ ] Advanced mapping (conditions, macros, scripts)
+- [ ] Controller-specific presets (auto-detect)
+- [ ] Motorized fader feedback (synchronization)
+
+---
+
+## Dependencies
+
+- **MIDI Library**: Requires `mido` or `python-rtmidi`
+- **Parameter System**: Requires P1-N1 (Node Registry) for parameter binding
+- **UI**: Requires P1-N4 (Node Graph UI) for mapping editor
+- **State**: Requires P1-N3 (State Persistence) for presets
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| MIDI device compatibility | Medium | Medium | Test with popular controllers, fallback drivers |
+| Latency too high | Low | High | Real-time thread priority, lock-free queues |
+| Thread safety issues | Low | High | Atomic operations, careful locking |
+| Memory leaks from device handles | Low | Medium | Reference counting, cleanup |
+| Platform differences (Windows/Linux/macOS) | Medium | Medium | Abstract backend, CI on all platforms |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/midi_controller.py` - MIDIController implementation
+- `../VJlive-2/core/input/midi.py` - MIDIInput implementation
+- `../VJlive-2/core/input/gamepad.py` - Gamepad input (similar pattern)
+- `../vjlive/core/osc_controller.py` - OSC controller (parallel system)
+
+### Related Tasks
+- P1-N1: Node Registry (parameter binding)
+- P1-N4: Node Graph UI (mapping editor)
+- P2-H2: OSCQuery (network control)
+- P2-D4: Show Control (MIDI show control)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created |
+
+
+
+## Legacy References
+- **Key Algorithms**: TBD (Extract from legacy source)
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

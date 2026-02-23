@@ -2,7 +2,7 @@
 
 ## What This Module Does
 
-Implements `DepthDistanceFilterEffect` — a depth-aware filter that applies intensity-based processing based on distance from the camera. This effect creates realistic depth-based attenuation, perspective distortion, and spatial filtering that simulates optical effects like atmospheric perspective and depth-based focus falloff.
+This module implements the `DepthDistanceFilterEffect`, ported from the legacy `VJlive-2/plugins/vdepth/depth_distance_filter.py` codebase. It is the core spatial depth-matte generator of the suite. It selectively isolates video pixels within a configurable near/far clipping window utilizing sub-pixel smoothstep falloffs. It operates as a virtual "depth green screen", capable of stripping backgrounds or foregrounds, substituting them with solid colors, procedural gaussian blur, or secondary `tex_b` video inputs.
 
 ## Public Interface
 
@@ -141,24 +141,20 @@ class DepthDistanceFilterEffect(Effect):
 ## Implementation Notes
 
 ### Legacy References
-- `vjlive/vdepth/depth_distance_filter.py` — Original implementation
-- `VJlive-2/plugins/p3_vd32.py` — Existing port (if present)
+- **Source Codebase**: `VJlive-2`
+- **File Paths**: `plugins/vdepth/depth_distance_filter.py`
+- **Architectural Soul**: The legacy shader contains an advanced edge-refinement section that samples 4 cardinal GLSL neighbors to execute real-time morphological Erode (via `min()` intersections) and Dilate (via `max()` unions) of the depth map mask. Additionally, its procedural 81-tap gaussian blur fallback for the out-of-bounds `fill_mode` must be successfully ported.
 
 ### Key Algorithms
-1. **Distance Mapping**: Convert depth values to normalized distance (0-1)
-2. **Attenuation Curve**: Apply mathematical function to determine intensity
-3. **Color Tinting**: Apply distance-based color shifts
-4. **Focus Simulation**: Create sharpness gradient around focus distance
+1. **Smoothstep Clipping Window**: `mask *= smoothstep(near) * (1.0 - smoothstep(far))` to establish soft mask boundaries.
+2. **Morphological Edge Refine**: Expands or shrinks the clip mask smoothly to prevent aliased artifacting from jagged raw depth feeds.
+3. **Multi-State Fill Extrapolator**: Replaces `mask == 0.0` pixels with four logic blocks: Alpha 0.0, Solid Color (via `fill_color`), Procedural Blur (`tex0` spatial sample), or Video B (`texture(tex_b)`).
+4. **False-Color Visualization**: Contains a custom diagnostic color scale mapping the active depth topology using distinct RGB gradients.
 
-### Performance Targets
-- 1080p @ 60fps: <5ms per frame
-- Memory: <5 MB additional (minimal processing)
-- CPU: Highly optimized using NumPy vectorization
-
-### Safety Rails
-- **RAIL 1**: Must maintain 60fps target
-- **RAIL 6**: Handle missing depth source gracefully (fallback to uniform processing)
-- **RAIL 8**: No GPU memory leaks in texture allocation
+### Optimization Constraints & Safety Rails
+- **Optimization Constraint (Safety Rail #1):** The legacy implementation is burdened by the same `glTexImage2D` frame-loop VRAM memory reallocation anti-pattern as the other legacy VDepth plugins. This MUST be refactored to memory-safe `glTexSubImage2D` updates wrapped against a pre-allocated texture canvas in VJLive3.
+- **Missing Resource Handling**: The shader queries `tex_b` directly. VJLive3 must route an empty fallback texture unit if no secondary input exists.
+- **Cleanup Requirement (Safety Rail #8):** `self.depth_texture` memory leaks caused by relying upon Python `__del__` garbage collection. Porting requires an explicit `cleanup` cycle to manually call `glDeleteTextures`.
 
 ## Deliverables
 

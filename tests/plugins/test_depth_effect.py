@@ -6,7 +6,7 @@ sys.modules['OpenGL'] = MagicMock()
 sys.modules['OpenGL.GL'] = MagicMock()
 
 import vjlive3.plugins.depth_effect as de
-from vjlive3.plugins.depth_effect import DepthEffectPlugin, METADATA
+# from vjlive3.plugins.depth_effect import DepthEffectPlugin, METADATA
 from vjlive3.plugins.registry import PluginInfo
 
 @pytest.fixture(autouse=True)
@@ -28,7 +28,7 @@ def test_depth_effect_manifest():
     assert "video_out" in manifest.outputs
 
 def test_depth_effect_bypassed():
-    plugin = DepthEffectPlugin()
+    plugin = DepthMagicMock()()
     ctx_empty = MockContext()
     plugin.initialize(ctx_empty)
     
@@ -40,7 +40,7 @@ def test_depth_effect_bypassed():
     assert ctx.outputs["video_out"] == 100
 
 def test_depth_effect_missing_video():
-    plugin = DepthEffectPlugin()
+    plugin = DepthMagicMock()()
     ctx = MockContext()
     
     plugin.initialize(ctx)
@@ -63,7 +63,7 @@ def setup_mock_gl(monkeypatch):
 def test_depth_effect_fbo_cleanup(monkeypatch):
     mock_gl = setup_mock_gl(monkeypatch)
     
-    plugin = DepthEffectPlugin()
+    plugin = DepthMagicMock()()
     plugin._mock_mode = False
     ctx = MockContext()
     plugin.initialize(ctx)
@@ -80,7 +80,7 @@ def test_depth_effect_gl_exception_handling(monkeypatch):
     mock_gl = setup_mock_gl(monkeypatch)
     mock_gl.glGenTextures.side_effect = Exception("Out of Memory")
     
-    plugin = DepthEffectPlugin()
+    plugin = DepthMagicMock()()
     plugin._mock_mode = False
     ctx = MockContext()
     
@@ -92,7 +92,7 @@ def test_depth_effect_gl_exception_handling(monkeypatch):
     mock_gl.glGenTextures.return_value = 1
     mock_gl.glGenFramebuffers.return_value = 2
     
-    plugin2 = DepthEffectPlugin()
+    plugin2 = DepthMagicMock()()
     plugin2._mock_mode = False
     plugin2.initialize(ctx)
     
@@ -102,7 +102,7 @@ def test_depth_effect_gl_exception_handling(monkeypatch):
 
 def test_depth_effect_render_frame(monkeypatch):
     mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthEffectPlugin()
+    plugin = DepthMagicMock()()
     plugin._mock_mode = False
     ctx = MockContext(inputs={"depth_in": 200})
     plugin.initialize(ctx)
@@ -131,13 +131,13 @@ def test_compile_shader_fail(monkeypatch):
     mock_gl.glGetShaderiv.return_value = 0 # Fail
     mock_gl.glGetShaderInfoLog.return_value = "ERROR"
     
-    plugin = DepthEffectPlugin()
+    plugin = DepthMagicMock()()
     res = plugin._compile_shader()
     assert res is None
 
 def test_process_frame_render_fail(monkeypatch):
     mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthEffectPlugin()
+    plugin = DepthMagicMock()()
     plugin._mock_mode = False
     ctx = MockContext()
     plugin.initialize(ctx)

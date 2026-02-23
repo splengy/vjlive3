@@ -3,7 +3,6 @@ import logging
 from typing import Dict, Any, Optional
 import numpy as np
 
-from vjlive3.plugins.api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +130,7 @@ METADATA = {
     "outputs": ["video_out", "pre_send", "depth_send", "mosh_send", "post_send"]
 }
 
-class DepthLoopInjectionPlugin(EffectPlugin):
+class DepthLoopInjectionPlugin(object):
     """Modular routing hub effect providing 4 distinct send/return loops for datamoshing via depths."""
     
     def __init__(self) -> None:
@@ -173,7 +172,7 @@ class DepthLoopInjectionPlugin(EffectPlugin):
             logger.error(f"Failed to compile shader locally: {e}")
             return None
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         super().initialize(context)
         if self._mock_mode:
             return
@@ -218,7 +217,7 @@ class DepthLoopInjectionPlugin(EffectPlugin):
             logger.warning(f"Failed to initialize GL FBOs inside DepthLoopInjection: {e}")
             self._mock_mode = True
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if input_texture is None or input_texture == 0:
             return 0
             

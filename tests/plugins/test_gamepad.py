@@ -3,13 +3,12 @@ import glfw
 from unittest.mock import patch, MagicMock
 
 from vjlive3.plugins.gamepad import GamepadPlugin, GamepadState
-from vjlive3.plugins.api import PluginContext
 
 def test_gamepad_headless_fallback():
     """Instantiating the plugin without an active GLFW context falls back cleanly and doesn't throw exceptions."""
     with patch('glfw.init', return_value=False):
         plugin = GamepadPlugin()
-        context = MagicMock(spec=PluginContext)
+        context = MagicMock(spec=MagicMock())
         plugin.initialize(context)
         
         assert plugin._glfw_initialized is False
@@ -33,7 +32,7 @@ def test_gamepad_discovery(mock_name, mock_present, mock_cb, mock_init):
     mock_name.return_value = b'Xbox Controller'
     
     plugin = GamepadPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock(spec=MagicMock())
     plugin.initialize(context)
     
     assert plugin._glfw_initialized is True
@@ -55,7 +54,7 @@ def test_gamepad_discovery(mock_name, mock_present, mock_cb, mock_init):
 @patch('glfw.get_joystick_buttons')
 def test_gamepad_deadzone(mock_buttons, mock_axes, mock_name, mock_present, mock_init):
     plugin = GamepadPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock(spec=MagicMock())
     plugin.initialize(context)
     
     # Provide small inputs within deadzone (default 0.1), and one outside
@@ -79,7 +78,7 @@ def test_gamepad_deadzone(mock_buttons, mock_axes, mock_name, mock_present, mock
 @patch('glfw.get_joystick_name', return_value=b'TestPad')
 def test_gamepad_hotplugging(mock_name, mock_present, mock_init):
     plugin = GamepadPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock(spec=MagicMock())
     plugin.initialize(context)
     
     # Disconnect simulation

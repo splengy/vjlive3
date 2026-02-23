@@ -14,7 +14,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -192,7 +192,7 @@ void main() {
 }
 """
 
-class DepthMosaicPlugin(EffectPlugin):
+class DepthMosaicPlugin(object):
     """
     Depth Mosaic single-pass full-screen quad filter evaluating
     dynamic geometric tessellation boundaries mapped cleanly to distance offsets.
@@ -239,7 +239,7 @@ class DepthMosaicPlugin(EffectPlugin):
         gl.glDeleteShader(fs)
         return prog
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             logger.warning("Mock mode engaged. Skipping GL initialization.")
             self._initialized = True
@@ -291,7 +291,7 @@ class DepthMosaicPlugin(EffectPlugin):
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
         
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
             return 0
              

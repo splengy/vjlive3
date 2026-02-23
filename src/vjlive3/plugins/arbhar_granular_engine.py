@@ -20,7 +20,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ def _quality_factor(q_0_10: float) -> float:
 def _clamp(v, lo=0.0, hi=10.0): return max(lo, min(hi, float(v)))
 
 
-class ArbharGranularEnginePlugin(EffectPlugin):
+class ArbharGranularEnginePlugin(object):
     """Granular synthesis with circular buffer and 32-grain particle system."""
 
     def __init__(self):

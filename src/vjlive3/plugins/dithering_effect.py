@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'levels': 5.0, 'dither_type': 0.0, 'scale': 5.0, 'gamma': 5.0
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class DitheringPlugin(EffectPlugin):
+class DitheringPlugin(object):
     """Dithering — ordered/error-diffusion dithering."""
     def __init__(self):
         super().__init__()

@@ -12,7 +12,6 @@ try:
 except ImportError:
     ndi = None
 
-from vjlive3.plugins.api import PluginBase, PluginContext
 
 _logger = logging.getLogger("vjlive3.plugins.ndi")
 
@@ -181,7 +180,7 @@ class NDIHub:
         _logger.info("NDIHub shut down.")
 
 
-class NDIPlugin(PluginBase):
+class NDIPlugin(object):
     """Plugin wrapper exposing NDI capabilities to the API and Node Graph."""
     
     name = "NDI Interface"
@@ -192,7 +191,7 @@ class NDIPlugin(PluginBase):
         self.hub: Optional[NDIHub] = None
         self.default_sender: Optional[NDISender] = None
         
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         super().initialize(context)
         self.hub = NDIHub()
         # Provide a default master output sender

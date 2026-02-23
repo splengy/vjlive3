@@ -1,0 +1,4845 @@
+{
+  "summary": {
+    "total_specs": 322,
+    "by_status": {
+      "Done": 531,
+      "Todo": 1909,
+      "Out of Scope": 83,
+      "In Progress": 7,
+      "Unknown": 24
+    },
+    "needs_enhancement": 128
+  },
+  "audit_results": {
+    "P0-S1": {
+      "spec_path": "docs/specs/P0-S1_silicon_sigil.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P0-INF2": {
+      "spec_path": "docs/specs/P0-INF2_legacy_feature_parity.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": false,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-EXT001": {
+      "spec_path": "docs/specs/P3-EXT001_ascii_effect.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT002": {
+      "spec_path": "docs/specs/P3-EXT002_adaptive_contrast_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT003": {
+      "spec_path": "docs/specs/P3-EXT003_advanced_particle_3d_system.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT004": {
+      "spec_path": "docs/specs/P3-EXT004_agent_avatar_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT005": {
+      "spec_path": "docs/specs/P3-EXT005_living_fractal_consciousness.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT006": {
+      "spec_path": "docs/specs/P3-EXT006_analog_tv.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT007": {
+      "spec_path": "docs/specs/P3-EXT007_arbhar_granular_engine.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT008": {
+      "spec_path": "docs/specs/P3-EXT008_arbhar_granularizer.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT009": {
+      "spec_path": "docs/specs/P3-EXT009_audio_reactive_raymarched_scenes.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-EXT010": {
+      "spec_path": "docs/specs/P3-EXT010_audio_spectrum_trails.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-EXT011": {
+      "spec_path": "docs/specs/P3-EXT011_background_subtraction.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": false,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT013": {
+      "spec_path": "docs/specs/P3-EXT013_bad_trip_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": false,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT014": {
+      "spec_path": "docs/specs/P3-EXT014_bass_cannon_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT015": {
+      "spec_path": "docs/specs/P3-EXT015_bass_cannon_2.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT017": {
+      "spec_path": "docs/specs/P3-EXT017_ben_day_dots.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-EXT018": {
+      "spec_path": "docs/specs/P3-EXT018_blend_add.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT044": {
+      "spec_path": "docs/specs/P3-EXT044_depth_data_mux.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT045": {
+      "spec_path": "docs/specs/P3-EXT045_depth_displacement_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT046": {
+      "spec_path": "docs/specs/P3-EXT046_depth_distortion_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT047": {
+      "spec_path": "docs/specs/P3-EXT047_depth_echo_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT048": {
+      "spec_path": "docs/specs/P3-EXT048_depth_fx_loop_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT049": {
+      "spec_path": "docs/specs/P3-EXT049_depth_feedback_matrix_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT050": {
+      "spec_path": "docs/specs/P3-EXT050_depth_field_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT051": {
+      "spec_path": "docs/specs/P3-EXT051_depth_fog_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT052": {
+      "spec_path": "docs/specs/P3-EXT052_depth_groovy_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT053": {
+      "spec_path": "docs/specs/P3-EXT053_depth_holographic_iridescence_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT054": {
+      "spec_path": "docs/specs/P3-EXT054_depth_loop_injection_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT055": {
+      "spec_path": "docs/specs/P3-EXT055_depth_mesh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT056": {
+      "spec_path": "docs/specs/P3-EXT056_depth_modular_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT057": {
+      "spec_path": "docs/specs/P3-EXT057_depth_mosh_nexus_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT058": {
+      "spec_path": "docs/specs/P3-EXT058_depth_parallel_universe_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT059": {
+      "spec_path": "docs/specs/P3-EXT059_depth_parallel_universe_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT060": {
+      "spec_path": "docs/specs/P3-EXT060_depth_effects_depth_particle_3d_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT061": {
+      "spec_path": "docs/specs/P3-EXT061_depth_effects_depth_point_cloud_3d_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT062": {
+      "spec_path": "docs/specs/P3-EXT062_depth_effects_depth_point_cloud_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT063": {
+      "spec_path": "docs/specs/P3-EXT063_depth_simulator_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT064": {
+      "spec_path": "docs/specs/P3-EXT064_depth_slitscan_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT065": {
+      "spec_path": "docs/specs/P3-EXT065_depth_void_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT066": {
+      "spec_path": "docs/specs/P3-EXT066_dimension_splice_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT067": {
+      "spec_path": "docs/specs/P3-EXT067_depth_effects_depth_visualization_mode.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT068": {
+      "spec_path": "docs/specs/P3-EXT068_dithering_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT069": {
+      "spec_path": "docs/specs/P3-EXT069_dolly_zoom_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT070": {
+      "spec_path": "docs/specs/P3-EXT070_dithering_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT071": {
+      "spec_path": "docs/specs/P3-EXT071_dolly_zoom_datamosh_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT072": {
+      "spec_path": "docs/specs/P3-EXT072_vtempi_duty_cycle_mode.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT073": {
+      "spec_path": "docs/specs/P3-EXT073_vtempi_human_resolution.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT074": {
+      "spec_path": "docs/specs/P3-EXT074_particles_3d_emitter_type.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT075": {
+      "spec_path": "docs/specs/P3-EXT075_example_glitch_effect.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-EXT076": {
+      "spec_path": "docs/specs/P3-EXT076_vtempi_vattractors_vhalvorsen_plugin.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT077": {
+      "spec_path": "docs/specs/P3-EXT077_vtempi_vattractors_vlorenz_plugin.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT078": {
+      "spec_path": "docs/specs/P3-EXT078_fire_particles_effect.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-EXT079": {
+      "spec_path": "docs/specs/P3-EXT079_shadertoy_particles_shadertoy_particles.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT080": {
+      "spec_path": "docs/specs/P3-EXT080_shadertoy_particles_shadertoy_particles.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT081": {
+      "spec_path": "docs/specs/P3-EXT081_fractal_generator_fractal_generator.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT082": {
+      "spec_path": "docs/specs/P3-EXT082_fluid_sim_fluid_sim_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT083": {
+      "spec_path": "docs/specs/P3-EXT083_ml_gpu_effects_ml_base_async_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT084": {
+      "spec_path": "docs/specs/P3-EXT084_ml_gpu_effects_ml_depth_estimation_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT085": {
+      "spec_path": "docs/specs/P3-EXT085_ml_gpu_effects_ml_segmentation_blur_gl_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT086": {
+      "spec_path": "docs/specs/P3-EXT086_ml_gpu_effects_ml_style_gl_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT087": {
+      "spec_path": "docs/specs/P3-EXT087_vtempi_vattractors_vsakarya_plugin.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT088": {
+      "spec_path": "docs/specs/P3-EXT088_vtempi_vattractors_vthomas_plugin.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-EXT142": {
+      "spec_path": "docs/specs/P3-EXT142_r16_simulated_depth.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD08": {
+      "spec_path": "docs/specs/P3-VD08_depth_r16_wave.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P0-INF4": {
+      "spec_path": "docs/specs/P0-INF4_core_logic_parity.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P4-COR009": {
+      "spec_path": "docs/specs/P4-COR009_AIIntegration.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P4-COR017": {
+      "spec_path": "docs/specs/P4-COR017_AISuggestionEngine.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR025": {
+      "spec_path": "docs/specs/P4-COR025_AgentManager.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR026": {
+      "spec_path": "docs/specs/P4-COR026_AgentMood.md",
+      "status": "Out of Scope",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR027": {
+      "spec_path": "docs/specs/P4-COR027_AgentOrchestrator.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR068": {
+      "spec_path": "docs/specs/P4-COR068_IAgent.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR075": {
+      "spec_path": "docs/specs/P4-COR075_LLMService.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR082": {
+      "spec_path": "docs/specs/P4-COR082_NeuralEngine.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR118": {
+      "spec_path": "docs/specs/P4-COR118_AudioEngine.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR132": {
+      "spec_path": "docs/specs/P4-COR132_AudioReactiveEngine.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR141": {
+      "spec_path": "docs/specs/P4-COR141_AudioReactor.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR218": {
+      "spec_path": "docs/specs/P4-COR218_HardwareManager.md",
+      "status": "Out of Scope",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P4-COR229": {
+      "spec_path": "docs/specs/P4-COR229_MultiCameraManager.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-R1": {
+      "spec_path": "docs/specs/P1-R1_opengl_context.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": false,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-R2": {
+      "spec_path": "docs/specs/P1-R2_gpu_pipeline.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": false,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": false,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-R3": {
+      "spec_path": "docs/specs/P1-R3_shader_compiler.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-R4": {
+      "spec_path": "docs/specs/P1-R4_texture_manager.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-R5": {
+      "spec_path": "docs/specs/P1-R5_render_engine.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-A1": {
+      "spec_path": "docs/specs/P1-A1_audio_analyzer.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P1-A2": {
+      "spec_path": "docs/specs/P1-A2_beat_detector.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P1-A3": {
+      "spec_path": "docs/specs/P1-A3_reactivity_bus.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P1-A4": {
+      "spec_path": "docs/specs/P1-A4_audio_sources.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P1-N1": {
+      "spec_path": "docs/specs/P1-N1_node_registry.md",
+      "status": "In Progress",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-N2": {
+      "spec_path": "docs/specs/P1-N2_node_types.md",
+      "status": "In Progress",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-N3": {
+      "spec_path": "docs/specs/P1-N3_state_persistence.md",
+      "status": "In Progress",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-N4": {
+      "spec_path": "docs/specs/P1-N4_node_graph_ui.md",
+      "status": "In Progress",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-P1": {
+      "spec_path": "docs/specs/P1-P1_plugin_registry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": false,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-P2": {
+      "spec_path": "docs/specs/P1-P2_plugin_loader.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P1-P3": {
+      "spec_path": "docs/specs/P1-P3_plugin_hot_reload.md",
+      "status": "In Progress",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-P4": {
+      "spec_path": "docs/specs/P1-P4_plugin_scanner.md",
+      "status": "In Progress",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P1-P5": {
+      "spec_path": "docs/specs/P1-P5_plugin_sandbox.md",
+      "status": "In Progress",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P2-D1": {
+      "spec_path": "docs/specs/P2-D1_dmx_engine.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": false,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 57.14285714285714
+      }
+    },
+    "P2-D2": {
+      "spec_path": "docs/specs/P2-D2_artnet_output.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P2-D3": {
+      "spec_path": "docs/specs/P2-D3_dmx_fx.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P2-D4": {
+      "spec_path": "docs/specs/P2-D4_show_control.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P2-D5": {
+      "spec_path": "docs/specs/P2-D5_audio_dmx.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P2-D6": {
+      "spec_path": "docs/specs/P2-D6_dmx_websocket.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P2-H1": {
+      "spec_path": "docs/specs/P2-H1_midi_controller.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P2-H3": {
+      "spec_path": "docs/specs/P2-H3_astra.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P2-H4": {
+      "spec_path": "docs/specs/P2-H4_ndi.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": false,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 57.14285714285714
+      }
+    },
+    "P2-H5": {
+      "spec_path": "docs/specs/P2-H5_spout.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P2-H6": {
+      "spec_path": "docs/specs/P2-H6_gamepad.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P2-H7": {
+      "spec_path": "docs/specs/P2-H7_laser.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P2-X1": {
+      "spec_path": "docs/specs/P2-X1_zmq_coordinator.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": false,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 57.14285714285714
+      }
+    },
+    "P2-X3": {
+      "spec_path": "docs/specs/P2-X3_output_mapper.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": false,
+        "has_parameters": false,
+        "has_edge_cases": true,
+        "completeness_score": 42.857142857142854
+      }
+    },
+    "P2-X4": {
+      "spec_path": "docs/specs/P2-X4_projection_mapping.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-VD7": {
+      "spec_path": "docs/specs/P3-P3-VD75_quantum_depth_nexus_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD06": {
+      "spec_path": "docs/specs/P3-VD06_depth_neural_quantum_hyper_tunnel.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD07": {
+      "spec_path": "docs/specs/P3-VD07_depth_reality_distortion.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD33": {
+      "spec_path": "docs/specs/P3-VD33_depth_dual.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-VD34": {
+      "spec_path": "docs/specs/P3-P3-VD34_Depth_Dual.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD35": {
+      "spec_path": "docs/specs/P3-VD35_Depth_Effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD36": {
+      "spec_path": "docs/specs/P3-VD36_Depth_Effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD09": {
+      "spec_path": "docs/specs/P3-VD09_depth_acid_fractal.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD15": {
+      "spec_path": "docs/specs/P3-VD15_depth_aware_compression.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD10": {
+      "spec_path": "docs/specs/P3-VD10_depth_blur.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD29": {
+      "spec_path": "docs/specs/P3-VD29_Depth_Camera_Splitter.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD26": {
+      "spec_path": "docs/specs/P3-VD26_depth_acid_fractal_datamosh.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-VD11": {
+      "spec_path": "docs/specs/P3-VD11_depth_color_grade.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD12": {
+      "spec_path": "docs/specs/P3-VD12_depth_contour_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD32": {
+      "spec_path": "docs/specs/P3-VD32_depth_distance_filter.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-VD16": {
+      "spec_path": "docs/specs/P3-VD16_depth_edge_glow.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD37": {
+      "spec_path": "docs/specs/P3-P3-VD37_Depth_Effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD38": {
+      "spec_path": "docs/specs/P3-VD38_Depth_Particle_3D_Effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD39": {
+      "spec_path": "docs/specs/P3-VD39_depth_point_cloud_3d_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-VD40": {
+      "spec_path": "docs/specs/P3-VD40_depth_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-VD41": {
+      "spec_path": "docs/specs/P3-VD41_depth_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-VD42": {
+      "spec_path": "docs/specs/P3-VD42_depth_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    },
+    "P3-VD43": {
+      "spec_path": "docs/specs/P3-P3-VD43_Depth_Effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD44": {
+      "spec_path": "docs/specs/P3-P3-VD44_Depth_Effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD45": {
+      "spec_path": "docs/specs/P3-P3-VD45_Depth_Effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD13": {
+      "spec_path": "docs/specs/P3-VD13_depth_erosion_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": false,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 57.14285714285714
+      }
+    },
+    "P3-VD47": {
+      "spec_path": "docs/specs/P3-P3-VD47_Depth_Feedback_Matrix_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD48": {
+      "spec_path": "docs/specs/P3-P3-VD48_Depth_Fog.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD14": {
+      "spec_path": "docs/specs/P3-VD14_depth_fracture_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD50": {
+      "spec_path": "docs/specs/P3-P3-VD50_Depth_Fx_Loop.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD51": {
+      "spec_path": "docs/specs/P3-P3-VD51_Depth_Groovy_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD52": {
+      "spec_path": "docs/specs/P3-P3-VD52_Depth_Holographic.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD53": {
+      "spec_path": "docs/specs/P3-P3-VD53_Depth_Liquid_Refraction.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD54": {
+      "spec_path": "docs/specs/P3-P3-VD54_Depth_Loop_Injection_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD55": {
+      "spec_path": "docs/specs/P3-P3-VD55_Depth_Modular_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD56": {
+      "spec_path": "docs/specs/P3-P3-VD56_Depth_Modulated_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD57": {
+      "spec_path": "docs/specs/P3-P3-VD57_Depth_Mosaic.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD58": {
+      "spec_path": "docs/specs/P3-P3-VD58_Depth_Mosh_Nexus.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD59": {
+      "spec_path": "docs/specs/P3-P3-VD59_Depth_Motion_Transfer.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD60": {
+      "spec_path": "docs/specs/P3-P3-VD60_Depth_Parallel_Universe_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD61": {
+      "spec_path": "docs/specs/P3-P3-VD61_Depth_Particle_Shred.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD62": {
+      "spec_path": "docs/specs/P3-P3-VD62_Depth_Portal_Composite.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD63": {
+      "spec_path": "docs/specs/P3-P3-VD63_Depth_Raver_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD64": {
+      "spec_path": "docs/specs/P3-P3-VD64_Depth_Reverb.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD65": {
+      "spec_path": "docs/specs/P3-P3-VD65_Depth_Simulator.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD66": {
+      "spec_path": "docs/specs/P3-P3-VD66_Depth_Slitscan_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD67": {
+      "spec_path": "docs/specs/P3-P3-VD67_Depth_Temporal_Echo.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD68": {
+      "spec_path": "docs/specs/P3-P3-VD68_Depth_Temporal_Strat.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD05": {
+      "spec_path": "docs/specs/P3-VD05_depth_slice.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": false,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 71.42857142857143
+      }
+    },
+    "P3-VD69": {
+      "spec_path": "docs/specs/P3-P3-VD69_Depth_Vector_Field_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD70": {
+      "spec_path": "docs/specs/P3-P3-VD70_Depth_Video_Projection.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD71": {
+      "spec_path": "docs/specs/P3-P3-VD71_Depth_Void_Datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD72": {
+      "spec_path": "docs/specs/P3-P3-VD72_datamosh_3d.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD73": {
+      "spec_path": "docs/specs/P3-P3-VD73_datamosh_3d.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD74": {
+      "spec_path": "docs/specs/P3-P3-VD74_ml_gpu_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P3-VD75": {
+      "spec_path": "docs/specs/P3-P3-VD75_quantum_depth_nexus_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P4-AU02": {
+      "spec_path": "docs/specs/P4-P4-AU02_Audio_Reactive_Effects.md",
+      "status": "Todo",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P4-AU03": {
+      "spec_path": "docs/specs/P4-P4-AU03_Audio_Reactive_Effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P4-AU04": {
+      "spec_path": "docs/specs/P4-P4-AU04_Audio_Reactive_Effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P4-AU05": {
+      "spec_path": "docs/specs/P4-P4-AU05_Audio_Reactive_Effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P4-AU06": {
+      "spec_path": "docs/specs/P4-P4-AU06_cosmic_tunnel_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P4-AU07": {
+      "spec_path": "docs/specs/P4-P4-AU07_raymarched_scenes.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P4-AU08": {
+      "spec_path": "docs/specs/P4-P4-AU08_vcv_video_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-MO03": {
+      "spec_path": "docs/specs/P5-P5-MO03_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-VE02": {
+      "spec_path": "docs/specs/P5-P5-VE02_analog_tv.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM02": {
+      "spec_path": "docs/specs/P5-P5-DM02_bad_trip_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM03": {
+      "spec_path": "docs/specs/P5-P5-DM03_bass_cannon_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM04": {
+      "spec_path": "docs/specs/P5-P5-DM04_bass_therapy_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM05": {
+      "spec_path": "docs/specs/P5-P5-DM05_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM06": {
+      "spec_path": "docs/specs/P5-P5-DM06_bullet_time_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM07": {
+      "spec_path": "docs/specs/P5-P5-DM07_cellular_automata_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM08": {
+      "spec_path": "docs/specs/P5-P5-DM08_cotton_candy_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM09": {
+      "spec_path": "docs/specs/P5-P5-DM09_cupcake_cascade_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM10": {
+      "spec_path": "docs/specs/P5-P5-DM10_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM11": {
+      "spec_path": "docs/specs/P5-P5-DM11_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM12": {
+      "spec_path": "docs/specs/P5-P5-DM12_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM13": {
+      "spec_path": "docs/specs/P5-P5-DM13_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM14": {
+      "spec_path": "docs/specs/P5-P5-DM14_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM15": {
+      "spec_path": "docs/specs/P5-P5-DM15_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM16": {
+      "spec_path": "docs/specs/P5-P5-DM16_datamosh_3d.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM17": {
+      "spec_path": "docs/specs/P5-P5-DM17_datamosh_3d.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM18": {
+      "spec_path": "docs/specs/P5-P5-DM18_datamosh_3d.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM19": {
+      "spec_path": "docs/specs/P5-P5-DM19_dimension_splice_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM20": {
+      "spec_path": "docs/specs/P5-P5-DM20_dolly_zoom_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM21": {
+      "spec_path": "docs/specs/P5-P5-DM21_face_melt_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM22": {
+      "spec_path": "docs/specs/P5-P5-DM22_fracture_rave_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM23": {
+      "spec_path": "docs/specs/P5-P5-DM23_liquid_lsd_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM24": {
+      "spec_path": "docs/specs/P5-P5-DM24_mosh_pit_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM25": {
+      "spec_path": "docs/specs/P5-P5-DM25_neural_splice_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM26": {
+      "spec_path": "docs/specs/P5-P5-DM26_particle_datamosh_trails.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM27": {
+      "spec_path": "docs/specs/P5-P5-DM27_plasma_melt_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM28": {
+      "spec_path": "docs/specs/P5-P5-DM28_prism_realm_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM29": {
+      "spec_path": "docs/specs/P5-P5-DM29_sacred_geometry_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM30": {
+      "spec_path": "docs/specs/P5-P5-DM30_spirit_aura_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM31": {
+      "spec_path": "docs/specs/P5-P5-DM31_temporal_rift_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM32": {
+      "spec_path": "docs/specs/P5-P5-DM32_tunnel_vision_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM33": {
+      "spec_path": "docs/specs/P5-P5-DM33_unicorn_farts_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM34": {
+      "spec_path": "docs/specs/P5-P5-DM34_void_swirl_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM35": {
+      "spec_path": "docs/specs/P5-P5-DM35_volumetric_datamosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P5-DM36": {
+      "spec_path": "docs/specs/P5-P5-DM36_volumetric_glitch.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC06": {
+      "spec_path": "docs/specs/P6-P6-QC06_agent_avatar.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC07": {
+      "spec_path": "docs/specs/P6-P6-QC07_agent_avatar.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC08": {
+      "spec_path": "docs/specs/P6-P6-QC08_ml_gpu_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC09": {
+      "spec_path": "docs/specs/P6-P6-QC09_ml_gpu_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC10": {
+      "spec_path": "docs/specs/P6-P6-QC10_ml_gpu_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC11": {
+      "spec_path": "docs/specs/P6-P6-QC11_neural_rave_nexus.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC12": {
+      "spec_path": "docs/specs/P6-P6-QC12_quantum_consciousness_explorer.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC13": {
+      "spec_path": "docs/specs/P6-P6-QC13_trails.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-QC14": {
+      "spec_path": "docs/specs/P6-P6-QC14_tunnel_vision_3.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE06": {
+      "spec_path": "docs/specs/P6-P6-GE06_fractal_generator.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE07": {
+      "spec_path": "docs/specs/P6-P6-GE07_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE08": {
+      "spec_path": "docs/specs/P6-P6-GE08_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE09": {
+      "spec_path": "docs/specs/P6-P6-GE09_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE10": {
+      "spec_path": "docs/specs/P6-P6-GE10_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE11": {
+      "spec_path": "docs/specs/P6-P6-GE11_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE12": {
+      "spec_path": "docs/specs/P6-P6-GE12_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE13": {
+      "spec_path": "docs/specs/P6-P6-GE13_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE14": {
+      "spec_path": "docs/specs/P6-P6-GE14_silver_visions.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE15": {
+      "spec_path": "docs/specs/P6-P6-GE15_vcv_video_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE16": {
+      "spec_path": "docs/specs/P6-P6-GE16_vcv_video_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE17": {
+      "spec_path": "docs/specs/P6-P6-GE17_vcv_video_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE18": {
+      "spec_path": "docs/specs/P6-P6-GE18_vcv_video_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-GE19": {
+      "spec_path": "docs/specs/P6-P6-GE19_vcv_video_generators.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-P302": {
+      "spec_path": "docs/specs/P6-P6-P302_particles_3d.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-P303": {
+      "spec_path": "docs/specs/P6-P6-P303_particles_3d.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-P304": {
+      "spec_path": "docs/specs/P6-P6-P304_shadertoy_particles.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P6-P305": {
+      "spec_path": "docs/specs/P6-P6-P305_vibrant_retro_styles.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE01": {
+      "spec_path": "docs/specs/P7-P7-VE01_V_Sws.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE02": {
+      "spec_path": "docs/specs/P7-P7-VE02_V_Sws.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE03": {
+      "spec_path": "docs/specs/P7-P7-VE03_V_Sws.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE04": {
+      "spec_path": "docs/specs/P7-P7-VE04_V_Sws.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE05": {
+      "spec_path": "docs/specs/P7-P7-VE05_V_Sws.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE06": {
+      "spec_path": "docs/specs/P7-P7-VE06_ascii_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE07": {
+      "spec_path": "docs/specs/P7-P7-VE07_bass_cannon_2.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE08": {
+      "spec_path": "docs/specs/P7-P7-VE08_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE09": {
+      "spec_path": "docs/specs/P7-P7-VE09_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE10": {
+      "spec_path": "docs/specs/P7-P7-VE10_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE11": {
+      "spec_path": "docs/specs/P7-P7-VE11_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE12": {
+      "spec_path": "docs/specs/P7-P7-VE12_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE13": {
+      "spec_path": "docs/specs/P7-P7-VE13_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE14": {
+      "spec_path": "docs/specs/P7-P7-VE14_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE15": {
+      "spec_path": "docs/specs/P7-P7-VE15_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE16": {
+      "spec_path": "docs/specs/P7-P7-VE16_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE17": {
+      "spec_path": "docs/specs/P7-P7-VE17_blend.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE18": {
+      "spec_path": "docs/specs/P7-P7-VE18_blend_modes.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE19": {
+      "spec_path": "docs/specs/P7-P7-VE19_chroma_key.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE20": {
+      "spec_path": "docs/specs/P7-P7-VE20_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE21": {
+      "spec_path": "docs/specs/P7-P7-VE21_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE22": {
+      "spec_path": "docs/specs/P7-P7-VE22_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE23": {
+      "spec_path": "docs/specs/P7-P7-VE23_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE24": {
+      "spec_path": "docs/specs/P7-P7-VE24_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE25": {
+      "spec_path": "docs/specs/P7-P7-VE25_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE26": {
+      "spec_path": "docs/specs/P7-P7-VE26_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE27": {
+      "spec_path": "docs/specs/P7-P7-VE27_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE28": {
+      "spec_path": "docs/specs/P7-P7-VE28_color.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE29": {
+      "spec_path": "docs/specs/P7-P7-VE29_color_grade.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE30": {
+      "spec_path": "docs/specs/P7-P7-VE30_colorama.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE31": {
+      "spec_path": "docs/specs/P7-P7-VE31_displacement_map.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE32": {
+      "spec_path": "docs/specs/P7-P7-VE32_distortion.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE33": {
+      "spec_path": "docs/specs/P7-P7-VE33_distortion.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE34": {
+      "spec_path": "docs/specs/P7-P7-VE34_dithering.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE35": {
+      "spec_path": "docs/specs/P7-P7-VE35_fluid_sim.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE36": {
+      "spec_path": "docs/specs/P7-P7-VE36_geometry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE37": {
+      "spec_path": "docs/specs/P7-P7-VE37_geometry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE38": {
+      "spec_path": "docs/specs/P7-P7-VE38_geometry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE39": {
+      "spec_path": "docs/specs/P7-P7-VE39_geometry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE40": {
+      "spec_path": "docs/specs/P7-P7-VE40_geometry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE41": {
+      "spec_path": "docs/specs/P7-P7-VE41_geometry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE42": {
+      "spec_path": "docs/specs/P7-P7-VE42_geometry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE43": {
+      "spec_path": "docs/specs/P7-P7-VE43_geometry.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE44": {
+      "spec_path": "docs/specs/P7-P7-VE44_hyperion.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE45": {
+      "spec_path": "docs/specs/P7-P7-VE45_hyperspace_tunnel.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE46": {
+      "spec_path": "docs/specs/P7-P7-VE46_living_fractal_consciousness.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE47": {
+      "spec_path": "docs/specs/P7-P7-VE47_luma_chroma_mask.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE48": {
+      "spec_path": "docs/specs/P7-P7-VE48_lut_grading.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE49": {
+      "spec_path": "docs/specs/P7-P7-VE49_milkdrop.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE50": {
+      "spec_path": "docs/specs/P7-P7-VE50_morphology.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE51": {
+      "spec_path": "docs/specs/P7-P7-VE51_oscilloscope.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE52": {
+      "spec_path": "docs/specs/P7-P7-VE52_plugin_template.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE53": {
+      "spec_path": "docs/specs/P7-P7-VE53_pop_art_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE54": {
+      "spec_path": "docs/specs/P7-P7-VE54_pop_art_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE55": {
+      "spec_path": "docs/specs/P7-P7-VE55_r16_deep_mosh_studio.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE56": {
+      "spec_path": "docs/specs/P7-P7-VE56_r16_interstellar_mosh.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE57": {
+      "spec_path": "docs/specs/P7-P7-VE57_reaction_diffusion.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE58": {
+      "spec_path": "docs/specs/P7-P7-VE58_resize_effect.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE59": {
+      "spec_path": "docs/specs/P7-P7-VE59_rutt_etra_scanline.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE60": {
+      "spec_path": "docs/specs/P7-P7-VE60_silver_visions.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE61": {
+      "spec_path": "docs/specs/P7-P7-VE61_silver_visions.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE62": {
+      "spec_path": "docs/specs/P7-P7-VE62_silver_visions.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE63": {
+      "spec_path": "docs/specs/P7-P7-VE63_silver_visions.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE64": {
+      "spec_path": "docs/specs/P7-P7-VE64_silver_visions.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE65": {
+      "spec_path": "docs/specs/P7-P7-VE65_slit_scan.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE66": {
+      "spec_path": "docs/specs/P7-P7-VE66_sync_eater.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE67": {
+      "spec_path": "docs/specs/P7-P7-VE67_time_remap.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE68": {
+      "spec_path": "docs/specs/P7-P7-VE68_vcv_video_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE69": {
+      "spec_path": "docs/specs/P7-P7-VE69_vcv_video_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE70": {
+      "spec_path": "docs/specs/P7-P7-VE70_vcv_video_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE71": {
+      "spec_path": "docs/specs/P7-P7-VE71_vcv_video_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE72": {
+      "spec_path": "docs/specs/P7-P7-VE72_vcv_video_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE73": {
+      "spec_path": "docs/specs/P7-P7-VE73_vcv_video_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE74": {
+      "spec_path": "docs/specs/P7-P7-VE74_vcv_video_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE75": {
+      "spec_path": "docs/specs/P7-P7-VE75_vcv_video_effects.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE76": {
+      "spec_path": "docs/specs/P7-P7-VE76_vibrant_retro_styles.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE77": {
+      "spec_path": "docs/specs/P7-P7-VE77_vimana.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE78": {
+      "spec_path": "docs/specs/P7-P7-VE78_vimana_hyperion_ultimate.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE79": {
+      "spec_path": "docs/specs/P7-P7-VE79_vimana_synth.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": false,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE80": {
+      "spec_path": "docs/specs/P7-P7-VE80_visualizer.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE81": {
+      "spec_path": "docs/specs/P7-P7-VE81_visualizer.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P7-VE82": {
+      "spec_path": "docs/specs/P7-P7-VE82_visualizer.md",
+      "status": "Done",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": false,
+        "has_file_paths": true,
+        "has_class_names": true,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 100.0
+      }
+    },
+    "P8-I7": {
+      "spec_path": "docs/specs/P8-I7_user_acceptance_testing.md",
+      "status": "Unknown",
+      "audit": {
+        "has_legacy_section": true,
+        "mentions_vjlive": true,
+        "mentions_vjlive2": true,
+        "has_file_paths": true,
+        "has_class_names": false,
+        "has_algorithms": true,
+        "has_parameters": true,
+        "has_edge_cases": true,
+        "completeness_score": 85.71428571428571
+      }
+    }
+  }
+}

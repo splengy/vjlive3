@@ -1,0 +1,269 @@
+# P3-EXT060 Depth Effects Depth Particle 3D Effect
+
+## What This Module Does
+
+Depth Particle 3D Effect generates and animates 3D particle systems that respond to depth information, creating immersive particle effects that exist in 3D space and interact with the depth structure of the scene. Particles can be emitted, animated, and rendered with full 3D positioning based on depth data, allowing for complex particle behaviors that respect the depth geometry of the input.
+
+## Public Interface
+
+```python
+METADATA = {
+    "name": "Depth Particle 3D Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Generates 3D particle systems with depth-based positioning and behavior",
+    "category": "Depth Effects",
+    "tags": ["depth", "particles", "3d", "emitter", "simulation"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "particle_count": {
+            "type": "integer",
+            "min": 100,
+            "max": 100000,
+            "default": 10000,
+            "description": "Number of particles in the system"
+        },
+        "emitter_type": {
+            "type": "enum",
+            "options": ["point", "sphere", "box", "cylinder", "mesh", "depth_surface"],
+            "default": "point",
+            "description": "Type of particle emitter"
+        },
+        "emitter_rate": {
+            "type": "float",
+            "min": 1.0,
+            "max": 10000.0,
+            "default": 100.0,
+            "description": "Particle emission rate per second"
+        },
+        "particle_lifetime": {
+            "type": "float",
+            "min": 0.1,
+            "max": 60.0,
+            "default": 2.0,
+            "description": "Lifetime of each particle in seconds"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth affects particle behavior"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "velocity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Initial particle velocity"
+        },
+        "velocity_spread": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Spread of initial velocities"
+        },
+        "gravity": {
+            "type": "vector3",
+            "default": "[0.0, -9.8, 0.0]",
+            "description": "Gravity vector affecting particles"
+        },
+        "drag": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.1,
+            "description": "Air drag coefficient"
+        },
+        "size": {
+            "type": "float",
+            "min": 0.001,
+            "max": 1.0,
+            "default": 0.01,
+            "description": "Base particle size"
+        },
+        "size_variation": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Variation in particle sizes"
+        },
+        "color": {
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Base particle color"
+        },
+        "color_variation": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Variation in particle colors"
+        },
+        "opacity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.8,
+            "description": "Base particle opacity"
+        },
+        "blend_mode": {
+            "type": "enum",
+            "options": ["normal", "additive", "screen", "multiply"],
+            "default": "additive",
+            "description": "Particle blending mode"
+        },
+        "shape": {
+            "type": "enum",
+            "options": ["point", "circle", "square", "texture"],
+            "default": "point",
+            "description": "Particle shape"
+        },
+        "texture_path": {
+            "type": "string",
+            "default": "",
+            "description": "Path to particle texture (if shape=texture)"
+        },
+        "depth_occlusion": {
+            "type": "boolean",
+            "default": true,
+            "description": "Particles occluded by depth geometry"
+        },
+        "depth_collision": {
+            "type": "boolean",
+            "default": false,
+            "description": "Particles collide with depth surfaces"
+        },
+        "collision_response": {
+            "type": "enum",
+            "options": ["bounce", "stick", "destroy"],
+            "default": "bounce",
+            "description": "Particle response to collision"
+        },
+        "emitter_follows_depth": {
+            "type": "boolean",
+            "default": false,
+            "description": "Emitter position follows depth movement"
+        },
+        "emitter_depth_offset": {
+            "type": "float",
+            "min": -1.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Depth offset for emitter position"
+        }
+    }
+}
+```
+
+## What It Does NOT Do
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform full 3D physics simulation (simplified particle dynamics)
+- Does not support complex particle interactions (particle-particle collisions)
+- Does not handle infinite particle counts (limited by particle_count)
+
+## Test Plan
+
+1. **Particle Count Tests:**
+   - Test with minimum 100 particles
+   - Test with maximum 100000 particles
+   - Test with different particle counts
+
+2. **Emitter Type Tests:**
+   - Test point emitter
+   - Test sphere emitter
+   - Test box emitter
+   - Test cylinder emitter
+   - Test mesh emitter
+   - Test depth_surface emitter
+
+3. **Emitter Rate Tests:**
+   - Test with slow emission rate
+   - Test with fast emission rate
+   - Test with maximum emission rate
+
+4. **Lifetime Tests:**
+   - Test with short lifetime
+   - Test with long lifetime
+   - Test with maximum lifetime
+
+5. **Depth Response Tests:**
+   - Test linear depth response
+   - Test exponential depth response
+   - Test logarithmic depth response
+   - Test different exponent values
+
+6. **Physics Tests:**
+   - Test with different velocities
+   - Test with different gravity vectors
+   - Test with different drag coefficients
+   - Test with depth collision enabled/disabled
+
+7. **Appearance Tests:**
+   - Test with different particle sizes
+   - Test with different particle colors
+   - Test with different opacities
+   - Test with different blend modes
+   - Test with different shapes
+
+8. **Depth Interaction Tests:**
+   - Test with depth occlusion enabled/disabled
+   - Test with depth collision enabled/disabled
+   - Test with different collision responses
+   - Test with emitter following depth
+
+9. **Performance Tests:**
+   - Measure FPS with different particle counts
+   - Test with various resolutions
+   - Verify GPU memory usage
+
+10. **Quality Tests:**
+    - Check for visual artifacts
+    - Verify smooth particle animation
+    - Test with moving objects
+    - Test with static scenes
+
+## Implementation Notes
+
+- Use GPU-based particle simulation for performance
+- Implement efficient depth-based particle positioning
+- Support real-time parameter adjustment
+- Provide particle system preview mode
+- Include depth visualization for debugging
+
+## Deliverables
+
+- `src/vjlive3/plugins/depth_particle_3d.py` - Main plugin implementation
+- `tests/plugins/test_depth_particle_3d.py` - Comprehensive test suite
+- `docs/plugins/depth_particle_3d.md` - User documentation
+- `shaders/depth_particle_3d.glsl` - GPU shader for particle rendering
+
+## Success Criteria
+
+- ✅ 3D particle system with depth-based positioning and behavior
+- ✅ Multiple emitter types and particle configurations
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Configurable physics and appearance parameters
+- ✅ Depth occlusion and collision support
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **Class Names**: `TBD`
+- **Key Algorithms**: TBD (Extract from legacy source)
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

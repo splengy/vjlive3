@@ -4,7 +4,6 @@ import pytest
 from unittest.mock import MagicMock, patch
 
 from vjlive3.plugins.astra import AstraDepthCamera, AstraPlugin
-from vjlive3.plugins.api import PluginContext
 
 def test_astra_simulator_fallback():
     cam = AstraDepthCamera(width=320, height=240, use_simulation=True)
@@ -84,7 +83,7 @@ def test_astra_disconnect_recovery(mock_cv2, caplog):
 
 def test_astra_plugin_registration():
     # Setup mock API
-    mock_context = MagicMock(spec=PluginContext)
+    mock_context = MagicMock(spec=MagicMock())
     
     # Load plugin
     plugin = AstraPlugin()
@@ -112,7 +111,7 @@ def test_astra_plugin_registration():
 
 def test_astra_plugin_process_no_camera():
     plugin = AstraPlugin()
-    mock_context = MagicMock(spec=PluginContext)
+    mock_context = MagicMock(spec=MagicMock())
     
     # process should safely exit if camera wasn't init'd
     plugin.context = mock_context

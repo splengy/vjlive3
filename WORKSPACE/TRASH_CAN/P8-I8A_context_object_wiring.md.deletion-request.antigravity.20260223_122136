@@ -1,0 +1,714 @@
+# Phase A: Context Object Wiring
+
+**Document Version**: 1.0  
+**Created**: 2026-02-23  
+**Status**: Ready for Review  
+**Author**: Manager Agent (Lead Systems Engineer)  
+
+---
+
+## 1. Executive Summary
+
+This specification defines the implementation of the `VJLiveContext` object - the central nervous system that will carry all inputs through the entire VJLive3 pipeline. It establishes the unified data schema, lifecycle management, and integration points required to transform the current fragmented input system into a cohesive architecture.
+
+**Critical Objectives:**
+- Create a single source of truth for all pipeline inputs
+- Ensure type safety and schema validation
+- Enable hot-swapping of components without restart
+- Support backward compatibility with existing plugins
+- Maintain 60 FPS sacred rail under all conditions
+
+---
+
+## 2. Current State Analysis
+
+### 2.1 Existing Input System
+
+**Current Pattern**: Plugins access inputs via `context.inputs` dict:
+
+```python
+# Current plugin code
+class DepthBlurPlugin(EffectPlugin):
+    def process(self, input_texture, params, context):
+        depth = context.inputs.get("depth")  # Optional, may be None
+        if depth is None:
+            return input_texture  # Fallback
+        
+        # Process with depth
+        return self.blur_with_depth(input_texture, depth, params)
+```
+
+**Problems Identified:**
+1. **No Schema**: Any string key can be used, leading to typos and inconsistencies
+2. **No Type Safety**: Values can be any type, causing runtime errors
+3. **No Lifecycle**: No guarantee when inputs are populated
+4. **No Validation**: Missing inputs silently fail
+5. **No Documentation**: No clear contract between producers and consumers
+
+### 2.2 Legacy Patterns (vjlive/ & VJlive-2/)
+
+**vjlive/**:
+- `vjlive_server.py` used global `context` dict
+- `vjlive_video.py` populated video frames
+- `vjlive_audio.py` populated FFT data
+- No formal schema or validation
+
+**VJlive-2/**:
+- `vjlive2.py` used `context` with some structure
+- `vjlive2_video.py` and `vjlive2_audio.py` populated inputs
+- Better organization but still no type safety
+
+**Proven Strengths:**
+- Single context object approach (correct)
+- Producer-consumer pattern (correct)
+- Runtime flexibility (correct)
+
+**Weaknesses to Fix:**
+- Lack of schema
+- No error handling
+- No performance guarantees
+
+---
+
+## 3. Solution Architecture
+
+### 3.1 VJLiveContext Class Definition
+
+```python
+from dataclasses import dataclass, field
+from typing import Optional, Dict, List, Any, Callable
+import numpy as np
+from pathlib import Path
+from datetime import datetime
+
+@dataclass
+class AudioState:
+    """Complete audio analysis state."""
+    waveform: np.ndarray = None          # Raw waveform (1024 samples)
+    fft: np.ndarray = None               # FFT magnitudes (512 bins)
+    spectrum: np.ndarray = None          # Normalized spectrum (0-1)
+    onset: float = 0.0                   # Onset detection (0-1)
+    bpm: float = 120.0                   # Estimated BPM
+    bands: Dict[str, float] = field(default_factory=dict)  # Bass/mid/treble
+    rms: float = 0.0                     # Root mean square
+    
+@dataclass
+class AgentState:
+    """Agent position and velocity in 16D manifold."""
+    id: str
+    position: List[float] = field(default_factory=lambda: [0.0]*16)
+    velocity: List[float] = field(default_factory=lambda: [0.0]*16)
+    acceleration: List[float] = field(default_factory=lambda: [0.0]*16)
+    energy: float = 0.0
+    age: float = 0.0
+    
+@dataclass
+class VJLiveContext:
+    """Central context object passed through entire pipeline."""
+    
+    # Video pipeline
+    video: Optional[Texture] = None          # Current video frame (RGBA)
+    depth: Optional[Texture] = None          # Depth map (R16F)
+    background: Optional[Texture] = None     # Background layer (RGBA)
+    
+    # Audio pipeline
+    audio: Optional[AudioState] = None       # Complete audio analysis
+    spectrum: Optional[np.ndarray] = None    # Frequency bins (0-1)
+    features: Optional[Dict[str, float]] = None  # Band energies, RMS, etc.
+    
+    # MIDI/OSC
+    midi_messages: List[Dict] = field(default_factory=list)  # Recent MIDI events
+    osc_values: Dict[str, float] = field(default_factory=dict)  # Latest OSC values
+    
+    # Modulation
+    lfo_values: Dict[str, float] = field(default_factory=dict)  # Active LFO outputs
+    envelope_states: Dict[str, float] = field(default_factory=dict)  # Envelope generators
+    
+    # Agent system
+    agent_states: List[AgentState] = field(default_factory=list)  # Current agent positions
+    agent_controls: Dict[str, Any] = field(default_factory=dict)  # Agent→plugin commands
+    
+    # System
+    time: float = 0.0                        # Monotonic time in seconds
+    frame: int = 0                           # Frame counter
+    dt: float = 0.016                        # Delta time (target 60Hz)
+    fps: float = 60.0                        # Instant FPS
+    memory_usage: int = 0                    # RSS in bytes
+    safety_violations: int = 0               # Rail violation count
+    
+    # Configuration
+    preset_name: str = "default"
+    project_root: Path = field(default_factory=lambda: Path("."))
+    
+    # Runtime state
+    is_paused: bool = False
+    is_recording: bool = False
+    is_fullscreen: bool = False
+    
+    def __post_init__(self):
+        """Validate and initialize context."""
+        self.validate_schema()
+        self.initialize_defaults()
+    
+    def validate_schema(self):
+        """Ensure all fields conform to expected types."""
+        # Type validation for critical fields
+        assert isinstance(self.time, (float, int)), "time must be numeric"
+        assert isinstance(self.frame, int), "frame must be integer"
+        assert isinstance(self.fps, (float, int)), "fps must be numeric"
+        
+        # Optional fields can be None
+        if self.video is not None:
+            assert isinstance(self.video, Texture), "video must be Texture"
+        
+        if self.audio is not None:
+            assert isinstance(self.audio, AudioState), "audio must be AudioState"
+    
+    def initialize_defaults(self):
+        """Set sensible defaults for optional fields."""
+        if self.audio is None:
+            self.audio = AudioState()
+        
+        if self.spectrum is None:
+            self.spectrum = np.zeros(512)
+        
+        if self.features is None:
+            self.features = {"bass": 0.0, "mid": 0.0, "treble": 0.0, "rms": 0.0}
+    
+    def snapshot(self) -> Dict[str, Any]:
+        """Return serializable snapshot for debugging."""
+        return {
+            "time": self.time,
+            "frame": self.frame,
+            "fps": self.fps,
+            "memory_usage": self.memory_usage,
+            "safety_violations": self.safety_violations,
+            "preset_name": self.preset_name,
+            "is_paused": self.is_paused,
+            "video": bool(self.video),
+            "depth": bool(self.depth),
+            "audio": bool(self.audio),
+            "agent_count": len(self.agent_states),
+        }
+```
+
+### 3.2 Integration Points
+
+#### 3.2.1 Engine Integration
+
+**Current**: `engine.py` creates context dict manually:
+
+```python
+# Current engine.py
+class RenderEngine:
+    def __init__(self):
+        self.context = {}
+    
+    def update_context(self):
+        self.context["video"] = self.video_manager.get_frame()
+        self.context["audio"] = self.audio_engine.get_audio_state()
+        # ...
+```
+
+**New**: Use `VJLiveContext`:
+
+```python
+# New engine.py
+from vjlive3.core.context import VJLiveContext
+
+class RenderEngine:
+    def __init__(self):
+        self.context = VJLiveContext()
+        self.context.project_root = Path(__file__).parent.parent
+    
+    def update_context(self):
+        """Populate context each frame."""
+        # Video pipeline
+        self.context.video = self.video_manager.get_frame()
+        self.context.depth = self.depth_manager.get_depth_map()
+        
+        # Audio pipeline
+        audio_state = self.audio_engine.get_audio_state()
+        self.context.audio = audio_state
+        self.context.spectrum = audio_state.spectrum if audio_state else np.zeros(512)
+        self.context.features = {
+            "bass": audio_state.bands.get("bass", 0.0),
+            "mid": audio_state.bands.get("mid", 0.0),
+            "treble": audio_state.bands.get("treble", 0.0),
+            "rms": audio_state.rms if audio_state else 0.0,
+        }
+        
+        # System
+        self.context.time = time.monotonic()
+        self.context.frame += 1
+        self.context.fps = self.calculate_fps()
+        self.context.memory_usage = self.get_memory_usage()
+        
+        # Validate context
+        self.context.validate_schema()
+```
+
+#### 3.2.2 Plugin Integration
+
+**Current**: Plugins access inputs via `context.inputs`:
+
+```python
+# Current plugin
+class DepthBlurPlugin(EffectPlugin):
+    def process(self, input_texture, params, context):
+        depth = context.inputs.get("depth")
+        if depth is None:
+            return input_texture
+        
+        return self.blur_with_depth(input_texture, depth, params)
+```
+
+**New**: Direct attribute access:
+
+```python
+# New plugin
+class DepthBlurPlugin(EffectPlugin):
+    def process(self, input_texture, params, context: VJLiveContext):
+        """Process with depth map from context."""
+        if context.depth is None:
+            # Graceful fallback
+            return input_texture
+        
+        # Use depth directly
+        return self.blur_with_depth(input_texture, context.depth, params)
+```
+
+**Backward Compatibility**:
+- Create adapter: `context.inputs = context.__dict__`
+- Maintain `context.inputs` dict for existing plugins
+- Phase out over 2-3 releases
+
+#### 3.2.3 Agent Integration
+
+**Current**: Agents write to `context.agent_states` list:
+
+```python
+# Current agent
+class Agent:
+    def step(self, context):
+        context.agent_states.append(self.get_state())
+```
+
+**New**: Use `AgentState` dataclass:
+
+```python
+# New agent
+class Agent:
+    def step(self, context: VJLiveContext):
+        state = AgentState(
+            id=self.id,
+            position=self.position,
+            velocity=self.velocity,
+            energy=self.energy,
+            age=self.age
+        )
+        context.agent_states.append(state)
+        
+        # Write controls for plugins
+        context.agent_controls[f"{self.id}.param_x"] = self.position[0]
+        context.agent_controls[f"{self.id}.param_y"] = self.position[1]
+```
+
+#### 3.2.4 UI Integration
+
+**Current**: UI reads from various sources:
+
+```python
+# Current UI
+class DesktopGUI:
+    def update_hud(self):
+        fps = self.engine.context.get("fps", 60.0)
+        memory = self.engine.context.get("memory_usage", 0)
+```
+
+**New**: Direct context access:
+
+```python
+# New UI
+class DesktopGUI:
+    def update_hud(self):
+        fps = self.engine.context.fps
+        memory = self.engine.context.memory_usage
+        safety = self.engine.context.safety_violations
+        
+        self.hud.set_fps(fps)
+        self.hud.set_memory(memory)
+        self.hud.set_safety(safety)
+```
+
+---
+
+## 4. Implementation Plan
+
+### 4.1 Phase A1: Core Context Implementation (Day 1)
+
+**Tasks:**
+1. Create `src/vjlive3/core/context.py` with `VJLiveContext` class
+2. Implement `AudioState` and `AgentState` dataclasses
+3. Add schema validation and default initialization
+4. Write comprehensive unit tests
+
+**Files to Create:**
+```
+src/vjlive3/core/
+├── __init__.py
+├── context.py          # Main context class
+└── tests/
+    ├── test_context.py
+    ├── test_audio_state.py
+    └── test_agent_state.py
+```
+
+**Test Cases:**
+- Context creation with all fields
+- Schema validation (type checking)
+- Default initialization
+- Snapshot serialization
+- Backward compatibility adapter
+
+### 4.2 Phase A2: Engine Integration (Day 2)
+
+**Tasks:**
+1. Update `src/vjlive3/render/engine.py` to use `VJLiveContext`
+2. Wire video, audio, depth, and system inputs
+3. Add context validation in main loop
+4. Update existing plugins to use new context
+
+**Files to Modify:**
+```
+src/vjlive3/render/
+├── engine.py          # Main integration
+├── tests/
+    └── test_engine_context.py
+```
+
+**Migration Strategy:**
+1. Keep `context.inputs` dict for backward compatibility
+2. Add deprecation warning for old access pattern
+3. Phase out over 2-3 releases
+4. Update all plugins in parallel
+
+### 4.3 Phase A3: Plugin Migration (Day 3)
+
+**Tasks:**
+1. Update all 80+ plugins to use `VJLiveContext`
+2. Add type hints to plugin signatures
+3. Update plugin base class to accept context
+4. Run full test suite
+
+**Migration Script:**
+```python
+# migration_script.py
+import ast
+import os
+from pathlib import Path
+
+class ContextMigrator(ast.NodeTransformer):
+    """Migrate plugin context access patterns."""
+    
+    def visit_FunctionDef(self, node):
+        # Update function signature
+        if node.name == "process":
+            # Add context type hint
+            node.args.args.append(ast.arg(arg='context', annotation=ast.Name(id='VJLiveContext')))
+        return node
+    
+    def visit_Call(self, node):
+        # Migrate context.inputs.get() to direct access
+        if (isinstance(node.func, ast.Attribute) and
+            isinstance(node.func.value, ast.Name) and
+            node.func.value.id == 'context' and
+            node.func.attr == 'inputs'):
+            # Convert to direct attribute access
+            return ast.Attribute(
+                value=ast.Name(id='context', ctx=ast.Load()),
+                attr=node.args[0].s,  # Field name
+                ctx=ast.Load()
+            )
+        return node
+```
+
+### 4.4 Phase A4: Testing & Validation (Day 4)
+
+**Tasks:**
+1. Run full test suite with new context
+2. Performance benchmark (ensure <0.1ms overhead)
+3. Memory leak detection (24-hour run)
+4. Integration test with 50 plugins
+
+**Test Scenarios:**
+- All inputs present (normal operation)
+- Missing depth (graceful fallback)
+- Missing audio (graceful fallback)
+- Agent controls (bidirectional communication)
+- Telemetry integration (context snapshot)
+
+---
+
+## 5. Backward Compatibility Strategy
+
+### 5.1 Dual Access Pattern
+
+**Phase 1 (Immediate)**: Maintain both access patterns:
+
+```python
+# New context object
+class VJLiveContext:
+    video: Optional[Texture] = None
+    depth: Optional[Texture] = None
+    # ...
+    
+    # Backward compatibility
+    @property
+    def inputs(self) -> Dict[str, Any]:
+        """Maintain backward compatibility with old plugins."""
+        return self.__dict__.copy()
+```
+
+**Phase 2 (2-3 releases)**: Deprecation warnings:
+
+```python
+# Deprecation warning
+import warnings
+
+def get_input(self, key: str):
+    """Deprecated: Use direct attribute access."""
+    warnings.warn(
+        f"context.inputs access is deprecated. Use context.{key} instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    return getattr(self, key, None)
+```
+
+**Phase 3 (Future)**: Remove old access pattern.
+
+### 5.2 Plugin Migration Timeline
+
+| Release | Migration Status | Notes |
+|---------|------------------|-------|
+| v1.0.0 | Dual access available | All plugins work |
+| v1.1.0 | Deprecation warnings | Update plugins gradually |
+| v1.2.0 | Old access removed | Full migration complete |
+
+---
+
+## 6. Performance Considerations
+
+### 6.1 Memory Overhead
+
+**Context Object**: ~2KB per frame (negligible)
+**AudioState**: ~8KB per frame (FFT data)
+**AgentStates**: ~1KB per agent (16D vectors)
+
+**Total**: <20KB per frame, well within 60 FPS budget.
+
+### 6.2 CPU Overhead
+
+**Context Creation**: ~0.05ms per frame
+**Schema Validation**: ~0.02ms per frame (only on debug builds)
+**Type Checking**: ~0.01ms per frame
+
+**Total**: <0.1ms per frame, <2% of 60 FPS budget.
+
+### 6.3 Optimization Strategies
+
+1. **Lazy Initialization**: Only create AudioState when audio available
+2. **Object Pooling**: Reuse context objects between frames
+3. **Cython**: Compile hot paths for performance-critical systems
+4. **Memory Views**: Use numpy memoryviews for large arrays
+
+---
+
+## 7. Testing Strategy
+
+### 7.1 Unit Tests
+
+```python
+# test_context.py
+import pytest
+from vjlive3.core.context import VJLiveContext, AudioState
+
+def test_context_creation():
+    """Test basic context creation."""
+    context = VJLiveContext()
+    assert context.time >= 0
+    assert context.frame == 0
+    assert context.fps == 60.0
+
+def test_audio_state():
+    """Test audio state initialization."""
+    audio = AudioState(
+        waveform=np.zeros(1024),
+        fft=np.zeros(512),
+        spectrum=np.zeros(512),
+        onset=0.5,
+        bpm=128.0,
+        bands={"bass": 0.8, "mid": 0.6, "treble": 0.4},
+        rms=0.2
+    )
+    assert len(audio.waveform) == 1024
+    assert len(audio.fft) == 512
+    assert audio.bpm == 128.0
+
+def test_schema_validation():
+    """Test schema validation catches errors."""
+    context = VJLiveContext()
+    
+    # Valid case
+    context.video = Texture(1920, 1080)
+    context.validate_schema()
+    
+    # Invalid case
+    with pytest.raises(AssertionError):
+        context.video = "not a texture"  # Should fail validation
+        context.validate_schema()
+```
+
+### 7.2 Integration Tests
+
+```python
+# test_engine_context.py
+import pytest
+from vjlive3.render.engine import RenderEngine
+from vjlive3.core.context import VJLiveContext
+
+def test_engine_context_integration():
+    """Test engine properly populates context."""
+    engine = RenderEngine()
+    
+    # Simulate one frame
+    engine.update_context()
+    
+    # Verify context populated
+    assert engine.context.time > 0
+    assert engine.context.frame == 1
+    assert engine.context.video is not None  # Should have video frame
+    assert engine.context.audio is not None  # Should have audio state
+    
+    # Verify backward compatibility
+    assert engine.context.inputs["video"] is engine.context.video
+```
+
+### 7.3 Performance Tests
+
+```python
+# test_performance.py
+import time
+import pytest
+from vjlive3.core.context import VJLiveContext
+
+def test_context_performance():
+    """Benchmark context creation and access."""
+    iterations = 10000
+    
+    start = time.perf_counter()
+    for _ in range(iterations):
+        context = VJLiveContext()
+        context.time = time.monotonic()
+        context.frame += 1
+        context.fps = 60.0
+        context.memory_usage = 100
+    
+    elapsed = time.perf_counter() - start
+    per_iteration = elapsed / iterations * 1000  # ms
+    
+    assert per_iteration < 0.1, f"Context creation too slow: {per_iteration}ms"
+```
+
+---
+
+## 8. Migration from Legacy Systems
+
+### 8.1 vjlive/ Migration
+
+**Current**: `vjlive_server.py` uses global `context` dict:
+
+```python
+# vjlive_server.py (legacy)
+context = {}
+
+def update_context():
+    context["video"] = get_video_frame()
+    context["audio"] = get_audio_state()
+```
+
+**New**: Use `VJLiveContext`:
+
+```python
+# vjlive_server.py (migrated)
+from vjlive3.core.context import VJLiveContext
+
+context = VJLiveContext()
+
+def update_context():
+    context.video = get_video_frame()
+    context.audio = get_audio_state()
+```
+
+### 8.2 VJlive-2/ Migration
+
+**Current**: `vjlive2.py` uses structured context:
+
+```python
+# vjlive2.py (legacy)
+class VJLive2Context:
+    def __init__(self):
+        self.video = None
+        self.audio = None
+        # ...
+```
+
+**New**: Use `VJLiveContext`:
+
+```python
+# vjlive2.py (migrated)
+from vjlive3.core.context import VJLiveContext
+
+class VJLive2Context(VJLiveContext):
+    """Backward compatibility wrapper."""
+    pass
+```
+
+---
+
+## 9. Success Criteria
+
+- ✅ `VJLiveContext` class implemented with full schema
+- ✅ All inputs (video, depth, audio, MIDI, OSC, agents) properly populated
+- ✅ Backward compatibility maintained for existing plugins
+- ✅ Performance overhead <0.1ms per frame
+- ✅ All unit tests pass (>90% coverage)
+- ✅ Integration tests pass with 50+ plugins
+- ✅ Memory usage stable over 24-hour run
+- ✅ Documentation complete and up-to-date
+
+---
+
+## 10. Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Context becomes God object | High | Strict schema; split into sub-contexts if needed |
+| Performance overhead > 2ms | High | Lazy initialization; object pooling; Cython optimization |
+| Migration breaks existing plugins | High | Dual access pattern; comprehensive testing; gradual deprecation |
+| Schema changes break compatibility | Medium | Versioned schema; migration scripts; backward compatibility |
+| Memory leaks in context | Medium | Reference counting; weak references for large objects |
+
+---
+
+## 11. Next Steps
+
+1. **Approve this specification** → Manager
+2. **Create implementation tasks** → Manager
+3. **Queue Phase A tasks via MCP switchboard** → Manager
+4. **Begin implementation** → Implementation Engineer
+
+---
+
+**Document Status**: Ready for Manager approval. Once approved, implementation tasks will be created and queued for execution{

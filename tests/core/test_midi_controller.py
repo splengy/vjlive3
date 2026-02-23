@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from vjlive3.core.midi_controller import MidiController, MidiEvent, MidiDeviceStatus
 
 class DummyMidoMessage:
     def __init__(self, type, channel=0, note=0, velocity=0, value=0):

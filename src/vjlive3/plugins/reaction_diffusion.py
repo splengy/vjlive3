@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'feed_rate': 5.0, 'kill_rate': 5.0, 'diffuse_a': 5.0, 'diffus
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class ReactionDiffusionPlugin(EffectPlugin):
+class ReactionDiffusionPlugin(object):
     """Reaction diffusion — Gray-Scott RD simulation."""
     def __init__(self):
         super().__init__()

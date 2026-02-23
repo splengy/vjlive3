@@ -1,7 +1,6 @@
 import pytest
 import os
 import json
-from vjlive3.dmx.show_control import Cue, CueStack, ShowController
 
 def test_cue_creation():
     """Cues initialize with correct defaults and fields."""

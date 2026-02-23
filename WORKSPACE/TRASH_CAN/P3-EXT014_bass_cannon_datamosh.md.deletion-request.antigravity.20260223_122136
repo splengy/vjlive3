@@ -1,0 +1,488 @@
+# P3-EXT014: BassCannonDatamoshEffect
+
+**Priority:** P3-EXT (Missing Legacy Effects Parity)
+**Status:** Spec Draft
+**Assignee:** TBD
+**Estimated Completion:** 3-4 days
+
+---
+
+## 📋 Task Overview
+
+Port the legacy `BassCannonDatamoshEffect` from VJLive-2 to VJLive3. This is a bass-triggered shockwave effect that simulates a sonic weapon firing through the video. The effect uses depth maps to create an expanding blast wave from the center of the screen, with recoil, muzzle flash, debris scatter, and thermal exhaust effects.
+
+---
+
+## 🎯 Core Concept
+
+BassCannonDatamoshEffect is a bass-reactive datamosh effect that:
+
+- **Triggers on bass**: Listens for bass hits above a threshold to fire the cannon
+- **Shockwave simulation**: Expanding ring distortion from center (muzzle)
+- **Depth integration**: Uses depth map to control penetration and distortion
+- **Dual video inputs**: tex0 (primary) and tex1 (secondary) for chroma blast
+- **Temporal feedback**: Previous frame for thermal exhaust trails
+- **12 parameters**: Control power, speed, recoil, flash, debris, threshold, radius, distortion, chroma, thermal, penetration, decay
+- **Audio reactivity**: cannon_power, recoil, muzzle_flash boosted by bass; debris_scatter boosted by energy
+
+The legacy implementation is ~235 lines with a 144-line fragment shader.
+
+---
+
+## 1. File Structure
+
+```
+src/vjlive3/plugins/bass_cannon_datamosh.py
+tests/plugins/test_bass_cannon_datamosh.py
+```
+
+---
+
+## 2. Class Hierarchy
+
+```python
+from vjlive3.plugins.base import Effect
+from typing import Dict, Any
+
+class BassCannonDatamoshEffect(Effect):
+    """Bass Cannon Datamosh — Sonic Weapon of Mass Distortion."""
+
+    def __init__(self, name: str = 'bass_cannon_datamosh'):
+        # Initialize parameters (12 params)
+        # Initialize audio mappings
+        pass
+
+    def _map_param(self, name: str, out_min: float, out_max: float) -> float:
+        """Map 0-10 parameter to output range."""
+        pass
+
+    def apply_uniforms(self, time: float, resolution: Tuple[int, int],
+                       audio_reactor=None, semantic_layer=None):
+        """Apply all 12 uniforms + audio-triggered boost."""
+        pass
+
+    def get_state(self) -> Dict[str, Any]:
+        """Return effect state for serialization."""
+        pass
+```
+
+---
+
+## 3. Parameters (0.0-10.0)
+
+All parameters use the standard 0.0-10.0 range from UI sliders. They are mapped to shader ranges via `_map_param()`.
+
+| Parameter Name | Type | Default | Shader Range | Description |
+|----------------|------|---------|--------------|-------------|
+| `cannon_power` | float | 7.0 | 0.0-1.0 | Intensity of the shockwave blast |
+| `shockwave_speed` | float | 5.0 | 0.0-10.0 | Speed of the expanding wave |
+| `recoil` | float | 6.0 | 0.0-1.0 | Screen kickback intensity |
+| `muzzle_flash` | float | 4.0 | 0.0-1.0 | Whiteout intensity at muzzle |
+| `debris_scatter` | float | 3.0 | 0.0-1.0 | Pixel shattering jitter |
+| `bass_threshold` | float | 5.0 | 0.0-1.0 | Bass level required to trigger (0.0-1.0) |
+| `impact_radius` | float | 5.0 | 0.0-1.0 | Size of the cannon muzzle/impact |
+| `distortion` | float | 6.0 | 0.0-1.0 | UV warping amount of shockwave |
+| `chroma_blast` | float | 5.0 | 0.0-1.0 | Color separation on blast |
+| `thermal_exhaust` | float | 3.0 | 0.0-1.0 | Heat distortion feedback trails |
+| `depth_penetration` | float | 8.0 | 0.0-1.0 | How far the blast travels (max wave distance) |
+| `decay` | float | 5.0 | 0.0-1.0 | How fast the blast fades (inverse) |
+
+**Audio Mappings** (applied in `apply_uniforms`):
+- `cannon_power` ← bass level (triggered boost ×2.0)
+- `recoil` ← bass level (triggered boost ×2.0)
+- `muzzle_flash` ← bass level (triggered, no boost)
+- `debris_scatter` ← overall energy (×1.5)
+
+**Trigger Logic**:
+```python
+bass = audio_reactor.get_band('bass', 0.0)
+threshold = self._map_param('bass_threshold', 0.0, 1.0)
+trigger = 0.0
+if bass > threshold * 0.5:
+    trigger = (bass - threshold * 0.5) * 2.0
+    trigger = min(1.0, trigger)
+# Then multiply cannon_power, recoil by (1.0 + trigger * 2.0)
+# And muzzle_flash by trigger
+```
+
+---
+
+## 4. Texture Unit Layout
+
+The shader expects 4 textures bound to specific units:
+
+| Texture Unit | Name | Type | Description |
+|--------------|------|------|-------------|
+| `GL_TEXTURE0` | `tex0` | Video A | Primary video input |
+| `GL_TEXTURE1` | `texPrev` | Previous frame | Feedback buffer (same resolution as output) |
+| `GL_TEXTURE2` | `depth_tex` | Depth map | Single-channel depth (0.0-1.0) |
+| `GL_TEXTURE3` | `tex1` | Video B | Secondary video for chroma blast |
+
+**Note**: `texPrev` must be managed by the chain (ping-pong framebuffer). The effect does not allocate it.
+
+---
+
+## 5. GLSL Fragment Shader (144 lines)
+
+```glsl
+#version 330 core
+in vec2 v_uv;
+out vec4 fragColor;
+
+uniform sampler2D tex0;
+uniform sampler2D texPrev;
+uniform sampler2D depth_tex;
+uniform sampler2D tex1;
+uniform float time;
+uniform vec2 resolution;
+
+uniform float u_cannon_power;      // 0-1
+uniform float u_shockwave_speed;   // 0-10
+uniform float u_recoil;            // 0-1
+uniform float u_muzzle_flash;      // 0-1
+uniform float u_debris_scatter;    // 0-1
+uniform float u_bass_threshold;    // 0-1 (unused in shader, set for info)
+uniform float u_impact_radius;     // 0-1
+uniform float u_distortion;        // 0-1
+uniform float u_chroma_blast;      // 0-1
+uniform float u_thermal_exhaust;   // 0-1
+uniform float u_depth_penetration; // 0-1
+uniform float u_decay;             // 0-1
+
+uniform float u_mix;
+
+float hash(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+void main() {
+    vec2 uv = v_uv;
+    vec2 texel = 1.0 / resolution;
+
+    bool hasDual = (texture(tex1, vec2(0.5)).r +
+                    texture(tex1, vec2(0.5)).g +
+                    texture(tex1, vec2(0.5)).b) > 0.001;
+    float depth = texture(depth_tex, uv).r;
+
+    // Radial coordinates from center
+    vec2 p = uv - 0.5;
+    float r = length(p);
+    float a = atan(p.y, p.x);
+
+    // Shockwave wavefront: repeats based on time and speed
+    float wavePhase = time * u_shockwave_speed;
+    float waveDist = fract(wavePhase); // 0.0 to 1.0 (normalized distance)
+
+    // Blast envelope: strength decays with distance, stops at penetration limit
+    float blastStr = u_cannon_power * (1.0 - waveDist) * step(waveDist, u_depth_penetration);
+
+    // Shockwave ring: narrow ring at waveDist position
+    float shock = smoothstep(0.0, 0.1, abs(r - waveDist));
+    shock = 1.0 - shock;
+    shock = pow(shock, 8.0); // Sharpen to thin ring
+
+    // Apply distortion: pull pixels toward center as wave passes
+    vec2 shockUV = p * (1.0 - shock * u_distortion * 0.1 * blastStr);
+
+    // Recoil: screen shake during blast
+    vec2 recoil = vec2(0.0);
+    if (blastStr > 0.1) {
+        float shake = hash(vec2(time, 0.0)) - 0.5;
+        recoil = vec2(shake * u_recoil * 0.1 * (1.0 - waveDist));
+    }
+
+    vec2 finalUV = shockUV + 0.5 + recoil;
+    finalUV = clamp(finalUV, 0.0, 1.0);
+
+    // Debris scatter: random pixel displacement during blast
+    if (u_debris_scatter > 0.0) {
+        float debris = hash(uv * 50.0 + time);
+        if (debris > 0.95) {
+            finalUV += (vec2(hash(uv), hash(uv+1.0)) - 0.5) * u_debris_scatter * 0.1 * blastStr;
+        }
+    }
+
+    // Chroma blast: RGB split based on blast strength
+    vec4 color;
+    if (u_chroma_blast > 0.0) {
+        float off = u_chroma_blast * 0.02 * blastStr;
+        float rCol = hasDual ? texture(tex1, finalUV + vec2(off, 0)).r : texture(tex0, finalUV + vec2(off, 0)).r;
+        float gCol = hasDual ? texture(tex1, finalUV).g : texture(tex0, finalUV).g;
+        float bCol = hasDual ? texture(tex1, finalUV - vec2(off, 0)).b : texture(tex0, finalUV - vec2(off, 0)).b;
+        color = vec4(rCol, gCol, bCol, 1.0);
+    } else {
+        color = hasDual ? texture(tex1, finalUV) : texture(tex0, finalUV);
+    }
+
+    // Muzzle flash: whiteout near center when wave is at origin
+    if (u_muzzle_flash > 0.0 && waveDist < 0.1) {
+        float flash = (0.1 - waveDist) * 10.0 * u_muzzle_flash * u_cannon_power;
+        color.rgb = mix(color.rgb, vec3(1.0), flash);
+    }
+
+    // Thermal exhaust: feedback trails where blast is NOT active
+    vec4 prev = texture(texPrev, finalUV);
+    color = mix(color, prev, u_thermal_exhaust * 0.3 * (1.0 - blastStr));
+
+    // Impact ring: orange glow on the shockwave ring
+    color.rgb += vec3(1.0, 0.5, 0.2) * shock * blastStr * 2.0;
+
+    // Final blend with original
+    vec4 original = hasDual ? texture(tex1, uv) : texture(tex0, uv);
+    fragColor = mix(original, color, u_mix);
+}
+```
+
+---
+
+## 6. Shockwave Mathematics
+
+The core shockwave effect uses a repeating wave function:
+
+1. **Wave Phase**: `wavePhase = time * u_shockwave_speed`
+2. **Wave Distance**: `waveDist = fract(wavePhase)` (0.0 to 1.0, repeating)
+3. **Blast Strength**: `blastStr = u_cannon_power * (1.0 - waveDist) * step(waveDist, u_depth_penetration)`
+   - Decays linearly from 1.0 to 0.0 as wave travels
+   - Clamped to `u_depth_penetration` (max distance)
+4. **Ring Shape**: `shock = smoothstep(0.0, 0.1, abs(r - waveDist))` then sharpen with `pow(shock, 8.0)`
+5. **Distortion**: `finalUV = p * (1.0 - shock * u_distortion * 0.1 * blastStr)`
+6. **Recoil**: Random shake proportional to `blastStr` and `(1.0 - waveDist)`
+
+**Audio Trigger**:
+- When bass exceeds `threshold * 0.5`, compute `trigger = min(1.0, (bass - threshold*0.5) * 2.0)`
+- Boost `cannon_power` and `recoil` by `(1.0 + trigger * 2.0)`
+- Set `muzzle_flash` to `trigger` (scaled by base value)
+
+---
+
+## 7. Texture Feedback Management
+
+- **`texPrev`**: Previous frame feedback for thermal exhaust trails
+- Must be allocated by chain (same resolution as output)
+- Format: GL_RGBA16F or GL_RGBA8
+- Updated after rendering (ping-pong)
+- The effect binds it but does not manage it
+
+---
+
+## 8. Dual Video Support
+
+- **hasDual**: Checks if tex1 has content by sampling center pixel (sum RGB > 0.001)
+- If hasDual: uses tex1 for primary sampling and chroma blast
+- If not: uses tex0
+- Always bind tex1 to unit 3 (can be black texture if unused)
+
+---
+
+## 9. Presets (5 Minimum)
+
+The legacy code provides 3 presets. We need at least 5, so we'll add 2 more.
+
+**Legacy Presets**:
+
+1. **`dubstep_gun`**: Balanced: power=8, speed=8, recoil=9, flash=5, debris=6, threshold=4, radius=5, distortion=8, chroma=7, thermal=4, penetration=10, decay=8
+2. **`subwoofer_test`**: Max power: power=10, speed=2, recoil=5, flash=0, debris=2, threshold=2, radius=10, distortion=10, chroma=2, thermal=8, penetration=10, decay=2
+3. **`tactile_transducer`**: Recoil focus: power=5, speed=5, recoil=10, flash=2, debris=0, threshold=3, radius=2, distortion=4, chroma=4, thermal=2, penetration=5, decay=5
+
+**Additional Presets**:
+
+4. **`bass_cannon_max`**: All aggressive params high: power=10, distortion=10, chroma=10, recoil=10, debris=8, threshold=3 (low for easy triggering)
+5. **`subtle_shock`**: Low impact: power=3, speed=3, recoil=2, flash=2, debris=1, threshold=7 (high threshold), radius=3, distortion=2, chroma=1, thermal=1, penetration=0.5, decay=8
+
+---
+
+## 10. Unit Tests (≥ 80% coverage)
+
+**Test File**: `tests/plugins/test_bass_cannon_datamosh.py`
+
+### Critical Tests:
+
+1. **Parameter validation**:
+   - All 12 parameters accept 0.0-10.0 values
+   - `_map_param()` correctly maps to shader ranges
+   - Default values match legacy
+
+2. **Shader compilation**:
+   - Fragment shader compiles without errors
+   - All 14 uniforms locate correctly (12 params + u_mix + depth_tex)
+   - All 4 texture uniforms locate
+
+3. **Shockwave math**:
+   - `wavePhase = time * speed` correct
+   - `waveDist = fract(wavePhase)` in [0,1)
+   - `blastStr` decays linearly with `waveDist`
+   - `blastStr` zero when `waveDist > depth_penetration`
+   - `shock` ring shape: narrow peak at `r == waveDist`
+   - `shock` sharpened with `pow(..., 8.0)`
+
+4. **Audio trigger**:
+   - Trigger only when `bass > threshold * 0.5`
+   - `trigger = (bass - threshold*0.5) * 2.0` clamped to 1.0
+   - `cannon_power` and `recoil` multiplied by `(1.0 + trigger * 2.0)`
+   - `muzzle_flash` multiplied by `trigger`
+   - Audio boost only if audio_reactor present
+
+5. **Dual video detection**:
+   - `hasDual` true when tex1 center sum > 0.001
+   - Primary sample uses tex1 if hasDual, else tex0
+   - Chroma blast uses same logic
+
+6. **Effect components**:
+   - Recoil: random shake only when `blastStr > 0.1`
+   - Debris: random UV jitter when `hash(uv*50+time) > 0.95`
+   - Muzzle flash: only near center (`waveDist < 0.1`)
+   - Thermal exhaust: mix with prev using `u_thermal_exhaust * 0.3 * (1.0 - blastStr)`
+   - Impact ring: orange glow `(1,0.5,0.2) * shock * blastStr * 2.0`
+
+7. **Depth integration**:
+   - Depth sampled but not used in current shader (present for future use)
+   - No depth-based effects yet (legacy also doesn't use it)
+
+8. **Texture unit binding**:
+   - tex0 → unit 0
+   - texPrev → unit 1
+   - depth_tex → unit 2
+   - tex1 → unit 3
+
+9. **Preset loading**:
+   - All 3 legacy presets load with correct parameter values
+   - 2 new presets (bass_cannon_max, subtle_shock) valid
+   - Preset values within 0-10 range
+
+10. **Edge cases**:
+    - Zero cannon_power → no blast
+    - Max depth_penetration (1.0) → blast travels full radius
+    - Zero shockwave_speed → static blast (no movement)
+    - Missing texPrev → prev = black (safe)
+    - Missing depth_tex → depth = 0 (safe)
+
+---
+
+## 11. Performance Tests
+
+- **Shader Compile**: < 25ms
+- **FPS Impact**: < 12% on integrated GPU (mostly conditional effects)
+- **Memory**: 1 feedback texture (8-16 MB)
+- **Texture Binds**: 4 textures per frame
+
+---
+
+## 12. Visual Regression Tests
+
+Capture reference frames with:
+- Static scene with depth map
+- Bass-triggered blast at various intensities
+- Dual video inputs (tex1 different)
+- All 5 presets
+- Extreme parameter combinations
+- No audio (static blast) vs audio-triggered
+
+---
+
+## 13. Implementation Phases
+
+### Phase 1: Foundation (Day 1)
+- Create plugin file with class skeleton
+- Implement parameter definitions (12 parameters)
+- Implement `_map_param()` helper
+- Implement fragment shader (144 lines)
+- Basic `apply_uniforms` structure
+
+### Phase 2: Audio Trigger (Day 2)
+- Implement audio trigger logic
+- Implement audio boost for 4 parameters
+- Test trigger sensitivity with synthetic bass
+- Test dual video detection
+
+### Phase 3: Feedback Integration (Day 2-3)
+- Document `texPrev` management requirements
+- Create helper/example for chain to allocate feedback texture
+- Test with ping-pong framebuffer
+
+### Phase 4: Testing & Validation (Day 3-4)
+- Write unit tests (target 85% coverage)
+- Performance testing
+- Visual regression captures
+- Safety rails verification
+
+---
+
+## 🔒 Safety Rails Compliance
+
+| Rail | Compliance Strategy |
+|------|---------------------|
+| **60 FPS Sacred** | Conditional effects (only active during blast); feedback texture doubles memory but not compute |
+| **Offline-First** | No network calls; all local |
+| **Plugin Integrity** | `METADATA` constant with name, version, description, author, license |
+| **750-Line Limit** | Expected ~280 lines total (well under limit) |
+| **80% Test Coverage** | Unit tests targeting 85%+ (parameters, audio trigger, shockwave math, texture units) |
+| **No Silent Failures** | Shader compilation errors raise `RuntimeError`; audio errors logged but not fatal |
+| **Resource Leak Prevention** | No GL resources allocated by effect; `texPrev` managed by chain |
+| **Backward Compatibility** | New plugin, no compatibility concerns |
+| **Security** | No user input in shader strings; all uniforms validated |
+
+---
+
+## 🔗 Dependencies
+
+- **Base Class**: `vjlive3.plugins.base.Effect`
+- **Textures**: tex0 (video A), texPrev (feedback), depth_tex (depth), tex1 (video B)
+- **Audio Reactor**: Required for bass trigger; implements `get_band('bass', default)`
+- **Chain**: Must provide feedback texture management (texPrev)
+
+---
+
+## 📊 Success Metrics
+
+- FPS: ≥ 60 with moderate blast frequency
+- Test Coverage: ≥ 80%
+- Lines of Code: ≤ 280
+- Shader Compile: < 25ms
+- Memory: < 20 MB (including feedback texture)
+- Trigger latency: < 50ms from bass hit to visual blast
+
+---
+
+## 📝 Notes for Implementation Engineer
+
+1. **Feedback Texture**: Critical. The effect does NOT manage `texPrev`. Document that the chain must:
+   - Allocate texture matching output resolution
+   - Bind to unit 1 before `apply_uniforms`
+   - After rendering, copy output to this texture (glCopyTexImage2D or FBO ping-pong)
+
+2. **Depth Map**: The shader samples depth but doesn't use it yet (placeholder for future depth-penetration effects). Still, provide it for consistency.
+
+3. **Dual Video**: Check tex1 availability by sampling center. If unused, bind a black texture to avoid GL errors.
+
+4. **Audio Trigger**: The trigger logic uses `bass > threshold * 0.5` with a linear ramp. This creates a responsive "fire" feel. Ensure `audio_reactor.get_band('bass', 0.0)` returns normalized 0.0-1.0.
+
+5. **Shockwave Math**: The wave uses `fract(wavePhase)` to create a repeating 0-1 cycle. `blastStr` is non-zero only when `waveDist <= depth_penetration`. The ring is created with `abs(r - waveDist)` smoothed and sharpened.
+
+6. **Parameter Mapping**: `_map_param()` maps 0-10 to arbitrary ranges. Check each parameter's target:
+   - `cannon_power`, `recoil`, `muzzle_flash`, `debris_scatter`, `impact_radius`, `distortion`, `chroma_blast`, `thermal_exhaust`, `depth_penetration`, `decay` → typically 0.0-1.0
+   - `shockwave_speed` → 0.0-10.0 (direct, no mapping needed? Actually mapped: `_map_param('shockwave_speed', 0.0, 10.0)`)
+
+7. **Presets**: Store as raw 0-10 parameter dicts. The legacy presets are provided; add 2 more for variety.
+
+8. **Testing**: Because the shader is time-dependent, write tests that:
+   - Mock `time` uniform to fixed values
+   - Test shockwave at different `waveDist` positions (0.0, 0.5, 0.9)
+   - Test `blastStr` decay curve
+   - Test audio trigger with various bass levels
+   - Test that `texPrev` is only used in thermal exhaust calculation
+
+9. **Performance**: The shader is moderately complex but mostly arithmetic. Should be fine on integrated GPUs. The biggest cost is texture bandwidth (4 textures).
+
+10. **Safety**: This effect can be intense. Warn users about potential discomfort from flashing/strobe effects (muzzle flash, debris).
+
+---
+
+**Ready for Implementation after Approval**
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+

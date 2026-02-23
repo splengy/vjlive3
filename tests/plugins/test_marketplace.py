@@ -17,7 +17,6 @@ from vjlive3.plugins.marketplace import (
     PluginMarketplace, MarketplacePlugin, PurchaseResult, 
     DownloadResult, PluginUpdate, InstalledPlugin
 )
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.license_server import LicenseServer, License
 from datetime import datetime, timezone
 
@@ -50,7 +49,7 @@ def marketplace(temp_plugins_dir, mock_license_server):
         license_server=mock_license_server
     )
     # mock initialization context
-    ctx = MagicMock(spec=PluginContext)
+    ctx = MagicMock(spec=MagicMock())
     ctx.get_parameter.side_effect = lambda name: temp_plugins_dir if name == "plugins_dir" else None
     mp.initialize(ctx)
     return mp

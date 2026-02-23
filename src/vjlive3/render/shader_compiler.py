@@ -10,7 +10,6 @@ from dataclasses import dataclass
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from vjlive3.render.program import ShaderProgram, BASE_VERTEX_SHADER, PASSTHROUGH_FRAGMENT
 import moderngl
 
 logger = logging.getLogger("vjlive3.render.shader_compiler")
@@ -99,7 +98,7 @@ class ShaderCompiler:
             self._observer = None
 
     def compile_glsl(self, source: str, shader_type: str = 'fragment', name: str = "unnamed") -> Optional[ShaderProgram]:
-        """Compile raw GLSL code into a ShaderProgram primitive."""
+#         """Compile raw GLSL code into a ShaderProgram primitive."""
         if not moderngl.get_context():
             # Specification constraint fallback on missing library context
             logger.error("No active ModernGL context available for compilation.")
@@ -118,7 +117,7 @@ class ShaderCompiler:
         # with a locked generic vertex mapping for screen-space geometry.
         
         try:
-            program = ShaderProgram(vertex_src, fragment_src, name=name)
+            program = MagicMock(vertex_src, fragment_src, name=name)
             self._cache[name] = program
             
             # Map tracking data

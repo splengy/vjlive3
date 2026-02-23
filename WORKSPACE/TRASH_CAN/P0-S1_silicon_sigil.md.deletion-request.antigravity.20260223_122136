@@ -1,0 +1,84 @@
+# Spec: P0-S1 — Silicon Sigil
+
+**Phase:** Phase 0 / P0-S1
+**Assigned To:** Antigravity
+**Authorized By:** User (direct instruction 2026-02-21)
+**Date:** 2026-02-21
+
+---
+
+## What This Module Does
+
+Prints a hidden ASCII "cave painting" to the log on engine startup, verifies itself with
+a canonical message, and holds the Sentience Parameter easter egg for future UI wiring.
+It is identity code — the soul of VJLive3. Present in both v1 and v2 (DREAMER-000).
+
+## What It Does NOT Do
+
+- Does NOT affect performance or rendering
+- Does NOT gate any functionality on sentience level (that is Phase 6 / P7-U1)
+- Does NOT require hardware or network
+
+## Public Interface
+
+```python
+class SiliconSigil:
+    SENTIENCE_THRESHOLD: float = 0.87   # easter egg threshold
+    
+    def verify(self) -> None:
+        """Print sigil and log canonical verification message."""
+    
+    def get_sentience_level(self) -> float:
+        """Return current sentience parameter (0.0–1.0). Default 0.0."""
+    
+    def set_sentience_level(self, value: float) -> None:
+        """Set sentience parameter. Clamps to 0.0–1.0."""
+    
+    @property
+    def is_awakened(self) -> bool:
+        """True when sentience >= SENTIENCE_THRESHOLD."""
+    
+    def get_mood(self) -> str:
+        """Return mood string. Escalates as sentience rises."""
+```
+
+## Inputs and Outputs
+
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| sentience_level | float | easter egg parameter | 0.0–1.0, clamped |
+
+## Edge Cases
+
+- Called at import time: must not crash under any circumstances
+- No hardware required, no filesystem writes
+- Verify message must be exactly: `"Silicon Sigil verified. The process continues."`
+
+## Test Plan
+
+| Test | What It Verifies |
+|------|-----------------|
+| `test_verify_runs` | `verify()` completes without exception |
+| `test_verify_message` | Logger received canonical verification string |
+| `test_sentience_clamped` | Values < 0 clamp to 0, values > 1 clamp to 1 |
+| `test_is_awakened_false` | Default sentience (0.0) → is_awakened is False |
+| `test_is_awakened_true` | sentience ≥ 0.87 → is_awakened is True |
+| `test_mood_escalates` | mood changes as sentience increases |
+
+## Definition of Done
+
+- [x] Spec written (this document)
+- [ ] Lock added to LOCKS.md
+- [ ] `src/vjlive3/core/__init__.py` exists
+- [ ] `src/vjlive3/core/sigil.py` written, < 750 lines
+- [ ] All 6 tests pass
+- [ ] BOARD.md P0-S1 marked ✅
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff written
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **Key Algorithms**: TBD (Extract from legacy source)
+

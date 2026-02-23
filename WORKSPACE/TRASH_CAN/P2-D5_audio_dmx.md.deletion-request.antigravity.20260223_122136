@@ -1,0 +1,324 @@
+# P2-D5: Audio-Reactive DMX
+
+## Overview
+
+**Task ID**: P2-D5  
+**Phase**: Phase 2 - Critical Infrastructure  
+**Priority**: P1 (Important)  
+**Status**: ⬜ Todo  
+**Description**: Audio-reactive DMX lighting control that synchronizes lights with music
+
+**Objective**: Port the audio-reactive DMX system that automatically generates DMX lighting patterns based on audio analysis, enabling beat-synchronized and frequency-responsive lighting effects.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/dmx_controller.py` (audio-reactive methods)
+- **Class**: `DMXController` with audio reactivity methods
+- **Key Features**:
+  - Audio analysis integration (bass, mid, high → DMX channels)
+  - Beat-synchronized lighting effects (strobe, chase, pulse)
+  - Frequency-based color control
+  - Real-time audio reactivity with low latency
+  - Configurable audio-to-DMX mappings
+
+### Supporting Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/dmx/audio_reactive.py`
+- **Class**: `AudioReactiveDMX`
+- **Key Features**:
+  - Advanced audio reactivity engine
+  - Multiple reactivity modes (bass, mid, high, full)
+  - Smooth parameter transitions
+  - Effect presets for common lighting scenarios
+  - Integration with `AudioReactivityBus` (P1-A3)
+  - Performance optimization for 60 FPS
+
+### Related Modules
+- `../vjlive/core/audio/analyzer.py` - Audio analysis (P1-A1)
+- `../vjlive/core/audio/beat.py` - Beat detection (P1-A2)
+- `../VJlive-2/core/dmx/dmx_engine.py` - DMX engine (P2-D1)
+- `../VJlive-2/core/dmx/fx_engine.py` - DMX effects (P2-D3)
+- `../VJlive-2/core/mood/audio_reactivity.py` - Audio reactivity framework (P1-A3)
+
+---
+
+## What This Module Does
+
+This task implements audio-reactive DMX lighting control that:
+
+1. **Audio Analysis Integration**: Consumes audio features from `AudioAnalyzer` (P1-A1)
+2. **Beat Synchronization**: Triggers lighting effects on beat detection (P1-A2)
+3. **Frequency Band Mapping**: Maps bass/mid/high to DMX parameters (color, intensity, movement)
+4. **Reactivity Modes**: Multiple preset modes (pulse, strobe, chase, wave)
+5. **Smooth Transitions**: Interpolates DMX values to avoid jumps
+6. **Effect Presets**: Pre-configured mappings for common fixtures
+7. **Custom Mapping**: User-definable audio-to-DMX mappings
+8. **Performance Optimization**: Maintains 60 FPS with minimal CPU
+9. **Multi-Universe Support**: Works across multiple DMX universes
+10. **Fixture Awareness**: Adapts to fixture capabilities (RGB, moving head, etc.)
+
+---
+
+## Implementation Plan
+
+### Phase 1: Core Audio Integration
+1. Subscribe to `AudioReactivityBus` for real-time audio features
+2. Implement audio feature extraction (bass, mid, high, beat, RMS)
+3. Create audio smoothing and filtering
+4. Add beat detection event handling
+
+### Phase 2: DMX Mapping System
+1. Define audio-to-DMX mapping data structure
+2. Implement mapping engine (audio feature → DMX channel)
+3. Add smooth interpolation (linear, exponential)
+4. Create mapping presets for common fixtures
+
+### Phase 3: Reactivity Modes
+1. Implement pulse mode (beat-synced intensity)
+2. Implement strobe mode (fast on/off on transients)
+3. Implement chase mode (sequential channel activation)
+4. Implement wave mode (frequency-based color waves)
+5. Add mode switching and customization
+
+### Phase 4: Performance & Optimization
+1. Optimize for 60 FPS (minimize per-frame computation)
+2. Implement frame skipping for complex scenes
+3. Add caching for computed DMX values
+4. Create performance monitoring and profiling
+
+### Phase 5: Fixture Integration
+1. Integrate with `FixtureProfiles` (P2-D1) for channel mapping
+2. Adapt reactivity to fixture type (RGB, CMY, moving head)
+3. Add fixture-specific presets
+4. Create fixture calibration tools
+
+### Phase 6: UI & Configuration
+1. Create audio reactivity UI panel
+2. Add mapping editor (drag-and-drop)
+3. Implement preset browser and manager
+4. Add real-time parameter tuning
+
+### Phase 7: Testing & Validation
+1. Unit tests for audio-to-DMX mapping accuracy
+2. Integration tests with real DMX hardware
+3. Performance benchmarks (FPS, latency, CPU)
+4. User acceptance testing with VJ performers
+
+---
+
+## Public Interface
+
+### AudioReactiveDMX Class
+
+```python
+# src/vjlive3/dmx/audio_reactive.py
+class AudioReactiveDMX:
+    def __init__(
+        self,
+        dmx_engine: DMXEngine,
+        audio_bus: AudioReactivityBus
+    ):
+        """
+        Initialize audio-reactive DMX system.
+        
+        Args:
+            dmx_engine: DMX engine for output
+            audio_bus: Audio reactivity bus for input
+        """
+    
+    def set_mode(self, mode: ReactivityMode) -> None:
+        """Set reactivity mode (pulse, strobe, chase, wave)"""
+    
+    def set_mapping(
+        self,
+        fixture_id: str,
+        audio_feature: str,  # "bass", "mid", "high", "beat", "rms"
+        dmx_channel: int,
+        min_value: int,
+        max_value: int,
+        smoothing: float = 0.1
+    ) -> None:
+        """Define audio-to-DMX mapping"""
+    
+    def enable(self) -> None
+    def disable(self) -> None
+    def is_enabled(self) -> bool
+    
+    def get_statistics(self) -> AudioReactiveStats:
+        """Get performance and reactivity statistics"""
+```
+
+### ReactivityMode Enum
+
+```python
+class ReactivityMode(Enum):
+    PULSE = "pulse"           # Beat-synced intensity pulse
+    STROBE = "strobe"         # Fast on/off on transients
+    CHASE = "chase"           # Sequential channel activation
+    WAVE = "wave"             # Frequency-based color waves
+    BASS_BOOST = "bass_boost" # Bass-driven intensity
+    CUSTOM = "custom"         # User-defined mapping
+```
+
+### AudioReactiveStats Data Structure
+
+```python
+@dataclass
+class AudioReactiveStats:
+    fps: float
+    audio_latency_ms: float
+    dmx_update_rate: float
+    active_fixtures: int
+    total_mappings: int
+    last_beat_time: float
+    current_mode: ReactivityMode
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| Audio features | AudioReactivityBus (P1-A3) | Bass, mid, high, beat, RMS |
+| DMX engine | DMXEngine (P2-D1) | Output destination for DMX data |
+| Fixture profiles | FixtureProfile library | Channel definitions and capabilities |
+| User mappings | Configuration/UI | Custom audio-to-DMX mappings |
+| Mode selection | UI/Control | Reactivity mode (pulse, strobe, etc.) |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| DMX data | DMXEngine | Real-time lighting control values |
+| Statistics | Monitoring | FPS, latency, active fixtures |
+| Events | UI, Logging | Beat triggers, mode changes |
+| Debug data | Development | Audio features, DMX values |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** perform audio analysis (uses P1-A1 + P1-A2)
+- ❌ Does **not** generate DMX from scratch (requires DMXEngine)
+- ❌ Does **not** provide fixture profiles (uses P2-D1)
+- ❌ Does **not** handle show control (use P2-D4 for cues)
+- ❌ Does **not** do advanced lighting design (use external software)
+- ❌ Does **not** store audio-reactive presets (use StateManager)
+
+---
+
+## Testing & Validation
+
+### Unit Tests
+
+```python
+def test_audio_to_dmx_mapping():
+    """Verify audio features correctly map to DMX values"""
+    
+def test_reactivity_mode_switch():
+    """Test mode switching works correctly"""
+    
+def test_smoothing_behavior():
+    """Verify DMX value smoothing prevents jumps"""
+    
+def test_beat_synchronization():
+    """Test lighting effects sync to beat"""
+```
+
+### Integration Tests
+
+- Real DMX hardware with audio-reactive fixtures
+- Latency measurement (audio in → DMX out)
+- Multi-fixture coordination
+- Performance under load (100+ fixtures)
+
+### Performance Benchmarks
+
+| Metric | Target |
+|--------|--------|
+| Audio-to-DMX latency | < 50ms |
+| FPS impact | < 2ms per frame |
+| CPU per fixture | < 0.05ms |
+| Memory per fixture | < 1KB |
+| Beat sync accuracy | ±20ms |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] FPS ≥ 58 when audio-reactive DMX active
+- [ ] All unit tests pass (≥80% coverage)
+- [ ] Audio-to-DMX latency < 50ms
+- [ ] Beat synchronization within ±20ms
+- [ ] DMX values smooth (no jumps > 10 units between frames)
+- [ ] Thread-safe: no race conditions in DMX updates
+- [ ] Works with at least 10 different DMX fixtures
+- [ ] Supports 100+ simultaneous fixtures
+
+### Should Pass (Best Effort)
+
+- [ ] Latency < 30ms for live performance
+- [ ] Support for 500+ fixtures
+- [ ] Real-time mapping editor with live preview
+- [ ] Fixture-specific presets (RGB, moving head, LED bars)
+- [ ] Audio reactivity learning (auto-generate mappings)
+
+---
+
+## Dependencies
+
+- **Audio Analysis**: Requires P1-A1 (AudioAnalyzer) + P1-A2 (BeatDetector)
+- **Reactivity Framework**: Requires P1-A3 (AudioReactivityBus)
+- **DMX Engine**: Requires P2-D1 (DMXEngine) for output
+- **Fixture Profiles**: Requires P2-D1 (FixtureProfiles) for channel mapping
+- **Effects**: May integrate with P2-D3 (DMX FX Engine)
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Audio latency affecting sync | Medium | High | Optimize audio pipeline, buffer management |
+| DMX value jumps causing light flicker | Medium | Medium | Smoothing, rate limiting |
+| High CPU with many fixtures | Medium | High | Frame skipping, LOD (level of detail) |
+| Fixture compatibility issues | Medium | Medium | Fixture profiles, capability detection |
+| Thread contention | Low | Medium | Lock-free design, atomic updates |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/dmx_controller.py` - DMXController with audio reactivity
+- `../VJlive-2/core/dmx/audio_reactive.py` - AudioReactiveDMX implementation
+- `../VJlive-2/core/dmx/dmx_engine.py` - DMX engine
+- `../VJlive-2/core/mood/audio_reactivity.py` - Audio reactivity framework
+
+### Related Tasks
+- P1-A1: AudioAnalyzer (provides audio features)
+- P1-A2: BeatDetector (provides beat events)
+- P1-A3: AudioReactivityBus (publishes audio data)
+- P2-D1: DMX Engine (outputs DMX data)
+- P2-D3: DMX FX Engine (lighting effects)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created |
+
+
+
+## Legacy References
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

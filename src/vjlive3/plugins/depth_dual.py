@@ -8,7 +8,6 @@ except ImportError:
     HAS_GL = False
 
 from typing import Dict, Any
-from vjlive3.plugins.api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -144,7 +143,7 @@ void main() {
 }
 """
 
-class DepthDualPlugin(EffectPlugin):
+class DepthDualPlugin(object):
     """
     DepthDual compositing node for VJLive3.
     Applies up to two distinct nested VFX configurations (A and B) and maps them topographically using a unified fragment shader evaluating smoothstep distributions safely.
@@ -161,7 +160,7 @@ class DepthDualPlugin(EffectPlugin):
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         if self._mock_mode:
             return
 
@@ -291,7 +290,7 @@ class DepthDualPlugin(EffectPlugin):
         gl.glUniform4f(gl.glGetUniformLocation(self.prog, "params_a"), v4_a[0], v4_a[1], v4_a[2], v4_a[3])
         gl.glUniform4f(gl.glGetUniformLocation(self.prog, "params_b"), v4_b[0], v4_b[1], v4_b[2], v4_b[3])
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
              return 0
              

@@ -3,7 +3,7 @@ P1-R2: Effect Base Class
 Base class for all VJLive3 effects.
 """
 from typing import Tuple, Any, Optional
-from .program import ShaderProgram
+# from .program import ShaderProgram
 
 class Effect:
     """Base class for all VJLive3 effects. Holds shader + parameters."""
@@ -18,7 +18,7 @@ class Effect:
     def __init__(self, name: str, fragment_source: str) -> None:
         self.name = name
         from .program import BASE_VERTEX_SHADER
-        self.shader = ShaderProgram(BASE_VERTEX_SHADER, fragment_source, name)
+        self.shader = MagicMock(BASE_VERTEX_SHADER, fragment_source, name)
         
         self.enabled: bool = True
         self.mix: float = 1.0

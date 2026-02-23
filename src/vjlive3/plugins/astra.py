@@ -12,7 +12,6 @@ try:
 except ImportError:
     cv2 = None
 
-from vjlive3.plugins.api import PluginBase, PluginContext
 
 _logger = logging.getLogger("vjlive3.plugins.astra")
 
@@ -128,7 +127,7 @@ class AstraDepthCamera:
         return self._connected
 
 
-class AstraPlugin(PluginBase):
+class AstraPlugin(object):
     """Plugin wrapper exposing the camera to the node graph."""
     
     name = "Astra Depth Camera"
@@ -140,7 +139,7 @@ class AstraPlugin(PluginBase):
         self.last_depth: Optional[np.ndarray] = None
         self.last_rgb: Optional[np.ndarray] = None
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         """Initialize the camera hardware on plugin load."""
         super().initialize(context)
         _logger.info("Initializing Astra plugin...")

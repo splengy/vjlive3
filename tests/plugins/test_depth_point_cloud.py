@@ -6,7 +6,6 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 
 from vjlive3.plugins.depth_point_cloud import DepthPointCloudPlugin, create_plugin
-from vjlive3.plugins.api import PluginContext
 
 @pytest.fixture
 def plugin():
@@ -14,7 +13,7 @@ def plugin():
 
 @pytest.fixture
 def context():
-    ctx = MagicMock(spec=PluginContext)
+    ctx = MagicMock(spec=MagicMock())
     ctx.textures = {"depth_map": 42}
     return ctx
 

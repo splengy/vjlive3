@@ -9,7 +9,6 @@ except ImportError:
     HAS_GL = False
 
 from typing import Dict, Any
-from vjlive3.plugins.api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -165,7 +164,7 @@ void main() {
 }
 """
 
-class DepthParallelUniversePlugin(EffectPlugin):
+class DepthParallelUniversePlugin(object):
     """Multi-universe routing effect."""
 
     def __init__(self):
@@ -182,7 +181,7 @@ class DepthParallelUniversePlugin(EffectPlugin):
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         if self._mock_mode:
             logger.warning("Initializing DepthParallelUniverse in Mock Mode (No OpenGL)")
             return
@@ -268,7 +267,7 @@ class DepthParallelUniversePlugin(EffectPlugin):
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
              return 0
              

@@ -1,0 +1,832 @@
+# Phase D: Telemetry Pipeline
+
+**Document Version**: 1.0  
+**Created**: 2026-02-23  
+**Status**: Ready for Review  
+**Author**: Manager Agent (Lead Systems Engineer)  
+
+---
+
+## 1. Executive Summary
+
+This specification defines the implementation of a centralized telemetry pipeline that collects, aggregates, and exports performance metrics from all VJLive3 subsystems. It provides real-time monitoring capabilities for the UI, historical data for debugging, and production-grade observability for deployment.
+
+**Critical Objectives:**
+- Collect per-plugin execution times with <0.1ms overhead
+- Track system metrics (FPS, memory, GPU usage, safety violations)
+- Provide real-time data to UI via WebSocket
+- Support historical logging and analysis
+- Maintain 60 FPS sacred rail under all conditions
+- Enable performance regression detection
+
+---
+
+## 2. Current State Analysis
+
+### 2.1 Scattered Metrics
+
+**Current State**: Metrics are collected in various places with no aggregation:
+
+```python
+# engine.py (current)
+class RenderEngine:
+    def render_frame(self):
+        start = time.time()
+        # ... render ...
+        elapsed = time.time() - start
+        print(f"Frame time: {elapsed*1000:.2f}ms")  # Just prints, no collection
+```
+
+```python
+# plugins/depth_blur.py (current)
+class DepthBlurPlugin:
+    def process(self, input_texture, params, context):
+        start = time.time()
+        # ... process ...
+        elapsed = time.time() - start
+        # No recording; lost
+```
+
+**Problems:**
+1. **No Centralization**: Metrics scattered; impossible to get system-wide view
+2. **No Aggregation**: Can't compute percentiles (p50, p95, p99)
+3. **No Export**: Can't send to monitoring systems (Grafana, Prometheus)
+4. **No UI Integration**: HUD doesn't show real-time metrics
+5. **No Historical Data**: Can't track performance over time
+
+### 2.2 Legacy Patterns
+
+**vjlive/**:
+- Simple FPS counter in status bar
+- No per-plugin metrics
+- No logging
+
+**VJlive-2/**:
+- Basic performance overlay
+- Still no centralized collection
+- No export capabilities
+
+**Proven Strengths:**
+- FPS counter concept (useful)
+- Overlay display (useful)
+
+**Weaknesses to Fix:**
+- No systematic metric collection
+- No aggregation or analysis
+- No production observability
+
+---
+
+## 3. Solution Architecture
+
+### 3.1 TelemetryCollector Class
+
+**Purpose**: Central hub for all metrics collection.
+
+```python
+from collections import defaultdict, deque
+from typing import Dict, List, Any
+import numpy as np
+
+class TelemetryCollector:
+    """Collects, aggregates, and exports telemetry data."""
+    
+    def __init__(self, window_size: int = 60):
+        """
+        Initialize collector.
+        
+        Args:
+            window_size: Number of frames to keep in rolling window (60 = 1 second at 60Hz)
+        """
+        self.window_size = window_size
+        
+        # Raw metric storage: metric_name -> deque of values
+        self.metrics: Dict[str, deque] = defaultdict(lambda: deque(maxlen=window_size))
+        
+        # Counters: counter_name -> int
+        self.counters: Dict[str, int] = defaultdict(int)
+        
+        # Histograms: metric_name -> bin edges + counts
+        self.histograms: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+    
+    def record(self, name: str, value: float, unit: str = "ms"):
+        """
+        Record a metric value.
+        
+        Args:
+            name: Metric name (e.g., "plugin.depth_blur.process_time")
+            value: Numeric value
+            unit: Unit of measurement (for documentation)
+        """
+        self.metrics[name].append(value)
+        
+        # Update histogram if configured
+        if name in self.histograms:
+            bins, counts = self.histograms[name]
+            bin_idx = np.digitize(value, bins) - 1
+            if 0 <= bin_idx < len(counts):
+                counts[bin_idx] += 1
+    
+    def increment(self, name: str, amount: int = 1):
+        """Increment a counter."""
+        self.counters[name] += amount
+    
+    def snapshot(self) -> Dict[str, Any]:
+        """
+        Return current statistics for all metrics.
+        
+        Returns:
+            Dict with p50, p95, p99, mean, min, max for each metric
+        """
+        stats = {}
+        
+        for name, values in self.metrics.items():
+            if len(values) == 0:
+                continue
+            
+            values_array = np.array(values)
+            stats[name] = {
+                "count": len(values),
+                "mean": float(np.mean(values_array)),
+                "min": float(np.min(values_array)),
+                "max": float(np.max(values_array)),
+                "p50": float(np.percentile(values_array, 50)),
+                "p95": float(np.percentile(values_array, 95)),
+                "p99": float(np.percentile(values_array, 99)),
+                "unit": self._get_unit(name)
+            }
+        
+        # Add counters
+        for name, value in self.counters.items():
+            stats[name] = {"count": value, "unit": "count"}
+        
+        return stats
+    
+    def _get_unit(self, metric_name: str) -> str:
+        """Infer unit from metric name."""
+        if "time" in metric_name or "ms" in metric_name:
+            return "ms"
+        elif "fps" in metric_name:
+            return "fps"
+        elif "memory" in metric_name or "mb" in metric_name:
+            return "MB"
+        elif "violations" in metric_name:
+            return "count"
+        else:
+            return "unknown"
+    
+    def reset(self):
+        """Clear all metrics (useful for testing)."""
+        self.metrics.clear()
+        self.counters.clear()
+        self.histograms.clear()
+    
+    def export_prometheus(self) -> str:
+        """
+        Export metrics in Prometheus text format.
+        
+        Returns:
+            String in Prometheus exposition format
+        """
+        lines = []
+        snapshot = self.snapshot()
+        
+        for metric_name, data in snapshot.items():
+            # Convert metric name to Prometheus format
+            prom_name = metric_name.replace(".", "_").replace("-", "_")
+            
+            if "p50" in data:
+                # Multiple quantiles
+                for quantile in ["p50", "p95", "p99"]:
+                    lines.append(
+                        f'{prom_name}_{quantile} {data[quantile]:.6f}'
+                    )
+            else:
+                # Simple gauge
+                lines.append(f'{prom_name} {data["count"]}')
+        
+        return "\n".join(lines) + "\n"
+```
+
+### 3.2 Instrumentation Points
+
+**Engine:**
+
+```python
+# src/vjlive3/render/engine.py
+class RenderEngine:
+    def __init__(self):
+        self.telemetry = TelemetryCollector()
+        self.context = VJLiveContext()
+    
+    def render_frame(self):
+        """Main render loop with telemetry."""
+        frame_start = time.perf_counter()
+        
+        self.update_context()
+        
+        # Record frame time components
+        context_start = time.perf_counter()
+        self.update_context()
+        self.telemetry.record("engine.context_update", 
+                            (time.perf_counter() - context_start) * 1000)
+        
+        # Execute plugin batches
+        for batch_idx, batch in enumerate(self.schedule):
+            batch_start = time.perf_counter()
+            self.execute_batch(batch)
+            self.telemetry.record(f"engine.batch_{batch_idx}",
+                                (time.perf_counter() - batch_start) * 1000)
+        
+        # Display
+        display_start = time.perf_counter()
+        self.display(self.context.video)
+        self.telemetry.record("engine.display",
+                            (time.perf_counter() - display_start) * 1000)
+        
+        # Total frame time
+        frame_time = (time.perf_counter() - frame_start) * 1000
+        self.telemetry.record("engine.frame_time", frame_time)
+        self.telemetry.record("engine.fps", 1000.0 / frame_time)
+        
+        # Memory usage
+        self.telemetry.record("memory.rss_mb", 
+                            psutil.Process().memory_info().rss / 1024 / 1024)
+        
+        # Safety violations
+        self.telemetry.increment("safety.violations", self.context.safety_violations)
+```
+
+**Plugins:**
+
+```python
+# src/vjlive3/plugins/depth_blur.py
+class DepthBlurPlugin(EffectPlugin):
+    def process(self, input_texture, params, context: VJLiveContext):
+        """Process with telemetry."""
+        start_time = time.perf_counter()
+        
+        # ... actual processing ...
+        output = self.blur_with_depth(input_texture, context.depth, params)
+        
+        elapsed = (time.perf_counter() - start_time) * 1000
+        context.telemetry.record(f"plugin.{self.id}.process_time", elapsed)
+        
+        return output
+```
+
+**Note**: Plugins need access to telemetry. Options:
+1. Pass telemetry as separate argument to `process()`
+2. Access via `context.telemetry` (preferred - add to VJLiveContext)
+
+### 3.3 WebSocket Export to UI
+
+**Implementation**: `web_remote.py` exposes telemetry via WebSocket.
+
+```python
+# src/vjlive3/ui/web_remote.py
+class WebRemoteServer:
+    def __init__(self, engine: RenderEngine):
+        self.engine = engine
+        self.clients = set()
+    
+    async def broadcast_telemetry(self):
+        """Broadcast telemetry snapshot to all connected clients."""
+        snapshot = self.engine.telemetry.snapshot()
+        
+        message = {
+            "type": "telemetry",
+            "data": snapshot,
+            "timestamp": time.time()
+        }
+        
+        # Broadcast to all WebSocket clients
+        for client in self.clients:
+            try:
+                await client.send_json(message)
+            except:
+                self.clients.remove(client)
+```
+
+**Client-side (UI):**
+
+```javascript
+// ui/telemetry_dashboard.js
+const ws = new WebSocket("ws://localhost:8080/telemetry");
+
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === "telemetry") {
+        updateDashboard(data.data);
+    }
+};
+
+function updateDashboard(telemetry) {
+    // Update FPS gauge
+    document.getElementById("fps").textContent = telemetry["engine.fps"]["p50"].toFixed(1);
+    
+    // Update plugin timing table
+    const table = document.getElementById("plugin-timings");
+    table.innerHTML = "";
+    for (const [key, stats] of Object.entries(telemetry)) {
+        if (key.startsWith("plugin.") && key.endsWith(".process_time")) {
+            const row = table.insertRow();
+            row.insertCell(0).textContent = key;
+            row.insertCell(1).textContent = stats["p95"].toFixed(2) + " ms";
+        }
+    }
+}
+```
+
+### 3.4 Historical Logging
+
+**Purpose**: Save telemetry to disk for later analysis.
+
+```python
+class TelemetryLogger:
+    """Log telemetry to file for offline analysis."""
+    
+    def __init__(self, log_dir: Path):
+        self.log_dir = log_dir
+        self.current_session = datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.log_file = log_dir / f"telemetry_{self.current_session}.jsonl"
+        self.file_handle = open(self.log_file, 'a')
+    
+    def log_snapshot(self, snapshot: Dict[str, Any]):
+        """Append snapshot to log file."""
+        entry = {
+            "timestamp": time.time(),
+            "telemetry": snapshot
+        }
+        self.file_handle.write(json.dumps(entry) + "\n")
+        self.file_handle.flush()
+    
+    def close(self):
+        """Close log file."""
+        self.file_handle.close()
+```
+
+**Integration:**
+- `engine.py` calls `logger.log_snapshot(telemetry.snapshot())` every N frames
+- Log files rotated daily or when >100MB
+
+### 3.5 Alerting & Thresholds
+
+**Purpose**: Detect performance regressions in real-time.
+
+```python
+class TelemetryAlerts:
+    """Check telemetry against thresholds and trigger alerts."""
+    
+    def __init__(self):
+        self.thresholds = {
+            "engine.fps.p50": {"min": 58.0, "max": 62.0},
+            "engine.frame_time.p95": {"max": 16.67},  # 60 FPS budget
+            "plugin.*.process_time.p95": {"max": 5.0},  # Per-plugin budget
+            "memory.rss_mb": {"max": 2048.0},  # 2GB limit
+        }
+        
+        self.alerts: List[Dict] = []
+    
+    def check(self, snapshot: Dict[str, Any]) -> List[Dict]:
+        """Check all thresholds and return any violations."""
+        violations = []
+        
+        for pattern, limits in self.thresholds.items():
+            # Support wildcard patterns
+            import fnmatch
+            matching_keys = [k for k in snapshot.keys() if fnmatch.fnmatch(k, pattern)]
+            
+            for key in matching_keys:
+                stats = snapshot[key]
+                
+                if "min" in limits and stats["p50"] < limits["min"]:
+                    violations.append({
+                        "metric": key,
+                        "threshold": limits["min"],
+                        "value": stats["p50"],
+                        "severity": "warning"
+                    })
+                
+                if "max" in limits and stats["p95"] > limits["max"]:
+                    violations.append({
+                        "metric": key,
+                        "threshold": limits["max"],
+                        "value": stats["p95"],
+                        "severity": "critical"
+                    })
+        
+        self.alerts.extend(violations)
+        return violations
+```
+
+**UI Integration:**
+- Show alerts as popup notifications
+- Log to `logs/alerts.log`
+- Optionally trigger audio alarm
+
+---
+
+## 4. Implementation Plan
+
+### 4.1 Phase D1: Core TelemetryCollector (Day 5)
+
+**Tasks:**
+1. Create `src/vjlive3/core/telemetry.py` with `TelemetryCollector`
+2. Implement `record()`, `increment()`, `snapshot()`, `export_prometheus()`
+3. Add histogram support for distribution analysis
+4. Write comprehensive unit tests
+
+**Files to Create:**
+```
+src/vjlive3/core/
+├── telemetry.py
+└── tests/
+    ├── test_telemetry.py
+    ├── test_telemetry_collector.py
+    └── test_telemetry_histogram.py
+```
+
+**Test Cases:**
+- Recording numeric values
+- Snapshot returns correct percentiles
+- Histogram binning
+- Prometheus export format
+- Window size enforcement (rolling window)
+
+### 4.2 Phase D2: Engine & Plugin Instrumentation (Day 6)
+
+**Tasks:**
+1. Add `telemetry` field to `VJLiveContext` (Phase A)
+2. Instrument `engine.py`:
+   - Frame time breakdown (context, batch, display)
+   - FPS calculation
+   - Memory usage
+   - Safety violations
+3. Instrument all 80+ plugins:
+   - Add `context.telemetry.record(f"plugin.{self.id}.process_time", elapsed)`
+   - Wrap plugin `process()` calls with timing
+4. Write integration tests
+
+**Files to Modify:**
+```
+src/vjlive3/render/
+├── engine.py  # Add telemetry
+src/vjlive3/plugins/
+├── __init__.py  # Maybe add base class telemetry helper
+└── tests/
+    └── test_plugin_telemetry.py
+```
+
+**Automated Instrumentation Script:**
+
+```python
+# instrument_plugins.py
+"""Add telemetry recording to all plugin process methods."""
+import ast
+import re
+
+def add_telemetry_to_plugin(plugin_path: Path):
+    """Inject telemetry timing into plugin.process()."""
+    
+    code = plugin_path.read_text()
+    
+    # Find process method
+    pattern = r'(def process\(self, input_texture, params, context: VJLiveContext\):.*?)(return .*)'
+    replacement = r'\1start = time.perf_counter()\n        \2\n        elapsed = (time.perf_counter() - start) * 1000\n        context.telemetry.record(f"plugin.{self.id}.process_time", elapsed)'
+    
+    code = re.sub(pattern, replacement, code, flags=re.DOTALL)
+    
+    plugin_path.write_text(code)
+```
+
+### 4.3 Phase D3: WebSocket Export (Day 7)
+
+**Tasks:**
+1. Add telemetry broadcast to `web_remote.py`
+2. Create WebSocket endpoint `/telemetry`
+3. Implement client-side JavaScript dashboard
+4. Add UI panel for real-time metrics
+
+**Files to Modify:**
+```
+src/vjlive3/ui/
+├── web_remote.py  # Add WS broadcast
+├── desktop_gui.py  # Add dashboard panel
+└── static/
+    └── telemetry_dashboard.html  # New dashboard
+```
+
+**Dashboard Features:**
+- FPS gauge (p50, p95, p99)
+- Top 10 slowest plugins (by p95)
+- Memory usage chart
+- Safety violation counter
+- Real-time graphs (update 1Hz)
+
+### 4.4 Phase D4: Historical Logging (Day 8)
+
+**Tasks:**
+1. Implement `TelemetryLogger` class
+2. Configure log rotation (daily or size-based)
+3. Add CLI flag `--telemetry-log-dir` to `app.py`
+4. Write log parser utility for offline analysis
+
+**Files to Create:**
+```
+src/vjlive3/core/
+├── telemetry_logger.py
+└── tests/
+    └── test_telemetry_logger.py
+
+tools/
+└── analyze_telemetry.py  # Parse logs and generate reports
+```
+
+**Log Format (JSONL):**
+```json
+{"timestamp": 1730000000.123, "telemetry": {"engine.fps": {"p50": 60.1, "p95": 61.2}}}
+{"timestamp": 1730000000.183, "telemetry": {...}}
+```
+
+### 4.5 Phase D5: Alerting (Day 9)
+
+**Tasks:**
+1. Implement `TelemetryAlerts` with threshold checking
+2. Define default thresholds (FPS ≥58, frame_time ≤16.67ms, memory ≤2GB)
+3. Integrate alerts into UI (popup notifications)
+4. Add alert logging to `logs/alerts.log`
+5. Write tests for threshold violations
+
+**Files to Create:**
+```
+src/vjlive3/core/
+├── telemetry_alerts.py
+└── tests/
+    └── test_telemetry_alerts.py
+```
+
+---
+
+## 5. Testing Strategy
+
+### 5.1 Unit Tests
+
+**TelemetryCollector Tests:**
+```python
+def test_record_and_snapshot():
+    collector = TelemetryCollector(window_size=10)
+    
+    # Record values
+    for i in range(10):
+        collector.record("test.metric", float(i))
+    
+    snapshot = collector.snapshot()
+    assert "test.metric" in snapshot
+    assert snapshot["test.metric"]["p50"] == 4.5
+    assert snapshot["test.metric"]["p95"] == 9.05
+
+def test_window_size_enforcement():
+    collector = TelemetryCollector(window_size=5)
+    
+    # Record 10 values
+    for i in range(10):
+        collector.record("test.metric", float(i))
+    
+    # Should only keep last 5
+    values = list(collector.metrics["test.metric"])
+    assert len(values) == 5
+    assert values == [5.0, 6.0, 7.0, 8.0, 9.0]
+
+def test_counters():
+    collector = TelemetryCollector()
+    collector.increment("errors", 5)
+    collector.increment("errors", 3)
+    
+    snapshot = collector.snapshot()
+    assert snapshot["errors"]["count"] == 8
+```
+
+**TelemetryAlerts Tests:**
+```python
+def test_threshold_violation():
+    alerts = TelemetryAlerts()
+    alerts.thresholds = {
+        "test.metric": {"min": 10.0, "max": 100.0}
+    }
+    
+    snapshot = {"test.metric": {"p50": 5.0}}  # Below min
+    violations = alerts.check(snapshot)
+    
+    assert len(violations) == 1
+    assert violations[0]["metric"] == "test.metric"
+    assert violations[0]["severity"] == "warning"
+
+def test_wildcard_patterns():
+    alerts = TelemetryAlerts()
+    alerts.thresholds = {
+        "plugin.*.process_time": {"max": 5.0}
+    }
+    
+    snapshot = {
+        "plugin.depth_blur.process_time": {"p95": 10.0},
+        "plugin.depth_motion.process_time": {"p95": 3.0},
+    }
+    
+    violations = alerts.check(snapshot)
+    assert len(violations) == 1
+    assert violations[0]["metric"] == "plugin.depth_blur.process_time"
+```
+
+### 5.2 Integration Tests
+
+```python
+def test_engine_telemetry_integration():
+    engine = RenderEngine()
+    
+    # Render a few frames
+    for _ in range(10):
+        engine.render_frame()
+    
+    snapshot = engine.telemetry.snapshot()
+    
+    # Should have engine metrics
+    assert "engine.frame_time" in snapshot
+    assert "engine.fps" in snapshot
+    assert snapshot["engine.fps"]["p50"] > 0
+    
+    # Should have memory metrics
+    assert "memory.rss_mb" in snapshot
+
+def test_plugin_telemetry_integration():
+    engine = RenderEngine()
+    plugin = DepthBlurPlugin()
+    engine.active_plugins = [plugin]
+    
+    engine.render_frame()
+    
+    snapshot = engine.telemetry.snapshot()
+    metric_name = f"plugin.{plugin.id}.process_time"
+    
+    assert metric_name in snapshot
+    assert snapshot[metric_name]["p50"] > 0
+```
+
+### 5.3 Performance Tests
+
+```python
+def test_telemetry_overhead():
+    """Telemetry recording should add <0.1ms per call."""
+    collector = TelemetryCollector()
+    context = VJLiveContext()
+    context.telemetry = collector
+    
+    iterations = 10000
+    start = time.perf_counter()
+    for i in range(iterations):
+        collector.record("test.metric", float(i))
+    elapsed = time.perf_counter() - start
+    
+    per_call = elapsed / iterations * 1000
+    assert per_call < 0.1, f"Telemetry overhead: {per_call}ms"
+
+def test_snapshot_performance():
+    """Snapshot generation should be fast."""
+    collector = TelemetryCollector()
+    
+    # Populate with data
+    for i in range(1000):
+        collector.record("test.metric", float(i))
+    
+    start = time.perf_counter()
+    for _ in range(100):
+        snapshot = collector.snapshot()
+    elapsed = time.perf_counter() - start
+    
+    assert elapsed / 100 < 0.001, f"Snapshot too slow: {elapsed/100}s"
+```
+
+---
+
+## 6. Configuration
+
+### 6.1 Telemetry Settings
+
+**Config File (`config/telemetry.yaml`):**
+```yaml
+# Telemetry configuration
+telemetry:
+  # Window size for rolling metrics (frames)
+  window_size: 60
+  
+  # Enable/disable components
+  enabled: true
+  log_to_file: true
+  log_to_websocket: true
+  prometheus_export: false  # For production
+  
+  # Logging
+  log_dir: "logs/telemetry"
+  log_rotation_size_mb: 100
+  log_retention_days: 7
+  
+  # Alerting thresholds
+  alerts:
+    fps:
+      min: 58.0
+      max: 62.0
+    frame_time_p95:
+      max: 16.67  # ms
+    plugin_process_time_p95:
+      max: 5.0  # ms
+    memory_rss_mb:
+      max: 2048.0
+```
+
+### 6.2 Environment Variables
+
+- `VJ_TELEMETRY_ENABLED=0` — Disable telemetry (privacy/performance)
+- `VJ_TELEMETRY_LOG_DIR=/path/to/logs` — Override log directory
+- `VJ_PROMETHEUS_PORT=9090` — Enable Prometheus endpoint
+
+---
+
+## 7. Production Considerations
+
+### 7.1 Performance Impact
+
+- **Recording**: ~0.05ms per call (fast path)
+- **Snapshot**: ~0.5ms for 100 metrics (called 1-4 times per second)
+- **WebSocket broadcast**: ~0.2ms per second (async)
+- **Total overhead**: <1% of 60 FPS budget
+
+### 7.2 Storage
+
+- **Log size**: ~1KB per frame (60 FPS → 3.6MB/min → 216MB/hour)
+- **Rotation**: Daily or 100MB
+- **Retention**: 7 days (configurable)
+- **Compression**: gzip old logs
+
+### 7.3 Security
+
+- Telemetry may contain sensitive data (plugin names, timing patterns)
+- Ensure no PII or content data is logged
+- Provide opt-out via `VJ_TELEMETRY_ENABLED=0`
+
+---
+
+## 8. Success Criteria
+
+- ✅ `TelemetryCollector` implemented with rolling window and percentiles
+- ✅ Engine instrumentation: frame time breakdown, FPS, memory, safety violations
+- ✅ All 80+ plugins instrumented with process time metrics
+- ✅ WebSocket broadcast to UI at 1-4 Hz
+- ✅ UI dashboard displays real-time metrics (FPS, slowest plugins, memory)
+- ✅ Historical logging to JSONL files with rotation
+- ✅ Prometheus export format available for production
+- ✅ Alerting system with configurable thresholds
+- ✅ Performance overhead <1% of 60 FPS budget
+- ✅ All unit tests pass (>90% coverage)
+- ✅ Integration tests verify end-to-end pipeline
+
+---
+
+## 9. Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Telemetry overhead exceeds budget | High | Benchmark; optimize hot paths; use Cython; reduce frequency |
+| Memory leak in metric storage | High | Use deque with maxlen; weak references; monitor growth |
+| WebSocket blocks main thread | Medium | Use async broadcast; separate thread |
+| Log files consume too much disk | Medium | Aggressive rotation; compression; retention policy |
+| Alert spam | Medium | Rate limiting; debouncing; severity levels |
+| Sensitive data leaked in logs | High | Sanitize metric names; no content data; opt-out flag |
+
+---
+
+## 10. Next Steps
+
+1. **Approve this specification** → Manager
+2. **Queue Phase D task via MCP switchboard** → Manager
+3. **Begin implementation** → Implementation Engineer
+
+---
+
+**Document Status**: Ready for Manager approval. Once approved, the implementation task will be queued for execution.
+
+**Dependencies**: Phase A (Context Object) must be completed before Phase D can begin.
+
+**Estimated Effort**: 3-4 days
+
+**Deliverables:**
+- `src/vjlive3/core/telemetry.py` with `TelemetryCollector`
+- Instrumented `engine.py` and all 80+ plugins
+- `src/vjlive3/ui/web_remote.py` with WebSocket broadcast
+- `src/vjlive3/ui/desktop_gui.py` with telemetry dashboard panel
+- `src/vjlive3/core/telemetry_logger.py` with file rotation
+- `src/vjlive3/core/telemetry_alerts.py` with threshold checking
+- Unit and integration tests (>90% coverage)
+
+**Future Phases:**
+- Phase G: Advanced analytics (anomaly detection, trend analysis)
+- Phase H: Integration with external monitoring (Grafana, Datadog)

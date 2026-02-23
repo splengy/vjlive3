@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_acid_fractal import DepthAcidFractalPlugin
 
 def test_acid_fractal_manifest():
@@ -25,7 +24,7 @@ def test_acid_fractal_mock_bypass():
     plugin = DepthAcidFractalPlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 123, "depth_in": 321}
     ctx.outputs = {}
     
@@ -66,7 +65,7 @@ def test_acid_fractal_missing_depth():
         plugin._width = 1920
         plugin._height = 1080
         
-        ctx = PluginContext(MagicMock())
+        ctx = MagicMock()(MagicMock())
         ctx.inputs = {"video_in": 5}  # No depth_in
         ctx.outputs = {}
         
@@ -78,13 +77,13 @@ def test_acid_fractal_missing_depth():
 
 def test_acid_fractal_empty_input():
     plugin = DepthAcidFractalPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
 
 def test_acid_fractal_full_pipeline():
     plugin = DepthAcidFractalPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 1, "depth_in": 2}
     ctx.outputs = {}
     

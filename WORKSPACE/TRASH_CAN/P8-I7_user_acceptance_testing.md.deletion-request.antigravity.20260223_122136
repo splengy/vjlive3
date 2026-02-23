@@ -1,0 +1,868 @@
+# P8-I7: User Acceptance Testing (UAT)
+
+## Overview
+
+**Task ID**: P8-I7  
+**Phase**: Phase 8 - Integration & Polish  
+**Priority**: P0 (Critical)  
+**Status**: ⬜ Todo  
+**Description**: Comprehensive User Acceptance Testing to validate production readiness
+
+**Objective**: Conduct thorough user acceptance testing to ensure VJLive3 meets all functional, performance, and usability requirements for real-world VJ performance scenarios. Validate that the application is ready for production deployment and end-user adoption.
+
+---
+
+## What This Module Does
+
+This task orchestrates a complete User Acceptance Testing (UAT) campaign to verify that VJLive3:
+
+1. **Meets User Needs**: All core VJ workflows are functional and intuitive
+2. **Performs Acceptably**: 60 FPS maintained under realistic load conditions
+3. **Handles Edge Cases**: Graceful degradation when hardware/resources are limited
+4. **Is Production-Ready**: All critical bugs resolved, documentation complete
+5. **Validates P8-I6**: Confirms that production deployment validation findings are addressed
+
+This is a **validation and coordination** task - no new code is written. Instead, existing functionality is tested against real-world scenarios, user feedback is collected and analyzed, and a final UAT sign-off report is generated.
+
+---
+
+## Public Interface
+
+### UAT Entry Point
+
+```python
+# scripts/run_uat.py
+def run_user_acceptance_testing(
+    test_plan_path: str = "docs/uat/test_plan.yaml",
+    scenarios_dir: str = "docs/uat/scenarios",
+    participants: list[str] = None,
+    duration_hours: float = 8.0
+) -> UATReport:
+    """
+    Execute comprehensive user acceptance testing campaign.
+    
+    Returns:
+        UATReport: Complete UAT results with pass/fail status, issues found,
+                   performance metrics, and sign-off recommendation.
+    """
+```
+
+### Report Structure
+
+```python
+class UATReport(BaseModel):
+    test_plan_version: str
+    execution_timestamp: datetime
+    participants: list[UATParticipant]
+    total_duration_hours: float
+    scenarios_executed: int
+    scenarios_passed: int
+    scenarios_failed: int
+    critical_issues: list[UATIssue]
+    major_issues: list[UATIssue]
+    minor_issues: list[UATIssue]
+    performance_metrics: PerformanceSummary
+    usability_feedback: UsabilityFeedback
+    sign_off_recommended: bool
+    sign_off_conditions: list[str]  # conditions that must be met before production
+```
+
+---
+
+## Inputs
+
+### Required Inputs
+
+| Input | Description | Location |
+|-------|-------------|----------|
+| **Executable Build** | Production-ready VJLive3 binary/package | `dist/vjlive3-<version>.tar.gz` or Docker image |
+| **Test Plan** | Structured UAT scenarios and acceptance criteria | `docs/uat/test_plan.yaml` |
+| **Test Scenarios** | Individual scenario definitions (YAML/JSON) | `docs/uat/scenarios/*.yaml` |
+| **Performance Baselines** | Expected performance thresholds | `.performance_baseline.json` |
+| **Hardware Profiles** | Target hardware configurations | `docs/uat/hardware_profiles.yaml` |
+| **User Personas** | Target user types and skill levels | `docs/uat/user_personas.yaml` |
+| **Checklist Templates** | UAT checklist and evaluation forms | `docs/uat/checklists/` |
+| **P8-I6 Report** | Production deployment validation results | `output/p8-i6_validation_report.json` |
+| **Bug Tracking** | Known issues from previous testing phases | `docs/known_issues.md` |
+| **Documentation** | User manual, quick start guide, API docs | `docs/` |
+
+### Optional Inputs
+
+- **Test Data**: Sample video files, audio tracks, depth camera feeds
+- **Hardware**: Physical depth cameras (Astra), MIDI controllers, DMX interfaces
+- **Network**: NDI sources, OSC clients, WebSocket test clients
+- **Monitoring**: Performance profiling tools (py-spy, psutil)
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** write new application code
+- ❌ Does **not** modify existing code to fix bugs (only documents them)
+- ❌ Does **not** perform automated unit/integration testing (that's P8-I1)
+- ❌ Does **not** conduct security penetration testing (that's P8-I3)
+- ❌ Does **not** optimize performance (that's P8-I2)
+- ❌ Does **not** create documentation (that's P8-I5)
+- ❌ Does **not** deploy to production (that's post-UAT)
+
+---
+
+## Detailed Test Categories
+
+### 1. Core Functionality Validation
+
+**Objective**: Verify all core VJ workflows function correctly end-to-end.
+
+**Scenarios**:
+
+| Scenario ID | Description | Success Criteria | Duration |
+|-------------|-------------|------------------|----------|
+| UAT-CORE-01 | Basic video playback and mixing | Load 4 video sources, crossfade between them, no dropped frames | 15 min |
+| UAT-CORE-02 | Depth camera integration | Connect Astra, verify depth map appears, apply depth-reactive effect | 20 min |
+| UAT-CORE-03 | Plugin chain building | Create 10-effect chain, save/load preset, hot-reload plugin | 25 min |
+| UAT-CORE-04 | Audio reactivity | Connect audio input, beat-sync effects, verify BPM detection accuracy | 20 min |
+| UAT-CORE-05 | Output mapping | Configure 3-output projection mapping with edge blending | 30 min |
+| UAT-CORE-06 | DMX lighting control | Send DMX to fixture, verify chase patterns, strobe effects | 20 min |
+| UAT-CORE-07 | MIDI controller mapping | Map 8 MIDI knobs to parameters, verify smooth control | 15 min |
+| UAT-CORE-08 | Recording and playback | Record 5-minute performance, playback with perfect sync | 20 min |
+| UAT-CORE-09 | NDI video transport | Send/receive NDI streams, verify low latency (<100ms) | 15 min |
+| UAT-CORE-10 | Web remote control | Connect browser remote, control parameters via WebSocket | 15 min |
+
+**Test Commands**:
+```bash
+# Launch VJLive3 with test configuration
+python -m vjlive3.main --config uat_config.yaml --log-level INFO
+
+# In separate terminal, run automated scenario triggers
+python scripts/uat_scenario_runner.py --scenario UAT-CORE-01 --timeout 900
+```
+
+**Validation Checks**:
+- All scenarios complete without crashes or freezes
+- No "Not Responding" states during normal operation
+- All UI elements render correctly on target hardware
+- Audio/video sync maintained within ±2 frames
+- Parameter changes apply immediately (no lag >100ms)
+
+---
+
+### 2. Performance Under Load
+
+**Objective**: Verify 60 FPS is maintained under realistic performance conditions.
+
+**Test Matrix**:
+
+| Configuration | Video Sources | Effects Chain | Resolution | Expected FPS |
+|---------------|---------------|---------------|------------|--------------|
+| Minimal | 1 | 2 | 1920×1080 | ≥58 |
+| Typical | 3 | 6 | 1920×1080 | ≥58 |
+| Heavy | 4 | 10 | 1920×1080 | ≥55 |
+| Stress | 4 | 12 | 3840×2160 | ≥50 |
+
+**Performance Metrics to Capture**:
+
+```bash
+# Monitor FPS, memory, CPU in real-time
+python scripts/monitor_performance.py --duration 300 --output uat_perf_metrics.json
+
+# Key metrics:
+# - Frame time variance (p50, p95, p99)
+# - Memory usage (RSS, VMS, GPU memory)
+# - CPU usage per core
+# - Disk I/O (if recording)
+# - Network throughput (if NDI/WebSocket active)
+```
+
+**Acceptance Criteria**:
+- **FPS**: ≥58 FPS p50, ≥55 FPS p95 in Typical configuration
+- **Frame Time**: ≤16.67ms p95, ≤33.34ms p99 (no stutters)
+- **Memory**: ≤200MB Python heap, ≤500MB total RSS (no leaks over 10min)
+- **CPU**: ≤80% total, ≤90% any single core (no thermal throttling)
+- **GPU Memory**: ≤2GB (NVIDIA) or ≤1GB (AMD integrated)
+- **Startup Time**: ≤5 seconds from launch to first frame
+- **Shutdown Time**: ≤3 seconds (clean exit, no zombie processes)
+
+**Stress Tests**:
+- Run for 2 hours continuously, monitor for memory leaks
+- Rapid plugin chain reconfiguration (100 changes in 5min)
+- Simultaneous recording + streaming + effects
+- Hot-reload 20 plugins in succession
+
+---
+
+### 3. Hardware Compatibility
+
+**Objective**: Verify VJLive3 works correctly on target production hardware.
+
+**Hardware Profiles to Test**:
+
+| Profile | CPU | GPU | RAM | Depth Camera | OS | Status |
+|---------|-----|-----|-----|---------------|----|--------|
+| Laptop-Gaming | i7-12700H | RTX 4060 | 32GB | Astra Pro | Win11 | ⬜ |
+| Desktop-Workstation | i9-13900K | RTX 4090 | 64GB | Astra Pro | Win11 | ⬜ |
+| Mini-PC | i7-13700H | RTX 4060 Mobile | 32GB | Astra Pro | Win11 | ⬜ |
+| Linux-Laptop | i7-12700H | RTX 3060 | 32GB | Astra Pro | Ubuntu 22.04 | ⬜ |
+| MacBook-Pro | M2 Pro | Apple Silicon | 32GB | *N/A* | macOS 13 | ⬜ |
+| Single-Board | i5-12400 | RTX 3050 | 16GB | Astra Pro | Win11 | ⬜ |
+
+**Hardware-Specific Tests**:
+
+1. **Depth Camera (Astra Pro)**:
+   - USB3 connection stability (no disconnects during 2hr session)
+   - Depth map resolution: 640×480 @ 30fps, 1280×960 @ 30fps
+   - IR mode toggle without crash
+   - Multiple depth cameras (if available): 2x Astra on separate USB controllers
+
+2. **MIDI Controllers**:
+   - Akai MPK Mini (USB class-compliant)
+   - Novation Launchpad X (USB, 8×8 grid)
+   - Behringer X-Touch (USB MIDI, 9 faders + knobs)
+   - Test: All controls map correctly, no MIDI feedback loops
+
+3. **DMX Output**:
+   - USB-to-DMX adapter (FTDI-based)
+   - ArtNet broadcast to 2 universes (512 channels each)
+   - sACN multicast
+   - Verify: No dropped packets, <5ms latency
+
+4. **Display Outputs**:
+   - 3-output projection mapping (spanning 3 physical monitors)
+   - 4K @ 60Hz output from single HDMI/DisplayPort
+   - Extended desktop vs. clone mode
+   - NDI output to 3 simultaneous receivers
+
+5. **Audio Interfaces**:
+   - Focusrite Scarlett 2i2 (USB audio, 48kHz)
+   - Built-in laptop audio (Realtek/Conexant)
+   - ASIO4ALL on Windows
+   - JACK on Linux
+   - Verify: <10ms audio latency, no dropouts
+
+**Driver/OS Compatibility**:
+- Windows 11 22H2+ (primary target)
+- Ubuntu 22.04 LTS (secondary)
+- macOS 13+ (tertiary, limited GPU support)
+- NVIDIA drivers: 535+ (Game Ready)
+- AMD drivers: 23.5+ (Adrenalin)
+- Intel drivers: 31+ (Arc)
+
+---
+
+### 4. Usability and User Experience
+
+**Objective**: Validate that VJLive3 is intuitive and efficient for professional VJs.
+
+**User Personas**:
+
+| Persona | Experience Level | Primary Use Case | Key Needs |
+|---------|------------------|------------------|-----------|
+| VJ-Pro | 5+ years, live performance | Club VJ, festival sets | Reliability, quick workflow, hotkeys |
+| VJ-Junior | 1-2 years, occasional gigs | House parties, small venues | Ease of use, presets, tutorials |
+| Visual-Artist | 10+ years, traditional art background | Art installations, galleries | Depth effects, generative art, precision |
+| Technical-VJ | Software dev, custom setups | Custom installations, hacking | API access, scripting, OSC/MIDI deep control |
+
+**Usability Testing Methods**:
+
+1. **Think-Aloud Protocol**:
+   - Give users 5 common tasks to perform while speaking thoughts
+   - Record audio + screen capture
+   - Identify confusion points, workarounds, mental model mismatches
+
+2. **Time-to-Completion**:
+   - Measure time for: "Build a 5-effect chain with depth input"
+   - Target: ≤2 minutes for VJ-Pro, ≤5 minutes for VJ-Junior
+   - Baseline: Competitor software (Resolume) ≈ 90 seconds
+
+3. **Error Rate**:
+   - Count user errors (wrong button, failed operation) per task
+   - Target: ≤1 error per task for VJ-Pro, ≤3 for VJ-Junior
+
+4. **Satisfaction Survey** (Likert scale 1-5):
+   - Overall ease of use
+   - Interface clarity
+   - Performance responsiveness
+   - Feature completeness
+   - Stability/reliability
+   - Target average: ≥4.0
+
+5. **Hotkey Efficiency**:
+   - Count keystrokes/mouse movements for common operations
+   - "Add effect to chain": ≤3 actions
+   - "Adjust parameter": ≤2 actions
+   - "Switch preset": ≤1 action
+
+**Usability Test Tasks**:
+
+1. **Task A**: Start from blank slate, create a performance setup with:
+   - 2 video sources (file + webcam)
+   - 1 depth source (Astra or simulated)
+   - 5-effect chain with depth-reactive effect
+   - Map 3 MIDI knobs to parameters
+   - Save as preset "TestA"
+
+2. **Task B**: During playback, dynamically:
+   - Add a new effect mid-chain
+   - Change output mapping to 2-projector edge blend
+   - Trigger DMX chase pattern
+   - Record 30-second clip
+
+3. **Task C**: Recover from errors:
+   - Unplug depth camera, verify graceful fallback
+   - Disconnect MIDI, verify parameters freeze but UI remains responsive
+   - Run out of GPU memory (simulate), verify warning + recovery
+
+---
+
+### 5. Documentation Validation
+
+**Objective**: Verify all documentation is accurate, complete, and matches actual behavior.
+
+**Documentation to Validate**:
+
+| Document | Validation Method | Acceptance Criteria |
+|----------|-------------------|---------------------|
+| `GETTING_STARTED.md` | New user follows steps to first frame | Completes in ≤15min without help |
+| `docs/plugin_api.md` | Developer implements test plugin | API matches spec, examples work |
+| `docs/ui.md` | User reference during UAT | Answers all UI questions correctly |
+| `docs/agents.md` | Developer understands agent system | Can configure agent parameters |
+| `QUICK_REFERENCE.md` | Hotkey lookup during tasks | All hotkeys listed are correct |
+| `CONTRIBUTING.md` | Contributor sets up dev environment | Pre-commit hooks pass, tests run |
+| `docs/decisions/ADR_*.md` | Architecture rationale clear | ADRs explain "why" not just "what" |
+
+**Validation Process**:
+1. Give documentation to 2-3 users who haven't seen it before
+2. Ask them to complete tasks using ONLY the docs (no expert help)
+3. Record where they get stuck, what's unclear, what's missing
+4. Collect direct feedback: "What would you add/change?"
+
+**Success Criteria**:
+- New user reaches first rendered frame in ≤15 minutes
+- All API examples in plugin_api.md are syntactically correct and run
+- No contradictions between docs and actual UI/behavior
+- All "How do I...?" questions answered by existing docs
+
+---
+
+### 6. Integration with External Systems
+
+**Objective**: Validate interoperability with common VJ ecosystem tools.
+
+**Integration Points to Test**:
+
+1. **NDI Sources/Sinks**:
+   - Send VJLive3 output to 3 NDI receivers simultaneously
+   - Receive 2 NDI sources as video inputs
+   - Verify: <100ms end-to-end latency, no packet loss
+
+2. **Spout (Windows only)**:
+   - Share VJLive3 output to Resolume/Ableton via Spout
+   - Receive Spout input from other applications
+   - Verify: Direct GPU-to-GPU copy, zero-copy, <5ms latency
+
+3. **OSC Control**:
+   - TouchOSC app on iPad controls VJLive3 parameters
+   - Send OSC from Ableton Live (Max for Live)
+   - Verify: <10ms OSC latency, all parameter types supported
+
+4. **MIDI Control**:
+   - 5 different MIDI controllers tested
+   - MIDI learn mode works for all parameters
+   - MIDI feedback (parameter changes update controller LEDs)
+   - Verify: No MIDI feedback loops causing crashes
+
+5. **DMX Lighting**:
+   - ArtNet broadcast to 2 universes
+   - sACN multicast to 3 receivers
+   - DMX fixture profiles for 10 common fixtures
+   - Verify: <5ms DMX latency, correct channel mapping
+
+6. **WebSocket Remote**:
+   - Browser-based remote control (Chrome/Firefox/Safari)
+   - Multiple simultaneous remotes (3 clients)
+   - Parameter updates broadcast to all clients in <50ms
+   - Verify: Connection recovery after network drop
+
+7. **Timecode Sync**:
+   - LTC (SMPTE) timecode from audio input
+   - MTC (MIDI Timecode) from MIDI interface
+   - NTP network time sync
+   - Verify: <1 frame timecode accuracy over 1 hour
+
+---
+
+### 7. Accessibility and Internationalization
+
+**Objective**: Verify basic accessibility requirements and i18n readiness.
+
+**Accessibility Checks** (if applicable):
+- Keyboard navigation: All UI functions accessible via keyboard
+- Screen reader: Basic UI elements announced (if GUI has accessibility tags)
+- Color contrast: UI text meets WCAG AA (4.5:1 ratio)
+- Font scaling: UI scales to 150% without layout breakage
+
+**Internationalization Checks**:
+- All user-facing strings externalized to `locales/en.json`
+- No hardcoded English strings in UI code
+- Date/time formatting uses locale-aware functions
+- Number formatting respects locale (decimal separator)
+
+---
+
+### 8. Recovery and Resilience
+
+**Objective**: Verify application recovers gracefully from failures.
+
+**Failure Scenarios to Test**:
+
+| Failure | Trigger | Expected Recovery | Max Downtime |
+|---------|---------|-------------------|--------------|
+| Plugin crash | Kill plugin process | Reload plugin, continue playback | <2 seconds |
+| GPU driver reset | `nvidia-smi --gpu-reset` | Detect reset, reinitialize GL context | <5 seconds |
+| Depth camera disconnect | Unplug USB | Show warning, continue without depth | Immediate |
+| Audio device loss | Disconnect audio interface | Switch to fallback device | <1 second |
+| Disk full | Fill disk to 100% | Stop recording, alert user, continue playback | Immediate |
+| Out of memory | Allocate until OOM | Graceful degradation, kill least-recent plugin | <3 seconds |
+| Network loss | Unplug Ethernet (NDI/OSC) | Queue messages, reconnect automatically | <10 seconds |
+| Power loss (laptop) | Unplug power, run on battery | Continue without throttling (if battery >20%) | N/A |
+
+**Recovery Validation**:
+- No data loss on crash recovery (presets, settings saved)
+- Auto-recovery of last session on restart
+- Clear error messages with actionable guidance
+- No "silent failures" (all errors logged and user-visible if impactful)
+
+---
+
+### 9. Real-World Performance Scenarios
+
+**Objective**: Simulate actual VJ performance conditions.
+
+**Scenario A: 4-Hour Club Set**
+- Duration: 4 hours continuous
+- Sources: 3 video loops + 1 live camera + depth
+- Effects: 8-effect chain, parameter tweaks every 30 seconds
+- Output: 2-projector edge-blended mapping (1920×1200 each)
+- Additional: DMX lighting control, MIDI controller, NDI recording
+- **Success**: No crashes, FPS ≥55 entire duration, memory stable
+
+**Scenario B: Festival Main Stage**
+- Duration: 1 hour, high-intensity
+- Sources: 4 4K video loops + live depth + audio reactive
+- Effects: 12-effect chain including heavy shaders (raymarch, particles)
+- Output: 3-projector mapping (4K each), NDI stream to streaming PC
+- Additional: 50 DMX fixtures, OSC control from lighting console
+- **Success**: FPS ≥50, no frame drops visible on 60Hz projector
+
+**Scenario C: Art Installation (24/7)**
+- Duration: 24 hours continuous (accelerated test: 2hrs @ 12× speed)
+- Sources: 1 generative effect (no video files)
+- Effects: 4-effect chain, minimal parameter changes
+- Output: Single 4K display
+- **Success**: Zero crashes, memory leak <1MB/hour, startup after reboot works
+
+**Scenario D: VJ Battle (Rapid Changes)**
+- Duration: 30 minutes, high stress
+- Pattern: Every 2 minutes, completely reconfigure:
+  - New preset load
+  - Add/remove 3 effects
+  - Remap 5 MIDI controls
+  - Switch video sources
+- **Success**: No hangs, UI remains responsive, FPS ≥50 during transitions
+
+---
+
+### 10. User Feedback Collection
+
+**Objective**: Gather structured feedback from real VJs.
+
+**Feedback Mechanisms**:
+
+1. **In-App Survey** (post-session):
+   ```yaml
+   questions:
+     - "Overall stability (1-5)": rating
+     - "Performance met expectations (1-5)": rating
+     - "Easiest feature to use": text
+     - "Most confusing feature": text
+     - "Feature missing compared to [Resolume/VDJ]": text
+     - "Would you use this in a live performance?": yes/no/unsure
+     - "Biggest bug encountered": text
+   ```
+
+2. **Structured Interview** (30min per participant):
+   - Walk through their typical VJ workflow
+   - Identify where VJLive3 fits or falls short
+   - Discuss feature gaps vs. current tools
+   - Gather "must-have" vs. "nice-to-have" prioritization
+
+3. **Bug Reporting** (during testing):
+   - Use integrated bug reporter (if available) or Google Form
+   - Auto-attach: logs, performance metrics, system info
+   - Categorize: crash, freeze, visual glitch, performance, usability
+
+4. **Comparative Testing** (if users have competitor software):
+   - Side-by-side comparison of common tasks
+   - "Which tool would you choose for [scenario] and why?"
+   - Document feature parity gaps
+
+**Participant Recruitment**:
+- Target: 10-15 professional VJs, 5-10 hobbyists
+- Diversity: Mix of experience levels, hardware setups, OSes
+- Incentive: $200 honorarium or free lifetime license
+
+---
+
+## Edge Cases and Error Handling
+
+### Edge Cases to Test
+
+1. **Extreme Resolutions**:
+   - 8K video source (7680×4320) → verify downscaling or rejection with clear error
+   - 4-output 4K mapping (15360×2160 total) → verify GPU memory limits
+
+2. **Unusual Frame Rates**:
+   - 23.976 fps, 29.97 fps, 120 fps sources
+   - Mixed frame rate chain (source A @ 30fps, source B @ 60fps)
+   - Verify: No audio/video drift, proper frame dropping/duplication
+
+3. **Malformed Inputs**:
+   - Corrupt video file (missing keyframes)
+   - Depth camera returning NaN values
+   - Audio input with DC offset/clipping
+   - Verify: Graceful degradation, no crashes, clear error messages
+
+4. **Resource Exhaustion**:
+   - 1000-effect chain (way beyond realistic) → verify rejection or performance collapse with warning
+   - 100 simultaneous NDI inputs → verify connection limit enforcement
+   - 1000 MIDI mappings → verify memory usage, UI responsiveness
+
+5. **Concurrent Operations**:
+   - Recording to disk while streaming NDI while rendering 4K
+   - Hot-reloading plugin during heavy effect chain execution
+   - Changing output mapping mid-performance
+   - Verify: No frame drops, no audio glitches, no crashes
+
+6. **Network Partitions**:
+   - NDI source disappears mid-stream
+   - WebSocket remote disconnects
+   - OSC packets dropped or reordered
+   - Verify: Automatic reconnection, no state corruption
+
+---
+
+## Performance Benchmarks
+
+### Target Metrics (from .performance_baseline.json)
+
+```json
+{
+  "fps": 60.0,
+  "memory_mb": 50.0,
+  "cpu_pct": 10.0
+}
+```
+
+### UAT-Specific Benchmarks
+
+| Metric | Target | Measurement Method |
+|--------|--------|-------------------|
+| **FPS (p50)** | ≥58 | In-game FPS counter + external validation |
+| **FPS (p95)** | ≥55 | 1% low FPS over 1-hour run |
+| **Frame Time Variance** | ≤2ms p95 | Frame time delta histogram |
+| **Memory (RSS) Growth** | ≤10MB/hour | psutil.Process.memory_info() over time |
+| **GPU Memory** | ≤2GB (RTX 3060+) | nvidia-smi or AMD equivalent |
+| **Audio Latency** | ≤20ms | Loopback test: audio in → out |
+| **MIDI Latency** | ≤5ms | Oscilloscope measurement |
+| **DMX Latency** | ≤5ms | DMX monitor with timestamp |
+| **NDI Latency** | ≤100ms | NDI tools latency test |
+| **OSC Latency** | ≤10ms | Wireshark capture + timestamp |
+| **WebSocket Roundtrip** | ≤50ms | Browser devtools network tab |
+| **Plugin Load Time** | ≤500ms | Time from selection to first frame |
+| **Preset Load Time** | ≤1 second | Full chain restore |
+| **Hot-Reload Time** | ≤2 seconds | Plugin code change → effect active |
+
+**Validation Commands**:
+```bash
+# Automated performance validation
+python scripts/validate_uat_performance.py \
+  --scenario typical \
+  --duration 3600 \
+  --metrics-output uat_metrics.json \
+  --thresholds .performance_baseline.json
+
+# Compare against baseline
+python scripts/compare_performance.py \
+  --baseline .performance_baseline.json \
+  --current uat_metrics.json \
+  --report uat_performance_comparison.html
+```
+
+---
+
+## Implementation Checklist
+
+### Pre-UAT Preparation
+
+- [ ] Build production-ready package (Docker image or standalone)
+- [ ] Verify P8-I6 validation report: all CRITICAL/HIGH issues resolved
+- [ ] Create UAT test plan document (this spec) and get approval
+- [ ] Recruit 15-20 UAT participants (mix of skill levels)
+- [ ] Prepare test hardware (laptops, depth cameras, MIDI controllers)
+- [ ] Set up bug tracking system (GitHub Issues, Jira, or Airtable)
+- [ ] Create feedback forms (Google Forms or in-app)
+- [ ] Prepare test data: 50+ video clips, 10+ audio tracks, depth recordings
+- [ ] Configure logging: verbose, structured JSON logs
+- [ ] Set up performance monitoring (py-spy, psutil, GPU monitoring)
+- [ ] Create UAT runner script to automate scenario execution
+- [ ] Prepare consent forms and NDA if needed
+- [ ] Schedule UAT sessions (2-3 hours each, 5-6 sessions total)
+
+### During UAT
+
+- [ ] Brief participants on goals, what to test, how to report bugs
+- [ ] Provide hardware checklist to verify all test configurations
+- [ ] Run through each scenario with at least 3 participants
+- [ ] Collect feedback forms after each session
+- [ ] Monitor performance metrics in real-time
+- [ ] Record screen + audio (with consent) for usability analysis
+- [ ] Log all bugs with severity, reproducibility, steps to reproduce
+- [ ] Daily debrief: identify common issues, adjust test plan if needed
+
+### Post-UAT
+
+- [ ] Aggregate all feedback into UAT Report
+- [ ] Triage bugs: Critical (block production), Major (should fix), Minor (nice-to-have)
+- [ ] Calculate pass/fail rates per scenario
+- [ ] Analyze performance metrics against baselines
+- [ ] Write executive summary for stakeholders
+- [ ] Create "Go/No-Go" recommendation with conditions
+- [ ] Present findings to manager and product owner
+- [ ] Update BOARD.md with UAT completion status
+- [ ] Hand off critical bugs to development team for fix iteration
+
+---
+
+## Success Criteria
+
+### Minimum Requirements for "Pass"
+
+1. **All Core Scenarios Pass**: ≥90% of UAT-CORE scenarios pass on ≥80% of hardware profiles
+2. **Performance**: FPS ≥55 p95 in Typical configuration on ≥80% of test hardware
+3. **Critical Bugs**: Zero P0 (blocker) bugs, ≤3 P1 (major) bugs with workarounds
+4. **User Satisfaction**: Average rating ≥3.5/5.0 from participants
+5. **Documentation**: All major features documented, new user tutorial ≤15min
+6. **Recovery**: All failure scenarios recover within specified time limits
+7. **Integration**: All external system integrations (NDI, OSC, DMX, MIDI) functional
+
+### "Go/No-Go" Decision
+
+**Go Production IF**:
+- ✅ All minimum requirements met
+- ✅ No P0 bugs
+- ✅ ≤5 P1 bugs (with acceptable workarounds)
+- ✅ Performance acceptable on ≥80% of target hardware
+- ✅ ≥70% of participants would use in live performance
+
+**No-Go (Requires Fixes) IF**:
+- ❌ Any P0 bug exists
+- ❌ FPS <50 on typical hardware
+- ❌ >10 P1 bugs
+- ❌ <50% of participants would use in live performance
+- ❌ Critical documentation missing
+
+**Conditional Go** (with post-launch fixes):
+- ⚠️ Minor bugs exist but don't block core workflows
+- ⚠️ Some hardware incompatibility (specify unsupported configurations)
+- ⚠️ Documentation gaps (specify what to add in first patch)
+
+---
+
+## Troubleshooting Guide
+
+### Common UAT Issues
+
+**Issue**: Application crashes during scenario execution  
+**Diagnosis**: Check `logs/vjlive3_uat_<timestamp>.log` for stack trace  
+**Action**: Reproduce with `gdb --args python -m vjlive3.main`, collect core dump  
+**Workaround**: Try simpler configuration (fewer effects, lower resolution)
+
+**Issue**: FPS consistently below threshold  
+**Diagnosis**: Run `python scripts/profile_fps.py --detailed` to identify bottleneck  
+**Action**: Check GPU driver version, update if outdated; reduce effect chain complexity  
+**Workaround**: Lower output resolution, disable heavy effects (raymarch, particles)
+
+**Issue**: Depth camera not detected  
+**Diagnosis**: `lsusb` (Linux) or Device Manager (Windows) to verify USB device  
+**Action**: Ensure USB3 port (blue insert), reinstall Astra drivers  
+**Workaround**: Use simulated depth source for testing
+
+**Issue**: MIDI controller not responding  
+**Diagnosis**: `python -m vjlive3.tools.midi_listener` to see if MIDI messages arrive  
+**Action**: Check MIDI device is selected in VJLive3 settings, not exclusive mode  
+**Workaround**: Use virtual MIDI loopback for testing
+
+**Issue**: NDI streams lagging or dropping  
+**Diagnosis**: Check network bandwidth (1 Gbps minimum), NDI tools monitor  
+**Action**: Reduce NDI resolution/bitrate, use wired network not WiFi  
+**Workaround**: Use local video files instead of NDI
+
+**Issue**: DMX output not working  
+**Diagnosis**: `python -m vjlive3.tools.dmx_monitor` to see if DMX frames transmitted  
+**Action**: Verify DMX interface is ArtNet/sACN compatible, check IP configuration  
+**Workaround**: Use DMX simulator for testing
+
+**Issue**: WebSocket remote disconnects frequently  
+**Diagnosis**: Check browser console for WebSocket errors, network tab  
+**Action**: Ensure stable network, increase WebSocket ping interval  
+**Workaround**: Use localhost instead of network IP if testing on same machine
+
+**Issue**: Audio latency too high (>50ms)  
+**Diagnosis**: `python scripts/measure_audio_latency.py` loopback test  
+**Action**: Use ASIO driver on Windows, JACK on Linux; reduce buffer size  
+**Workaround**: Accept higher latency for non-performative testing
+
+---
+
+## References
+
+### Related Documents
+
+- [`docs/security_audit.md`](docs/security_audit.md) - Security audit results (P8-I3)
+- [`docs/implementation_plan.md`](docs/implementation_plan.md) - Phase 0 app window plan
+- [`HARDENING_PLAN.md`](HARDENING_PLAN.md) - Multi-layered defense strategy
+- [`WORKSPACE/SAFETY_RAILS.md`](WORKSPACE/SAFETY_RAILS.md) - 10 non-negotiable constraints
+- [`docs/agents.md`](docs/agents.md) - Agent system documentation
+- [`docs/ui.md`](docs/ui.md) - User interface documentation
+- [`docs/plugin_api.md`](docs/plugin_api.md) - Plugin development guide
+
+### Related Tasks
+
+- **P8-I1**: End-to-end integration testing (automated tests)
+- **P8-I2**: Performance benchmarks (automated performance validation)
+- **P8-I3**: Security audit (security validation)
+- **P8-I5**: Complete documentation (docs validation)
+- **P8-I6**: Production deployment validation (infrastructure validation)
+
+### External Standards
+
+- **VJLive-2 Legacy**: Feature parity reference
+- **Resolume Avenue**: Industry benchmark for comparison
+- **SMPTE RP-211**: VJ performance best practices (informal)
+
+---
+
+## Appendix
+
+### A. UAT Report Template
+
+```markdown
+# UAT Report: VJLive3 v1.0
+
+## Executive Summary
+- **Dates**: 2026-02-XX to 2026-02-XX
+- **Participants**: N professional VJs, M hobbyists
+- **Total Testing Hours**: X
+- **Go/No-Go Recommendation**: [GO | NO-GO | CONDITIONAL GO]
+- **Critical Issues**: [List any P0 bugs]
+
+## Test Results Summary
+| Category | Scenarios | Passed | Failed | Pass Rate |
+|----------|-----------|--------|--------|-----------|
+| Core Functionality | 10 | 9 | 1 | 90% |
+| Performance | 4 | 3 | 1 | 75% |
+| Hardware Compatibility | 6 | 5 | 1 | 83% |
+| Usability | 5 | 4 | 1 | 80% |
+| Documentation | 7 | 6 | 1 | 86% |
+| Integration | 7 | 7 | 0 | 100% |
+| Recovery | 8 | 8 | 0 | 100% |
+| Real-World Scenarios | 4 | 3 | 1 | 75% |
+| **TOTAL** | **51** | **45** | **6** | **88%** |
+
+## Performance Metrics
+- FPS (p50): 58.2 (target: ≥58) ✅
+- FPS (p95): 54.8 (target: ≥55) ⚠️
+- Memory growth: 5MB/hour (target: ≤10MB) ✅
+- Audio latency: 18ms (target: ≤20ms) ✅
+
+## Critical Issues (P0)
+1. [If any, list with reproduction steps]
+
+## Major Issues (P1)
+1. [List up to 10 with impact and workaround]
+
+## Minor Issues (P2)
+1. [List cosmetic or low-impact issues]
+
+## User Feedback Highlights
+- **Positive**: "Depth effects are stunning", "MIDI mapping is intuitive"
+- **Negative**: "Hard to find preset save button", "NDI drops on laptop GPU"
+- **Feature Requests**: "Video looper with beat-sync", "More DMX fixture profiles"
+
+## Sign-Off Conditions
+Before production release, must address:
+1. [Condition 1, e.g., "Fix NDI dropout issue on laptops with Optimus"]
+2. [Condition 2, e.g., "Add preset save button to toolbar"]
+3. [Condition 3, e.g., "Update documentation with DMX fixture profiles"]
+
+## Recommendation
+[Detailed rationale for Go/No-Go decision]
+
+## Appendices
+- Appendix A: Full test logs
+- Appendix B: Raw performance metrics
+- Appendix C: Participant feedback forms
+- Appendix D: Bug tracking export
+```
+
+### B. UAT Participant Consent Form (Template)
+
+```
+VJLive3 User Acceptance Testing
+
+Purpose: Test VJLive3 software for production readiness.
+Duration: 2-3 hours
+Compensation: $200 or free lifetime license
+
+What you'll do:
+- Perform common VJ tasks using VJLive3
+- Provide feedback on usability and performance
+- Report any bugs or issues encountered
+
+Recording:
+- Screen capture + audio may be recorded for analysis
+- You may opt out of recording at any time
+
+Confidentiality:
+- All feedback and data will be kept confidential
+- You may request your data be withdrawn after the session
+
+Consent:
+[ ] I consent to participate in UAT
+[ ] I consent to screen/audio recording
+[ ] I understand I may withdraw at any time without penalty
+
+Signature: ____________________   Date: ___________
+```
+
+### C. Hardware Setup Checklist
+
+For each test workstation:
+
+- [ ] OS: Windows 11 22H2+ / Ubuntu 22.04 / macOS 13+
+- [ ] GPU: NVIDIA RTX 3060+ / AMD RX 6600+ / Apple Silicon M2+
+- [ ] Drivers: Latest stable (NVIDIA 535+, AMD 23.5+)
+- [ ] RAM: 32GB minimum
+- [ ] USB: 3.0 ports available for Astra + MIDI
+- [ ] Audio: Focusrite Scarlett or equivalent USB audio interface
+- [ ] Network: 1 Gbps wired (NDI/OSC testing)
+- [ ] Monitors: 2-3 displays (for multi-output mapping)
+- [ ] MIDI: Akai MPK Mini or equivalent
+- [ ] DMX: USB-to-DMX adapter (if testing DMX)
+- [ ] Depth: Orbbec Astra Pro with USB3 cable
+- [ ] VJLive3: Production build installed and licensed
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+

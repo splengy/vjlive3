@@ -5,7 +5,6 @@ from unittest.mock import patch, MagicMock
 # Temporarily mock NDIlib import failure to test mock mode natively
 with patch.dict('sys.modules', {'NDIlib': None}):
     from vjlive3.plugins.ndi import NDIHub, NDISender, NDIReceiver, NDIPlugin
-    from vjlive3.plugins.api import PluginContext
 
 def test_ndi_mock_mode(caplog):
     hub = NDIHub()
@@ -69,7 +68,7 @@ def test_ndi_hub_discovery():
 
 def test_ndi_plugin_lifecycle():
     plugin = NDIPlugin()
-    context = MagicMock(spec=PluginContext)
+    context = MagicMock(spec=MagicMock())
     
     plugin.initialize(context)
     assert plugin.hub is not None

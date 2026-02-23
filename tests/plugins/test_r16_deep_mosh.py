@@ -14,7 +14,6 @@ _gl.glCreateProgram.return_value=99; _gl.glGenVertexArrays.return_value=44
 _gl.glGenTextures.return_value=55; _gl.glGenFramebuffers.return_value=51
 sys.modules['OpenGL']=MagicMock(); sys.modules['OpenGL.GL']=_gl
 from vjlive3.plugins.r16_deep_mosh import R16DeepMoshPlugin, METADATA
-from vjlive3.plugins.api import PluginContext
 @pytest.fixture
 def plugin():
     _gl.reset_mock(); _gl.glGetShaderiv.return_value=1; _gl.glGetProgramiv.return_value=1
@@ -23,7 +22,7 @@ def plugin():
     return R16DeepMoshPlugin()
 @pytest.fixture
 def context():
-    ctx=PluginContext(MagicMock()); ctx.width=64; ctx.height=48; ctx.time=1.0
+    ctx=MagicMock()(MagicMock()); ctx.width=64; ctx.height=48; ctx.time=1.0
     ctx.inputs={"video_in":10}; ctx.outputs={}; return ctx
 def test_metadata(plugin):
     m=plugin.get_metadata(); assert m["name"]=='R16 Deep Mosh'; assert len(m["parameters"])==6

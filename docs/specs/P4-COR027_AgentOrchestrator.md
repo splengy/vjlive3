@@ -1,294 +1,193 @@
-# P4-COR027: AgentOrchestrator — LangGraph Agent Workflow System
+# P4-COR027_AgentOrchestrator.md
 
-## Mission Context
-The `AgentOrchestrator` is the LangGraph-based orchestration system for complex agent workflows in VJLive3. It manages multi-agent coordination, state machines, and decision-making processes using LangGraph's powerful graph-based workflow system. This core infrastructure enables sophisticated agent collaboration and autonomous performance generation.
+**Phase:** Phase 4 / P4-COR027  
+**Assigned To:** Implementation Engineer  
+**Spec Written By:** Manager (Antigravity)  
+**Date:** 2026-02-23  
 
-## Technical Requirements
+---
 
-### Core Responsibilities
-1. **LangGraph Workflow Management**
-   - Create and manage LangGraph state machines for agent workflows
-   - Define agent nodes, edges, and state transitions
-   - Handle message passing between agents
-   - Manage workflow execution and error recovery
+## Task: P4-COR027 — AgentOrchestrator
 
-2. **Multi-Agent Coordination**
-   - Coordinate multiple agents working on the same task
-   - Manage agent dependencies and execution order
-   - Handle agent failures and retries
-   - Optimize workflow for performance and efficiency
+**Priority:** P0 (Critical)  
+**Status:** ⬜ Todo  
+**Source:** `VJlive-2/core/agent_orchestrator.py`  
+**Legacy Class:** `AgentOrchestrator`  
 
-3. **State Management**
-   - Persist workflow state across sessions
-   - Manage agent state within workflows
-   - Handle state transitions and rollbacks
-   - Provide state inspection and debugging tools
+---
 
-4. **Integration with VJLive System**
-   - Bridge between LangGraph workflows and VJLive performance system
-   - Real-time workflow monitoring and control
-   - Event-driven workflow triggers
-   - Performance metrics and analytics
+## What This Module Does
 
-5. **Safety and Reliability**
-   - Workflow validation and error prevention
-   - Resource management and cleanup
-   - Deadlock detection and prevention
-   - Graceful degradation when agents fail
+`AgentOrchestrator` is the core execution loop and state machine engine for autonomous VJLive performance agents. Utilizing `LangGraph`, it constructs a directed cyclic graph representing the sentient loop: **Perceive** (visual UI mapping) → **Recall** (RAG via MemoryDB) → **Plan** (VLM prompt generation) → **Execute** (translating planned actions into GUI driver limits) → **Verify** (post-execution visual differential scoring). It supports physical "Time Travel" by rewinding agent states via LangGraph's `MemorySaver` checkpointer.
 
-### Architecture Constraints
-- **Modular**: Workflows should be composable and reusable
-- **Extensible**: Easy to add new agent types and workflow patterns
-- **Thread-Safe**: Concurrent workflow execution must be safe
-- **Performance**: Workflow execution must not impact 60 FPS render loop
-- **Observable**: Complete visibility into workflow state and execution
+---
 
-### Key Interfaces
+## What It Does NOT Do
+
+- Does NOT directly execute the ML models. It delegates perception to `self.agent.vlm_controller.screenshot_capturer` and retrieval to `self.agent.memory_db`.
+- Does NOT act globally across multiple agents. Each `AgentOrchestrator` instance is strictly bound 1:1 to a specific `agent_persona` object injected during initialization.
+
+---
+
+## Public Interface
+
 ```python
-class AgentOrchestrator:
-    def __init__(self, config: OrchestratorConfig, event_bus: Optional[EventBus] = None):
-        """Initialize orchestrator with configuration."""
+from typing import Dict, List, Any, Optional, TypedDict
+from vjlive3.plugins.base import BasePlugin
+import numpy as np
+from langgraph.graph import StateGraph
+from langgraph.checkpoint.memory import MemorySaver
+
+class AgentState(TypedDict):
+    """The state of the agent at any point in the cycle"""
+    agent_id: str
+    intent: str
+    context: Dict[str, Any]
+    screenshot: Optional[np.ndarray]
+    ui_elements: List[Dict[str, Any]]
+    precedents: List[Dict[str, Any]]
+    planned_action: Optional[Dict[str, Any]]
+    execution_result: Optional[Dict[str, Any]]
+    feedback: Optional[float]
+    history: List[Dict[str, Any]]
+
+class AgentOrchestrator(BasePlugin):
+    """
+    Manages the LangGraph orchestration for a VJLive Agent.
+    """
+    
+    METADATA = {
+        "id": "AgentOrchestrator",
+        "type": "orchestrator",
+        "version": "1.0.0",
+        "legacy_ref": "agent_orchestrator (AgentOrchestrator)"
+    }
+    
+    def __init__(self, agent_persona: Any) -> None:
+        """Initializes the checkpointer and compiles the LangGraph."""
+        pass
+        
+    def _build_graph(self) -> Any:
+        """Constructs and returns the compiled LangGraph workflow."""
         pass
 
-    def initialize(self) -> None:
-        """Load workflow definitions, initialize LangGraph."""
+    async def node_perceive(self, state: AgentState) -> Dict[str, Any]:
+        """Captures hardware screenshots and perceive UI elements."""
         pass
 
-    def start_workflow(self, workflow_id: str, context: WorkflowContext) -> str:
-        """Start a new workflow execution."""
+    async def node_recall(self, state: AgentState) -> Dict[str, Any]:
+        """Retrieves precedents from the agent's memory database."""
         pass
 
-    def stop_workflow(self, execution_id: str) -> None:
-        """Stop a running workflow execution."""
+    async def node_plan(self, state: AgentState) -> Dict[str, Any]:
+        """Queries the VLM controller to generate the next action."""
         pass
 
-    def get_workflow_status(self, execution_id: str) -> WorkflowStatus:
-        """Get the status of a workflow execution."""
+    async def node_execute(self, state: AgentState) -> Dict[str, Any]:
+        """Translates the planned dictionary action into driver/plugin hardware limits."""
         pass
 
-    def register_agent(self, agent: IAgent) -> None:
-        """Register an agent with the orchestrator."""
+    async def node_verify(self, state: AgentState) -> Dict[str, Any]:
+        """Computes a pixel-diff threshold to calculate execution success."""
         pass
 
-    def unregister_agent(self, agent_id: str) -> None:
-        """Remove an agent from the orchestrator."""
+    async def run_cycle(self, intent: str, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Triggers the async stream across the built graph."""
         pass
 
-    def get_available_workflows(self) -> List[WorkflowDefinition]:
-        """List all available workflow definitions."""
-        pass
-
-    def create_workflow(self, workflow_def: WorkflowDefinition) -> str:
-        """Create a new workflow definition."""
-        pass
-
-    def update_workflow(self, workflow_id: str, workflow_def: WorkflowDefinition) -> None:
-        """Update an existing workflow definition."""
-        pass
-
-    def delete_workflow(self, workflow_id: str) -> None:
-        """Delete a workflow definition."""
-        pass
-
-    def get_execution_history(self, workflow_id: str, limit: int = 100) -> List[ExecutionRecord]:
-        """Get execution history for a workflow."""
-        pass
-
-    def cleanup(self) -> None:
-        """Cleanup orchestrator resources."""
+    def rewind(self, steps: int = 1) -> Optional[Dict[str, Any]]:
+        """Restores the agent's state back via the LangGraph checkpointer history."""
         pass
 ```
 
-### Dependencies
-- **LangGraph**: Core workflow orchestration library
-- **ConfigManager**: Load `OrchestratorConfig` (workflow definitions, agent configs)
-- **EventBus**: Publish `WorkflowStarted`, `WorkflowCompleted`, `AgentExecuted` events
-- **HealthMonitor**: Report orchestrator health and workflow metrics
-- **IAgent Interface**: Standard interface for all agents
-- **AgentManager**: Coordinate with agent lifecycle management
-- **PerformanceBridge**: Bridge to VJLive performance system
+---
+
+## Inputs and Outputs
+
+### Node Mutators
+
+LangGraph relies on node functions returning dictionaries that merge into the `AgentState`.
+- `node_perceive`: Yields `{'screenshot': ... , 'ui_elements': ...}`
+- `node_recall`: Yields `{'precedents': ...}`
+- `node_plan`: Yields `{'planned_action': ...}`
+- `node_execute`: Yields `{'execution_result': {'status': str, 'action': dict, 'error'?: str}}`
+- `node_verify`: Yields `{'feedback': float}`
+
+### Action Dictionary Execution (mapped in `node_execute`)
+
+The executor requires deterministic mappings for specific string action types:
+1. `set_parameter`: Invokes `vlm_controller.set_parameter(target, value)`
+2. `click`: Invokes `vlm_controller.click(x, y)` from `coordinates`
+3. `scroll`: Invokes `vlm_controller.scroll(direction, amount)`
+4. `key_press`: Invokes `vlm_controller.key_press(key)`
+5. `drag`: Invokes `vlm_controller.drag(start, end)`
+
+### Visual Feedback Loop (mapped in `node_verify`)
+
+If the action was `set_parameter`, `click`, or `drag`, `node_verify` compares the `pre_screenshot` to the post-action screenshot using `np.abs()`.
+- If the mutation ratio `change_ratio > 0.01`: `feedback_score = min(1.0, 0.5 + change_ratio * 5)`
+- Else: `feedback_score = 0.3`
+If `>= 0.5`, the state is permanently saved into `memory_db.store_experience`.
+
+---
+
+## Edge Cases and Error Handling
+
+### Missing Dependencies
+- The `rewind()` method must handle an empty state history gracefully without throwing `IndexError`. If history is missing, return `None`.
+- `node_verify` might fail to capture the post-screenshot (e.g., UI crashed). It must catch the exception, fallback to `feedback_score = 0.8` if execution status was `"success"`, else `0.3`, rather than halting the graph.
+
+### Invalid Parameters
+- Within `node_execute`, if `action_type` does not match the 5 known schemas, it attempts to duck-type `hasattr(vlm_controller, 'execute_action')`. If this fails, it must explicitly set `status` to `"unsupported"` and NOT throw an exception.
+- If `planned_action` is `None` traversing into `node_execute`, immediately return `{"status": "skipped"}`.
+
+### Resource Limits
+- Thread configuration limits `config = {"configurable": {"thread_id": self.agent.card.agent_id}}`. As the DB checkpointer grows, `rewind()` must restrict index seeks mapping exactly to `min(steps, len(state_history) - 1)` to prevent history overflow bounds errors.
+
+---
+
+## Dependencies
+
+### External Libraries
+- `langgraph` (Requires explicit `StateGraph`, `END`, and `MemorySaver`).
+- `numpy` for pixel differential calculations (`np.abs`, `np.mean`).
+
+### Internal Modules
+- Intimately coupled to the duck-typed submodules inside `self.agent`: `vlm_controller`, `memory_db`, `card`.
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|------------------|
+| `test_graph_compilation` | Instantiating the class correctly builds a graph with 5 nodes matching the cyclic workflow path `perceive -> recall -> plan -> execute -> verify`. |
+| `test_node_execute_unsupported` | Passing an action `{'type': 'teleport'}` yields `{'execution_result': {'status': 'unsupported'}}` if no custom fallback is present. |
+| `test_node_verify_pixel_diff` | Passing a mock pre/post screenshot with `change_ratio=0.05` mathematically yields a `feedback` float of `0.75` for a click action. |
+| `test_rewind_clamping` | Calling `rewind(steps=100)` when state history is only length `5` safely clamps to index `4`. |
+
+**Minimum coverage:** 90% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 500 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-4] P4-COR027: AgentOrchestrator` message
+- [ ] BOARD.md updated (Status → ✅ Done)
+- [ ] Lock released
+
+---
 
 ## Implementation Notes
 
-### LangGraph Workflow Design
-```python
-# Example workflow definition
-workflow_def = {
-    "id": "collaborative_performance",
-    "description": "Multi-agent collaborative performance workflow",
-    "nodes": [
-        {
-            "id": "agent_selection",
-            "type": "agent_selection",
-            "config": {
-                "agent_types": ["PerformanceAgent", "GhostAgent", "StrobeAgent"],
-                "selection_strategy": "round_robin"
-            }
-        },
-        {
-            "id": "mood_analysis",
-            "type": "mood_analysis",
-            "config": {
-                "mood_source": "audio_features",
-                "analysis_window": 5.0
-            }
-        },
-        {
-            "id": "creative_decision",
-            "type": "creative_decision",
-            "config": {
-                "decision_strategy": "mood_based",
-                "mood_weights": {
-                    "happy": 0.3,
-                    "energetic": 0.5,
-                    "calm": 0.2
-                }
-            }
-        },
-        {
-            "id": "agent_execution",
-            "type": "agent_execution",
-            "config": {
-                "parallel_execution": true,
-                "max_concurrent": 3
-            }
-        },
-        {
-            "id": "performance_bridge",
-            "type": "performance_bridge",
-            "config": {
-                "bridge_type": "real_time",
-                "feedback_enabled": true
-            }
-        }
-    ],
-    "edges": [
-        {"source": "agent_selection", "target": "mood_analysis"},
-        {"source": "mood_analysis", "target": "creative_decision"},
-        {"source": "creative_decision", "target": "agent_execution"},
-        {"source": "agent_execution", "target": "performance_bridge"}
-    ]
-}
-```
+### Quality Standards
+- Preserve the precise mathematics inside the pixel-diff penalty checks in `node_verify` `(0.5 + change_ratio * 5)` and the fallback default constants (`0.7` for scroll, `0.3` for no change, `0.0` for error).
+- Ensure explicit `async def` typing is retained for all 5 LangGraph node methods, as the `compile()` function evaluates async boundaries identically to legacy.
 
-### Agent Node Types
-- **AgentSelectionNode**: Select appropriate agents for the task
-- **MoodAnalysisNode**: Analyze current mood and context
-- **CreativeDecisionNode**: Make creative decisions based on context
-- **AgentExecutionNode**: Execute agent actions in parallel or sequence
-- **PerformanceBridgeNode**: Bridge to VJLive performance system
-- **ErrorHandlingNode**: Handle agent failures and retries
-- **StatePersistenceNode**: Save/restore workflow state
-
-### Workflow Patterns
-- **Sequential**: Execute nodes in order
-- **Parallel**: Execute multiple nodes simultaneously
-- **Conditional**: Branch based on conditions
-- **Loop**: Repeat nodes until condition met
-- **Retry**: Retry failed nodes with backoff
-
-### Error Handling
-- **Agent Failure**: Retry with different agent, fallback to default behavior
-- **Workflow Error**: Rollback to previous stable state, notify user
-- **Resource Exhaustion**: Throttle workflow execution, release resources
-- **Deadlock Detection**: Detect and resolve circular dependencies
-
-## Verification Checkpoints
-
-### 1. Unit Tests (≥80% coverage)
-- [ ] `tests/orchestrator/test_orchestrator.py`: Core orchestrator functionality
-- [ ] `tests/orchestrator/test_workflows.py`: Workflow definition, execution, management
-- [ ] `tests/orchestrator/test_agent_integration.py`: Agent registration, execution, failure handling
-- [ ] `tests/orchestrator/test_error_handling.py`: Error recovery, retry logic, deadlock detection
-- [ ] `tests/orchestrator/test_performance.py`: Performance, scalability, resource usage
-
-### 2. Integration Tests
-- [ ] Orchestrator + AgentManager: Agent lifecycle coordination
-- [ ] Orchestrator + EventBus: Workflow events trigger visual responses
-- [ ] Orchestrator + PerformanceBridge: Workflow-driven performances
-- [ ] Multi-agent workflows: Complex agent collaboration
-
-### 3. Performance Tests
-- [ ] Workflow startup time: <1 second for complex workflows
-- [ ] Agent execution latency: <50 ms per agent action
-- [ ] Memory usage: <50 MB for orchestrator + 5 workflows
-- [ ] Scalability: 10+ concurrent workflows
-
-### 4. Manual QA
-- [ ] Create and execute custom workflows
-- [ ] Test agent failure recovery
-- [ ] Verify workflow state persistence
-- [ ] Test parallel agent execution
-- [ ] Debug workflow execution with inspection tools
-
-## Resources
-
-### Legacy References
-- `vjlive/agents/agent_orchestrator.py` — AgentOrchestrator (legacy implementation)
-- `vjlive/agents/agent_bridge.py` — Performance bridge integration
-- `vjlive/agents/awesome_collaborative_creation.py` — Multi-agent collaboration patterns
-- `vjlive/rhythm_consciousness.py` — Rhythm profile and mood connections
-
-### Existing VJLive3 Code
-- `src/vjlive3/core/ai_integration.py` — AI subsystem coordination
-- `src/vjlive3/core/event_bus.py` — Event bus for workflow events
-- `src/vjlive3/plugins/astra.py` — Threaded capture pattern
-- `src/vjlive3/render/engine.py` — Render loop integration example
-
-### External Documentation
-- LangGraph documentation: https://langchain-ai.github.io/langgraph/
-- Workflow orchestration patterns: "Workflow Patterns: A Catalog of Workflow Patterns"
-- Multi-agent systems: "AutoGen: Enabling Next-Gen LLM Applications via Multi-Agent Conversation"
-
-## Success Criteria
-
-### Functional Completeness
-- [ ] AgentOrchestrator can manage at least 5 different workflow types
-- [ ] Multi-agent coordination works with parallel execution
-- [ ] Workflow state persistence across sessions
-- [ ] Error recovery handles agent failures gracefully
-- [ ] Performance bridge integration works in real-time
-
-### Performance
-- [ ] Workflow startup time: <1 second for complex workflows
-- [ ] Agent execution latency: <50 ms per agent action
-- [ ] Memory usage: <50 MB for orchestrator + 5 workflows
-- [ ] Scalability: 10+ concurrent workflows
-
-### Reliability
-- [ ] System recovers from agent failures without workflow interruption
-- [ ] No crashes during 24-hour continuous operation
-- [ ] All exceptions logged with context, no silent failures
-- [ ] Unit test coverage ≥ 80%
-
-### Integration
-- [ ] AgentOrchestrator integrates with AgentManager for agent lifecycle
-- [ ] Workflow events trigger visual responses via event bus
-- [ ] Configuration persists across application restarts
-- [ ] Works with PerformanceBridge for real-time performances
-
-## Dependencies (Blocking)
-- P4-COR025: AgentManager (for agent lifecycle coordination)
-- P4-COR030: AgentPersona (for personality integration)
-- P4-COR009: AIIntegration (for AI subsystem coordination)
-- P4-COR024: AgentPerformanceBridge (for performance system bridge)
-- ConfigManager: For loading `OrchestratorConfig`
-- EventBus: For publishing workflow events
-
-## Notes for Implementation Engineer (Alpha)
-
-This is a **workflow orchestration** component. It must be:
-- **Modular**: Workflows should be composable and reusable
-- **Extensible**: Easy to add new agent types and workflow patterns
-- **Thread-Safe**: Concurrent workflow execution must be safe
-- **Well-tested**: 80% coverage mandatory, include failure simulations
-
-Start by:
-1. Reading `vjlive/agents/agent_orchestrator.py` to understand legacy design
-2. Defining `OrchestratorConfig` Pydantic model with workflow definitions
-3. Implementing LangGraph workflow management system
-4. Building agent registration and coordination system
-5. Adding performance bridge integration
-6. Writing tests alongside implementation (TDD style)
-
-The spec is **auto-approved**. Proceed to implementation following the workflow: SPEC → CODE → TEST → VERIFY → COMMIT → UPDATE BOARD.
+### Future Architecture Adjustments
+- If `LlamaIndex` replaces `LangGraph` for VJLive3 core ML architecture, the entire `.graph` execution pipeline logic stringing the `_build_graph` dependencies must be refactored natively. Until that transition is explicitly greenlit by the user, emulate `LangGraph` precisely.

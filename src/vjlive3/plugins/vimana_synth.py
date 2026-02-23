@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'synth_freq': 5.0, 'amplitude': 5.0, 'waveform': 0.0, 'geomet
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class VimanaSynthPlugin(EffectPlugin):
+class VimanaSynthPlugin(object):
     """Vimana synth — synthesizer-driven sacred geometry."""
     def __init__(self):
         super().__init__()

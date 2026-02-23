@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'scan_width': 3.0, 'scan_speed': 5.0, 'direction': 5.0, 'time
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class SlitScanPlugin(EffectPlugin):
+class SlitScanPlugin(object):
     """Slit scan — temporal slit-scan photography."""
     def __init__(self):
         super().__init__()

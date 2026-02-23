@@ -2,7 +2,7 @@
 
 ## What This Module Does
 
-Implements `DepthColorGradeEffect` — a depth-aware color grading effect that applies color transformations based on depth information. This effect creates cinematic color grading that varies with depth, allowing for dramatic foreground/background separation or atmospheric depth effects.
+This module implements the `DepthColorGradeEffect`, ported from the legacy `VJlive-2/plugins/vdepth/depth_color_grade.py` codebase. Rather than a basic atmospheric haze, it is a professional cinematic 3-zone (Near, Mid, Far) color engine. It independently manipulates Hue, Saturation, Temperature (Orange/Blue push), and Exposure per depth band, blending them smoothly via physical distance markers. Furthermore, it explicitly calculates HSV matrix conversions directly on the GPU and caps the final output with an overarching Film Emulation curve (Linear, S-Curve, or Logarithmic).
 
 ## Public Interface
 
@@ -130,24 +130,19 @@ class DepthColorGradeEffect(Effect):
 ## Implementation Notes
 
 ### Legacy References
-- `vjlive/vdepth/depth_color_grade.py` — Original implementation
-- `VJlive-2/plugins/p3_vd30.py` — Existing port (if present)
+- **Source Codebase**: `VJlive-2`
+- **File Paths**: `plugins/vdepth/depth_color_grade.py`
+- **Architectural Soul**: The legacy GLSL shader calculates complex temperature shifting by manually driving `color.r += t` and `color.b -= t` before executing an `rgb2hsv` conversion to lock saturation ratios. The 3-zone smoothstep blending algorithm (near_mask/mid_mask/far_mask) and the specific log emulation (`log(1.0 + color * 9.0) / log(10.0)`) MUST be preserved exactly to match the visual parity of the legacy effect.
 
 ### Key Algorithms
-1. **Depth Curve Mapping**: Map depth values to color parameters using specified curve
-2. **Foreground/Background Separation**: Apply different color parameters based on depth ranges
-3. **Atmospheric Haze**: Add depth-based haze effect for realism
-4. **Color Transition Functions**: Implement different mathematical functions for depth-to-color mapping
+1. **Geometric Soft Masking**: Calculates `near_mask`, `mid_mask`, and `far_mask` per pixel using `smoothstep` blending ratios.
+2. **GPU HSV Conversion**: Translates RGB space into HSV for mathematically perfect hue rotation and saturation scalar manipulation before reconstructing RGB.
+3. **Film Emulation**: Overarching non-linear contrast mapping for `S-Curve` and `Log` cinematic finish.
 
-### Performance Targets
-- 1080p @ 60fps: <10ms per frame
-- Memory: <15 MB additional (color lookup tables)
-- CPU: Optimized using NumPy vectorization
-
-### Safety Rails
-- **RAIL 1**: Must maintain 60fps target
-- **RAIL 6**: Handle missing depth source gracefully (fallback to uniform color grading)
-- **RAIL 8**: No GPU memory leaks in texture allocation
+### Optimization Constraints & Safety Rails
+- **Optimization Constraint (Safety Rail #1):** Like its sister plugin `DepthBlur`, the legacy `DepthColorGrade` invokes `glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, dn.shape[1], dn.shape[0], ...)` in every single active frame loop. This is strictly prohibited in VJLive3. The 8-bit depth array must exclusively be updated via `glTexSubImage2D` into a statically sized bounding box allocated during `__init__`.
+- **Handling Missing Audio Analytics:** If `audio_reactor=None`, the `near_temperature`, `near_saturation`, and `far_hue` uniforms gracefully fall back to parsing solely their unmodulated slider constants.
+- **Cleanup Requirement (Safety Rail #8):** `self.depth_texture` memory leak via Python `__del__` is inadequate. This effect requires an explicit OpenGL resource `.cleanup()` method.
 
 ## Deliverables
 

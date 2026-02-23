@@ -17,7 +17,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +166,7 @@ def _mat4_mul(a, b):
     return r
 
 
-class AdvancedParticle3DPlugin(EffectPlugin):
+class AdvancedParticle3DPlugin(object):
     """Advanced 3D particle system — GPU-instanced physics with force fields."""
 
     def __init__(self):

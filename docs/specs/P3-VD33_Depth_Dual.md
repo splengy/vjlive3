@@ -2,7 +2,7 @@
 
 ## What This Module Does
 
-Implements `DepthDualEffect` — a dual-depth processing effect that simultaneously applies two different depth-based effects to the same input, creating complex layered visualizations. This effect enables creative combinations of depth processing techniques, allowing for sophisticated visual compositions that leverage multiple depth interpretations.
+This module implements the `DepthDualEffect`, ported from the legacy `VJlive-2/plugins/vdepth/depth_dual.py` codebase. It is unique in that it is designed to simultaneously ingest *two* hardware depth matrices (e.g., a Kinect and a RealSense) and compute their mathematical differences in 3D space. It uses stereoscopic disparity to render 6 advanced interaction visualization modes: Collision surfaces, Wave Interference patterns, Volumetric volume-rendering, Boolean XOR occlusion mapping, difference amplification, and true Parallax Anaglyphs.
 
 ## Public Interface
 
@@ -142,24 +142,20 @@ class DepthDualEffect(Effect):
 ## Implementation Notes
 
 ### Legacy References
-- `vjlive/vdepth/depth_dual.py` — Original implementation
-- `VJlive-2/plugins/p3_vd33.py` — Existing port (if present)
+- **Source Codebase**: `VJlive-2`
+- **File Paths**: `plugins/vdepth/depth_dual.py`
+- **Architectural Soul**: The legacy shader defines 6 discrete operation modes evaluated via `if/else` logic mapped against an `interaction_mode` uniform slider (0.0 to 10.0). It requires a `depth_scale_b` modifier to mathematically harmonize varying millimeter-scale outputs from mismatched depth hardware (e.g., Kinect v1 vs Azure).
 
 ### Key Algorithms
-1. **Dual Effect Selection**: Choose two effects from available options
-2. **Depth Masking**: Apply each effect to specific depth ranges
-3. **Blend Mode Application**: Combine results using selected blending function
-4. **Audio Reactivity**: Modulate parameters based on audio features
+1. **Collision Mode (0)**: Finds intersecting geometry using `smoothstep()` over the absolute difference `abs(dA - dB)`.
+2. **Interference Mode (1)**: Transforms stereoscopic depth into sinusoidal phase fields (`sin(depth * freq + time)`); visualizes constructive/destructive interference maps.
+3. **Volumetric Mode (3)**: Calculates pseudo-light absorption using the formula `exp(-(max_d - min_d) * volume_absorption * 10)`.
+4. **Parallax Mode (5)**: Translates spatial disparity `(dA - dB)` directly into an uncalibrated 2D UV shift with a Red/Cyan anaglyph color composite.
 
-### Performance Targets
-- 1080p @ 60fps: <15ms per frame
-- Memory: <20 MB additional (dual effect buffers)
-- CPU: Optimized using NumPy vectorization and efficient processing
-
-### Safety Rails
-- **RAIL 1**: Must maintain 60fps target
-- **RAIL 6**: Handle missing depth source gracefully (fallback to single effect)
-- **RAIL 8**: No GPU memory leaks in texture allocation
+### Optimization Constraints & Safety Rails
+- **Optimization Constraint (Safety Rail #1):** The legacy shader executes raw `glTexImage2D` reallocation *twice* per frame (once for `depth_texture_a` and once for `depth_texture_b`). The VJLive3 port must instantiate two distinct pre-allocated FBO textures using `glTexSubImage2D` to prevent severe VRAM bottlenecking.
+- **Node Graph Wiring**: VJLive3 must expose a secondary hardware binding pin so the user can actually route two distinct `DepthSource` nodes into this single effect.
+- **Cleanup Requirement (Safety Rail #8):** Must explicitly clean up both depth textures in the destructor.
 
 ## Deliverables
 

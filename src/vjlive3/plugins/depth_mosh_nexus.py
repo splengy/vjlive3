@@ -20,7 +20,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -154,7 +154,7 @@ void main() {
 """
 
 
-class DepthMoshNexusPlugin(EffectPlugin):
+class DepthMoshNexusPlugin(object):
     """
     Depth Mosh Nexus — dual-depth displacement datamosh with loop control
     and synesthetic color overlay. 2-FBO Ping-Pong architecture.
@@ -204,7 +204,7 @@ class DepthMoshNexusPlugin(EffectPlugin):
         gl.glDeleteShader(fs)
         return prog
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             logger.warning("Mock mode engaged. Skipping GL initialization.")
             self._initialized = True
@@ -252,7 +252,7 @@ class DepthMoshNexusPlugin(EffectPlugin):
         self.fbo_a, self.tex_a = self._make_fbo(w, h)
         self.fbo_b, self.tex_b = self._make_fbo(w, h)
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
             return 0
 

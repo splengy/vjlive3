@@ -1,0 +1,84 @@
+import os
+import re
+from pathlib import Path
+import random
+
+def main():
+    root = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning")
+    board_path = root / "BOARD.md"
+    specs_dir = root / "docs/specs"
+    
+    with open(board_path, 'r', encoding='utf-8') as f:
+        board_content = f.read()
+
+    # Find all tasks
+    tasks = []
+    # Match lines like | P1-A1 | Audio Analyzer ...
+    for line in board_content.split('\n'):
+        match = re.search(r'\|\s*(P[0-9]+-[A-Z0-9]+)\s*\|', line)
+        if match:
+            tasks.append(match.group(1))
+
+    # Find all specs
+    spec_files = list(specs_dir.rglob('*.md'))
+    
+    mapped = {}
+    unmapped = []
+    
+    for task_id in tasks:
+        # find matching spec
+        matches = [s for s in spec_files if task_id in s.name]
+        if matches:
+            mapped[task_id] = matches[0]
+        else:
+            unmapped.append(task_id)
+            
+    print(f"Total tasks found in BOARD.md: {len(tasks)}")
+    print(f"Successfully mapped: {len(mapped)}")
+    print(f"Unmapped tasks: {len(unmapped)}")
+    
+    # Sort task IDs backward
+    sorted_tasks = sorted(mapped.keys(), reverse=True)
+    
+    # Sample 10 specs across different phases
+    # Let's just pick a few from P1, P2, P3, etc.
+    phases = {}
+    for t in sorted_tasks:
+        phase = t.split('-')[0]
+        if phase not in phases:
+            phases[phase] = []
+        phases[phase].append(t)
+        
+    sample_tasks = []
+    for phase in sorted(phases.keys()):
+        if phases[phase]:
+            sample_tasks.append(random.choice(phases[phase]))
+            
+    while len(sample_tasks) < 10 and len(sample_tasks) < len(mapped):
+        t = random.choice(sorted_tasks)
+        if t not in sample_tasks:
+            sample_tasks.append(t)
+
+    print("\nSample 10 specs for initial audit:")
+    for t in sample_tasks[:10]:
+        print(f" - {t}: {mapped[t].name}")
+        
+    # Create the checklist for all mapped specs, reverse order
+    checklist_path = root / "docs/specs_audit_checklist.txt"
+    with open(checklist_path, 'w', encoding='utf-8') as f:
+        f.write("# Legacy Reference Completeness Audit Checklist\n\n")
+        f.write("Items to verify in each spec:\n")
+        f.write("- [ ] Legacy codebase source (vjlive/ or VJlive-2/)\n")
+        f.write("- [ ] File paths\n")
+        f.write("- [ ] Class names\n")
+        f.write("- [ ] Key algorithms\n")
+        f.write("- [ ] Parameter mappings\n")
+        f.write("- [ ] Edge cases\n\n")
+        f.write("## Specs to Audit (Backwards Order)\n\n")
+        for t in sorted_tasks:
+            f.write(f"- [ ] {t}: {mapped[t].name}\n")
+            
+    print(f"\nCreated checklist at {checklist_path}")
+
+if __name__ == "__main__":
+    main()

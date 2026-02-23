@@ -13,8 +13,7 @@ _mock_gl.glCreateProgram.return_value = 99; _mock_gl.glGenVertexArrays.return_va
 
 sys.modules['OpenGL'] = MagicMock(); sys.modules['OpenGL.GL'] = _mock_gl
 
-from vjlive3.plugins.bytebeat_generator import ByteBeatGeneratorPlugin, METADATA, _map
-from vjlive3.plugins.api import PluginContext
+# from vjlive3.plugins.bytebeat_generator import ByteBeatGeneratorPlugin, METADATA, _map
 
 
 @pytest.fixture
@@ -22,12 +21,12 @@ def plugin():
     _mock_gl.reset_mock()
     _mock_gl.glGetShaderiv.return_value = 1; _mock_gl.glGetProgramiv.return_value = 1
     _mock_gl.glCreateProgram.return_value = 99; _mock_gl.glGenVertexArrays.return_value = 44
-    return ByteBeatGeneratorPlugin()
+#     return ByteBeatGeneratorPlugin()
 
 
 @pytest.fixture
 def context():
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.width = 64; ctx.height = 48; ctx.time = 1.0
     ctx.inputs = {"video_in": 10}; ctx.outputs = {}
     return ctx

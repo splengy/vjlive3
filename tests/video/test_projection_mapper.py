@@ -5,7 +5,6 @@ import math
 # Force GL mock before import to bypass need for active context during CI
 os.environ["PYTEST_MOCK_GL"] = "1"
 
-from vjlive3.video.projection_mapper import ProjectionMapper, BlendRegion, PolygonMask
 
 def test_blend_region_clamping():
     mapper = ProjectionMapper(1920, 1080)
@@ -84,7 +83,6 @@ def test_gl_paths():
     mapper._mock_mode = False
     
     # Inject a fake 'gl' into the module
-    import vjlive3.video.projection_mapper as pm
     pm.gl = type("MockGL", (), {
         "glGenFramebuffers": lambda x: 1,
         "glGenTextures": lambda x: 2,

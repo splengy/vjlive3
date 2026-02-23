@@ -1,0 +1,880 @@
+# P8-I6: Production Deployment Validation
+
+## Overview
+
+**Task ID**: P8-I6  
+**Phase**: Phase 8 - Integration & Polish  
+**Priority**: P0 (Critical)  
+**Status**: ⬜ Todo  
+**Description**: Comprehensive validation of VJLive3 production deployment readiness
+
+**Objective**: Ensure the VJLive3 application meets all production requirements for security, performance, reliability, and maintainability before deployment to production environments.
+
+---
+
+## What This Module Does
+
+This task performs a thorough validation of the VJLive3 production deployment configuration and infrastructure. It verifies that:
+
+1. **Docker Production Image** meets security and performance standards
+2. **Configuration Management** handles secrets, environment variables, and runtime settings correctly
+3. **Health Checks** are properly implemented and responsive
+4. **Resource Limits** are configured to prevent resource exhaustion
+5. **Logging & Monitoring** provide adequate observability
+6. **Security Hardening** follows best practices (non-root user, capability dropping, etc.)
+7. **Network Security** is properly configured (firewall, CORS, rate limiting)
+8. **Backup & Recovery** procedures are documented and tested
+9. **Performance Baselines** are established and met
+10. **Compliance** with all SAFETY_RAILS is verified
+
+This is a **validation-only** task - no new code is written. Instead, existing deployment artifacts are tested and verified against a comprehensive checklist.
+
+---
+
+## Public Interface
+
+### Validation Script Entry Point
+
+```python
+# scripts/validate_production.py
+def validate_production_deployment(
+    docker_compose_path: str = "docker-compose.prod.yml",
+    dockerfile_path: str = "Dockerfile.production",
+    baseline_path: str = ".performance_baseline.json",
+    config_dir: str = "config"
+) -> ValidationReport:
+    """
+    Run comprehensive production deployment validation.
+
+    Returns:
+        ValidationReport: Contains pass/fail status for all checks with detailed diagnostics
+    """
+```
+
+### Validation Report Structure
+
+```python
+@dataclass
+class ValidationReport:
+    timestamp: datetime
+    overall_status: ValidationStatus  # PASS, FAIL, WARNING
+    checks: List[ValidationCheck]     # Individual check results
+    summary: str                      # Human-readable summary
+    recommendations: List[str]        # Action items if any failures
+
+@dataclass
+class ValidationCheck:
+    name: str
+    status: ValidationStatus
+    message: str
+    details: Optional[dict] = None
+    severity: ValidationSeverity      # CRITICAL, HIGH, MEDIUM, LOW
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| `docker-compose.prod.yml` | Project root | Production Docker Compose configuration |
+| `Dockerfile.production` | Project root | Production Docker image definition |
+| `.performance_baseline.json` | Project root | Performance baseline metrics (FPS, memory, CPU) |
+| `config/secrets/` | Directory | Secret files (db_url, jwt_secret, redis_url, passwords) |
+| `pyproject.toml` | Project root | Project dependencies and metadata |
+| `SAFETY_RAILS.md` | Project root | Safety rail requirements to validate against |
+| `docs/security_audit.md` | Documentation | Security audit findings and fixes |
+| `src/vjlive3/` | Source code | Application code to verify imports and structure |
+
+### Outputs
+
+| Output | Location | Description |
+|--------|----------|-------------|
+| Validation Report | `stdout` + `validation_report.json` | Comprehensive validation results |
+| Test Results | `validation_tests/` | Detailed test logs and metrics |
+| Performance Metrics | `validation_performance/` | Benchmark results vs baseline |
+| Security Scan | `validation_security/` | Security audit output |
+| Compliance Matrix | `validation_compliance.md` | SAFETY_RAILS compliance table |
+
+---
+
+## What This Does NOT Do
+
+- ❌ **Does NOT modify** any production configuration files
+- ❌ **Does NOT deploy** the application to any environment
+- ❌ **Does NOT run** the full application (only validates configuration and runs unit/integration tests)
+- ❌ **Does NOT test** hardware-dependent features (Astra, MIDI, DMX) - those are validated in earlier phases
+- ❌ **Does NOT perform** load testing or stress testing (separate performance task)
+- ❌ **Does NOT validate** user acceptance criteria (that's P8-I7)
+- ❌ **Does NOT create** production infrastructure - assumes Docker Compose stack is complete
+
+---
+
+## Test Plan
+
+### 1. Docker Image Validation
+
+**Checks**:
+- [ ] Dockerfile uses non-root user (vjlive:1000)
+- [ ] All capabilities dropped except NET_BIND_SERVICE if needed
+- [ ] No privileged mode
+- [ ] Security options set (no-new-privileges)
+- [ ] Health check defined and correct endpoint
+- [ ] Only necessary ports exposed (5000)
+- [ ] Multi-stage build not used (single stage for simplicity)
+- [ ] Dependencies installed in correct order (system deps before pip)
+- [ ] Cache layers optimized (dependencies before source copy)
+- [ ] No development dependencies in production image
+- [ ] Python version matches pyproject.toml (>=3.9, using 3.11-slim)
+- [ ] No debug packages installed (curl removed after healthcheck? Actually curl is needed for healthcheck - verify it's present)
+
+**Test**:
+```bash
+# Build image and inspect
+docker build -f Dockerfile.production -t vjlive3:prod .
+docker inspect vjlive3:prod | jq '.[0].Config.User'  # Should be "1000"
+docker inspect vjlive3:prod | jq '.[0].HostConfig.CapDrop'  # Should include "ALL"
+docker inspect vjlive3:prod | jq '.[0].Config.ExposedPorts'  # Should have 5000/tcp
+```
+
+### 2. Docker Compose Validation
+
+**Checks**:
+- [ ] All services defined (backend, redis, postgres)
+- [ ] Service names are descriptive
+- [ ] Restart policy set to `unless-stopped`
+- [ ] Secrets properly mounted from `/run/secrets/`
+- [ ] Environment variables use secret files (not plain text)
+- [ ] Networks isolated (vjlive-network bridge)
+- [ ] Volumes defined for persistent data (postgres-data, redis-data)
+- [ ] Resource limits configured (mem_limit, cpus)
+- [ ] Health checks defined for all services
+- [ ] Dependencies between services (backend depends_on postgres, redis)
+- [ ] No privileged containers
+- [ ] No host network mode
+- [ ] User namespaces configured correctly
+
+**Test**:
+```bash
+# Validate compose file
+docker-compose -f docker-compose.prod.yml config
+
+# Check secret file existence
+test -f config/secrets/jwt_secret.txt
+test -f config/secrets/db_url.txt
+test -f config/secrets/db_password.txt
+test -f config/secrets/redis_url.txt
+test -f config/secrets/redis_password.txt
+```
+
+### 3. Configuration Validation
+
+**Checks**:
+- [ ] All required environment variables documented
+- [ ] Default values provided for optional settings
+- [ ] No hardcoded secrets in code
+- [ ] Configuration schema validated with Pydantic
+- [ ] Config files have correct permissions (600 for secrets)
+- [ ] Example .env file exists and is up to date
+- [ ] Configuration loading works without errors
+
+**Test**:
+```python
+# scripts/validate_config.py
+from vjlive3.config import Settings
+
+settings = Settings(_env_file=None)  # Should load from environment
+assert settings.database_url is not None
+assert settings.jwt_secret is not None
+assert settings.redis_url is not None
+```
+
+### 4. Security Validation
+
+**Checks** (from SECURITY.md and security_audit.md):
+- [ ] Rate limiting configured (100/min authenticated, 10/min unauthenticated)
+- [ ] RBAC implemented with role-based permissions
+- [ ] All API endpoints have Pydantic validation
+- [ ] Command injection prevention (no shell=True, no eval/exec)
+- [ ] Path traversal protection (sanitize all file paths)
+- [ ] JWT secret rotation capability documented
+- [ ] Docker security: non-root user, no privileged mode, cap_drop ALL
+- [ ] No debug endpoints in production (e.g., /debug, /console)
+- [ ] CORS configured appropriately (localhost only or with auth)
+- [ ] HTTPS/TLS termination documented (assumed at load balancer)
+- [ ] Secrets stored in Docker secrets or environment variables (not in code)
+- [ ] Database credentials rotated regularly (policy documented)
+- [ ] Logging does not leak sensitive data (no PII, no secrets)
+- [ ] Dependency vulnerabilities scanned (safety check passed)
+- [ ] No known CVEs in production dependencies
+
+**Test**:
+```bash
+# Run security scan
+bandit -r src/vjlive3/ -f json -o validation_security/bandit.json
+safety check --json --output validation_security/safety.json
+
+# Check for secrets in code
+grep -r "password\s*=" src/vjlive3/ | grep -v "test" | wc -l  # Should be 0
+grep -r "api_key" src/vjlive3/ | grep -v "test" | wc -l     # Should be 0
+grep -r "secret" src/vjlive3/ | grep -v "test" | wc -l      # Should be 0
+```
+
+### 5. Performance Baseline Validation
+
+**Checks**:
+- [ ] Performance baseline file exists (.performance_baseline.json)
+- [ ] Baseline metrics are reasonable (FPS ≥ 58, memory < 100MB, CPU < 20%)
+- [ ] Current performance meets or exceeds baseline
+- [ ] No performance regressions >5% from baseline
+- [ ] Memory usage stable (no monotonic increase in 60s test)
+- [ ] Frame time variance < 5ms (consistent timing)
+- [ ] No dropped frames in 60-second sample
+- [ ] GPU memory usage within limits (if applicable)
+- [ ] Plugin execution time within 14ms budget per frame
+
+**Test**:
+```bash
+# Run performance benchmark
+python scripts/benchmark_performance.py --duration 60 --output validation_performance/
+
+# Compare to baseline
+python scripts/compare_performance.py --baseline .performance_baseline.json --current validation_performance/results.json
+
+# Check FPS
+python -c "import json; data=json.load(open('validation_performance/results.json')); assert data['avg_fps'] >= 58, 'FPS below threshold'"
+```
+
+### 6. Health Check Validation
+
+**Checks**:
+- [ ] `/health` endpoint exists and returns 200 OK
+- [ ] Health check response includes required fields (status, timestamp, version)
+- [ ] Health check verifies database connectivity
+- [ ] Health check verifies Redis connectivity
+- [ ] Health check verifies MCP server connectivity
+- [ ] Health check returns 503 when dependencies are down
+- [ ] Health check response time < 100ms
+- [ ] Health check does not leak sensitive information
+
+**Test**:
+```bash
+# Start services
+docker-compose -f docker-compose.prod.yml up -d
+
+# Wait for health
+sleep 30
+
+# Test health endpoint
+curl -f http://localhost:5000/health | jq '.status'  # Should be "healthy"
+curl -f http://localhost:5000/health | jq '.timestamp'  # Should be ISO8601
+curl -f http://localhost:5000/health | jq '.version'   # Should match pyproject.toml
+
+# Test response time
+time curl -s http://localhost:5000/health > /dev/null  # Should be <100ms
+
+# Cleanup
+docker-compose -f docker-compose.prod.yml down
+```
+
+### 7. Database Validation
+
+**Checks**:
+- [ ] PostgreSQL container starts successfully
+- [ ] Database connection works from backend
+- [ ] Database migrations run on startup (if any)
+- [ ] Database user has least-privilege permissions
+- [ ] Database password stored in Docker secret
+- [ ] Database volume persists correctly
+- [ ] Database backup procedure documented
+- [ ] Connection pool configured correctly (min/max connections)
+- [ ] Database health check integrated into app health
+
+**Test**:
+```bash
+# Check postgres health
+docker-compose -f docker-compose.prod.yml ps postgres
+docker exec vjlive-postgres pg_isready -U vjlive
+
+# Verify connection from backend
+docker exec vjlive-backend python -c "from vjlive3.config import Settings; s=Settings(); import asyncpg; print('DB OK')"
+```
+
+### 8. Redis Validation
+
+**Checks**:
+- [ ] Redis container starts successfully
+- [ ] Redis password configured via Docker secret
+- [ ] Redis persistence enabled (AOF or RDB)
+- [ ] Redis memory limit configured (maxmemory)
+- [ ] Redis eviction policy set (allkeys-lru or volatile-lru)
+- [ ] Redis health check integrated into app health
+- [ ] Redis connection pooling configured
+- [ ] Redis TLS/SSL configured if needed (documented)
+
+**Test**:
+```bash
+# Check redis health
+docker-compose -f docker-compose.prod.yml ps redis
+docker exec vjlive-redis redis-cli -a $(cat config/secrets/redis_password.txt) ping  # Should return PONG
+
+# Check persistence
+docker exec vjlive-redis redis-cli -a $(cat config/secrets/redis_password.txt) config get appendonly  # Should be "yes"
+```
+
+### 9. Logging Validation
+
+**Checks**:
+- [ ] Structured JSON logging enabled in production
+- [ ] Log level set to INFO or WARNING (not DEBUG)
+- [ ] Logs written to stdout/stderr (Docker captures)
+- [ ] No sensitive data in logs (no passwords, tokens, PII)
+- [ ] Request logging includes correlation IDs
+- [ ] Error logs include stack traces
+- [ ] Log rotation configured (via Docker log driver)
+- [ ] Log aggregation documented (ELK, Loki, etc.)
+- [ ] Performance metrics logged (FPS, memory, plugin execution times)
+
+**Test**:
+```bash
+# Check logs
+docker-compose -f docker-compose.prod.yml logs backend | grep -E '"level":"ERROR"' | wc -l  # Should be 0 or very few
+docker-compose -f docker-compose.prod.yml logs backend | grep -i password | wc -l  # Should be 0
+docker-compose -f docker-compose.prod.yml logs backend | grep -i secret | wc -l  # Should be 0
+```
+
+### 10. Resource Limits Validation
+
+**Checks**:
+- [ ] Docker Compose defines `mem_limit` for backend service
+- [ ] Docker Compose defines `cpus` for backend service
+- [ ] Backend service respects memory limit (no OOM kills)
+- [ ] Backend service CPU throttling works correctly
+- [ ] Database and Redis have appropriate resource limits
+- [ ] System has enough resources for all services + overhead (20% buffer)
+- [ ] Resource limits documented in deployment guide
+
+**Test**:
+```bash
+# Check resource limits in compose
+docker-compose -f docker-compose.prod.yml config | grep -A5 "mem_limit\|cpus"
+
+# Run stress test to verify limits
+docker-compose -f docker-compose.prod.yml exec backend python -m vjlive3.stress_test --duration 60
+
+# Check for OOM kills
+docker ps --filter "status=exited" | grep -i vjlive | grep -i oom
+```
+
+### 11. Network Security Validation
+
+**Checks**:
+- [ ] Backend only binds to 0.0.0.0 (not 127.0.0.1) for external access
+- [ ] Firewall rules documented (which ports open)
+- [ ] Docker network isolated (vjlive-network)
+- [ ] No unnecessary ports exposed
+- [ ] CORS configured for trusted origins only (or localhost)
+- [ ] Rate limiting implemented on API endpoints
+- [ ] WebSocket connections authenticated (if applicable)
+- [ ] No default credentials (admin/admin changed)
+- [ ] TLS/SSL termination documented (nginx, load balancer)
+- [ ] VPN or zero-trust network access recommended for remote management
+
+**Test**:
+```bash
+# Check what ports are exposed
+docker-compose -f docker-compose.prod.yml config | grep -A3 "ports:"
+
+# Test CORS
+curl -I -X OPTIONS http://localhost:5000/api/params | grep -i "access-control-allow-origin"
+
+# Test rate limiting (if implemented)
+for i in {1..200}; do curl -s -o /dev/null -w "%{http_code}\n" http://localhost:5000/api/params; done | grep -c "429"  # Should see some 429s if rate limited
+```
+
+### 12. Backup & Recovery Validation
+
+**Checks**:
+- [ ] Database backup procedure documented
+- [ ] Automated backups configured (cron, systemd timer)
+- [ ] Backup retention policy defined (e.g., 30 days)
+- [ ] Backup encryption at rest (if sensitive)
+- [ ] Backup restoration procedure tested
+- [ ] Redis persistence configured (AOF or RDB)
+- [ ] Configuration files backed up (config/secrets/)
+- [ ] Disaster recovery runbook exists
+- [ ] Recovery Time Objective (RTO) documented
+- [ ] Recovery Point Objective (RPO) documented
+
+**Test**:
+```bash
+# Verify backup script exists and is executable
+test -x scripts/backup_production.sh
+
+# Test backup (dry run if possible)
+scripts/backup_production.sh --dry-run
+
+# Verify backup file created
+ls -lh backups/ | tail -1
+```
+
+### 13. Monitoring & Observability Validation
+
+**Checks**:
+- [ ] Metrics endpoint exists (`/metrics` for Prometheus)
+- [ ] Key metrics exposed: FPS, memory, CPU, plugin execution times, request latency, error rates
+- [ ] Logs structured as JSON for parsing
+- [ ] Tracing/correlation IDs flow through system
+- [ ] Alert thresholds defined (FPS < 55, memory > 80%, errors > 1%)
+- [ ] Dashboard exists (Grafana, Datadog, etc.)
+- [ ] Alerting configured (PagerDuty, Slack, email)
+- [ ] Uptime monitoring (UptimeRobot, Pingdom)
+- [ ] Performance baselines stored and compared
+
+**Test**:
+```bash
+# Check metrics endpoint
+curl -s http://localhost:5000/metrics | grep -E "vjlive3_|process_"
+
+# Check for key metrics
+curl -s http://localhost:5000/metrics | grep -q "vjlive3_fps"
+curl -s http://localhost:5000/metrics | grep -q "vjlive3_memory_bytes"
+curl -s http://localhost:5000/metrics | grep -q "vjlive3_plugin_duration_seconds"
+```
+
+### 14. Documentation Validation
+
+**Checks**:
+- [ ] README.md has production deployment section
+- [ ] GETTING_STARTED.md covers production setup
+- [ ] SECURITY.md documents security practices
+- [ ] OPERATIONS.md exists with runbook (if not, create)
+- [ ] API documentation complete (OpenAPI/Swagger)
+- [ ] Configuration options documented with defaults
+- [ ] Troubleshooting guide exists
+- [ ] Upgrade procedure documented
+- [ ] Rollback procedure documented
+- [ ] Contact information for support
+
+**Test**:
+```bash
+# Check documentation exists
+test -f docs/operations.md || echo "Missing operations manual"
+test -f docs/troubleshooting.md || echo "Missing troubleshooting guide"
+test -f docs/upgrade.md || echo "Missing upgrade guide"
+
+# Verify API docs accessible
+curl -s http://localhost:5000/docs | grep -i "swagger"  # FastAPI auto-docs
+```
+
+### 15. Compliance with SAFETY_RAILS
+
+**Checks** (from SAFETY_RAILS.md):
+- [ ] **Rail 1**: 60 FPS Sacred - Performance baseline shows ≥58 FPS
+- [ ] **Rail 2**: Offline-First Architecture - No cloud dependencies in core
+- [ ] **Rail 3**: Plugin System Integrity - All plugins have manifest.json
+- [ ] **Rail 4**: 750-Line Code Discipline - No file exceeds 750 lines
+- [ ] **Rail 5**: Test Coverage Gate - ≥97% coverage on new code (overall ≥80%)
+- [ ] **Rail 6**: Hardware Fail-Graceful - Hardware-absent tests pass
+- [ ] **Rail 7**: No Silent Failures - All errors logged with context
+- [ ] **Rail 8**: Resource Leak Prevention - No memory leaks in stress test
+- [ ] **Rail 9**: Backward Compatibility - Plugin API stable
+- [ ] **Rail 10**: Security Non-Negotiables - All security fixes implemented
+
+**Test**:
+```bash
+# Check coverage
+pytest --cov=src/vjlive3 --cov-report=json --cov-fail-under=80
+python -c "import json; cov=json.load(open('coverage.json')); assert cov['totals']['percent_covered'] >= 80, 'Coverage below 80%'"
+
+# Check file sizes
+find src/vjlive3 -name "*.py" -exec wc -l {} + | sort -rn | head -1  # Should be < 750
+
+# Check plugin manifests
+find src/vjlive3/plugins -name "*.py" -exec grep -L "METADATA" {} \;  # Should be empty
+
+# Check for print statements (development debug)
+grep -r "print(" src/vjlive3/ | grep -v "test" | wc -l  # Should be 0 or very few (logging only)
+```
+
+### 16. Integration Tests
+
+**Checks**:
+- [ ] All unit tests pass: `pytest tests/unit/ -v`
+- [ ] All integration tests pass: `pytest tests/integration/ -v`
+- [ ] All plugin tests pass: `pytest tests/plugins/ -v`
+- [ ] All DMX tests pass: `pytest tests/dmx/ -v`
+- [ ] All audio tests pass: `pytest tests/audio/ -v`
+- [ ] All UI tests pass: `pytest tests/ui/ -v`
+- [ ] End-to-end test passes: `pytest tests/e2e/ -v`
+- [ ] Performance tests pass: `pytest tests/performance/ -v`
+- [ ] No test failures or errors
+- [ ] Test coverage meets threshold (≥80%)
+
+**Test**:
+```bash
+# Run full test suite
+pytest -v --tb=short --cov=src/vjlive3 --cov-report=term-missing
+
+# Check exit code
+if [ $? -eq 0 ]; then
+    echo "All tests passed"
+else
+    echo "Tests failed"
+    exit 1
+fi
+```
+
+### 17. Dependency Validation
+
+**Checks**:
+- [ ] All dependencies in pyproject.toml have version constraints
+- [ ] No dependencies with known vulnerabilities (safety check)
+- [ ] No unused dependencies (all are imported somewhere)
+- [ ] No missing dependencies (all imports resolve)
+- [ ] License compatibility verified (all MIT/Apache/BSD)
+- [ ] No GPL dependencies (unless acceptable for project)
+- [ ] Dreamer dependencies NOT installed in production (torch, qiskit, openai, anthropic)
+- [ ] Legacy dependencies NOT installed (flask, flask-socketio, SQLAlchemy)
+
+**Test**:
+```bash
+# Check for vulnerabilities
+safety check --json --output validation_security/safety.json
+
+# Check license compliance
+python scripts/check_licenses.py --allowed "MIT,Apache,BSD" --output validation_compliance/licenses.json
+
+# Verify no dreamer packages installed
+pip list | grep -E "torch|qiskit|openai|anthropic" | wc -l  # Should be 0
+
+# Verify no legacy packages installed
+pip list | grep -E "flask|SQLAlchemy" | wc -l  # Should be 0
+```
+
+### 18. File Permissions & Ownership
+
+**Checks**:
+- [ ] Secret files have 600 permissions (rw-------)
+- [ ] Configuration files have 644 permissions (rw-r--r--)
+- [ ] Executable scripts have 755 permissions (rwxr-xr-x)
+- [ ] Docker secrets owned by root:root (Docker manages)
+- [ ] Application runs as non-root user (vjlive:1000)
+- [ ] No world-writable files
+- [ ] No setuid/setgid binaries
+- [ ] umask set to 077 or 027
+
+**Test**:
+```bash
+# Check secret file permissions
+ls -l config/secrets/*.txt | grep -v "^-rw-------"  # Should be empty
+
+# Check Dockerfile sets correct user
+grep -A2 "USER" Dockerfile.production  # Should be "USER vjlive"
+
+# Check running container user
+docker-compose -f docker-compose.prod.yml exec backend id  # Should be uid=1000(vjlive)
+```
+
+### 19. Disaster Recovery Validation
+
+**Checks**:
+- [ ] Backup restoration procedure documented and tested
+- [ ] Database restore from backup works
+- [ ] Redis data recovery works (from AOF/RDB)
+- [ ] Configuration restore procedure documented
+- [ ] Service failover tested (if applicable)
+- [ ] Data migration procedures documented (for version upgrades)
+- [ ] Emergency contacts listed
+- [ ] Incident response plan exists
+
+**Test**:
+```bash
+# Test backup/restore (in isolated environment)
+scripts/backup_production.sh
+scripts/restore_production.sh --backup backups/latest.tar.gz --dry-run
+
+# Verify restore would succeed
+scripts/restore_production.sh --verify-only
+```
+
+### 20. Compliance & Audit
+
+**Checks**:
+- [ ] All SAFETY_RAILS documented as met
+- [ ] Security audit report complete (docs/security_audit.md)
+- [ ] Performance baseline established and approved
+- [ ] All tasks in BOARD.md marked complete for Phases 0-7
+- [ ] No outstanding TODOs or FIXMEs in production code
+- [ ] License file present and correct (MIT)
+- [ ] Third-party attributions documented (NOTICE file if needed)
+- [ ] Data processing agreement (if handling user data) documented
+- [ ] GDPR/privacy compliance documented (if applicable)
+
+**Test**:
+```bash
+# Check for TODOs
+grep -r "TODO\|FIXME\|XXX" src/vjlive3/ | grep -v test | wc -l  # Should be 0
+
+# Check BOARD.md completion
+grep -c "✅ Done" BOARD.md  # Should match total tasks
+
+# Verify license
+cat LICENSE | grep -i MIT  # Should exist
+```
+
+---
+
+## Edge Cases & Error Handling
+
+### 1. Missing Secret Files
+**Scenario**: Docker secrets not present at `/run/secrets/`  
+**Expected**: Application fails fast with clear error message indicating which secret is missing  
+**Validation**: Test startup without secrets, verify error message
+
+### 2. Database Connection Failure
+**Scenario**: PostgreSQL not running or credentials wrong  
+**Expected**: Health check returns 503, application retries with exponential backoff  
+**Validation**: Stop database, verify health endpoint returns 503
+
+### 3. Out of Memory
+**Scenario**: System under memory pressure  
+**Expected**: Docker OOM killer may terminate container; system should have swap or monitoring to alert  
+**Validation**: Stress test with memory limit, verify graceful degradation or restart
+
+### 4. Disk Full
+**Scenario**: Persistent volume full (logs, database)  
+**Expected**: Application logs errors, may become read-only; alerts triggered  
+**Validation**: Fill disk to 95%, verify alerts and graceful handling
+
+### 5. Network Partition
+**Scenario**: Backend cannot reach Redis or PostgreSQL  
+**Expected**: Circuit breaker opens, retries with backoff, health check fails  
+**Validation**: Block network with iptables, verify retry logic and health status
+
+### 6. Slow Disk I/O
+**Scenario**: Database or Redis on slow storage  
+**Expected**: Performance degrades but does not crash; alerts triggered  
+**Validation**: Use `tc` to add latency, verify FPS drop and alerts
+
+### 7. Time Synchronization
+**Scenario**: System clock drift between containers  
+**Expected**: Log timestamps may be inconsistent; NTP recommended  
+**Validation**: Check timestamps across containers, verify NTP installed
+
+### 8. Container Restart Loops
+**Scenario**: Application crashes on startup repeatedly  
+**Expected**: Docker restart policy backs off, logs show error; alerts triggered  
+**Validation**: Break application entrypoint, verify restart backoff and logs
+
+---
+
+## Performance Benchmarks
+
+### Baseline Metrics (from .performance_baseline.json)
+
+```json
+{
+  "fps": 60.0,
+  "memory_mb": 50.0,
+  "cpu_pct": 10.0
+}
+```
+
+### Validation Thresholds
+
+| Metric | Baseline | Acceptable | Critical |
+|--------|----------|------------|----------|
+| Average FPS | 60.0 | ≥58.0 | <55.0 |
+| Memory Usage | 50 MB | <100 MB | >200 MB |
+| CPU Usage | 10% | <20% | >50% |
+| Frame Time Variance | N/A | <5ms | >10ms |
+| Startup Time | N/A | <5s | >10s |
+| Health Check Latency | N/A | <100ms | >500ms |
+| API Response Time (p95) | N/A | <50ms | >200ms |
+
+### Benchmark Commands
+
+```bash
+# Run full benchmark suite
+python scripts/benchmark_production.py \
+    --duration 60 \
+    --output validation_performance/ \
+    --compare-to .performance_baseline.json
+
+# Generate performance report
+python scripts/generate_performance_report.py \
+    --input validation_performance/results.json \
+    --baseline .performance_baseline.json \
+    --output validation_performance/report.html
+```
+
+---
+
+## Implementation Checklist
+
+### Pre-Validation Setup
+
+- [ ] Install Docker and Docker Compose
+- [ ] Clone repository with all submodules
+- [ ] Run `./setup.sh` to set up development environment
+- [ ] Build production image: `docker-compose -f docker-compose.prod.yml build`
+- [ ] Create config/secrets directory with required files
+- [ ] Generate random secrets: `openssl rand -hex 32 > config/secrets/jwt_secret.txt` (etc.)
+- [ ] Ensure no other services using ports 5000, 6379, 5432
+
+### Validation Execution
+
+- [ ] Run all 20 validation categories above
+- [ ] Capture output in `validation_report.json`
+- [ ] Generate HTML report for human review
+- [ ] Verify all CRITICAL and HIGH severity checks pass
+- [ ] Document any WARNING or MEDIUM issues with mitigation plan
+
+### Post-Validation
+
+- [ ] Update BOARD.md: Mark P8-I6 as ✅ Done
+- [ ] Create `task_completion_P8-I6.md` with summary
+- [ ] Commit validation results to repository
+- [ ] If failures, create issue tickets for each failure
+- [ ] Schedule re-validation after fixes
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+1. ✅ All CRITICAL severity checks pass (100%)
+2. ✅ All HIGH severity checks pass (100%)
+3. ✅ Overall validation status = PASS
+4. ✅ No security vulnerabilities (P0-P2)
+5. ✅ Performance meets or exceeds baseline (FPS ≥ 58)
+6. ✅ All integration tests pass (0 failures)
+7. ✅ Test coverage ≥ 80%
+8. ✅ Docker image builds without errors or warnings
+9. ✅ Health check endpoint returns 200 OK
+10. ✅ All services start and are healthy within 60 seconds
+
+### Should Pass (Best Effort)
+
+1. ⚠️ All MEDIUM severity checks pass (or documented waivers)
+2. ⚠️ All LOW severity checks pass (or documented waivers)
+3. ⚠️ Resource limits configured appropriately
+4. ⚠️ Monitoring and alerting configured
+5. ⚠️ Backup and recovery tested
+
+---
+
+## Common Pitfalls & Troubleshooting
+
+### Issue: Docker build fails with permission errors
+**Fix**: Ensure you're in the `docker` group or use `sudo`. Check that all files in `config/secrets/` have correct permissions (600).
+
+### Issue: Health check fails with connection refused
+**Fix**: Wait longer for services to start (Postgres can take 10-20s). Check logs: `docker-compose logs backend`. Verify database migrations ran.
+
+### Issue: Performance below baseline
+**Fix**: Check for debug mode enabled. Ensure `uvloop` installed. Check for development dependencies in production image. Profile with `py-spy` or `cProfile`.
+
+### Issue: Security scan finds vulnerabilities
+**Fix**: Run `safety update` to update dependencies. If vulnerability is in transitive dependency, check for patched version or consider replacing package.
+
+### Issue: Tests fail in Docker but pass locally
+**Fix**: Check that test dependencies are installed in production image (they shouldn't be). Run tests inside container: `docker-compose exec backend pytest`. Check environment differences.
+
+### Issue: Secrets not found in container
+**Fix**: Docker secrets must be in `/run/secrets/` inside container. Verify `docker-compose.prod.yml` has correct `secrets:` section. Check that `config/secrets/` files exist on host.
+
+---
+
+## References
+
+- **SAFETY_RAILS.md**: Safety rail requirements
+- **SECURITY.md**: Security policies and practices
+- **HARDENING_PLAN.md**: Comprehensive hardening plan
+- **docker-compose.prod.yml**: Production Docker Compose configuration
+- **Dockerfile.production**: Production Docker image definition
+- **.performance_baseline.json**: Performance baseline metrics
+- **docs/security_audit.md**: Security audit report
+- **pyproject.toml**: Project dependencies and configuration
+
+---
+
+## Appendix: Validation Report Template
+
+```markdown
+# Production Deployment Validation Report
+
+**Date**: 2026-02-23  
+**Validator**: Roo Code Manager  
+**Target**: VJLive3 v0.1.0 (commit abc123)  
+**Overall Status**: ✅ PASS
+
+## Summary
+
+- **Total Checks**: 100
+- **Passed**: 98
+- **Failed**: 0
+- **Warnings**: 2
+- **Critical Issues**: 0
+- **High Issues**: 0
+
+## Failed Checks
+
+None.
+
+## Warnings
+
+1. **MEDIUM**: Redis maxmemory not set - Set `maxmemory` to 256mb in redis.conf
+2. **LOW**: No automated backup schedule - Document cron job for daily backups
+
+## Performance Metrics
+
+| Metric | Baseline | Measured | Status |
+|--------|----------|----------|--------|
+| FPS | 60.0 | 61.2 | ✅ |
+| Memory | 50 MB | 47 MB | ✅ |
+| CPU | 10% | 12% | ✅ |
+
+## Recommendations
+
+1. Add Redis memory limit configuration
+2. Create cron job for automated backups: `0 2 * * * /app/scripts/backup.sh`
+3. Configure Prometheus alerts for FPS < 55
+4. Document disaster recovery runbook
+
+## Next Steps
+
+- [ ] Address warnings before production launch
+- [ ] Schedule re-validation after fixes
+- [ ] Obtain security sign-off
+- [ ] Proceed to P8-I7: User acceptance testing
+
+---
+
+**Validator Signature**: ____________________  
+**Date**: ____________________
+```
+
+---
+
+## Task Completion Criteria
+
+This task is considered **complete** when:
+
+1. ✅ All 20 validation categories executed successfully
+2. ✅ No CRITICAL or HIGH severity failures
+3. ✅ Validation report generated and reviewed
+4. ✅ All required artifacts committed to repository
+5. ✅ BOARD.md updated with completion note
+6. ✅ Any warnings have documented mitigation plans
+7. ✅ Manager approval obtained
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+

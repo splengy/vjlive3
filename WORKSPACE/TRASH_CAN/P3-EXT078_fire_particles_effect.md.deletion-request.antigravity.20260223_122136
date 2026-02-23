@@ -1,0 +1,22 @@
+# Spec: P3-EXT078 Fire Particles Effect
+
+## Legacy Source
+
+### v1/v2: `VJlive-2/core/effects/shadertoy_particles.py`
+- **Classes:** `ShadertoyParticles(Effect)`, `FireParticles(ShadertoyParticles)`, `NebulaParticles(ShadertoyParticles)`.
+- **Key logic:**
+  - Employs a GLSL fragment shader simulating particle interaction, distance-based glow, and trail effects.
+  - CPU-side NumPy physics simulation (`_update_particles`) running at 60 FPS, maintaining position, velocity, energy, and type in arrays.
+  - Audio bindings to volume, bass, mid, treble, and beat to apply radial, circular, expansion, noise, and burst forces respectively to particles.
+  - Renders particles via multi-channel FP32 textures (`particle_data_tex` and `particle_props_tex`) uploaded every frame to OpenGL.
+  - Specially, `FireParticles` overrides `_update_particles` to create upward thrust `vel[1] -= 0.00002 * (1.0 + volume * 2.0)`, horizontal instability from bass `(sin+cos)*bass*0.00001`, and reset bounds at the top of the screen to simulate rising flame convection.
+- **Edge cases handled:**
+  - Caps neighbor interactions in the inner physics loop to 50 particles to prevent CPU-side physics lag.
+  - Applies gentle energy fading and velocity damping to create stable visual equilibrium.
+- **What v2 adds:**
+  - `core/effects/shadertoy_particles.py` in v2 introduced a `sentience` parameter intended for Phase 6 "Collective Consciousness" overrides (high sentience forces particles into "The Hive" attractor mode and causes digital anxiety jitter).
+
+### Port Decision
+Port the `FireParticles` effect as an `EffectNode` in VJLive3 named `FireParticlesEffect`.
+Extract the GLSL shader verbatim and reuse the `numpy` arrays and physics loop (`_update_particles`) verbatim.
+The only modifications will be adapting the parameter registry and polling `SignalBus` to get the real-time audio analysis features (bass, beat, volume, etc) instead of the old v2 `AudioAnalyzer` coupling.

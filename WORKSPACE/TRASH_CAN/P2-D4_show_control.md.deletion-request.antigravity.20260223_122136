@@ -1,0 +1,333 @@
+# P2-D4: Show Control System
+
+## Overview
+
+**Task ID**: P2-D4  
+**Phase**: Phase 2 - Critical Infrastructure  
+**Priority**: P1 (Important)  
+**Status**: ⬜ Todo  
+**Description**: Show control system for cue-based lighting and visual playback
+
+**Objective**: Port the show control system that provides cue-based automation for lighting and visual effects, enabling synchronized VJ performances with timeline-based playback.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/timeline/quantum_timeline.py`
+- **Class**: `QuantumTimeline`
+- **File**: `../vjlive/core/timeline/quantum_timeline_api.py`
+- **Class**: `QuantumTimelineAPI`
+- **Key Features**:
+  - Timeline-based cue system
+  - Multi-track playback (lighting, video, audio)
+  - Cue list management
+  - Real-time playback control (play, pause, seek)
+  - Timecode synchronization (LTC, MTC)
+  - Show file save/load
+
+### Supporting Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/dmx/show_control.py`
+- **Class**: `ShowControl`
+- **Key Features**:
+  - Enhanced cue management
+  - Crossfade and transition effects
+  - Multi-user collaboration
+  - Show file versioning
+  - Real-time editing during playback
+  - Integration with DMX engine
+
+### Related Modules
+- `../vjlive/core/timeline/timeline_service.py` - Timeline service
+- `../VJlive-2/core/dmx/fx_runner.py` - DMX effect runner
+- `../vjlive/core/sequencers/tempi.py` - Tempo/sequencer management
+- `../VJlive-2/core/sequencers/rene.py` - Advanced sequencer
+- `../vjlive/core/timecode/` - Timecode synchronization
+
+---
+
+## What This Module Does
+
+This task implements a comprehensive show control system for VJ performances:
+
+1. **Cue-Based Playback**: Organize show into discrete cues with start/end times
+2. **Multi-Track Timeline**: Separate tracks for lighting, video, audio, effects
+3. **Playback Control**: Play, pause, stop, seek, loop, speed control
+4. **Cue Transitions**: Crossfades, cuts, wipes between cues
+5. **Timecode Sync**: Synchronize with external timecode (LTC, MTC, NTP)
+6. **Show File Management**: Save/load complete show configurations
+7. **Real-Time Editing**: Modify cues during playback
+8. **Multi-User**: Collaborative show control (multiple operators)
+9. **Automation**: Auto-advance cues based on conditions
+10. **Monitoring**: Real-time playback status and metrics
+
+---
+
+## Implementation Plan
+
+### Phase 1: Core Timeline Engine
+1. Implement timeline data structure (tracks, clips, cues)
+2. Create playback engine with time management
+3. Add cue list management (add, remove, reorder)
+4. Implement basic playback controls (play, pause, stop)
+
+### Phase 2: Cue System
+1. Define cue structure (name, start time, duration, actions)
+2. Implement cue triggering and execution
+3. Add cue transitions (crossfade, cut, wipe)
+4. Create cue automation (follow actions, loops)
+
+### Phase 3: Multi-Track Support
+1. Create track system (lighting, video, audio, effects)
+2. Implement track-specific playback
+3. Add track muting/soloing
+4. Create track grouping and busing
+
+### Phase 4: Timecode Integration
+1. Implement LTC (Linear Timecode) decoder
+2. Implement MTC (MIDI Timecode) receiver
+3. Add NTP (Network Time Protocol) sync
+4. Create timecode generator for output
+
+### Phase 5: Show Management
+1. Implement show file format (JSON/YAML)
+2. Add save/load functionality
+3. Create show templates and presets
+4. Implement show versioning and backup
+
+### Phase 6: UI & Control
+1. Create show control UI (cue list, transport controls)
+2. Add keyboard shortcuts and MIDI control
+3. Implement remote control via WebSocket
+4. Create monitoring dashboard
+
+### Phase 7: Testing & Validation
+1. Unit tests for timeline engine
+2. Integration tests with real shows
+3. Timecode sync accuracy tests
+4. Performance benchmarks (FPS, latency)
+
+---
+
+## Public Interface
+
+### ShowControl Class
+
+```python
+# src/vjlive3/show/control.py
+class ShowControl:
+    def __init__(self):
+        """Initialize show control system"""
+    
+    def load_show(self, filepath: str) -> Show
+    def save_show(self, show: Show, filepath: str) -> None
+    
+    def create_show(self, name: str, duration: float) -> Show
+    def get_current_show(self) -> Optional[Show]
+    
+    def add_track(self, show: Show, track_type: str, name: str) -> Track
+    def add_cue(self, track: Track, start_time: float, duration: float, actions: List[CueAction]) -> Cue
+    
+    def play(self) -> None
+    def pause(self) -> None
+    def stop(self) -> None
+    def seek(self, time: float) -> None
+    
+    def get_playback_state(self) -> PlaybackState
+    def get_current_time(self) -> float
+    def get_remaining_time(self) -> float
+    
+    def set_timecode_source(self, source: TimecodeSource) -> None
+    def get_timecode(self) -> Timecode
+```
+
+### Show Data Structure
+
+```python
+@dataclass
+class Show:
+    name: str
+    duration: float
+    tracks: List[Track]
+    metadata: Dict[str, Any]
+    created: datetime
+    modified: datetime
+
+@dataclass
+class Track:
+    id: str
+    name: str
+    type: str  # "lighting", "video", "audio", "effects"
+    cues: List[Cue]
+    muted: bool = False
+    solo: bool = False
+    volume: float = 1.0
+
+@dataclass
+class Cue:
+    id: str
+    name: str
+    start_time: float
+    duration: float
+    actions: List[CueAction]
+    transition: Transition = Transition.CUT
+    follow_action: FollowAction = FollowAction.NONE
+
+@dataclass
+class CueAction:
+    target: str  # "dmx.universe.1", "effect.scale", etc.
+    parameter: str
+    value: Any
+    fade_time: float = 0.0
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| Show file | Disk/Network | JSON/YAML show definition |
+| Cue triggers | UI, MIDI, Timecode | Cue execution commands |
+| Playback control | UI, MIDI, Keyboard | Transport commands |
+| Timecode | LTC, MTC, NTP | External sync reference |
+| Real-time edits | UI, API | Cue/track modifications |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| DMX data | DMXEngine | Lighting control values |
+| Video cues | VideoEngine | Video playback commands |
+| Audio cues | AudioEngine | Audio playback commands |
+| Effect params | EffectEngine | Visual effect parameters |
+| Timecode | External devices | LTC/MTC output |
+| Status events | Monitoring, UI | Playback state changes |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** generate lighting content (DMX values come from effects)
+- ❌ Does **not** handle video playback (use VideoEngine)
+- ❌ Does **not** do audio mixing (use AudioEngine)
+- ❌ Does **not** provide visual effects (use EffectEngine)
+- ❌ Does **not** store show history (use separate logging)
+- ❌ Does **not** manage user permissions (use Auth system)
+
+---
+
+## Testing & Validation
+
+### Unit Tests
+
+```python
+def test_timeline_playback():
+    """Verify timeline advances correctly during playback"""
+    
+def test_cue_triggering():
+    """Test cues execute at correct times"""
+    
+def test_transition_accuracy():
+    """Verify crossfades and transitions work correctly"""
+    
+def test_timecode_sync():
+    """Test timecode synchronization accuracy"""
+```
+
+### Integration Tests
+
+- Complete show playback with multiple tracks
+- Cue transitions with real DMX hardware
+- Timecode sync with external generator
+- Show file save/load round-trip
+
+### Performance Benchmarks
+
+| Metric | Target |
+|--------|--------|
+| Timeline update FPS | 60 FPS |
+| Cue trigger latency | < 10ms |
+| Timecode sync accuracy | ±1 frame (1/30s) |
+| Show file load time | < 2 seconds |
+| Memory per show | < 100MB |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] FPS ≥ 58 when show control active
+- [ ] All unit tests pass (≥80% coverage)
+- [ ] Cue timing accuracy ±10ms
+- [ ] Timecode sync within ±1 frame (33ms at 30fps)
+- [ ] Show file save/load 100% accurate
+- [ ] Thread-safe: no race conditions in playback
+- [ ] Supports 100+ cues per show
+- [ ] Supports 10+ simultaneous tracks
+
+### Should Pass (Best Effort)
+
+- [ ] Real-time cue editing during playback
+- [ ] Multi-user collaboration (3+ operators)
+- [ ] Show versioning and undo/redo
+- [ ] Template system for common show types
+- [ ] Remote control via WebSocket API
+
+---
+
+## Dependencies
+
+- **Timeline**: May use P1-N1 (Node Registry) for track management
+- **DMX**: Requires P2-D1 (DMX Engine) for lighting output
+- **Timecode**: Requires timecode modules (LTC/MTC/NTP)
+- **Video**: May integrate with P2-X3 (Output Mapping)
+- **Audio**: May integrate with P1-A1 (AudioAnalyzer)
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Timeline drift over long shows | Medium | High | High-precision timers, periodic resync |
+| Cue timing jitter | Medium | High | Lock-free data structures, real-time scheduling |
+| Timecode dropouts | Medium | Medium | Buffer timecode, predictive interpolation |
+| Large show file memory usage | Low | Medium | Lazy loading, streaming from disk |
+| Multi-user conflicts | Medium | Medium | Operational transform or CRDTs |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/timeline/quantum_timeline.py` - QuantumTimeline implementation
+- `../VJlive-2/core/dmx/show_control.py` - ShowControl implementation
+- `../vjlive/core/timeline/quantum_timeline_api.py` - Timeline API
+- `../VJlive-2/core/dmx/fx_runner.py` - DMX effect runner
+- `../vjlive/core/timecode/` - Timecode modules
+
+### Related Tasks
+- P2-D1: DMX Engine (lighting output)
+- P2-D3: DMX FX Engine (lighting effects)
+- P2-D5: Audio-Reactive DMX (audio integration)
+- P2-D6: DMX WebSocket (remote control)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created |
+
+
+
+## Legacy References
+- **Key Algorithms**: TBD (Extract from legacy source)
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

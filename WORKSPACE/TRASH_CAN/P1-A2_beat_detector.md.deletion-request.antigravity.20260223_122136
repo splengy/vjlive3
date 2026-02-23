@@ -1,0 +1,294 @@
+# P1-A2: Real-Time Beat Detection
+
+## Overview
+
+**Task ID**: P1-A2  
+**Phase**: Phase 1 - Core Infrastructure  
+**Priority**: P0 (Critical)  
+**Status**: ⬜ Todo  
+**Description**: Real-time beat/onset detection with BPM estimation and phase tracking
+
+**Objective**: Port the beat detection algorithm from legacy codebases to provide accurate rhythm analysis for audio-reactive VJ performances. This module detects beats, estimates BPM, and tracks beat phase for synchronization.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/audio/beat.py`
+- **Class**: `BeatDetector`
+- **Lines**: ~100-200 lines (estimated)
+- **Key Features**:
+  - Onset detection using spectral flux
+  - BPM estimation from inter-onset intervals
+  - Beat phase tracking (0-1 within beat)
+  - Kick/snare discrimination
+  - Adaptive thresholding
+
+### Supporting Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/audio/beat.py`
+- **Class**: `BeatDetector` (enhanced)
+- **Integration**: Works with `RhythmEngine` for timeline synchronization
+- **Key Enhancements**:
+  - Multiple detection algorithms (energy, phase, complex)
+  - Confidence scoring
+  - Historical beat tracking
+  - BPM stabilization over time
+
+### Related Modules
+- `../vjlive/core/audio/rhythm_engine.py` - RhythmEngine for timeline integration
+- `../VJlive-2/core/audio/engine.py` - Audio engine infrastructure
+- `../VJlive-2/core/rhythm_consciousness.py` - Advanced rhythm consciousness
+
+---
+
+## What This Module Does
+
+This task implements a production-ready beat detection system that:
+
+1. **Analyzes audio in real-time** to detect onsets (sudden energy increases)
+2. **Classifies onsets** as kicks, snares, or hi-hats
+3. **Estimates BPM** from inter-onset intervals (60-200 BPM range)
+4. **Tracks beat phase** for precise synchronization (0-1 normalized)
+5. **Maintains beat history** for pattern recognition
+6. **Adapts to audio characteristics** (genre, dynamics)
+7. **Provides confidence metrics** for each detection
+8. **Integrates with RhythmEngine** for timeline-aware processing
+
+---
+
+## Implementation Plan
+
+### Phase 1: Core Detection Algorithm
+1. Implement spectral flux calculation (frame-to-frame FFT magnitude difference)
+2. Create adaptive thresholding (mean-based, variance-based)
+3. Implement peak picking on onset strength envelope
+4. Add inter-onset interval (IOI) histogram analysis
+5. BPM estimation from dominant IOI
+
+### Phase 2: Classification
+1. Frequency-based classification:
+   - Kick: 20-150Hz energy increase
+   - Snare: 150-2000Hz transient
+   - Hi-hat: 5000-10000Hz high-frequency burst
+2. Use spectral features (centroid, roll-off, flux)
+3. Machine learning classifier (optional, for higher accuracy)
+
+### Phase 3: Phase Tracking
+1. Maintain beat clock with BPM estimate
+2. Interpolate phase between beats
+3. Handle tempo changes (gradual or sudden)
+4. Beat quantization (snap to grid)
+
+### Phase 4: Integration
+1. Integrate with `AudioAnalyzer` (P1-A1)
+2. Publish beat events to `AudioReactivityBus` (P1-A3)
+3. Subscribe to audio stream from analyzer
+4. Thread-safe design (lock-free reads)
+
+### Phase 5: Testing & Validation
+1. Unit tests with synthetic test signals (clicks, kicks, snares)
+2. Integration tests with real music files
+3. Accuracy benchmarks vs. ground truth BPM
+4. Latency measurement (< 20ms detection delay)
+
+---
+
+## Public Interface
+
+### BeatDetector Class
+
+```python
+# src/vjlive3/audio/beat.py
+class BeatDetector:
+    def __init__(
+        self,
+        sample_rate: int = 44100,
+        buffer_size: int = 2048,
+        min_bpm: float = 60.0,
+        max_bpm: float = 200.0
+    ):
+        """
+        Initialize beat detector.
+        
+        Args:
+            sample_rate: Audio sample rate in Hz
+            buffer_size: FFT size for analysis
+            min_bpm: Minimum BPM to detect
+            max_bpm: Maximum BPM to detect
+        """
+    
+    def process(self, spectrum: np.ndarray, rms: float) -> BeatInfo:
+        """
+        Process audio frame and detect beats.
+        
+        Args:
+            spectrum: FFT magnitude array
+            rms: Current RMS volume
+            
+        Returns:
+            BeatInfo: Detection results
+        """
+    
+    def get_beat_info(self) -> BeatInfo:
+        """Get current beat state (thread-safe)"""
+    
+    def reset(self) -> None:
+        """Reset detector state (for new track)"""
+```
+
+### BeatInfo Data Structure
+
+```python
+@dataclass
+class BeatInfo:
+    is_beat: bool              # True if beat detected this frame
+    beat_type: str             # "kick", "snare", "hihat", "none"
+    bpm: float                 # Current BPM estimate
+    phase: float               # 0-1 phase within beat (0 = downbeat)
+    confidence: float          # 0-1 confidence in detection
+    onset_strength: float      # Raw onset detection value
+    time_since_last_beat: float # Seconds
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| Audio spectrum | AudioAnalyzer (P1-A1) | FFT magnitude array |
+| RMS volume | AudioAnalyzer | Overall audio level |
+| Sample rate | Configuration | Hz (default 44100) |
+| Buffer size | Configuration | Samples per frame |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| BeatInfo dict | AudioReactivityBus | Beat detection results |
+| Beat events | Subscribers (effects) | Real-time beat triggers |
+| BPM estimate | RhythmEngine | Tempo for synchronization |
+| Beat history | Analysis tools | Pattern recognition |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** perform full music transcription (note-level)
+- ❌ Does **not** do key or chord detection (separate module)
+- ❌ Does **not** handle polyrhythms or complex meters (assumes 4/4)
+- ❌ Does **not** store beat history long-term (ephemeral)
+- ❌ Does **not** provide MIDI output (use MIDIController)
+- ❌ Does **not** do tempo-synced effects (use LFO modules)
+
+---
+
+## Testing & Validation
+
+### Unit Tests
+
+```python
+def test_onset_detection_on_synthetic_kick():
+    """Verify detector triggers on kick drum samples"""
+    
+def test_bpm_estimation_accuracy():
+    """Test BPM estimation on known-tempo tracks (±2 BPM)"""
+    
+def test_phase_linearity():
+    """Verify phase advances uniformly between beats"""
+    
+def test_classification_accuracy():
+    """Test kick/snare/hihat classification (>80% correct)"""
+```
+
+### Integration Tests
+
+- Real-time processing with audio file input
+- Beat-synced visual effects triggering
+- BPM tracking across tempo changes
+- Multi-song playlist continuity
+
+### Performance Benchmarks
+
+| Metric | Target |
+|--------|--------|
+| Detection latency | < 20ms |
+| CPU per frame | < 1ms |
+| Memory | < 10MB |
+| BPM accuracy | ±2 BPM on steady tempo |
+| Classification accuracy | >80% on test set |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] FPS ≥ 58 when beat detector active
+- [ ] All unit tests pass (≥80% coverage)
+- [ ] BPM estimation within ±5 BPM of ground truth on 90% of test tracks
+- [ ] Beat detection precision > 85% (few false positives)
+- [ ] Beat detection recall > 90% (few missed beats)
+- [ ] Phase accuracy: < 10ms jitter
+- [ ] Thread-safe: no race conditions in `get_beat_info()`
+- [ ] Works with both `sounddevice` and `pyaudio` backends
+
+### Should Pass (Best Effort)
+
+- [ ] Classification accuracy > 80% (kick/snare/hihat)
+- [ ] Handles tempo changes within 2 seconds
+- [ ] Supports BPM range 60-200 (extended to 40-240 if possible)
+- [ ] Beat tracking across song transitions (DJ mix)
+- [ ] Low-latency mode (< 10ms) for live performance
+
+---
+
+## Dependencies
+
+- **Audio Input**: Requires P1-A1 (AudioAnalyzer) to provide spectrum/RMS
+- **Reactivity Bus**: P1-A3 for event distribution
+- **Python Packages**: numpy, scipy (same as P1-A1)
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| False positives on transients | Medium | Medium | Tune threshold, use multiple algorithms |
+| BPM drift over time | Medium | High | Running average, reset on downbeat |
+| Genre-specific performance | High | Medium | Train on diverse dataset, adaptive params |
+| Latency too high | Low | Medium | Optimize FFT, use overlap-add |
+| Thread contention | Low | Medium | Lock-free reads, double-buffering |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/audio/beat.py` - BeatDetector implementation
+- `../VJlive-2/core/audio/beat.py` - Enhanced detector
+- `../vjlive/core/audio/rhythm_engine.py` - RhythmEngine integration
+- `../VJlive-2/core/rhythm_consciousness.py` - Advanced rhythm systems
+
+### Related Tasks
+- P1-A1: AudioAnalyzer (provides input)
+- P1-A3: AudioReactivityBus (publishes output)
+- P3-EXT010: AudioSpectrumTrails (consumer)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created |
+
+
+
+## Legacy References
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

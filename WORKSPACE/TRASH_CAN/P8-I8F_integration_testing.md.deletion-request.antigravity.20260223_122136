@@ -1,0 +1,1227 @@
+# Phase F: Integration Testing
+
+**Document Version**: 1.0  
+**Created**: 2026-02-23  
+**Status**: Ready for Review  
+**Author**: Manager Agent (Lead Systems Engineer)  
+
+---
+
+## 1. Executive Summary
+
+This specification defines the comprehensive integration testing strategy for the VJLive3 backend wiring components. It establishes test scenarios, performance benchmarks, failure injection tests, and validation criteria to ensure the entire system works cohesively under real-world conditions.
+
+**Critical Objectives:**
+- Verify all wiring components work together end-to-end
+- Validate 60 FPS sacred rail under load
+- Test error recovery and graceful degradation
+- Ensure memory stability over extended runs
+- Verify agent→plugin communication at scale
+- Validate telemetry accuracy and overhead
+- Test configuration persistence and cloud sync
+- Provide regression test suite for future development
+
+---
+
+## 2. Current State Analysis
+
+### 2.1 Existing Test Coverage
+
+**Current Coverage**: 94% overall, 1,241+ tests green (per BOARD.md)
+
+**Test Types:**
+- Unit tests for individual plugins
+- Unit tests for core systems (engine, audio, MIDI)
+- Some integration tests (P8-I1: End-to-end integration testing)
+
+**Gaps:**
+- No tests for the new wiring components (Context, Scheduler, Agent-Plugin Bus, Telemetry, Config)
+- No stress tests with 50+ plugins simultaneously
+- No long-duration stability tests (24+ hours)
+- No failure injection tests (plugin crashes, hardware disconnects)
+- No performance regression tests (FPS, memory, telemetry overhead)
+- No agent→plugin communication tests at scale
+
+### 2.2 Legacy Testing
+
+**vjlive/**:
+- Minimal testing; manual verification only
+
+**VJlive-2/**:
+- Some automated tests but not comprehensive
+- No stress or failure injection tests
+
+**Proven Strengths:**
+- Plugin unit tests (good coverage)
+- Some integration tests exist
+
+**Weaknesses to Fix:**
+- No system-level tests
+- No performance benchmarks
+- No failure recovery tests
+- No long-duration stability tests
+
+---
+
+## 3. Testing Strategy Overview
+
+### 3.1 Test Pyramid
+
+```
+        [End-to-End Tests]        (10-20 scenarios)
+       /                        \
+      /                          \
+     /                            \
+    [Integration Tests]           (50-100 tests)
+   /                              \
+  /                                \
+ /                                  \
+[Unit Tests]                        (500+ tests)
+```
+
+**Unit Tests**: Already exist for plugins and core systems (94% coverage)
+
+**Integration Tests**: New tests for wiring components (this spec)
+
+**End-to-End Tests**: Full system tests with realistic workloads
+
+### 3.2 Test Categories
+
+1. **Smoke Tests**: Basic functionality (5 min)
+2. **Functional Tests**: Specific features (30 min)
+3. **Performance Tests**: FPS, memory, telemetry overhead (1 hour)
+4. **Stress Tests**: High plugin count, extreme parameters (2 hours)
+5. **Failure Injection**: Plugin crashes, hardware disconnects (1 hour)
+6. **Longevity Tests**: 24-hour continuous run (24 hours)
+7. **Agent-Plugin Tests**: Closed-loop communication (1 hour)
+8. **Telemetry Validation**: Accuracy and overhead (30 min)
+9. **Config/Preset Tests**: Save/load, cloud sync (30 min)
+10. **Regression Tests**: Full suite (4 hours)
+
+**Total**: ~36 hours of automated testing
+
+---
+
+## 4. Test Environment
+
+### 4.1 Hardware Requirements
+
+**Test Machine:**
+- CPU: 8+ cores (for parallel plugin execution)
+- GPU: NVIDIA GTX 1080 or better (OpenGL 4.5)
+- RAM: 16GB minimum, 32GB recommended
+- Storage: SSD with 50GB free space
+- OS: Ubuntu 22.04 (headless CI compatible)
+
+**CI Environment:**
+- Docker container with GPU passthrough
+- Xvfb for headless OpenGL
+- Mock hardware for deterministic tests
+
+### 4.2 Software Requirements
+
+**Test Framework:**
+- pytest (existing)
+- pytest-xdist for parallel test execution
+- pytest-benchmark for performance tests
+- pytest-mock for mocking
+- pytest-cov for coverage
+
+**Test Utilities:**
+- `tests/conftest.py` with fixtures:
+  - `engine`: RenderEngine instance
+  - `context`: VJLiveContext
+  - `plugins`: List of test plugins
+  - `agents`: List of test agents
+  - `telemetry`: TelemetryCollector
+
+---
+
+## 5. Test Specifications
+
+### 5.1 Smoke Tests (Fast Feedback)
+
+**Purpose**: Verify basic system functionality before running longer tests.
+
+**Duration**: <5 minutes
+
+**Tests:**
+
+```python
+def test_smoke_context_creation():
+    """Context object can be created and populated."""
+    context = VJLiveContext()
+    context.video = Texture(1920, 1080)
+    context.depth = Texture(1920, 1080, format="R16F")
+    context.audio = AudioState(spectrum=np.ones(512))
+    
+    assert context.video is not None
+    assert context.depth is not None
+    assert context.audio is not None
+    assert context.time >= 0
+    assert context.frame == 0
+
+def test_smoke_engine_initialization():
+    """Engine can be initialized and run one frame."""
+    engine = RenderEngine()
+    engine.initialize()
+    
+    # Run one frame
+    engine.render_frame()
+    
+    # Should have populated context
+    assert engine.context.video is not None
+    assert engine.context.frame == 1
+
+def test_smoke_plugin_loading():
+    """All plugins can be loaded without errors."""
+    from vjlive3.plugins import list_plugins
+    
+    plugins = list_plugins()
+    assert len(plugins) > 50
+    
+    for plugin_cls in plugins:
+        plugin = plugin_cls()
+        assert plugin.id is not None
+        assert plugin.required_inputs is not None
+
+def test_smoke_agent_bridge():
+    """AgentBridge can be initialized and agents can step."""
+    bridge = AgentBridge()
+    agent = DancingAgent("test_agent")
+    bridge.register_agent(agent, {"intensity": {}})
+    
+    context = VJLiveContext()
+    bridge.publish_controls(context)
+    
+    assert len(context.agent_controls) > 0
+    assert "test_agent.intensity" in context.agent_controls
+
+def test_smoke_telemetry_collector():
+    """TelemetryCollector can record and snapshot."""
+    collector = TelemetryCollector()
+    collector.record("test.metric", 1.0)
+    collector.record("test.metric", 2.0)
+    
+    snapshot = collector.snapshot()
+    assert "test.metric" in snapshot
+    assert snapshot["test.metric"]["p50"] == 1.5
+
+def test_smoke_config_manager():
+    """ConfigManager can save and load presets."""
+    with tempfile.TemporaryDirectory() as tmp:
+        manager = ConfigManager(Path(tmp))
+        plugin = MockPlugin(id="test", params={"x": 1.0})
+        
+        manager.save_preset("smoke_test", [plugin])
+        assert (manager.presets_dir / "smoke_test.json").exists()
+        
+        plugin2 = MockPlugin(id="test")
+        success = manager.load_preset("smoke_test", [plugin2])
+        assert success
+        assert plugin2.get_params() == {"x": 1.0}
+```
+
+### 5.2 Functional Tests
+
+**Purpose**: Verify each wiring component works correctly.
+
+**Duration**: ~30 minutes
+
+**Tests:**
+
+```python
+def test_context_population():
+    """Engine should populate all context fields correctly."""
+    engine = RenderEngine()
+    engine.video_manager = MockVideoManager()
+    engine.audio_engine = MockAudioEngine()
+    
+    engine.render_frame()
+    
+    context = engine.context
+    assert context.video is not None
+    assert context.depth is not None  # From depth manager
+    assert context.audio is not None
+    assert context.spectrum is not None
+    assert context.features is not None
+    assert context.midi_messages is not None
+    assert context.osc_values is not None
+    assert context.lfo_values is not None
+    assert context.agent_states is not None
+    assert context.time > 0
+    assert context.frame == 1
+    assert context.fps > 0
+
+def test_plugin_scheduler():
+    """Scheduler should correctly resolve dependencies."""
+    plugins = [
+        DepthSourcePlugin(id="depth_source", provides=["depth"]),
+        AudioSourcePlugin(id="audio_source", provides=["audio"]),
+        DepthBlurPlugin(id="depth_blur", needs=["depth"], provides=["video"]),
+        AudioReactivePlugin(id="audio_react", needs=["audio", "video"], provides=[]),
+    ]
+    
+    scheduler = PluginScheduler()
+    batches = scheduler.schedule(plugins)
+    
+    # Should have 3 batches:
+    # Batch 0: depth_source, audio_source (parallel)
+    # Batch 1: depth_blur (needs depth)
+    # Batch 2: audio_react (needs audio and video from depth_blur)
+    assert len(batches) == 3
+    assert set(batches[0]) == {plugins[0], plugins[1]}
+    assert batches[1] == [plugins[2]]
+    assert batches[2] == [plugins[3]]
+
+def test_safe_plugin_wrapper():
+    """Wrapper should catch errors and provide fallback."""
+    failing_plugin = FailingPlugin(fail_count=3)
+    wrapper = SafePluginWrapper(failing_plugin, error_threshold=3)
+    
+    context = VJLiveContext()
+    
+    # First 3 calls should fail but not crash
+    for i in range(3):
+        try:
+            wrapper.process(Texture(10, 10), {}, context)
+        except:
+            pass
+        assert wrapper.error_count == i + 1
+    
+    # 4th call should return fallback without executing plugin
+    output = wrapper.process(Texture(10, 10), {}, context)
+    assert output == wrapper.fallback_texture
+    assert wrapper.disabled_until > context.time
+
+def test_agent_plugin_communication():
+    """Agent should publish controls that plugin can read."""
+    agent = DancingAgent("agent_001")
+    plugin = DepthMotionTransferPlugin()
+    plugin.agent_control_mappings = {"agent_001": ["zoom", "displacement"]}
+    
+    bridge = AgentBridge()
+    bridge.register_agent(agent, {"zoom": {}, "displacement": {}})
+    
+    context = VJLiveContext()
+    
+    # Agent updates state
+    agent.zoom = 0.5
+    agent.displacement = 0.3
+    bridge.publish_controls(context)
+    
+    # Plugin should see controls
+    assert context.agent_controls["agent_001.zoom"] == 0.5
+    assert context.agent_controls["agent_001.displacement"] == 0.3
+    
+    # Plugin applies modulation
+    params = {"zoom": 1.0, "displacement": 0.0}
+    output = plugin.process(Texture(100, 100), params, context)
+    
+    # Verify modulation applied
+    assert plugin.last_zoom == pytest.approx(1.0 + 0.5 * 0.5)  # base + modulation*0.5
+    assert plugin.last_displacement == pytest.approx(0.3)
+
+def test_telemetry_accuracy():
+    """Telemetry should accurately record metrics."""
+    engine = RenderEngine()
+    engine.telemetry = TelemetryCollector()
+    
+    # Simulate plugin execution
+    plugin = DepthBlurPlugin()
+    start = time.perf_counter()
+    plugin.process(Texture(100, 100), {}, engine.context)
+    elapsed = (time.perf_counter() - start) * 1000
+    
+    # Telemetry should have recorded it
+    snapshot = engine.telemetry.snapshot()
+    metric_name = f"plugin.{plugin.id}.process_time"
+    assert metric_name in snapshot
+    assert snapshot[metric_name]["p50"] == pytest.approx(elapsed, abs=0.1)
+
+def test_config_preset_roundtrip():
+    """Preset save/load should preserve all plugin state."""
+    with tempfile.TemporaryDirectory() as tmp:
+        manager = ConfigManager(Path(tmp))
+        
+        plugins = [
+            DepthBlurPlugin(id="blur1", params={"radius": 5.0, "iterations": 3}),
+            DepthMotionTransferPlugin(id="motion1", params={"strength": 0.8, "mode": "radial"}),
+        ]
+        
+        # Save preset
+        manager.save_preset("test", plugins)
+        
+        # Create fresh plugins
+        plugins2 = [
+            DepthBlurPlugin(id="blur1"),
+            DepthMotionTransferPlugin(id="motion1"),
+        ]
+        
+        # Load preset
+        success = manager.load_preset("test", plugins2)
+        assert success
+        
+        # Verify state restored
+        assert plugins2[0].get_params() == plugins[0].get_params()
+        assert plugins2[1].get_params() == plugins[1].get_params()
+```
+
+### 5.3 Performance Tests
+
+**Purpose**: Verify system meets performance requirements.
+
+**Duration**: ~1 hour
+
+**Tests:**
+
+```python
+def test_fps_under_load():
+    """Engine should maintain 58+ FPS with 50 plugins."""
+    engine = RenderEngine()
+    engine.active_plugins = [DepthBlurPlugin(id=f"blur_{i}") for i in range(50)]
+    
+    # Warm up
+    for _ in range(100):
+        engine.render_frame()
+    
+    # Measure
+    frame_times = []
+    for _ in range(600):  # 10 seconds at 60Hz
+        start = time.perf_counter()
+        engine.render_frame()
+        frame_times.append(time.perf_counter() - start)
+    
+    fps = 1.0 / np.median(frame_times)
+    assert fps >= 58.0, f"FPS too low: {fps:.2f}"
+
+def test_memory_leak():
+    """Memory should not grow over 1000 frames."""
+    import psutil
+    process = psutil.Process()
+    
+    engine = RenderEngine()
+    engine.active_plugins = [DepthBlurPlugin(id=f"blur_{i}") for i in range(30)]
+    
+    # Warm up
+    for _ in range(100):
+        engine.render_frame()
+    
+    # Measure memory over 1000 frames
+    memory_samples = []
+    for i in range(1000):
+        engine.render_frame()
+        if i % 100 == 0:
+            memory_samples.append(process.memory_info().rss / 1024 / 1024)  # MB
+    
+    # Check for monotonic increase
+    # Allow 5% variance
+    baseline = memory_samples[0]
+    final = memory_samples[-1]
+    growth = final - baseline
+    assert growth < baseline * 0.05, f"Memory leak detected: {growth:.2f}MB growth"
+
+def test_telemetry_overhead():
+    """Telemetry should add <1% overhead."""
+    engine1 = RenderEngine()
+    engine1.telemetry = None  # No telemetry
+    
+    engine2 = RenderEngine()
+    engine2.telemetry = TelemetryCollector()
+    
+    # Run both engines for 1000 frames
+    n_frames = 1000
+    
+    start = time.perf_counter()
+    for _ in range(n_frames):
+        engine1.render_frame()
+    time_no_telemetry = time.perf_counter() - start
+    
+    start = time.perf_counter()
+    for _ in range(n_frames):
+        engine2.render_frame()
+    time_with_telemetry = time.perf_counter() - start
+    
+    overhead = (time_with_telemetry - time_no_telemetry) / time_no_telemetry
+    assert overhead < 0.01, f"Telemetry overhead too high: {overhead*100:.2f}%"
+
+def test_scheduler_overhead():
+    """Scheduler should add <0.5ms per frame."""
+    engine = RenderEngine()
+    engine.active_plugins = [DepthBlurPlugin(id=f"blur_{i}") for i in range(100)]
+    
+    # Pre-compute schedule (one-time cost)
+    engine.schedule = engine.scheduler.schedule(engine.active_plugins)
+    
+    # Measure schedule execution overhead
+    times = []
+    for _ in range(1000):
+        start = time.perf_counter()
+        # Just execute the schedule (no actual plugin work)
+        for batch in engine.schedule:
+            pass
+        times.append(time.perf_counter() - start)
+    
+    avg_overhead = np.median(times) * 1000  # ms
+    assert avg_overhead < 0.5, f"Scheduler overhead: {avg_overhead:.3f}ms"
+
+def test_agent_control_latency():
+    """Agent control should be visible to plugin within 1 frame."""
+    agent = DancingAgent("agent_001")
+    plugin = DepthMotionTransferPlugin()
+    plugin.agent_control_mappings = {"agent_001": ["zoom"]}
+    
+    bridge = AgentBridge()
+    bridge.register_agent(agent, {"zoom": {}})
+    
+    engine = RenderEngine()
+    engine.agent_bridge = bridge
+    engine.active_plugins = [plugin]
+    
+    # Frame 1: Agent sets control
+    agent.zoom = 0.5
+    bridge.publish_controls(engine.context)
+    
+    # Plugin should see it immediately
+    assert engine.context.agent_controls["agent_001.zoom"] == 0.5
+```
+
+### 5.4 Stress Tests
+
+**Purpose**: Test system under extreme loads.
+
+**Duration**: ~2 hours
+
+**Tests:**
+
+```python
+def test_many_plugins():
+    """Engine should handle 100+ plugins."""
+    engine = RenderEngine()
+    engine.active_plugins = [DepthBlurPlugin(id=f"blur_{i}") for i in range(100)]
+    
+    # Should not crash
+    for _ in range(100):
+        engine.render_frame()
+    
+    # Should maintain reasonable FPS
+    frame_times = []
+    for _ in range(300):
+        start = time.perf_counter()
+        engine.render_frame()
+        frame_times.append(time.perf_counter() - start)
+    
+    fps = 1.0 / np.median(frame_times)
+    assert fps >= 30.0, f"FPS too low with 100 plugins: {fps:.2f}"
+
+def test_large_textures():
+    """Engine should handle 4K textures."""
+    engine = RenderEngine()
+    engine.video_manager.resolution = (3840, 2160)
+    
+    # Should not OOM
+    for _ in range(10):
+        engine.render_frame()
+    
+    assert engine.context.video.width == 3840
+    assert engine.context.video.height == 2160
+
+def test_many_agents():
+    """System should handle 20+ agents."""
+    bridge = AgentBridge()
+    agents = [DancingAgent(f"agent_{i:03d}") for i in range(20)]
+    
+    for agent in agents:
+        bridge.register_agent(agent, {"intensity": {}, "hue": {}})
+    
+    context = VJLiveContext()
+    
+    # All agents should publish controls
+    bridge.publish_controls(context)
+    
+    assert len(context.agent_controls) == 20 * 2  # 2 controls per agent
+
+def test_extreme_parameters():
+    """Plugins should handle extreme parameter values."""
+    plugin = DepthBlurPlugin()
+    
+    # Very large blur radius
+    params = {"blur_radius": 1000.0}
+    output = plugin.process(Texture(100, 100), params, VJLiveContext())
+    assert output is not None
+    
+    # Very small values
+    params = {"blur_radius": 0.001}
+    output = plugin.process(Texture(100, 100), params, VJLiveContext())
+    assert output is not None
+
+def test_rapid_preset_switching():
+    """Rapid preset load/save should not cause memory leaks."""
+    with tempfile.TemporaryDirectory() as tmp:
+        manager = ConfigManager(Path(tmp))
+        plugin = DepthBlurPlugin(id="blur1")
+        
+        # Save and load 100 times rapidly
+        for i in range(100):
+            manager.save_preset(f"preset_{i}", [plugin])
+            manager.load_preset(f"preset_{i}", [plugin])
+        
+        # Memory should be stable
+        # (Would need memory profiling tool to verify precisely)
+        assert True  # Placeholder
+```
+
+### 5.5 Failure Injection Tests
+
+**Purpose**: Verify system recovers gracefully from failures.
+
+**Duration**: ~1 hour
+
+**Tests:**
+
+```python
+def test_plugin_crash_recovery():
+    """Pipeline should continue if plugin crashes."""
+    engine = RenderEngine()
+    engine.active_plugins = [
+        GoodPlugin(),
+        CrashingPlugin(),  # This one crashes every other frame
+        GoodPlugin(),
+    ]
+    
+    # Should not crash engine
+    for i in range(10):
+        engine.render_frame()
+    
+    # Should have recorded safety violations
+    assert engine.context.safety_violations > 0
+    
+    # Crashing plugin should be temporarily disabled
+    crasher = engine.wrapped_plugins[1].plugin
+    assert crasher.disabled_until > 0
+
+def test_missing_depth_input():
+    """Plugins requiring depth should handle missing input."""
+    plugin = DepthBlurPlugin()
+    plugin.needs_depth = True
+    
+    context = VJLiveContext()
+    context.depth = None  # No depth available
+    
+    # Should fallback gracefully
+    output = plugin.process(Texture(100, 100), {}, context)
+    assert output is not None
+    # Should be input passthrough
+    assert output.data == context.video.data
+
+def test_missing_audio_input():
+    """Plugins requiring audio should handle missing input."""
+    plugin = AudioReactivePlugin()
+    plugin.needs_audio = True
+    
+    context = VJLiveContext()
+    context.audio = None
+    
+    output = plugin.process(Texture(100, 100), {}, context)
+    assert output is not None
+
+def test_dependency_cycle_detection():
+    """Scheduler should detect and report cycles."""
+    plugins = [
+        PluginA(id="A", needs=["B"], provides=["A_out"]),
+        PluginB(id="B", needs=["A"], provides=["B_out"]),
+    ]
+    
+    scheduler = PluginScheduler()
+    with pytest.raises(ValueError, match="Cyclic dependency"):
+        scheduler.schedule(plugins)
+
+def test_telemetry_buffer_overflow():
+    """Telemetry should handle high-frequency recording."""
+    collector = TelemetryCollector(window_size=10)
+    
+    # Record 1000 values (should only keep last 10)
+    for i in range(1000):
+        collector.record("test", float(i))
+    
+    snapshot = collector.snapshot()
+    values = collector.metrics["test"]
+    
+    assert len(values) == 10
+    assert list(values) == list(range(990, 1000))
+
+def test_config_corruption_recovery():
+    """Corrupted preset should not crash app."""
+    with tempfile.TemporaryDirectory() as tmp:
+        manager = ConfigManager(Path(tmp))
+        preset_path = manager.presets_dir / "corrupted.json"
+        
+        # Write invalid JSON
+        preset_path.write_text("{ invalid json")
+        
+        # Load should fail gracefully
+        plugin = MockPlugin(id="test")
+        success = manager.load_preset("corrupted", [plugin])
+        assert not success
+```
+
+### 5.6 Longevity Tests
+
+**Purpose**: Verify system stability over extended runs.
+
+**Duration**: 24 hours (run overnight)
+
+**Tests:**
+
+```python
+def test_24h_continuous_run():
+    """System should run 24 hours without crash or memory leak."""
+    import psutil
+    process = psutil.Process()
+    
+    engine = RenderEngine()
+    engine.active_plugins = [DepthBlurPlugin(id=f"blur_{i}") for i in range(30)]
+    
+    # Run for 24 hours (in production would be 24h, in CI maybe 1h)
+    duration_hours = 1  # Reduced for CI
+    frames_per_second = 60
+    total_frames = int(duration_hours * 3600 * frames_per_second)
+    
+    # Sample memory every 1000 frames
+    memory_samples = []
+    for frame in range(total_frames):
+        engine.render_frame()
+        
+        if frame % 1000 == 0:
+            memory_mb = process.memory_info().rss / 1024 / 1024
+            memory_samples.append(memory_mb)
+            print(f"Frame {frame}/{total_frames}, Memory: {memory_mb:.1f}MB")
+    
+    # Check for memory leak (linear regression)
+    if len(memory_samples) > 10:
+        x = np.arange(len(memory_samples))
+        slope = np.polyfit(x, memory_samples, 1)[0]
+        # Allow 1MB per hour growth
+        assert slope < 1.0, f"Memory leak detected: {slope:.3f} MB/sample"
+    
+    # Should not have crashed
+    assert True
+
+def test_preset_save_load_stress():
+    """Repeated save/load should not accumulate resources."""
+    with tempfile.TemporaryDirectory() as tmp:
+        manager = ConfigManager(Path(tmp))
+        plugin = DepthBlurPlugin(id="blur1")
+        
+        initial_memory = psutil.Process().memory_info().rss
+        
+        for i in range(1000):
+            manager.save_preset(f"preset_{i}", [plugin])
+            plugin2 = DepthBlurPlugin(id="blur1")
+            manager.load_preset(f"preset_{i}", [plugin2])
+            del plugin2
+        
+        final_memory = psutil.Process().memory_info().rss
+        growth = final_memory - initial_memory
+        
+        # Allow 10MB growth over 1000 iterations
+        assert growth < 10 * 1024 * 1024, f"Memory growth: {growth/1024/1024:.1f}MB"
+```
+
+### 5.7 Agent-Plugin Tests
+
+**Purpose**: Verify closed-loop agent→plugin→agent communication.
+
+**Duration**: ~1 hour
+
+**Tests:**
+
+```python
+def test_multi_agent_cooperation():
+    """Multiple agents should control same plugin without conflict."""
+    agent1 = DancingAgent("agent_001")
+    agent2 = DancingAgent("agent_002")
+    plugin = DepthMotionTransferPlugin()
+    plugin.agent_control_mappings = {
+        "agent_001": ["zoom"],
+        "agent_002": ["displacement_strength"],
+    }
+    
+    bridge = AgentBridge()
+    bridge.register_agent(agent1, {"zoom": {}})
+    bridge.register_agent(agent2, {"displacement_strength": {}})
+    
+    context = VJLiveContext()
+    
+    # Set agent states
+    agent1.zoom = 0.3
+    agent2.displacement_strength = 0.7
+    
+    bridge.publish_controls(context)
+    
+    # Plugin should see both controls
+    assert context.agent_controls["agent_001.zoom"] == 0.3
+    assert context.agent_controls["agent_002.displacement_strength"] == 0.7
+    
+    # Apply
+    params = {"zoom": 1.0, "displacement_strength": 0.0}
+    output = plugin.process(Texture(100, 100), params, context)
+    
+    # Verify both modulations applied
+    assert plugin.last_zoom == pytest.approx(1.3)
+    assert plugin.last_displacement == pytest.approx(0.7)
+
+def test_agent_feedback_loop():
+    """Plugin feedback should influence agent behavior."""
+    agent = AdaptiveAgent("agent_001")
+    plugin = DepthMotionTransferPlugin()
+    
+    # Plugin writes feedback
+    context = VJLiveContext()
+    context.plugin_feedback[f"{plugin.id}.energy_absorbed"] = 0.9  # High energy use
+    
+    # Agent reads feedback and adapts
+    agent.step(context)
+    
+    # Agent should have reduced energy due to high plugin cost
+    assert agent.energy < 1.0  # Conserved energy
+
+def test_agent_control_schema_validation():
+    """Agent controls should conform to registered schema."""
+    registry = ControlSchemaRegistry()
+    registry.register_agent_controls("agent_001", {
+        "zoom": {"type": "float", "min": 0.1, "max": 10.0},
+        "hue": {"type": "float", "min": 0.0, "max": 360.0},
+    })
+    
+    # Valid values
+    assert registry.validate_control("agent_001", "zoom", 2.5)
+    assert registry.validate_control("agent_001", "hue", 180.0)
+    
+    # Out of range
+    assert not registry.validate_control("agent_001", "zoom", 20.0)
+    assert not registry.validate_control("agent_001", "hue", -10.0)
+    
+    # Unknown parameter
+    assert not registry.validate_control("agent_001", "unknown", 1.0)
+
+def test_agent_control_batching():
+    """Multiple agents' controls should be batched efficiently."""
+    bridge = AgentBridge()
+    agents = [DancingAgent(f"agent_{i:03d}") for i in range(20)]
+    
+    for agent in agents:
+        bridge.register_agent(agent, {"intensity": {}})
+    
+    context = VJLiveContext()
+    
+    # Publish should be fast
+    start = time.perf_counter()
+    for _ in range(1000):
+        bridge.publish_controls(context)
+    elapsed = time.perf_counter() - start
+    
+    assert elapsed < 0.5, f"Control publishing too slow: {elapsed}s"
+```
+
+### 5.8 Telemetry Validation Tests
+
+**Purpose**: Verify telemetry accuracy and completeness.
+
+**Duration**: ~30 minutes
+
+**Tests:**
+
+```python
+def test_telemetry_completeness():
+    """All critical metrics should be recorded."""
+    engine = RenderEngine()
+    engine.telemetry = TelemetryCollector()
+    
+    # Run one frame
+    engine.render_frame()
+    
+    snapshot = engine.telemetry.snapshot()
+    
+    # Should have engine metrics
+    assert "engine.frame_time" in snapshot
+    assert "engine.fps" in snapshot
+    assert "memory.rss_mb" in snapshot
+    assert "safety.violations" in snapshot
+    
+    # Should have plugin metrics
+    for plugin in engine.active_plugins:
+        metric = f"plugin.{plugin.id}.process_time"
+        assert metric in snapshot
+
+def test_telemetry_percentiles():
+    """Percentile calculations should be correct."""
+    collector = TelemetryCollector(window_size=10)
+    
+    # Add known values
+    values = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+    for v in values:
+        collector.record("test", v)
+    
+    snapshot = collector.snapshot()
+    stats = snapshot["test"]
+    
+    assert stats["p50"] == 5.5
+    assert stats["p95"] == 10.45  # 95th percentile
+    assert stats["p99"] == 10.91  # 99th percentile
+    assert stats["mean"] == 5.5
+    assert stats["min"] == 1.0
+    assert stats["max"] == 10.0
+
+def test_telemetry_window_size():
+    """Should only keep last N values."""
+    collector = TelemetryCollector(window_size=5)
+    
+    for i in range(10):
+        collector.record("test", float(i))
+    
+    values = list(collector.metrics["test"])
+    assert len(values) == 5
+    assert values == [5.0, 6.0, 7.0, 8.0, 9.0]
+
+def test_telemetry_prometheus_export():
+    """Prometheus format should be valid."""
+    collector = TelemetryCollector()
+    collector.record("engine.fps", 60.0)
+    collector.record("plugin.test.process_time", 2.5)
+    collector.increment("errors", 3)
+    
+    output = collector.export_prometheus()
+    
+    # Should be valid Prometheus format
+    lines = output.strip().split("\n")
+    assert any("engine_fps" in line for line in lines)
+    assert any("plugin_test_process_time" in line for line in lines)
+    assert any("errors" in line for line in lines)
+```
+
+### 5.9 Config/Preset Tests
+
+**Purpose**: Verify configuration persistence and cloud sync.
+
+**Duration**: ~30 minutes
+
+**Tests:**
+
+```python
+def test_preset_version_migration():
+    """Old preset format should be migrated to new."""
+    old_data = {
+        "name": "old_preset",
+        "plugins": {
+            "blur1": {"radius": 5.0},
+            "motion1": {"strength": 0.8}
+        }
+    }
+    
+    migrated = migrate_vjlive2_preset(old_data)
+    
+    assert migrated["schema_version"] == "1.0.0"
+    assert len(migrated["plugins"]) == 2
+    assert migrated["plugins"][0]["id"] == "blur1"
+    assert migrated["plugins"][0]["params"]["radius"] == 5.0
+
+def test_preset_atomic_write():
+    """Preset save should be atomic."""
+    with tempfile.TemporaryDirectory() as tmp:
+        manager = ConfigManager(Path(tmp))
+        plugin = MockPlugin(id="test", params={"x": 1.0})
+        
+        # Simulate crash during write
+        with mock.patch("builtins.open", side_effect=IOError):
+            with pytest.raises(IOError):
+                manager.save_preset("test", [plugin])
+        
+        # Preset file should not exist
+        preset_path = manager.presets_dir / "test.json"
+        assert not preset_path.exists()
+
+def test_preset_backup():
+    """Previous preset should be backed up on overwrite."""
+    with tempfile.TemporaryDirectory() as tmp:
+        manager = ConfigManager(Path(tmp))
+        plugin = MockPlugin(id="test", params={"x": 1.0})
+        
+        # Save initial preset
+        manager.save_preset("test", [plugin])
+        
+        # Save again with different params
+        plugin2 = MockPlugin(id="test", params={"x": 2.0})
+        manager.save_preset("test", [plugin2])
+        
+        # Backup should exist
+        backups = list(manager.backup_dir.glob("test_*.json"))
+        assert len(backups) >= 1
+
+def test_cloud_sync_conflict():
+    """Conflicting local/remote changes should be handled."""
+    # Mock cloud client with newer remote version
+    mock_client = MockCloudSyncClient()
+    mock_client.remote_version = 2.0
+    
+    with tempfile.TemporaryDirectory() as tmp:
+        manager = ConfigManager(Path(tmp))
+        manager.cloud_client = mock_client
+        
+        plugin = MockPlugin(id="test", params={"x": 1.0})
+        manager.save_preset("conflict_test", [plugin])
+        
+        # Should detect conflict and notify user (log warning)
+        # Actual conflict resolution strategy depends on implementation
+        assert True  # Placeholder
+```
+
+### 5.10 Regression Tests
+
+**Purpose**: Full system test to catch regressions.
+
+**Duration**: ~4 hours
+
+**Test Scenario:**
+1. Initialize engine with 50 plugins
+2. Load preset
+3. Run for 1000 frames
+4. Verify FPS ≥ 58
+5. Verify memory stable
+6. Verify all telemetry recorded
+7. Save preset
+8. Shutdown
+9. Restart and load preset
+10. Verify state restored correctly
+
+```python
+def test_full_system_regression():
+    """Complete system test covering all wiring components."""
+    with tempfile.TemporaryDirectory() as tmp:
+        # Setup
+        project_root = Path(tmp)
+        app = VJLiveApp(project_root)
+        
+        # Load 50 plugins
+        app.plugins = [DepthBlurPlugin(id=f"blur_{i}") for i in range(50)]
+        
+        # Add 4 agents
+        bridge = AgentBridge()
+        for i in range(4):
+            agent = DancingAgent(f"agent_{i}")
+            bridge.register_agent(agent, {"intensity": {}})
+        app.agent_bridge = bridge
+        
+        # Run 1000 frames
+        frame_times = []
+        for i in range(1000):
+            start = time.perf_counter()
+            app.engine.render_frame()
+            frame_times.append(time.perf_counter() - start)
+            
+            # Agents step every frame
+            bridge.publish_controls(app.engine.context)
+        
+        # Verify performance
+        fps = 1.0 / np.median(frame_times)
+        assert fps >= 58.0, f"FPS regression: {fps:.2f}"
+        
+        # Verify telemetry
+        snapshot = app.engine.telemetry.snapshot()
+        assert "engine.fps" in snapshot
+        assert len(snapshot) > 50  # Many metrics
+        
+        # Save preset
+        app.save_preset("regression_test")
+        assert (project_root / "presets" / "regression_test.json").exists()
+        
+        # Shutdown and restart
+        app.shutdown()
+        app2 = VJLiveApp(project_root)
+        app2.plugins = [DepthBlurPlugin(id=f"blur_{i}") for i in range(50)]
+        
+        # Load preset
+        success = app2.load_preset("regression_test", app2.plugins)
+        assert success
+        
+        # Verify state restored
+        for i, plugin in enumerate(app2.plugins):
+            original = app.plugins[i]
+            assert plugin.get_params() == original.get_params()
+```
+
+---
+
+## 6. Test Execution Strategy
+
+### 6.1 Local Development
+
+**Run fast tests:**
+```bash
+pytest tests/integration/ -m "smoke or functional" -v
+```
+
+**Run all tests:**
+```bash
+pytest tests/integration/ -v --cov=src/vjlive3 --cov-report=html
+```
+
+**Run specific test:**
+```bash
+pytest tests/integration/test_performance.py::test_fps_under_load -v
+```
+
+### 6.2 CI/CD Pipeline
+
+**GitHub Actions Workflow:**
+
+```yaml
+name: Integration Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: nvidia/cuda:11.8-runtime-ubuntu22.04
+      options: --gpus all
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install dependencies
+        run: |
+          apt-get update && apt-get install -y xvfb
+          pip install -r requirements.txt
+          pip install pytest pytest-xdist pytest-benchmark pytest-cov
+      
+      - name: Start Xvfb
+        run: Xvfb :99 -screen 0 1920x1080x24 &
+      
+      - name: Run smoke tests
+        run: xvfb-run -a pytest tests/integration/ -m "smoke" -v --tb=short
+      
+      - name: Run functional tests
+        run: xvfb-run -a pytest tests/integration/ -m "functional" -v --tb=short
+      
+      - name: Run performance tests
+        run: xvfb-run -a pytest tests/integration/test_performance.py -v --tb=short
+      
+      - name: Run failure injection tests
+        run: xvfb-run -a pytest tests/integration/test_failure_injection.py -v --tb=short
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage.xml
+```
+
+### 6.3 Long-Running Tests
+
+**Overnight Test Runner:**
+```bash
+#!/bin/bash
+# run_overnight_tests.sh
+
+set -e
+
+echo "Starting longevity test (1 hour)..."
+timeout 1h xvfb-run -a pytest tests/integration/test_longevity.py::test_24h_continuous_run -v
+
+echo "Starting stress tests (2 hours)..."
+timeout 2h xvfb-run -a pytest tests/integration/test_stress.py -v
+
+echo "Starting full regression (4 hours)..."
+timeout 4h xvfb-run -a pytest tests/integration/test_regression.py -v
+
+echo "All overnight tests completed successfully!"
+```
+
+---
+
+## 7. Test Coverage Requirements
+
+**Minimum Coverage:**
+- Overall: ≥94% (matching existing)
+- New wiring code: ≥90%
+- Critical paths (engine loop, agent bus): ≥95%
+
+**Coverage Report:**
+```bash
+pytest tests/integration/ --cov=src/vjlive3/core --cov=src/vjlive3/agents --cov=src/vjlive3/ui --cov-report=html
+```
+
+---
+
+## 8. Success Criteria
+
+- ✅ All smoke tests pass (<5 min)
+- ✅ All functional tests pass (<30 min)
+- ✅ Performance tests meet requirements:
+  - FPS ≥58 with 50 plugins
+  - Memory leak <5MB over 1000 frames
+  - Telemetry overhead <1%
+  - Scheduler overhead <0.5ms
+- ✅ Failure injection tests demonstrate graceful recovery
+- ✅ Longevity test runs 24h without crash or significant memory leak
+- ✅ Agent-Plugin tests verify closed-loop communication
+- ✅ Telemetry validation confirms accuracy
+- ✅ Config/preset tests verify persistence and migration
+- ✅ Regression test passes end-to-end
+- ✅ Overall integration test coverage ≥90%
+
+---
+
+## 9. Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Tests too slow ( >4 hours) | High | Parallelize with pytest-xdist; split into fast/slow suites |
+| Flaky tests (non-deterministic) | High | Use fixed seeds; mock time; isolate tests |
+| GPU resource contention in CI | Medium | Use GPU quota; run tests sequentially on GPU |
+| Long-running tests fail intermittently | Medium | Retry logic; investigate root cause; split into smaller tests |
+| Coverage drops | Medium | Enforce minimum coverage; review uncovered code |
+| Tests miss real-world bugs | High | Include failure injection; chaos engineering |
+
+---
+
+## 10. Next Steps
+
+1. **Approve this specification** → Manager
+2. **Queue Phase F task via MCP switchboard** → Manager
+3. **Begin implementation** → Implementation Engineer
+
+---
+
+**Document Status**: Ready for Manager approval. Once approved, the implementation task will be queued for execution.
+
+**Dependencies**: All previous phases (A-E) must be completed before Phase F can begin.
+
+**Estimated Effort**: 5-7 days (writing tests + debugging + CI integration)
+
+**Deliverables:**
+- `tests/integration/` directory with comprehensive test suite:
+  - `test_smoke.py`
+  - `test_functional.py`
+  - `test_performance.py`
+  - `test_stress.py`
+  - `test_failure_injection.py`
+  - `test_longevity.py`
+  - `test_agent_plugin.py`
+  - `test_telemetry.py`
+  - `test_config_preset.py`
+  - `test_regression.py`
+- `conftest.py` with fixtures
+- CI/CD workflow (GitHub Actions)
+- Test documentation (how to run locally, interpret failures)
+- Coverage reports (>90% on wiring code)
+
+**Future Maintenance:**
+- Run integration tests on every PR
+- Nightly full suite (including longevity)
+- Performance benchmark tracking (regression detection)
+- Update tests as new features added

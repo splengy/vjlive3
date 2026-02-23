@@ -26,7 +26,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -318,7 +318,7 @@ void main() {
 """
 
 
-class DepthAcidFractalDatamoshPlugin(EffectPlugin):
+class DepthAcidFractalDatamoshPlugin(object):
     """Depth Acid Fractal Datamosh — Julia fractals × depth × neon film alchemy."""
 
     def get_metadata(self) -> dict: return METADATA
@@ -370,7 +370,7 @@ class DepthAcidFractalDatamoshPlugin(EffectPlugin):
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
         self._prev_w, self._prev_h = w, h
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock or not hasattr(gl, 'glCreateProgram'):
             self._initialized = True
             return True
@@ -387,7 +387,7 @@ class DepthAcidFractalDatamoshPlugin(EffectPlugin):
             self._mock = True
             return False
 
-    def process_frame(self, input_texture: int, params: dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: dict[str, Any], context) -> int:
         if not input_texture:
             return 0
         if not self._initialized:

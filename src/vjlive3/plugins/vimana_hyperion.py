@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'intensity': 5.0, 'rotation_speed': 3.0, 'color_hue': 5.0, 's
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class VimanaHyperionPlugin(EffectPlugin):
+class VimanaHyperionPlugin(object):
     """Vimana Hyperion — geometric sacred craft manifestation."""
     def __init__(self):
         super().__init__()

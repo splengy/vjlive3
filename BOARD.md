@@ -512,33 +512,33 @@
 | P0-INF4 | Core Logic Parity - Complete scan of 1800 entities | P0 | ✅ Done | Comprehensive audit of vjlive/ & VJlive-2/ core/ ✅ 2026-02-22 |
 | P4-COR001 | ai_sanitizer (AIAnomalyDetector) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR002 | ai_assistant (AIAssistant) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR003 | automation_timeline (AIBrain) | P0 | ⬜ Todo | Legacy |
-| P4-COR004 | co_creation_enhanced (AICreativeAssistant) | P0 | ⬜ Todo | Legacy |
-| P4-COR005 | creative_partner (AICreativePartner) | P0 | ⬜ Todo | Legacy |
-| P4-COR006 | creative_partner (AICreativePartnerFactory) | P0 | ⬜ Todo | Legacy |
-| P4-COR007 | co_creation_enhanced (AICurator) | P0 | ⬜ Todo | Legacy |
+| P4-COR003 | automation_timeline (AIBrain) | P0 | ✅ Done | `docs/specs/P4-COR003_AIBrain.md` |
+| P4-COR004 | co_creation_enhanced (AICreativeAssistant) | P0 | ✅ Done | `docs/specs/P4-COR004_AICreativeAssistant.md` |
+| P4-COR005 | creative_partner (AICreativePartner) | P0 | ✅ Done | `docs/specs/P4-COR005_AICreativePartner.md` |
+| P4-COR006 | creative_partner (AICreativePartnerFactory) | P0 | ✅ Done | `docs/specs/P4-COR006_AICreativePartnerFactory.md` |
+| P4-COR007 | co_creation_enhanced (AICurator) | P0 | ✅ Done | `docs/specs/P4-COR007_AICurator.md` |
 | P4-COR008 | ai_assistant (AIHint) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR009 | ai_integration (AIIntegration) | P0 | ⬜ Todo | Legacy |
-| P4-COR010 | quantum_reactor (AIParameterPrediction) | P0 | ⬜ Todo | Legacy |
-| P4-COR011 | config_constants (AIParameters) | P0 | ⬜ Todo | Legacy |
-| P4-COR012 | brush_engines (AIPartnerBrush) | P0 | ⬜ Todo | Legacy |
-| P4-COR013 | ai_sanitizer (AISanitizer) | P0 | ⬜ Todo | Legacy |
-| P4-COR014 | brain (AIScheduler) | P0 | ⬜ Todo | Legacy |
-| P4-COR015 | ai_shader_generator (AIShaderGenerator) | P0 | ⬜ Todo | Legacy |
-| P4-COR016 | ai_suggestion_engine (AISuggestion) | P0 | ⬜ Todo | Legacy |
-| P4-COR017 | ai_suggestion_engine (AISuggestionEngine) | P0 | ⬜ Todo | Legacy |
-| P4-COR018 | ai_integration (AISystemStatus) | P0 | ⬜ Todo | Legacy |
-| P4-COR019 | adain (AdaINStyleTransfer) | P0 | ⬜ Todo | Legacy |
-| P4-COR020 | agent_avatar (AgentAvatarEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR021 | config_manager (AgentConfig) | P0 | ⬜ Todo | Legacy |
-| P4-COR022 | agent_graph_visualizer (AgentGraphVisualizer) | P0 | ⬜ Todo | Legacy |
-| P4-COR023 | unified_hydra_extensions (AgentHydraExtension) | P0 | ⬜ Todo | Legacy |
-| P4-COR024 | agent_bridge (AgentInteractionMode) | P0 | ⬜ Todo | Legacy |
-| P4-COR025 | agent_manager (AgentManager) | P0 | ⬜ Todo | Legacy |
+| P4-COR009 | ai_integration (AIIntegration) | P0 | ✅ Done | `docs/specs/P4-COR009_AIIntegration.md` |
+| P4-COR010 | quantum_reactor (AIParameterPrediction) | P0 | ✅ Done | `docs/specs/P4-COR010_AIParameterPrediction.md` |
+| P4-COR011 | config_constants (AIParameters) | P0 | ✅ Done | `docs/specs/P4-COR011_AIParameters.md` |
+| P4-COR012 | brush_engines (AIPartnerBrush) | P0 | ✅ Done | `docs/specs/P4-COR012_AIPartnerBrush.md` |
+| P4-COR013 | ai_sanitizer (AISanitizer) | P0 | ✅ Done | `docs/specs/P4-COR013_AISanitizer.md` |
+| P4-COR014 | brain (AIScheduler) | P0 | ✅ Done | `docs/specs/P4-COR014_AIScheduler.md` |
+| P4-COR015 | ai_shader_generator (AIShaderGenerator) | P0 | ✅ Done | `docs/specs/P4-COR015_AIShaderGenerator.md` |
+| P4-COR016 | ai_suggestion_engine (AISuggestion) | P0 | ✅ Done | `docs/specs/P4-COR016_AISuggestion.md` |
+| P4-COR017 | ai_suggestion_engine (AISuggestionEngine) | P0 | ✅ Done | `docs/specs/P4-COR017_AISuggestionEngine.md` |
+| P4-COR018 | ai_integration (AISystemStatus) | P0 | ✅ Done | `docs/specs/P4-COR018_AISystemStatus.md` |
+| P4-COR019 | adain (AdaINStyleTransfer) | P0 | ✅ Done | `docs/specs/P4-COR019_AdaINStyleTransfer.md` |
+| P4-COR020 | agent_avatar (AgentAvatarEffect) | P0 | ✅ Done | `docs/specs/P4-COR020_AgentAvatarEffect.md` |
+| P4-COR021 | config_manager (AgentConfig) | P0 | ✅ Done | `docs/specs/P4-COR021_AgentConfig.md` |
+| P4-COR022 | agent_graph_visualizer (AgentGraphVisualizer) | P0 | ✅ Done | `docs/specs/P4-COR022_AgentGraphVisualizer.md` |
+| P4-COR023 | unified_hydra_extensions (AgentHydraExtension) | P0 | ✅ Done | `docs/specs/P4-COR023_AgentHydraExtension.md` |
+| P4-COR024 | agent_bridge (AgentInteractionMode) | P0 | ✅ Done | `docs/specs/P4-COR024_AgentInteractionMode.md` |
+| P4-COR025 | agent_manager (AgentManager) | P0 | ✅ Done | `docs/specs/P4-COR025_AgentManager.md` |
 | P4-COR026 | awesome_collaborative_creation (AgentMood) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR027 | agent_orchestrator (AgentOrchestrator) | P0 | ⬜ Todo | Legacy |
-| P4-COR028 | text_overlay (AgentOverlay) | P0 | ⬜ Todo | Legacy |
-| P4-COR029 | agent_bridge (AgentPerformanceBridge) | P0 | ⬜ Todo | Legacy |
+| P4-COR027 | agent_orchestrator (AgentOrchestrator) | P0 | ✅ Done | `docs/specs/P4-COR027_AgentOrchestrator.md` |
+| P4-COR028 | text_overlay (AgentOverlay) | P0 | ✅ Done | `docs/specs/P4-COR028_AgentOverlay.md` |
+| P4-COR029 | agent_bridge (AgentPerformanceBridge) | P0 | ✅ Done | `docs/specs/P4-COR029_AgentPerformanceBridge.md` |
 | P4-COR030 | agent_persona (AgentPersona) | P0 | ⬜ Todo | Legacy |
 | P4-COR031 | routes (AgentPersonaCreate) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR032 | models (AgentPersonaModel) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |

@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_contour_datamosh import DepthContourDatamoshPlugin
 
 def test_contour_datamosh_manifest():
@@ -50,7 +49,7 @@ def test_contour_datamosh_mock_bypass():
     plugin = DepthContourDatamoshPlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 123, "depth_in": 321}
     ctx.outputs = {}
     
@@ -73,7 +72,7 @@ def test_contour_datamosh_fallback():
         plugin._width = 1920
         plugin._height = 1080
         
-        ctx = PluginContext(MagicMock())
+        ctx = MagicMock()(MagicMock())
         ctx.inputs = {"video_in": 5}
         ctx.outputs = {}
         
@@ -85,13 +84,13 @@ def test_contour_datamosh_fallback():
 
 def test_contour_datamosh_empty_input():
     plugin = DepthContourDatamoshPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
 
 def test_contour_datamosh_full_pipeline():
     plugin = DepthContourDatamoshPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 1, "video_b_in": 4, "depth_in": 2}
     ctx.outputs = {}
     

@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'dot_size': 5.0, 'dot_spacing': 5.0, 'color_reduce': 5.0, 'an
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class BenDayDotsPlugin(EffectPlugin):
+class BenDayDotsPlugin(object):
     """Ben-Day dots — Roy Lichtenstein pop art halftone."""
     def __init__(self):
         super().__init__()

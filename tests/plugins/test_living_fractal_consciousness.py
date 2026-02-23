@@ -18,7 +18,6 @@ from vjlive3.plugins.living_fractal_consciousness import (
     LivingFractalConsciousnessPlugin, AgentPersonality, AgentInfluence,
     FractalSnapshot, METADATA, PRESETS, PARAM_ORDER, MOOD_MODIFIERS, VALID_MOODS
 )
-from vjlive3.plugins.api import PluginContext
 
 
 @pytest.fixture(autouse=True)
@@ -36,7 +35,7 @@ def plugin(): return LivingFractalConsciousnessPlugin()
 
 @pytest.fixture
 def ctx():
-    c = PluginContext(MagicMock())
+    c = MagicMock()(MagicMock())
     c.width = 64; c.height = 48; c.time = 0.0
     c.inputs = {"video_in": 10}; c.outputs = {}
     return c

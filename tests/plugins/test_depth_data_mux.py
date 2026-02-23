@@ -4,7 +4,6 @@ import numpy as np
 from typing import Dict, Any
 
 from vjlive3.plugins.depth_data_mux import DepthDataMuxPlugin, METADATA
-from vjlive3.plugins.api import PluginContext
 
 @pytest.fixture
 def plugin():
@@ -12,7 +11,7 @@ def plugin():
 
 @pytest.fixture
 def context():
-    ctx = PluginContext(engine=None)
+    ctx = MagicMock()(engine=None)
     ctx.inputs = {
         "depth1": 101,
         "depth2": 102,

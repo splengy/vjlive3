@@ -1,0 +1,176 @@
+import os
+import re
+import ast
+from pathlib import Path
+import time
+
+def sanitize_filename(name: str) -> str:
+    name = re.sub(r'[^\w\-_\.]', '_', name)
+    name = re.sub(r'_+', '_', name)
+    return name.strip('_').lower()
+
+def build_legacy_catalog(legacy_dirs):
+    """Scan legacy codebases and build a catalog of classes to their rich metadata."""
+    catalog = {}
+    
+    for ldir, source_name in legacy_dirs:
+        for py_file in Path(ldir).rglob("*.py"):
+            try:
+                content = py_file.read_text(encoding='utf-8', errors='ignore')
+                tree = ast.parse(content)
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        class_name = node.name
+                        
+                        methods = [m.name for m in node.body if isinstance(m, ast.FunctionDef)]
+                        
+                        # Try to find init signature
+                        params = []
+                        for m in node.body:
+                            if isinstance(m, ast.FunctionDef) and m.name == '__init__':
+                                params = [a.arg for a in m.args.args if a.arg != 'self']
+                                break
+                                
+                        catalog[class_name] = {
+                            "source": source_name,
+                            "filepath": str(py_file),
+                            "class_name": class_name,
+                            "methods": methods,
+                            "params": params
+                        }
+            except Exception:
+                pass
+    return catalog
+
+def create_rich_spec(task_id: str, desc: str, specs_dir: Path, template_content: str, catalog: dict):
+    # Parse description: e.g., "vtempi (ProgramPage)" or just "vtempi"
+    class_target = ""
+    match = re.search(r'^(.*?)(?:\s*\((.*?)\))?$', desc)
+    if match:
+        base_name = match.group(1).strip()
+        class_target = match.group(2).strip() if match.group(2) else ""
+    else:
+        base_name = desc.strip()
+        
+    safe_name = sanitize_filename(base_name)
+    if not safe_name:
+        safe_name = "unknown_module"
+        
+    # Check if this task already has a spec (checking prefix)
+    existing = list(specs_dir.glob(f"{task_id}_*.md"))
+    if existing:
+        return False, "Already exists"
+        
+    filename = f"{task_id}_{safe_name}.md"
+    filepath = specs_dir / filename
+    
+    # Try to find rich info in catalog
+    rich_info = catalog.get(class_target)
+    if not rich_info:
+        # Fallback trying base_name
+        rich_info = catalog.get(base_name)
+        
+    if not rich_info:
+        # If we can't find rich info, the user said don't do it or delete it.
+        # We will skip generating it so we don't create garbage.
+        return False, f"No rich legacy code found for {class_target or base_name}"
+
+    module_name = desc
+    phase_match = re.search(r'^(P\d+)', task_id)
+    phase = phase_match.group(1) if phase_match else "Unknown Phase"
+    
+    content = template_content
+    content = content.replace("[TASK-ID]", task_id)
+    content = content.replace("[Module Name]", module_name)
+    content = content.replace("[e.g. Phase 2 / P2-H3]", f"{phase} / {task_id}")
+    content = content.replace("[Agent name]", "Antigravity")
+    content = content.replace("[YYYY-MM-DD]", time.strftime("%Y-%m-%d"))
+    
+    # Build the rich injection
+    injection = "\n## Legacy References\n"
+    injection += f"- **Source Codebase**: `{rich_info['source']}`\n"
+    injection += f"- **File Paths**: `{rich_info['filepath']}`\n"
+    injection += f"- **Class Names**: `{rich_info['class_name']}`\n"
+    
+    methods_str = ", ".join(rich_info['methods'][:10])
+    if len(rich_info['methods']) > 10: methods_str += "..."
+    if not methods_str: methods_str = "None found"
+    injection += f"- **Key Algorithms (Methods)**: `{methods_str}`\n"
+    
+    params_str = ", ".join(rich_info['params'])
+    if not params_str: params_str = "None found"
+    injection += f"- **Parameter Mappings (__init__ args)**: `{params_str}`\n"
+    
+    injection += "- **Edge Cases**: Needs review of implementation for tight coupling or hardware dependencies.\n\n"
+    
+    # Insert before END OF SPECIFICATION
+    footer_idx = content.find("---")
+    if "END OF SPECIFICATION" in content:
+        footer_idx = content.rfind("---", 0, content.rfind("END OF SPECIFICATION"))
+        
+    if footer_idx != -1:
+         content = content[:footer_idx] + injection + content[footer_idx:]
+    else:
+        content += injection
+        
+    filepath.write_text(content, encoding='utf-8')
+    return True, "Success"
+
+def main():
+    root = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning")
+    board_path = root / "BOARD.md"
+    specs_dir = root / "docs/specs"
+    template_path = specs_dir / "_TEMPLATE.md"
+    
+    legacy_dirs = [
+        ("/home/happy/Desktop/claude projects/vjlive", "vjlive"),
+        ("/home/happy/Desktop/claude projects/VJlive-2", "VJlive-2")
+    ]
+    
+    print("Scanning legacy codebases to build rich catalog...")
+    catalog = build_legacy_catalog(legacy_dirs)
+    print(f"Cataloged {len(catalog)} discrete classes.")
+    
+    with open(board_path, 'r', encoding='utf-8') as f:
+        board_content = f.read()
+        
+    template_content = template_path.read_text(encoding='utf-8')
+
+    tasks = []
+    for line in board_content.split('\n'):
+        match = re.search(r'\|\s*(P[0-9]+-[A-Z0-9]+)\s*\|\s*(.*?)\s*\|', line)
+        if match:
+            task_id = match.group(1).strip()
+            desc = match.group(2).strip()
+            tasks.append((task_id, desc))
+            
+    tasks.reverse() # Work backwards
+    
+    generated_count = 0
+    skipped_exist = 0
+    skipped_no_rich = 0
+    
+    print("\nGenerating rich specs backwards...")
+    
+    for task_id, desc in tasks:
+        # Ignore done tasks just in case
+        if "✅" in desc or "Done" in desc:
+            continue
+            
+        success, reason = create_rich_spec(task_id, desc, specs_dir, template_content, catalog)
+        if success:
+            generated_count += 1
+            if generated_count % 50 == 0:
+                print(f"  ...generated {generated_count} rich specs so far (at {task_id})")
+        else:
+            if reason == "Already exists":
+                skipped_exist += 1
+            else:
+                skipped_no_rich += 1
+            
+    print(f"\nFinished! Generated {generated_count} completely new, RICH tracking specs.")
+    print(f"Skipped {skipped_exist} because a spec already existed.")
+    print(f"Skipped {skipped_no_rich} because we couldn't automatically map rich legacy AST data.")
+
+if __name__ == "__main__":
+    main()

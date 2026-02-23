@@ -37,8 +37,7 @@ def _reset():
 
 
 def make_context():
-    from vjlive3.plugins.api import PluginContext
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.width = 1920; ctx.height = 1080
     ctx.inputs = {"video_in": 777, "depth_in": 888}
     ctx.time = 1.0; ctx.outputs = {}

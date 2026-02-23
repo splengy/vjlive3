@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'target_width': 5.0, 'target_height': 5.0, 'mode': 0.0, 'offs
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class ResizePlugin(EffectPlugin):
+class ResizePlugin(object):
     """Resize — letterbox/crop/stretch resize modes."""
     def __init__(self):
         super().__init__()

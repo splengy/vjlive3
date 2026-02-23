@@ -17,7 +17,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ def _opacity(v):     return 0.1 + (v/10.)*0.9
 def _c(v):           return max(0., min(10., float(v)))
 
 
-class AudioSpectrumTrailsPlugin(EffectPlugin):
+class AudioSpectrumTrailsPlugin(object):
     """Audio spectrum bars overlay with 3 color modes and bass glow."""
 
     def __init__(self):

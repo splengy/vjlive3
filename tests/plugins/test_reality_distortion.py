@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import MagicMock
 
 from vjlive3.plugins.reality_distortion import RealityDistortionPlugin, METADATA
-from vjlive3.plugins.api import PluginContext
 
 def test_reality_distortion_manifest():
     """Verifies Pydantic/Dict manifest structure."""

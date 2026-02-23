@@ -51,7 +51,6 @@ sys.modules['OpenGL'] = MagicMock()
 sys.modules['OpenGL.GL'] = mock_gl
 
 from vjlive3.plugins.depth_modular_datamosh import DepthModularDatamoshPlugin, METADATA
-from vjlive3.plugins.api import PluginContext
 
 @pytest.fixture
 def plugin():
@@ -64,7 +63,7 @@ def plugin():
 
 @pytest.fixture
 def context():
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.width = 1920
     ctx.height = 1080
     ctx.inputs = {

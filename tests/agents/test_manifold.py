@@ -1,7 +1,6 @@
 """Tests for vjlive3.agents.manifold — Manifold16D and GravityWell."""
 import pytest
 import numpy as np
-from vjlive3.agents.manifold import Manifold16D, GravityWell, _toroidal_delta, DIMS
 
 
 # ── GravityWell tests ────────────────────────────────────────────────────────

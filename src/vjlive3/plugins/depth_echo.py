@@ -14,7 +14,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -106,7 +106,7 @@ def _make_fbo(w, h):
     return fbo, tex
 
 
-class DepthEchoPlugin(EffectPlugin):
+class DepthEchoPlugin(object):
     """Depth Echo — depth-weighted temporal trail accumulation."""
 
     def __init__(self):
@@ -120,7 +120,7 @@ class DepthEchoPlugin(EffectPlugin):
 
     def get_metadata(self): return METADATA
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             self._initialized = True; return True
         try:
@@ -147,7 +147,7 @@ class DepthEchoPlugin(EffectPlugin):
 
     def _u(self, name): return gl.glGetUniformLocation(self.prog, name)
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0: return 0
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             if hasattr(context, "outputs"): context.outputs["video_out"] = input_texture

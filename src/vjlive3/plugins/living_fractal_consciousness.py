@@ -25,7 +25,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -261,7 +261,7 @@ def _safe_float(v: float, lo: float = 0.0, hi: float = 10.0) -> float:
     return max(lo, min(hi, float(v)))
 
 
-class LivingFractalConsciousnessPlugin(EffectPlugin):
+class LivingFractalConsciousnessPlugin(object):
     """Julia set fractal with 5-agent personality system and audio reactivity."""
 
     def __init__(self):
@@ -319,7 +319,7 @@ class LivingFractalConsciousnessPlugin(EffectPlugin):
     def get_metadata(self) -> Dict:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             self._initialized = True; return True
         try:
@@ -486,7 +486,7 @@ class LivingFractalConsciousnessPlugin(EffectPlugin):
 
     # ── Rendering ─────────────────────────────────────────────────────────────
 
-    def process_frame(self, input_texture: int, params: Dict, context: PluginContext):
+    def process_frame(self, input_texture: int, params: Dict, context):
         if not input_texture or input_texture <= 0: return 0
         dt = 1.0 / 60.0; self._time += dt
         # Update agents

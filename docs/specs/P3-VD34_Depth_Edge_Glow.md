@@ -2,7 +2,7 @@
 
 ## What This Module Does
 
-Implements `DepthEdgeGlowEffect` — a depth-aware edge detection and glow effect that highlights depth discontinuities with luminous edges. This effect creates a neon-like outline around objects based on depth boundaries, producing a stylized visualization that emphasizes the 3D structure of the scene.
+This module implements the `DepthEdgeGlowEffect`, ported from the legacy `VJlive-2/plugins/vdepth/depth_edge_glow.py` codebase. It acts as a depth-contour scanner, wrapping objects in luminous neon boundaries by performing hardware-accelerated, multi-scale Sobel edge detection on the raw 32-bit depth matrix. It combines high-frequency topological discontinuities with procedurally generated sub-depth slicing intervals, feeding the result through an integrated multi-tap bloom operator for a heavy Outrun/Synthwave visual aesthetic.
 
 ## Public Interface
 
@@ -133,24 +133,20 @@ class DepthEdgeGlowEffect(Effect):
 ## Implementation Notes
 
 ### Legacy References
-- `vjlive/vdepth/depth_edge_glow.py` — Original implementation
-- `VJlive-2/plugins/p3_vd34.py` — Existing port (if present)
+- **Source Codebase**: `VJlive-2`
+- **File Paths**: `plugins/vdepth/depth_edge_glow.py`
+- **Architectural Soul**: The legacy shader utilizes a custom `depth_edge_multi` macro that executes spatial Sobel operators across multiple dynamic radii (controlled by `edge_thickness`). It relies on a heavy O(N^2) Gaussian-approximate convolution loop taking up to 49 spatial taps for its integrated `glow_radius` bloom pass.
 
 ### Key Algorithms
-1. **Depth Gradient Calculation**: Compute depth gradient magnitude and direction
-2. **Edge Detection**: Threshold gradient to identify depth discontinuities
-3. **Glow Application**: Blur detected edges and apply color tint
-4. **Audio Reactivity**: Modulate glow intensity based on audio features
+1. **Multi-Scale Sobel**: A loop aggregating depth gradients `max(edge, depth_edge_multi(uv, s))` across progressive `s` pixel scales to ensure thick, robust contours mapping complex geometry.
+2. **Topographic Slicing**: Mixes physical object edges with procedural depth intervals generated via `fract(depth * intervals)`.
+3. **Procedural Bloom Convolution**: Samples neighbor bounds via a double `for` loop, weighting luminosity exponentially by radial distance: `glow += e * exp(-dist * 0.5)`.
+4. **Dynamic Hue Mapping**: Triple hue mode (Solid, Depth-mapped rainbow, Spatial-scrolling rainbow) manipulating HSV matrices.
 
-### Performance Targets
-- 1080p @ 60fps: <10ms per frame
-- Memory: <15 MB additional (edge buffer and glow cache)
-- CPU: Optimized using NumPy vectorization and separable filters
-
-### Safety Rails
-- **RAIL 1**: Must maintain 60fps target
-- **RAIL 6**: Handle missing depth source gracefully (fallback to no glow)
-- **RAIL 8**: No GPU memory leaks in texture allocation
+### Optimization Constraints & Safety Rails
+- **Shader Complexity**: The 49-tap dynamic bloom loop combined with the multi-scale Sobel convolution is extremely fragment-shader heavy. VJLive3 should ideally optimize this by splitting the bloom pass into a separable two-pass (horizontal/vertical) Gaussian blur FBO if performance suffers, though a direct port of the legacy single-pass loop is acceptable if FPS targets are maintained.
+- **Optimization Constraint (Safety Rail #1):** Requires patching the universally faulty legacy VDepth `glTexImage2D` buffer reallocation in the draw loop; port entirely to `glTexSubImage2D`.
+- **Cleanup Requirement (Safety Rail #8):** Requires explicit OpenGL texture deletion in the teardown.
 
 ## Deliverables
 

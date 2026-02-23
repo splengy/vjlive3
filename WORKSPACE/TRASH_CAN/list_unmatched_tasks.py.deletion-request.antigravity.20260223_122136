@@ -1,0 +1,90 @@
+import os
+import re
+import ast
+from pathlib import Path
+
+def sanitize_filename(name: str) -> str:
+    name = re.sub(r'[^\w\-_\.]', '_', name)
+    name = re.sub(r'_+', '_', name)
+    return name.strip('_').lower()
+
+def build_legacy_catalog(legacy_dirs):
+    catalog = {}
+    for ldir, source_name in legacy_dirs:
+        for py_file in Path(ldir).rglob("*.py"):
+            try:
+                content = py_file.read_text(encoding='utf-8', errors='ignore')
+                tree = ast.parse(content)
+                for node in ast.walk(tree):
+                    if isinstance(node, ast.ClassDef):
+                        catalog[node.name] = {
+                            "source": source_name,
+                            "filepath": str(py_file),
+                            "class_name": node.name
+                        }
+            except Exception:
+                pass
+    return catalog
+
+def get_unmatched(tasks, specs_dir, catalog):
+    unmatched = []
+    
+    for task_id, desc in tasks:
+        if "✅" in desc or "Done" in desc:
+            continue
+            
+        class_target = ""
+        match = re.search(r'^(.*?)(?:\s*\((.*?)\))?$', desc)
+        if match:
+            base_name = match.group(1).strip()
+            class_target = match.group(2).strip() if match.group(2) else ""
+        else:
+            base_name = desc.strip()
+            
+        safe_name = sanitize_filename(base_name)
+        existing = list(specs_dir.glob(f"{task_id}_*.md"))
+        
+        if existing:
+            continue
+            
+        rich_info = catalog.get(class_target)
+        if not rich_info:
+            rich_info = catalog.get(base_name)
+            
+        if not rich_info:
+            unmatched.append((task_id, desc, class_target, base_name))
+            
+    return unmatched
+
+def main():
+    root = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning")
+    board_path = root / "BOARD.md"
+    specs_dir = root / "docs/specs"
+    
+    legacy_dirs = [
+        ("/home/happy/Desktop/claude projects/vjlive", "vjlive"),
+        ("/home/happy/Desktop/claude projects/VJlive-2", "VJlive-2")
+    ]
+    
+    catalog = build_legacy_catalog(legacy_dirs)
+    
+    tasks = []
+    board_content = board_path.read_text(encoding='utf-8')
+    for line in board_content.split('\n'):
+        match = re.search(r'\|\s*(P[0-9]+-[A-Z0-9]+)\s*\|\s*(.*?)\s*\|', line)
+        if match:
+            task_id = match.group(1).strip()
+            desc = match.group(2).strip()
+            tasks.append((task_id, desc))
+            
+    unmatched = get_unmatched(tasks, specs_dir, catalog)
+    
+    out_path = root / "docs/unmatched_legacy_tasks.txt"
+    with open(out_path, 'w', encoding='utf-8') as f:
+        for t in unmatched:
+            f.write(f"{t[0]} | {t[1]} | target={t[2]} | base={t[3]}\n")
+            
+    print(f"Found {len(unmatched)} unmatched tasks. Wrote to docs/unmatched_legacy_tasks.txt")
+
+if __name__ == "__main__":
+    main()

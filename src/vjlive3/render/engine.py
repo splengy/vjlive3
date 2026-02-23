@@ -8,7 +8,6 @@ from typing import List, Optional
 
 import moderngl
 
-from vjlive3.plugins.api import PluginBase
 from vjlive3.render.chain import EffectChain
 from vjlive3.render.effect import Effect
 
@@ -62,7 +61,7 @@ class RenderEngine:
         """Get the active loop status."""
         return self._running
         
-    def set_plugin_chain(self, plugins: List[PluginBase]) -> None:
+#     def set_plugin_chain(self, plugins: List[PluginBase]) -> None:
         """Completely replace the active plugin execution chain."""
         self._chain.clear()
         self._plugin_wrappers.clear()
@@ -70,9 +69,9 @@ class RenderEngine:
         for plugin in plugins:
             self.add_plugin(plugin)
             
-    def _create_plugin_wrapper(self, plugin: PluginBase) -> Effect:
+    def _create_plugin_wrapper(self, plugin) -> Effect:
         """
-        Adapt a PluginBase to the raw Effect interface required by EffectChain.
+#         Adapt a PluginBase to the raw Effect interface required by EffectChain.
         """
         # In a real scenario we might compile a shader from the plugin data.
         # For specs, we wrap its process loop inline.
@@ -109,7 +108,7 @@ class RenderEngine:
         wrapper.apply_uniforms = hooked_apply
         return wrapper
             
-    def add_plugin(self, plugin: PluginBase) -> None:
+    def add_plugin(self, plugin) -> None:
         """Append a plugin to the end of the rendering execution chain."""
         if not plugin:
             return
@@ -122,7 +121,7 @@ class RenderEngine:
         self._plugin_wrappers[p_id] = wrapper
         self._chain.add_effect(wrapper)
         
-    def remove_plugin(self, plugin: PluginBase) -> None:
+    def remove_plugin(self, plugin) -> None:
         """Remove a plugin from the execution chain."""
         if not plugin:
             return

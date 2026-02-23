@@ -1,10 +1,10 @@
 {
   "vjlive_total": 394,
   "vjlive2_total": 271,
-  "vjlive3_implemented": 61,
-  "missing_total": 491,
+  "vjlive3_implemented": 236,
+  "missing_total": 490,
   "missing_by_category": {
-    "uncategorized": 383,
+    "uncategorized": 382,
     "attractor": 10,
     "audio_reactive": 8,
     "vco": 37,
@@ -1518,11 +1518,6 @@
     {
       "file": "lut_grading.py",
       "class_name": "LUTGradingEffect",
-      "source": "file_scan"
-    },
-    {
-      "file": "living_fractal_consciousness.py",
-      "class_name": "AgentPersonality",
       "source": "file_scan"
     },
     {

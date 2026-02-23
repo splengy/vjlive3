@@ -1,0 +1,115 @@
+# Spec Template — P2-X1 Multi-node Coordination (ZeroMQ)
+
+**File naming:** `docs/specs/P2-X1_zmq_coordinator.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P2-X1 — Multi-node Coordination (ZeroMQ)
+
+**Phase:** Phase 2
+**Assigned To:** Worker
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module provides a robust, low-latency inter-process and inter-node communication system using ZeroMQ. It allows multiple VJLive3 instances or external tools to coordinate state, synchronize clocks, and pass high-frequency telemetry/events (e.g., beat triggers, parameter changes, node graph updates) without blocking the rendering thread. It implements an architecture where nodes can discover each other and subscribe to relevant topics.
+
+---
+
+## What It Does NOT Do
+
+- It does not replace the WebSocket interface used for web UI communication (that serves a different purpose).
+- It does not stream large bulk data like video frames (NDI is used for video, P2-H4).
+- It does not dictate the contents of the payload, it only provides the transport and routing mechanism.
+
+---
+
+## Public Interface
+
+```python
+import zmq
+from typing import Callable, Any, Dict, Optional
+
+class ZmqRole:
+    PUBLISHER = "pub"
+    SUBSCRIBER = "sub"
+    REQ = "req"
+    REP = "rep"
+
+class ZmqMessage:
+    topic: str
+    payload: Dict[str, Any]
+    timestamp: float
+
+class ZmqCoordinator:
+    def __init__(self, node_id: str) -> None: ...
+    def bind_publisher(self, port: int) -> None: ...
+    def connect_subscriber(self, address: str, topics: list[str]) -> None: ...
+    def publish(self, topic: str, payload: dict) -> None: ...
+    def subscribe(self, topic: str, callback: Callable[[ZmqMessage], None]) -> None: ...
+    def poll_events(self, timeout_ms: int = 0) -> None: ...
+    def shutdown(self) -> None: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `topic` | `str` | Hierarchical routing key (e.g., `beat.kick`) | Max 255 chars, alphanumeric + dots |
+| `payload` | `dict` | Message content | Must be JSON serializable |
+| `address` | `str` | ZMQ connection string | e.g. `tcp://127.0.0.1:5555` |
+
+---
+
+## Edge Cases and Error Handling
+
+- What happens if a subscriber connects before the publisher binds? → ZeroMQ handles this gracefully; connections are established once both sides are present.
+- What happens if the network drops? → Heartbeats and ZMQ reconnect logic ensures temporary drops don't permanently break the coordination link.
+- What if a callback takes too long? → Callbacks should be lightweight. The coordinator logs warnings if `poll_events` loop exceeds a defined time threshold.
+
+---
+
+## Dependencies
+
+- External libraries needed: `pyzmq`
+- Internal: Standard JSON parsing
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_pub_sub_local` | Messages published on a bound port are received by connected subscriber |
+| `test_topic_filtering` | Subscribers only receive messages for their registered topics |
+| `test_json_serialization_error` | Publishing non-JSON serializable payloads raises an appropriate error or logs warning |
+| `test_clean_shutdown` | `shutdown()` cleanly terminates context and closes sockets |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-2] P2-X1: ZMQ coordinator` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **File Paths**: `TBD`
+

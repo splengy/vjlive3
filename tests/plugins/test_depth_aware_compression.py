@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_aware_compression import DepthAwareCompressionPlugin
 
 def test_depth_compression_manifest():
@@ -33,7 +32,7 @@ def test_depth_compression_bypass():
         plugin._width = 1920
         plugin._height = 1080
         
-        ctx = PluginContext(MagicMock())
+        ctx = MagicMock()(MagicMock())
         ctx.inputs = {"video_in": 5}  # missing depth_in
         ctx.outputs = {}
         
@@ -47,7 +46,7 @@ def test_depth_compression_mock_bypass():
     plugin = DepthAwareCompressionPlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 123, "depth_in": 321}
     ctx.outputs = {}
     
@@ -77,13 +76,13 @@ def test_depth_compression_fbo_lifecycle():
 
 def test_depth_compression_empty_input():
     plugin = DepthAwareCompressionPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
 
 def test_depth_compression_full_pipeline():
     plugin = DepthAwareCompressionPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 1, "depth_in": 2}
     ctx.outputs = {}
     

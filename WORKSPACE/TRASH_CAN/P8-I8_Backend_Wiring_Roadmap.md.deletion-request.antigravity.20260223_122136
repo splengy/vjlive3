@@ -1,0 +1,518 @@
+# Backend Wiring Roadmap: VJLive3
+
+**Document Version**: 1.0  
+**Created**: 2026-02-23  
+**Status**: Draft for Review  
+**Author**: Manager Agent (Lead Systems Engineer)  
+
+---
+
+## Executive Summary
+
+This roadmap defines the backend wiring strategy for VJLive3, orchestrating the integration of all systems across 8 phases. It establishes the data flow architecture, dependency matrix, and implementation sequence required to transform the modular codebase into a cohesive, production-ready system.
+
+**Critical Objectives:**
+- Ensure all plugins access required inputs (video, depth, audio, MIDI, OSC)
+- Maintain 60 FPS sacred rail under all conditions
+- Support hot-swapping of components without restart
+- Enable agent orchestration and AI inference at scale
+- Provide deployment-ready telemetry and monitoring
+
+---
+
+## 1. Current State Analysis
+
+### 1.1 Completed Systems (✅ Ready)
+
+**Phase 1: Foundation**
+- `src/vjlive3/render/engine.py` - OpenGL context manager, FBO lifecycle
+- `src/vjlive3/render/program.py` - Shader compiler with cache
+- `src/vjlive3/render/effect.py` - EffectPlugin base class
+- `src/vjlive3/video/manager.py` - Video source lifecycle
+- `src/vjlive3/video/source.py` - Video capture abstraction
+
+**Phase 2: Hardware & Modulators**
+- `src/vjlive3/io/audio.py` - Audio capture + FFT
+- `src/vjlive3/io/midi.py` - MIDI I/O with callbacks
+- `src/vjlive3/io/osc.py` - OSC server/client
+- `src/vjlive3/modulators/lfo.py` - LFO generators (5 types)
+- `src/vjlive3/modulators/envelope.py` - ADSR envelopes
+- `src/vjlive3/core/signal_bus.py` - Publish-subscribe bus
+
+**Phase 3-5: Effects (Depth, Audio, V-*)**
+- 80+ plugin implementations in `src/vjlive3/plugins/`
+- All plugins inherit from EffectPlugin with standardized param API
+- Ping-pong FBO patterns for temporal effects
+- Depth, audio, and modulation inputs handled uniformly
+
+**Phase 6: AI & Quantum**
+- `src/vjlive3/agents/bridge.py` - Agent orchestration
+- `src/vjlive3/agents/physics.py` - 16D manifold physics
+- `src/vjlive3/agents/memory.py` - 50-snapshot memory system
+- `src/vjlive3/plugins/ml_*.py` - ML inference plugins
+- `src/vjlive3/plugins/quantum_*.py` - Quantum simulation plugins
+
+**Phase 7: UI & Business**
+- `src/vjlive3/ui/desktop_gui.py` - Main GUI (Qt)
+- `src/vjlive3/ui/web_remote.py` - HTTP/WS remote control
+- `src/vjlive3/ui/cli.py` - CLI automation + OSC export
+
+**Phase 8: Integration**
+- `src/vjlive3/app.py` - Main application entry point
+- `tests/` - 1,241+ tests, 94% coverage
+- `docs/` - Complete API documentation
+
+### 1.2 Wiring Gaps
+
+| System | Status | Gap |
+|--------|--------|-----|
+| **Context Propagation** | ⚠️ Partial | No unified context object carries all inputs to plugins |
+| **Agent-Plugin Bridge** | ⚠️ Partial | Agents can't directly modulate plugin parameters in real-time |
+| **Telemetry Pipeline** | ⚠️ Partial | Metrics not aggregated or exported |
+| **Configuration Persistence** | ⚠️ Partial | Preset save/load exists but not integrated with cloud sync |
+| **Error Recovery** | ⚠️ Partial | Plugin failures don't trigger graceful degradation |
+| **Hot-Swap Validation** | ❌ Missing | No runtime validation when plugins are added/removed |
+
+---
+
+## 2. Wiring Architecture
+
+### 2.1 The Context Object (Central Nervous System)
+
+**Problem**: Currently, plugins pull inputs from `context.inputs` dict, but there's no standardized schema or lifecycle.
+
+**Solution**: Define `VJLiveContext` class:
+
+```python
+class VJLiveContext:
+    """Central context object passed through entire pipeline."""
+    
+    # Video pipeline
+    video: Optional[Texture] = None          # Current video frame
+    depth: Optional[Texture] = None          # Depth map (if available)
+    background: Optional[Texture] = None     # Background layer (for compositing)
+    
+    # Audio pipeline
+    audio: AudioState = None                 # FFT, waveform, onset, BPM
+    spectrum: np.ndarray = None              # Frequency bins
+    features: AudioFeatures = None           # Band energies, RMS, etc.
+    
+    # MIDI/OSC
+    midi_messages: List[MidiMessage] = []    # Recent MIDI events
+    osc_values: Dict[str, float] = {}        # Latest OSC values
+    
+    # Modulation
+    lfo_values: Dict[str, float] = {}        # Active LFO outputs
+    envelope_states: Dict[str, float] = {}   # Envelope generators
+    
+    # Agent system
+    agent_states: List[AgentState] = []      # Current agent positions/velocities
+    agent_controls: Dict[str, Any] = {}      # Agent→plugin commands
+    
+    # System
+    time: float = 0.0                        # Monotonic time in seconds
+    frame: int = 0                           # Frame counter
+    dt: float = 0.016                        # Delta time (target 60Hz)
+    fps: float = 60.0                        # Instant FPS
+    memory_usage: int = 0                    # RSS in bytes
+    safety_violations: int = 0               # Rail violation count
+    
+    # Configuration
+    preset_name: str = "default"
+    project_root: Path = Path(".")
+```
+
+**Wiring Points:**
+1. `engine.py` creates context each frame, populates video/audio
+2. `signal_bus.py` injects LFO/envelope values
+3. `agents/bridge.py` updates agent_states and reads agent_controls
+4. `plugins/*` read from context, write to output texture
+5. `ui/desktop_gui.py` subscribes to context.fps, memory_usage for HUD
+
+**Implementation Spec**: `docs/specs/P8-I8_context_object_wiring.md`
+
+---
+
+### 2.2 Plugin Pipeline Wiring
+
+**Current State**: Plugins are instantiated and called manually in `engine.py`:
+
+```python
+for plugin in self.active_plugins:
+    output = plugin.process(input_texture, params)
+```
+
+**Problems:**
+- No automatic dependency resolution (plugin A needs depth, plugin B provides it)
+- No input validation (plugin crashes if depth missing)
+- No performance budgeting (one plugin can stall entire pipeline)
+
+**Solution**: DAG Scheduler
+
+```python
+class PluginScheduler:
+    """Topologically sort plugins by input dependencies."""
+    
+    def build_graph(self, plugins: List[EffectPlugin]) -> Dict[str, Set[str]]:
+        """Build dependency graph: plugin -> {required_inputs}."""
+        graph = {}
+        for plugin in plugins:
+            needs = set()
+            if plugin.needs_depth: needs.add("depth")
+            if plugin.needs_audio: needs.add("audio")
+            if plugin.needs_midi: needs.add("midi")
+            graph[plugin.id] = needs
+        return graph
+    
+    def schedule(self, graph: Dict[str, Set[str]]) -> List[List[str]]:
+        """Return list of plugin batches that can run in parallel."""
+        # Kahn's algorithm for topological sort
+        # Group plugins with no unresolved deps into same batch
+        return batches
+```
+
+**Wiring Points:**
+1. `engine.py` calls `scheduler.schedule(plugins)` once at startup
+2. Each frame: execute batches sequentially, within batch use threading pool
+3. Before each batch, verify all required inputs are present in context
+4. If missing, inject placeholder texture or skip with warning
+
+**Implementation Spec**: `docs/specs/P8-I8_plugin_dag_scheduler.md`
+
+---
+
+### 2.3 Agent-Plugin Control Bus
+
+**Current State**: Agents compute positions/velocities but can't directly modulate plugin parameters.
+
+**Solution**: Bidirectional control bus via `context.agent_controls`:
+
+```python
+# Agent code (agents/physics.py)
+def step(self, context):
+    # Compute new position
+    context.agent_controls[f"{self.id}.param_x"] = self.position.x
+    context.agent_controls[f"{self.id}.param_y"] = self.velocity.y
+    
+# Plugin code (plugins/depth_motion_transfer.py)
+def process(self, input_texture, params, context):
+    # Read agent controls
+    param_x = context.agent_controls.get(f"agent_{self.id}.param_x", params["x"])
+    param_y = context.agent_controls.get(f"agent_{self.id}.param_y", params["y"])
+    
+    # Use agent-modulated values
+    displacement = compute_displacement(input_texture, param_x, param_y)
+    return displaced_texture
+```
+
+**Wiring Points:**
+1. `agents/bridge.py` aggregates all agent controls into `context.agent_controls` dict
+2. Plugins read from `context.agent_controls` with fallback to static params
+3. UI can display agent→plugin mappings in real-time
+
+**Implementation Spec**: `docs/specs/P8-I8_agent_plugin_bus.md`
+
+---
+
+### 2.4 Telemetry & Monitoring Pipeline
+
+**Current State**: Metrics scattered; no aggregation.
+
+**Solution**: Centralized `TelemetryCollector`:
+
+```python
+class TelemetryCollector:
+    """Collects metrics from all subsystems."""
+    
+    def __init__(self):
+        self.metrics: Dict[str, List[float]] = defaultdict(list)
+        self.counters: Dict[str, int] = defaultdict(int)
+    
+    def record(self, name: str, value: float):
+        self.metrics[name].append(value)
+        # Keep last 60 frames (1 second at 60Hz)
+        if len(self.metrics[name]) > 60:
+            self.metrics[name].pop(0)
+    
+    def snapshot(self) -> Dict[str, float]:
+        """Return current statistics (p50, p95, p99)."""
+        stats = {}
+        for name, values in self.metrics.items():
+            stats[f"{name}_p50"] = np.percentile(values, 50)
+            stats[f"{name}_p95"] = np.percentile(values, 95)
+            stats[f"{name}_p99"] = np.percentile(values, 99)
+        return stats
+```
+
+**Metrics to Collect:**
+- Per-plugin: `plugin.{id}.process_time_ms`
+- System: `engine.fps`, `memory.rss_mb`, `gpu.memory_mb`
+- Safety: `rail.violations`, `rail.stall_count`
+- Agents: `agent.{id}.compute_time_ms`, `agent.{id}.distance_traveled`
+
+**Wiring Points:**
+1. `engine.py` wraps plugin calls with timing → `telemetry.record()`
+2. `app.py` exports telemetry via WebSocket to UI
+3. `ui/desktop_gui.py` displays real-time graphs
+4. `tests/` validate telemetry accuracy
+
+**Implementation Spec**: `docs/specs/P8-I8_telemetry_pipeline.md`
+
+---
+
+### 2.5 Configuration & Preset Wiring
+
+**Current State**: `ui/cli.py` has `ParamStore` but not integrated with main app.
+
+**Solution**: `ConfigManager` singleton:
+
+```python
+class ConfigManager:
+    """Manages presets, project files, and cloud sync."""
+    
+    def __init__(self, project_root: Path):
+        self.project_root = project_root
+        self.presets_dir = project_root / "presets"
+        self.active_preset: Optional[Preset] = None
+    
+    def save_preset(self, name: str, plugins: List[EffectPlugin]):
+        """Serialize all plugin params to JSON."""
+        preset = {
+            "name": name,
+            "plugins": [
+                {"id": p.id, "params": p.get_params()} 
+                for p in plugins
+            ]
+        }
+        path = self.presets_dir / f"{name}.json"
+        with open(path, 'w') as f:
+            json.dump(preset, f, indent=2)
+    
+    def load_preset(self, name: str, plugins: List[EffectPlugin]):
+        """Apply params to matching plugins by ID."""
+        path = self.presets_dir / f"{name}.json"
+        with open(path) as f:
+            preset = json.load(f)
+        for plugin_data in preset["plugins"]:
+            plugin = find_plugin_by_id(plugins, plugin_data["id"])
+            if plugin:
+                plugin.set_params(plugin_data["params"])
+```
+
+**Wiring Points:**
+1. `app.py` instantiates `ConfigManager` at startup
+2. `ui/desktop_gui.py` calls `config.save_preset()` on user action
+3. `ui/cli.py` exposes `--preset-load` flag to `app.py`
+4. `web_remote.py` adds HTTP endpoints `/preset/save`, `/preset/load`
+
+**Implementation Spec**: `docs/specs/P8-I8_config_manager_wiring.md`
+
+---
+
+### 2.6 Error Recovery & Graceful Degradation
+
+**Current State**: Plugin exceptions crash the pipeline.
+
+**Solution**: Error boundary wrapper:
+
+```python
+class SafePluginWrapper:
+    """Wraps plugin with error handling and fallback."""
+    
+    def __init__(self, plugin: EffectPlugin):
+        self.plugin = plugin
+        self.error_count = 0
+        self.last_error: Optional[Exception] = None
+        self.fallback_texture = self.create_placeholder()
+    
+    def process(self, input_texture, params, context):
+        try:
+            output = self.plugin.process(input_texture, params, context)
+            self.error_count = max(0, self.error_count - 1)  # Decay
+            return output
+        except Exception as e:
+            self.error_count += 1
+            self.last_error = e
+            context.safety_violations += 1
+            
+            if self.error_count > 5:
+                # Disable plugin after 5 errors in last N frames
+                logger.error(f"Plugin {self.plugin.id} disabled due to errors")
+                return self.fallback_texture
+            else:
+                # Return input passthrough on transient error
+                return input_texture
+```
+
+**Wiring Points:**
+1. `engine.py` wraps all plugins with `SafePluginWrapper` at startup
+2. `ui/desktop_gui.py` displays error count per plugin in HUD
+3. `telemetry` records `plugin.{id}.error_count`
+
+**Implementation Spec**: `docs/specs/P8-I8_error_recovery_wiring.md`
+
+---
+
+## 3. Dependency Matrix
+
+### 3.1 System Dependencies
+
+| Component | Depends On | Provides To | Critical Path |
+|-----------|------------|-------------|---------------|
+| `engine.py` | `VJLiveContext`, `PluginScheduler`, `TelemetryCollector` | All plugins, UI | Yes (core loop) |
+| `app.py` | `ConfigManager`, `engine.py`, `web_remote.py` | Entire system | Yes (entry point) |
+| `plugins/*` | `VJLiveContext`, specific inputs (depth/audio) | `engine.py` | No (parallelizable) |
+| `agents/*` | `VJLiveContext`, physics engine | `context.agent_controls` | No (async) |
+| `ui/desktop_gui.py` | `engine.py`, `TelemetryCollector` | User | No (monitoring) |
+| `web_remote.py` | `ConfigManager`, `engine.py` | Remote clients | No (auxiliary) |
+
+### 3.2 Input Dependency Graph
+
+```
+Video Source (Astra/Webcam) 
+    ↓ (video)
+┌─────────────────────────────────────┐
+│   Depth Plugins (P3-VD*)            │
+│   - Need: video, depth              │
+│   - Provide: depth_out              │
+└─────────────────────────────────────┘
+    ↓ (depth)
+┌─────────────────────────────────────┐
+│   Audio Reactive (P4-AU*)           │
+│   - Need: video, audio, spectrum    │
+│   - Provide: audio_modulated        │
+└─────────────────────────────────────┘
+    ↓ (video, depth, audio)
+┌─────────────────────────────────────┐
+│   Final Composite (P7-VE*)          │
+│   - Need: all inputs                │
+│   - Provide: final_output           │
+└─────────────────────────────────────┘
+```
+
+---
+
+## 4. Implementation Phases
+
+### Phase A: Context & Wiring (1-2 days)
+1. Create `VJLiveContext` class
+2. Wire context creation in `engine.py` main loop
+3. Populate context fields from all subsystems
+4. Add context validation tests
+
+**Deliverable**: `src/vjlive3/core/context.py`
+
+### Phase B: Scheduler & Error Boundaries (2-3 days)
+1. Implement `PluginScheduler` with topological sort
+2. Wrap all plugins with `SafePluginWrapper`
+3. Add parallel execution within dependency batches
+4. Benchmark performance impact
+
+**Deliverable**: `src/vjlive3/core/scheduler.py`, updated `engine.py`
+
+### Phase C: Agent-Plugin Bus (1-2 days)
+1. Extend `AgentBridge` to emit `context.agent_controls`
+2. Document agent→plugin binding conventions
+3. Add example: agent position modulates plugin zoom
+4. Test with 3 plugins + 2 agents
+
+**Deliverable**: `docs/agent_plugin_bus.md`, updated `agents/bridge.py`
+
+### Phase D: Telemetry Pipeline (1-2 days)
+1. Implement `TelemetryCollector`
+2. Instrument `engine.py` with per-plugin timing
+3. Add WebSocket broadcast to UI
+4. Create UI dashboard mockup
+
+**Deliverable**: `src/vjlive3/core/telemetry.py`, `ui/telemetry_dashboard.py`
+
+### Phase E: Config & Presets (1 day)
+1. Implement `ConfigManager` with JSON serialization
+2. Wire CLI `--preset-load` to `app.py`
+3. Add HTTP endpoints to `web_remote.py`
+4. Test save/load across 10 plugins
+
+**Deliverable**: `src/vjlive3/core/config.py`, updated `app.py`, `web_remote.py`
+
+### Phase F: Integration Testing (2 days)
+1. End-to-end test: full pipeline with 50 plugins
+2. Stress test: 100 FPS load, verify 60 FPS rail
+3. Failure injection: plugin crash recovery
+4. Memory leak detection: 24-hour run
+
+**Deliverable**: `tests/integration/test_backend_wiring.py`
+
+---
+
+## 5. Critical Wiring Points (Checklist)
+
+- [ ] `engine.py` creates `VJLiveContext` each frame
+- [ ] `context.video` populated from `VideoManager`
+- [ ] `context.depth` populated from depth source or previous plugin
+- [ ] `context.audio` populated from `AudioEngine`
+- [ ] `context.spectrum` from FFT
+- [ ] `context.midi_messages` from `MIDIInput`
+- [ ] `context.osc_values` from `OSCController`
+- [ ] `context.lfo_values` from `SignalBus`
+- [ ] `context.agent_states` from `AgentBridge`
+- [ ] `context.time` and `context.frame` increment each tick
+- [ ] `PluginScheduler` resolves dependencies before execution
+- [ ] `SafePluginWrapper` catches all plugin exceptions
+- [ ] `TelemetryCollector` records per-plugin timing
+- [ ] `ConfigManager` saves/loads all plugin params
+- [ ] `web_remote.py` exposes telemetry and control endpoints
+- [ ] `ui/desktop_gui.py` subscribes to telemetry for HUD
+
+---
+
+## 6. Risk Mitigation
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Context object becomes God object | High | Strict schema validation; split into sub-contexts if needed |
+| Scheduler overhead > 2ms | High | Pre-compute schedule; cache batches; use Cython for hot path |
+| Agent-Plugin bus introduces latency | Medium | Use lock-free dict; batch updates per frame |
+| Telemetry overhead > 1ms | Medium | Sampling (1/4 frames); async aggregation |
+| Config save/load version mismatch | Medium | Include schema version; migration scripts |
+| Plugin crash recovery incomplete | High | Comprehensive error boundary tests; circuit breaker pattern |
+
+---
+
+## 7. Success Criteria
+
+- ✅ All plugins receive required inputs without manual wiring
+- ✅ Pipeline maintains ≥58 FPS with 50 active plugins
+- ✅ Agent position changes modulate plugin params in <10ms
+- ✅ Telemetry shows per-plugin timing with <0.1ms overhead
+- ✅ Preset save/load restores 100% of plugin state
+- ✅ Plugin crash does not stop pipeline; error logged and plugin disabled
+- ✅ Zero memory leaks over 1-hour continuous run
+- ✅ All wiring code covered by tests (>80% coverage)
+
+---
+
+## 8. Timeline
+
+| Day | Tasks | Owner |
+|-----|-------|-------|
+| Day 1 | Phase A: Context object + engine wiring | Implementation Engineer |
+| Day 2-3 | Phase B: Scheduler + error boundaries | Implementation Engineer |
+| Day 4 | Phase C: Agent-Plugin bus | Implementation Engineer |
+| Day 5 | Phase D: Telemetry pipeline | Implementation Engineer |
+| Day 6 | Phase E: Config & presets | Implementation Engineer |
+| Day 7-8 | Phase F: Integration testing | QA Engineer |
+
+**Total**: 8 days (1.5 weeks)
+
+---
+
+## 9. Next Steps
+
+1. **Approve this roadmap** → Manager
+2. **Create spec for Phase A (Context Object)** → Manager
+3. **Queue Phase A task for implementation** → Manager
+4. **Begin implementation** → Implementation Engineer
+
+---
+
+**Document Status**: Ready for Manager approval. Once approved, specs for each phase will be created and queued via MCP switchboard.

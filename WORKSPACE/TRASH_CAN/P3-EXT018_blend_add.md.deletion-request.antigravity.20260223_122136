@@ -1,0 +1,576 @@
+# P3-EXT018: BlendAddEffect
+
+**Task ID:** P3-EXT018  
+**Plugin:** BlendAddEffect (Additive Blend)  
+**Priority:** P0  
+**Status:** ⬜ Todo  
+**Source:** vjlive (core/effects/blend.py)  
+**Target:** `src/vjlive3/plugins/blend_add.py`
+
+---
+
+## 📋 Task Overview
+
+Port the **BlendAddEffect** from VJLive-2 to VJLive3. This is an additive blending effect that combines the current frame with the previous frame using various masking and transformation options. It's a versatile tool for creating glows, light leaks, and composite layering.
+
+**Key Features:**
+- Additive blending: `result = current + previous * amount * boost`
+- Channel masking: blend only R, G, B, or luma channels
+- Offset control: shift the previous frame UV for chromatic aberration-style effects
+- Luma masking: only blend where current frame is bright
+- Audio reactivity: `amount` parameter modulated by MID frequencies
+- Simple, fast shader (~50 lines)
+- 6 user parameters
+- 4 legacy presets
+
+---
+
+## 🎯 Core Concept
+
+> "Additive blend with channel masking, offset, boost."
+
+The effect adds a transformed version of the previous frame to the current frame:
+- **Additive** brightens the image by adding pixel values
+- **Channel masking** isolates specific color channels from the previous frame
+- **Offset** creates spatial separation (useful for RGB split, echo effects)
+- **Boost** multiplies the added signal for intensity control
+- **Luma mask** restricts blending to bright areas of the current frame
+- **Mix** controls overall effect blend with original
+
+This is a fundamental compositing tool used in VJ workflows for layering and enhancement.
+
+---
+
+## 📁 File Structure
+
+```
+src/vjlive3/plugins/blend_add.py
+tests/plugins/test_blend_add.py
+```
+
+---
+
+## 1. Class Hierarchy
+
+```python
+from core.effects.shader_base import Effect
+from core.audio_reactor import AudioReactor
+from core.audio_analyzer import AudioFeature
+from OpenGL.GL import (glActiveTexture, glBindTexture, GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE_2D)
+import logging
+
+logger = logging.getLogger(__name__)
+
+class BlendAddEffect(Effect):
+    """Additive blend with channel masking, offset, boost."""
+
+    def __init__(self):
+        fragment_source = self._get_fragment_shader()
+        super().__init__("blend_add", fragment_source)
+
+        self.description = "Additive blending with channel mask, offset, and boost"
+        self.category = "Blend"
+
+        # Parameters (0.0-10.0)
+        self.parameters = {
+            'amount': 5.0,       # Blend strength (0-10 → 0-1)
+            'channel_mask': 0.0, # 0=all, 3=R, 5=G, 7=B, 10=luma
+            'boost': 5.0,        # Brightness multiplier (0-10 → 0.5-3.0)
+            'offset_x': 5.0,     # Horizontal offset (0-10 → -0.2 to 0.2)
+            'offset_y': 5.0,     # Vertical offset (0-10 → -0.2 to 0.2)
+            'luma_mask': 0.0,    # Luma threshold for blending (0-10 → 0-1)
+        }
+
+        self.audio_reactor = None
+
+    def _get_fragment_shader(self) -> str:
+        """Return the 50-line GLSL shader (see spec)."""
+        return """#version 330 core
+        // Full shader from spec
+        """
+
+    def set_audio_analyzer(self, audio_analyzer):
+        """Set audio analyzer for reactivity."""
+        if audio_analyzer:
+            self.audio_reactor = AudioReactor(audio_analyzer)
+            self.audio_reactor.assign_audio_feature("blend_add", "amount", AudioFeature.MID, 0.0, 10.0)
+
+    def apply_uniforms(self, time: float, resolution: tuple,
+                       audio_reactor=None, semantic_layer=None):
+        """Apply uniforms with audio modulation."""
+        super().apply_uniforms(time, resolution, audio_reactor, semantic_layer)
+
+        # Get modulated amount if audio reactor available
+        amount = self.parameters['amount']
+        if self.audio_reactor:
+            amount = self.audio_reactor.get_audio_modulation("blend_add", "amount", amount)
+
+        # Map parameters to shader ranges
+        amt = amount / 10.0
+        cm = self.parameters['channel_mask'] / 10.0 * 4.0  # 0-4
+        bst = 0.5 + self.parameters['boost'] / 10.0 * 2.5  # 0.5-3.0
+        off_x = (self.parameters['offset_x'] / 10.0 - 0.5) * 0.4
+        off_y = (self.parameters['offset_y'] / 10.0 - 0.5) * 0.4
+        lm = self.parameters['luma_mask'] / 10.0
+
+        self.shader.set_uniform("amount", amt)
+        self.shader.set_uniform("channel_mask", cm)
+        self.shader.set_uniform("boost", bst)
+        self.shader.set_uniform("offset_x", off_x)
+        self.shader.set_uniform("offset_y", off_y)
+        self.shader.set_uniform("luma_mask", lm)
+        self.shader.set_uniform("u_mix", self.mix)
+
+        # Bind previous frame texture
+        if hasattr(self, 'prev_texture') and self.prev_texture:
+            self.shader.set_uniform("texPrev", 1)
+
+    def __del__(self):
+        """Cleanup if needed."""
+        try:
+            if hasattr(super(), '__del__'): super().__del__()
+        except: pass
+
+def create_blend_add():
+    return BlendAddEffect()
+```
+
+---
+
+## 2. Parameters (0.0-10.0)
+
+All parameters use the standard 0.0-10.0 UI range and are mapped to shader-specific ranges in `apply_uniforms()`.
+
+| Parameter | Shader Uniform | Default | Mapped Range | Description |
+|-----------|----------------|---------|--------------|-------------|
+| `amount` | `amount` | 5.0 | 0.0-1.0 (divide by 10) | Blend strength: how much of the previous frame to add |
+| `channel_mask` | `channel_mask` | 0.0 | 0-4 (0=all, 1=R, 2=G, 3=B, 4=luma) | Which color channels to use from previous frame |
+| `boost` | `boost` | 5.0 | 0.5-3.0 (linear map) | Brightness multiplier applied to added signal |
+| `offset_x` | `offset_x` | 5.0 | -0.2 to 0.2 (centered) | Horizontal UV offset for previous frame |
+| `offset_y` | `offset_y` | 5.0 | -0.2 to 0.2 (centered) | Vertical UV offset for previous frame |
+| `luma_mask` | `luma_mask` | 0.0 | 0.0-1.0 (divide by 10) | Only blend where current frame luma > threshold |
+
+**Mapping Formulas:**
+```python
+amt = amount / 10.0
+cm = channel_mask / 10.0 * 4.0
+bst = 0.5 + boost / 10.0 * 2.5
+off = (param / 10.0 - 0.5) * 0.4
+lm = luma_mask / 10.0
+```
+
+---
+
+## 3. GLSL Fragment Shader (50 lines)
+
+```glsl
+#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform sampler2D tex0;      // Current frame
+uniform sampler2D texPrev;   // Previous frame
+uniform float time;
+uniform vec2 resolution;
+uniform float u_mix;
+
+uniform float amount;       // 0-1 blend strength
+uniform float channel_mask; // 0-4: 0=all, 1=R, 2=G, 3=B, 4=luma
+uniform float boost;        // 0.5-3.0 brightness multiplier
+uniform float offset_x;     // -0.2 to 0.2
+uniform float offset_y;     // -0.2 to 0.2
+uniform float luma_mask;    // 0-1 threshold
+
+void main() {
+    vec4 a = texture(tex0, uv);
+    float amt = amount;
+    float cm = channel_mask;
+    float bst = boost;
+    vec2 off = vec2(offset_x, offset_y);
+    float lm = luma_mask;
+
+    // Sample previous frame with offset
+    vec4 b = texture(texPrev, uv + off);
+
+    // Channel mask: isolate specific channels
+    vec3 b_masked = b.rgb;
+    if (cm > 0.5 && cm < 1.5) b_masked *= vec3(1.0, 0.0, 0.0);  // R only
+    else if (cm > 1.5 && cm < 2.5) b_masked *= vec3(0.0, 1.0, 0.0);  // G only
+    else if (cm > 2.5 && cm < 3.5) b_masked *= vec3(0.0, 0.0, 1.0);  // B only
+    else if (cm > 3.5) {
+        float l = dot(b.rgb, vec3(0.299, 0.587, 0.114));
+        b_masked = vec3(l);
+    }
+
+    // Additive blend: current + masked_previous * amount * boost
+    vec3 added = a.rgb + b_masked * amt * bst;
+
+    // Luma mask: only apply blend where current frame is bright
+    if (lm > 0.01) {
+        float src_luma = dot(a.rgb, vec3(0.299, 0.587, 0.114));
+        float mask = smoothstep(lm * 0.5, lm, src_luma);
+        added = mix(a.rgb, added, mask);
+    }
+
+    // Clamp and preserve alpha
+    vec4 blended = vec4(clamp(added, 0.0, 1.0), max(a.a, b.a));
+
+    // Final mix with original
+    fragColor = mix(a, blended, u_mix);
+}
+```
+
+**Line Count:** ~50 lines
+
+**Uniforms:**
+- `tex0` - current frame (bound to unit 0)
+- `texPrev` - previous frame (bound to unit 1)
+- `time`, `resolution`, `u_mix` - standard
+- `amount`, `channel_mask`, `boost`, `offset_x`, `offset_y`, `luma_mask` - parameters
+
+---
+
+## 4. Texture Unit Layout
+
+| Unit | Sampler | Purpose |
+|------|---------|---------|
+| `GL_TEXTURE0` | `tex0` | Current video frame |
+| `GL_TEXTURE1` | `texPrev` | Previous frame (feedback) |
+
+**Note:** The effect requires a previous frame texture from the chain. The chain must provide this via `extra_textures[0]` or by binding it directly before rendering.
+
+---
+
+## 5. Audio Reactivity
+
+The effect supports audio modulation on the `amount` parameter:
+
+**Setup:**
+```python
+def set_audio_analyzer(self, audio_analyzer):
+    if audio_analyzer:
+        self.audio_reactor = AudioReactor(audio_analyzer)
+        self.audio_reactor.assign_audio_feature("blend_add", "amount", AudioFeature.MID, 0.0, 10.0)
+```
+
+**Usage in `apply_uniforms`:**
+```python
+amount = self.parameters['amount']
+if self.audio_reactor:
+    amount = self.audio_reactor.get_audio_modulation("blend_add", "amount", amount)
+```
+
+**Mapping:** MID frequency audio (0.0-1.0) is mapped to `amount` range (0.0-10.0). When audio is present, the blend amount increases, creating a responsive glow that pulses with the music.
+
+---
+
+## 6. Presets (5 Minimum)
+
+The legacy code provides 4 presets. We'll create 5 by adding one more.
+
+**Legacy Presets:**
+
+1. **`simple_add`**
+   - `amount`: 5.0
+   - `channel_mask`: 0.0 (all channels)
+   - `boost`: 5.0 (1.75x)
+   - `offset_x`: 5.0 (0 offset)
+   - `offset_y`: 5.0 (0 offset)
+   - `luma_mask`: 0.0 (no masking)
+
+2. **`glow_bright`**
+   - `amount`: 7.0
+   - `channel_mask`: 0.0
+   - `boost`: 8.0 (2.5x)
+   - `offset_x`: 5.0
+   - `offset_y`: 5.0
+   - `luma_mask`: 5.0 (0.5 threshold - only bright areas)
+
+3. **`red_channel`**
+   - `amount`: 8.0
+   - `channel_mask`: 3.0 (R only, since 3/10*4 = 1.2 → R branch)
+   - `boost`: 5.0
+   - `offset_x`: 5.0
+   - `offset_y`: 5.0
+   - `luma_mask`: 0.0
+
+4. **`offset_double`**
+   - `amount`: 5.0
+   - `channel_mask`: 0.0
+   - `boost`: 5.0
+   - `offset_x`: 5.5 (slight positive offset)
+   - `offset_y`: 5.2 (slight positive offset)
+   - `luma_mask`: 0.0
+
+**New Preset:**
+
+5. **`chromatic_glow`** (New)
+   - `amount`: 8.0
+   - `channel_mask`: 0.0
+   - `boost`: 7.0
+   - `offset_x`: 3.0 (negative offset for R)
+   - `offset_y`: 5.0
+   - `luma_mask`: 2.0 (low threshold for widespread glow)
+
+**Storage:** Presets as dicts of parameter values (0-10 range).
+
+---
+
+## 7. Unit Tests (≥ 80% coverage)
+
+**Test File:** `tests/plugins/test_blend_add.py`
+
+### Critical Tests:
+
+#### Initialization
+- [ ] `test_plugin_creates_with_correct_name()`
+- [ ] `test_plugin_initializes_all_6_parameters()`
+- [ ] `test_plugin_creates_shader_with_50_plus_lines()`
+- [ ] `test_plugin_has_audio_reactor_none_by_default()`
+
+#### Parameter System
+- [ ] `test_set_parameter_valid_range_0_to_10()`
+- [ ] `test_set_parameter_rejects_negative()`
+- [ ] `test_set_parameter_rejects_over_10()`
+- [ ] `test_get_parameter_returns_current_value()`
+- [ ] `test_parameters_persist_across_frames()`
+
+#### Shader Compilation
+- [ ] `test_shader_compiles_without_errors()`
+- [ ] `test_shader_has_all_required_uniforms()`
+- [ ] `test_shader_has_2_samplers()`
+- [ ] `test_shader_has_6_parameter_uniforms()`
+
+#### Parameter Mapping
+- [ ] `test_amount_maps_0_10_to_0_1()`
+- [ ] `test_channel_mask_maps_0_10_to_0_4()`
+- [ ] `test_boost_maps_0_10_to_0_5_3_0()`
+- [ ] `test_offset_maps_0_10_to_neg_0_2_pos_0_2()`
+- [ ] `test_luma_mask_maps_0_10_to_0_1()`
+
+#### Blend Math
+- [ ] `test_additive_blend_formula_correct()`
+- [ ] `test_channel_mask_R_only_isolates_red()`
+- [ ] `test_channel_mask_G_only_isolates_green()`
+- [ ] `test_channel_mask_B_only_isolates_blue()`
+- [ ] `test_channel_mask_luma_converts_to_grayscale()`
+- [ ] `test_boost_multiplies_added_signal()`
+- [ ] `test_offset_displaces_uv_correctly()`
+- [ ] `test_luma_mask_applies_smoothstep()`
+- [ ] `test_luma_mask_0_means_no_mask()`
+
+#### Audio Reactivity
+- [ ] `test_audio_analyzer_set_creates_audio_reactor()`
+- [ ] `test_audio_modulation_modifies_amount()`
+- [ ] `test_audio_modulation_uses_MID_feature()`
+- [ ] `test_audio_modulation_handles_missing_reactor()`
+
+#### Uniform Application
+- [ ] `test_apply_uniforms_sets_all_6_parameters()`
+- [ ] `test_apply_uniforms_sets_u_mix()`
+- [ ] `test_apply_uniforms_sets_texPrev_unit()`
+- [ ] `test_apply_uniforms_calls_super()`
+
+#### Edge Cases
+- [ ] `test_zero_amount_results_in_no_blend()`
+- [ ] `test_max_boost_clamps_to_3_0()`
+- [ ] `test_max_offset_equals_0_2()`
+- [ ] `test_luma_mask_1_0_blends_everywhere()`
+- [ ] `test_clamping_prevents_overflow()`
+
+#### Performance
+- [ ] `test_frame_budget_under_1ms()`
+- [ ] `test_shader_compile_time_under_15ms()`
+
+**Target Coverage:** 85% (30+ tests)
+
+---
+
+## 8. Performance Tests
+
+- **Frame Budget:** ≤ 1.0ms per frame
+- **Shader Compilation:** ≤ 15ms
+- **Memory:** No extra allocations (uses chain-provided texPrev)
+- **Texture Binds:** 2 (tex0, texPrev)
+- **GPU:** Very light; suitable for low-end hardware
+
+---
+
+## 9. Visual Regression Tests
+
+Capture reference frames with:
+1. **No effect** (u_mix=0) vs **full effect** (u_mix=1)
+2. **Amount variations:** 0, 5, 10
+3. **Channel masks:** R only, G only, B only, luma
+4. **Offset effects:** (0,0), (0.1,0), (0,0.1), (-0.1,-0.1)
+5. **Boost variations:** 0.5, 1.75, 3.0
+6. **Luma mask:** 0 (no mask), 0.5, 1.0
+7. **Combinations:** Glow bright, red channel, offset double
+8. **Audio modulation:** Static vs pulsing with MID audio
+
+Compare against legacy renders.
+
+---
+
+## 10. Implementation Phases
+
+### Phase 1: Foundation (Day 1)
+- Create plugin file `src/vjlive3/plugins/blend_add.py`
+- Implement `__init__` with 6 parameters
+- Implement `_get_fragment_shader()` with 50-line GLSL
+- Write 10 initial unit tests
+
+**Success:** Plugin loads, shader compiles, parameters accessible
+
+### Phase 2: Audio & Uniforms (Day 2)
+- Implement `set_audio_analyzer()`
+- Implement `apply_uniforms()` with parameter mapping and audio modulation
+- Write 10 tests for mapping and audio
+
+**Success:** Audio modulation works, uniforms set correctly
+
+### Phase 3: Testing & Validation (Day 2)
+- Complete unit tests (reach 85% coverage)
+- Performance testing
+- Visual regression captures
+- Create 5 presets
+- Safety Rails compliance verification
+
+**Success:** All tests pass, performance within budget, presets functional
+
+---
+
+## 🔒 Safety Rails Compliance
+
+| Rail | Requirement | Compliance |
+|------|-------------|------------|
+| **60 FPS Sacred** | ≤ 16.67ms per frame | Target ≤ 1ms; extremely simple shader ✓ |
+| **Offline-First** | No cloud dependencies | No network calls ✓ |
+| **Plugin Integrity** | METADATA constant | Add to plugin ✓ |
+| **750-Line Limit** | ≤ 750 lines of code | Estimate ~150 lines ✓ |
+| **80% Test Coverage** | ≥ 80% coverage | Target 85% (30+ tests) ✓ |
+| **No Silent Failures** | All errors logged | Validate audio_reactor methods ✓ |
+| **Resource Leak Prevention** | GL resources cleaned | No extra resources allocated ✓ |
+| **Backward Compatibility** | No breaking changes | New plugin ✓ |
+| **Security** | No exec/eval | No dynamic code ✓ |
+
+**Special Considerations:**
+- **Texture Dependency:** Requires `texPrev` from chain. Document this clearly.
+- **Additive Clamping:** The shader clamps result to 1.0 to prevent overflow. This is correct.
+- **Channel Mask:** Uses simple if-else chain; efficient for 4 cases.
+- **Performance:** Very light; can be chained multiple times.
+
+---
+
+## 🔗 Dependencies
+
+```python
+from core.effects.shader_base import Effect
+from core.audio_reactor import AudioReactor
+from core.audio_analyzer import AudioFeature
+from OpenGL.GL import glActiveTexture, glBindTexture, GL_TEXTURE0, GL_TEXTURE1, GL_TEXTURE_2D
+import logging
+```
+
+**External:** None beyond VJLive3 core
+
+---
+
+## 📊 Success Metrics
+
+- ✅ Shader compiles without errors on all target GPUs
+- ✅ 30/30 unit tests pass, ≥85% coverage
+- ✅ ≤ 1ms/frame average
+- ✅ Audio reactivity: amount modulated by MID audio
+- ✅ 5 presets load and work correctly
+- ✅ All 10 Safety Rails satisfied
+
+---
+
+## 📝 Notes for Implementation Engineer
+
+### Implementation Notes
+
+1. **Shader Simplicity:** This is a straightforward blend shader. The math is all in the fragment shader. No vertex shader customization needed (use base class default).
+
+2. **Parameter Mapping:** The legacy maps parameters in the shader itself (e.g., `float amt = amount / 10.0;`). In VJLive3, we map in Python before setting uniform. This is cleaner and keeps shader simple. Follow the mapping formulas exactly.
+
+3. **Channel Mask Logic:** The mask uses ranges:
+   - `0-0.5`: all channels (no mask)
+   - `0.5-1.5`: R only
+   - `1.5-2.5`: G only
+   - `2.5-3.5`: B only
+   - `>3.5`: luma (grayscale)
+   This is a bit unusual but works. Implement exactly as in legacy.
+
+4. **Offset Range:** The offset maps from 0-10 to -0.2 to 0.2. Formula: `(param/10.0 - 0.5) * 0.4`. This gives:
+   - param=0 → -0.2
+   - param=5 → 0.0
+   - param=10 → 0.2
+
+5. **Boost Range:** Maps to 0.5-3.0: `0.5 + (boost/10.0) * 2.5`. This ensures minimum 0.5x (no darkening) and max 3.0x.
+
+6. **Luma Mask:** When `luma_mask > 0.01`, the blend is masked by current frame brightness:
+   ```glsl
+   float src_luma = dot(a.rgb, vec3(0.299, 0.587, 0.114));
+   float mask = smoothstep(lm * 0.5, lm, src_luma);
+   added = mix(a.rgb, added, mask);
+   ```
+   This means only bright areas of the current frame get the additive blend.
+
+7. **Texture Management:** The effect does NOT manage `texPrev`. It expects the chain to provide it via `extra_textures[0]` in the `render()` method, or by binding it before calling `apply_uniforms()`. In VJLive3's Effect base class, `apply_uniforms` is separate from rendering. You should document that the chain must:
+   - Allocate a texture matching output resolution
+   - Bind it to `GL_TEXTURE1` before rendering this effect
+   - After rendering, save output to become next frame's `texPrev`
+
+8. **Audio Modulation:** The legacy uses `self.audio_reactor.get_audio_modulation("blend_add", "amount", base_value)`. This system likely maps MID audio to the parameter range. Ensure you set up the `AudioReactor` correctly in `set_audio_analyzer()`.
+
+9. **Mix Uniform:** The base class provides `u_mix` (effect blend amount). The shader uses it at the end: `fragColor = mix(a, blended, u_mix)`. This is standard.
+
+10. **Testing:** The effect is deterministic (no time-based animation). Test the math precisely:
+    - Given specific inputs, compute expected outputs
+    - Test edge cases: zero amount, max boost, extreme offsets
+    - Test that clamping prevents overflow (>1.0)
+    - Test channel masking with known colors
+
+### Porting Checklist
+
+- [ ] Copy GLSL shader exactly (50 lines)
+- [ ] Implement 6 parameters with defaults
+- [ ] Implement parameter mapping in `apply_uniforms()`
+- [ ] Implement `set_audio_analyzer()` for audio reactivity
+- [ ] Add `METADATA` constant
+- [ ] Write 30+ unit tests
+- [ ] Create 5 presets (4 legacy + 1 new: chromatic_glow)
+- [ ] Performance test
+- [ ] Safety Rails compliance review
+
+### Known Legacy Issues
+
+None apparent. The effect is well-designed and simple.
+
+### Debugging
+
+Visualize the offset:
+```glsl
+fragColor = vec4(uv + off, 0.0, 1.0);  // Shows UV displacement as color
+```
+
+Or visualize the luma mask:
+```glsl
+float src_luma = dot(a.rgb, vec3(0.299, 0.587, 0.114));
+float mask = smoothstep(lm * 0.5, lm, src_luma);
+fragColor = vec4(vec3(mask), 1.0);
+```
+
+---
+
+**Specification Version:** 1.0  
+**Last Updated:** 2025-02-23  
+**Approved By:** [Awaiting Approval]
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+

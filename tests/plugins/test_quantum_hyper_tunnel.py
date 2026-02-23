@@ -2,7 +2,6 @@ import pytest
 from unittest.mock import MagicMock
 
 from vjlive3.plugins.quantum_hyper_tunnel import DepthNeuralQuantumHyperTunnelPlugin, METADATA
-from vjlive3.plugins.api import PluginContext
 
 def test_quantum_tunnel_manifest():
     """Verifies Pydantic/Dict manifest structure."""

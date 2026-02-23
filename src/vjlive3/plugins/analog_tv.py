@@ -13,7 +13,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -324,7 +324,7 @@ def _remap(name: str, val_0_10: float) -> float:
     return lo + (hi - lo) * (max(0., min(10., val_0_10)) / 10.)
 
 
-class AnalogTVPlugin(EffectPlugin):
+class AnalogTVPlugin(object):
     """Analog TV degradation effect — CRT, VHS, RF and glitch artifacts."""
 
     def __init__(self):

@@ -8,7 +8,7 @@ from typing import Dict, Any, Optional
 import numpy as np
 import OpenGL.GL as gl
 import time
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = __import__('logging').getLogger(__name__)
 
@@ -144,7 +144,7 @@ void main() {
 }
 """
 
-class DepthContourEffectPlugin(EffectPlugin):
+class DepthContourEffectPlugin(object):
     
     def __init__(self):
         super().__init__()
@@ -168,7 +168,7 @@ class DepthContourEffectPlugin(EffectPlugin):
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if not hasattr(gl, 'glCreateProgram'):
             logger.warning("Mock mode engaged. Skipping GL init.")
             return True
@@ -321,7 +321,7 @@ class DepthContourEffectPlugin(EffectPlugin):
         mvp = projection_matrix @ view_matrix
         return mvp
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
             return 0
             

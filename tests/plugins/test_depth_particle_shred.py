@@ -50,7 +50,6 @@ sys.modules['OpenGL']    = MagicMock()
 sys.modules['OpenGL.GL'] = _mock_gl
 
 from vjlive3.plugins.depth_particle_shred import DepthParticleShredPlugin, METADATA
-from vjlive3.plugins.api import PluginContext
 
 
 @pytest.fixture
@@ -69,7 +68,7 @@ def plugin():
 
 @pytest.fixture
 def context():
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.width = 64
     ctx.height = 48
     ctx.inputs = {"video_in": 10, "depth_in": 20}

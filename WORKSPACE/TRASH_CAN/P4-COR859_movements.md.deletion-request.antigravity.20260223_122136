@@ -1,0 +1,100 @@
+# Spec Template — Copy this file for every new task
+
+**File naming:** `docs/specs/<task-id>_<module-name>.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+
+## Legacy References
+- **Source Codebase**: `VJlive-2`
+- **File Paths**: `/home/happy/Desktop/claude projects/VJlive-2/core/effects/synaptic_symphony.py`
+- **Class Names**: `SynapticSymphony`
+- **Key Algorithms (Methods)**: `__init__, initialize, update, _handle_beat, _create_beat_response, _update_from_audio, apply_uniforms, render, _calculate_audio_modulation`
+- **Parameter Mappings (__init__ args)**: `None found`
+- **Edge Cases**: Needs review of implementation for tight coupling or hardware dependencies.
+
+---
+
+## Task: P4-COR859 — movements (SynapticSymphony)
+
+**Phase:** P4 / P4-COR859
+**Assigned To:** Antigravity
+**Spec Written By:** Antigravity
+**Date:** 2026-02-23
+
+---
+
+## What This Module Does
+
+*2–3 sentences. What problem does it solve? What does it produce?*
+
+---
+
+## What It Does NOT Do
+
+*Scope boundary. What is explicitly out of scope?*
+
+---
+
+## Public Interface
+
+```python
+# Paste planned class/function signatures here before coding
+
+class MyModule:
+    def __init__(self, param: Type) -> None: ...
+    def method(self, arg: Type) -> ReturnType: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `param` | `type` | What it is | Range / valid values |
+
+---
+
+## Edge Cases and Error Handling
+
+- What happens if hardware is missing? → (NullDevice pattern / graceful fallback)
+- What happens on bad input? → (raise ValueError with message)
+- What is the cleanup path? → (close(), __exit__, resource release)
+
+---
+
+## Dependencies
+
+- External libraries needed (and what happens if they are missing):
+  - `library_name` — used for X — fallback: Y
+- Internal modules this depends on:
+  - `vjlive3.module.ClassName`
+
+---
+
+## Test Plan
+
+*List the tests that will verify this module before the task is marked done.*
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_init_no_hardware` | Module starts without crashing if hardware absent |
+| `test_basic_operation` | Core function returns expected output |
+| `test_error_handling` | Bad input raises correct exception |
+| `test_cleanup` | stop() / close() releases resources cleanly |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-X] task-id: description` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written

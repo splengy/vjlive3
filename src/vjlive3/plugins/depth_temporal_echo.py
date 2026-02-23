@@ -16,7 +16,7 @@ try:
 except ImportError:
     HAS_GL = False
 
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -140,7 +140,7 @@ def _make_fbo(w, h):
     return fbo, tex
 
 
-class DepthTemporalEchoPlugin(EffectPlugin):
+class DepthTemporalEchoPlugin(object):
     """Depth Temporal Echo — 4-FBO ring buffer showing past frames by depth zone."""
 
     HISTORY_SLOTS = 4
@@ -162,7 +162,7 @@ class DepthTemporalEchoPlugin(EffectPlugin):
 
     def get_metadata(self): return METADATA
 
-    def initialize(self, context: PluginContext) -> bool:
+    def initialize(self, context) -> bool:
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             self._initialized = True; return True
         try:
@@ -212,7 +212,7 @@ class DepthTemporalEchoPlugin(EffectPlugin):
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
         self._ring_head = (self._ring_head + 1) % self.HISTORY_SLOTS
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0: return 0
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             if hasattr(context, "outputs"): context.outputs["video_out"] = input_texture

@@ -3,7 +3,6 @@ P3-VD20: Depth Slitscan Datamosh
 Temporal slit-scan smearing heavily modulated by depth buffers.
 """
 from typing import Any, Dict
-from vjlive3.plugins.api import PluginBase, PluginContext
 import logging
 
 _logger = logging.getLogger("vjlive3.plugins.depth_slitscan_datamosh")
@@ -33,7 +32,7 @@ METADATA = {
     "outputs": ["video_out"]
 }
 
-class DepthSlitscanDatamoshPlugin(PluginBase):
+class DepthSlitscanDatamoshPlugin(object):
     """Temporal integration shader tracking temporal history across scan slices via depth mapping."""
 
     name = METADATA["name"]
@@ -45,7 +44,7 @@ class DepthSlitscanDatamoshPlugin(PluginBase):
             p["name"]: p["default"] for p in METADATA["parameters"]
         }
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         super().initialize(context)
         for p in METADATA["parameters"]:
             self.context.set_parameter(f"slitscan_datamosh.{p['name']}", p["default"])

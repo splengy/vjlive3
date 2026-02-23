@@ -1,0 +1,315 @@
+# P1-A1: Audio Analyzer (FFT + Waveform Analysis)
+
+## Overview
+
+**Task ID**: P1-A1  
+**Phase**: Phase 1 - Core Infrastructure  
+**Priority**: P0 (Critical)  
+**Status**: ⬜ Todo  
+**Description**: Real-time audio analysis engine with FFT, waveform visualization, and frequency band extraction
+
+**Objective**: Port the audio analysis functionality from legacy codebases to provide real-time audio reactivity for VJLive3 effects. This is the foundation for all audio-reactive features.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/audio/analyzer.py`
+- **Class**: `AudioAnalyzer`
+- **Lines**: 175 lines
+- **Key Features**:
+  - Uses `sounddevice` for audio capture
+  - Implements real-time FFT analysis
+  - Extracts frequency bands (bass, mid, high)
+  - Beat detection via `BeatDetector` class
+  - Updates UnifiedMatrix with audio parameters
+  - Provides volume, peak, spectrum data
+
+### Reference Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/audio/analyzer.py`
+- **Class**: `AudioAnalyzer`
+- **Lines**: 664 lines (enhanced with error handling, monitoring, simulation mode)
+- **Key Enhancements**:
+  - Intelligent error handling with circuit breaker
+  - Health monitoring integration
+  - Frame skipping for performance (30-60 FPS analysis)
+  - Exponential backoff recovery
+  - Simulation mode for testing without audio hardware
+  - More comprehensive feature extraction
+
+### Supporting Modules
+- `../vjlive/core/audio/beat.py` - BeatDetector class
+- `../vjlive/core/audio/rhythm_engine.py` - RhythmEngine for advanced timing
+- `../VJlive-2/core/audio/engine.py` - Audio engine infrastructure
+- `../VJlive-2/core/audio/features.py` - AudioFeature data structures
+
+---
+
+## What This Module Does
+
+This task implements a production-ready audio analysis engine that:
+
+1. **Captures audio** from system input devices or files
+2. **Performs real-time FFT** to extract frequency spectrum
+3. **Divides into bands**: Bass (20-250Hz), Mid (250-4000Hz), High (4000-20000Hz)
+4. **Detects beats/onsets** using onset detection algorithms
+5. **Computes RMS volume** and peak levels
+6. **Provides waveform data** for visualization
+7. **Broadcasts results** via Context/Matrix for reactive effects
+8. **Maintains 60 FPS** by limiting analysis to 30-60Hz update rate
+9. **Handles errors gracefully** with fallback modes
+10. **Supports simulation** for testing without hardware
+
+---
+
+## Implementation Plan
+
+### Phase 1: Core Audio Capture
+1. Integrate `sounddevice` or `pyaudio` for audio input
+2. Implement circular buffer for audio samples (2048-sample default)
+3. Create audio stream callback with thread-safe queue
+4. Add device enumeration and selection
+
+### Phase 2: Signal Processing
+1. Implement FFT using `scipy.fft.rfft`
+2. Compute magnitude spectrum and convert to dB
+3. Create bandpass filters (butterworth) for bass/mid/high
+4. Calculate RMS volume and peak detection
+5. Generate waveform data for visualization (downsampled)
+
+### Phase 3: Beat Detection
+1. Port `BeatDetector` from legacy code
+2. Implement onset detection using spectral flux
+3. Maintain beat history and BPM estimation
+4. Provide beat phase (0-1) for synchronization
+
+### Phase 4: Reactivity Bus
+1. Create `AudioReactivityBus` singleton
+2. Publish analysis results to Context/Matrix
+3. Subscribe/unsubscribe pattern for effects
+4. Thread-safe updates with locks
+
+### Phase 5: Error Handling & Performance
+1. Add device loss detection and recovery
+2. Implement fallback to simulation mode
+3. Frame skipping to maintain 60 FPS budget
+4. Memory pool for buffers to avoid GC pauses
+5. Comprehensive logging and metrics
+
+### Phase 6: Testing & Validation
+1. Unit tests for signal processing (known inputs → expected outputs)
+2. Integration tests with real audio files
+3. Performance benchmarks (FPS, memory, CPU)
+4. Hardware compatibility tests (multiple audio devices)
+
+---
+
+## Public Interface
+
+### Main Entry Point
+
+```python
+# src/vjlive3/audio/analyzer.py
+class AudioAnalyzer:
+    def __init__(
+        self,
+        sample_rate: int = 44100,
+        buffer_size: int = 2048,
+        device_index: Optional[int] = None
+    )
+    
+    def start(self) -> None
+    def stop(self) -> None
+    def is_running(self) -> bool
+    
+    # Current analysis snapshot (thread-safe)
+    def get_current_analysis(self) -> Dict[str, Any]:
+        """
+        Returns:
+            {
+                'bass': float,      # 0.0-1.0 normalized
+                'mid': float,       # 0.0-1.0 normalized
+                'high': float,      # 0.0-1.0 normalized
+                'kick': bool,       # Beat detected this frame
+                'snare': bool,      # Snare hit detected
+                'bpm': float,       # Estimated BPM
+                'rms': float,       # Overall volume
+                'peak': float,      # Instantaneous peak
+                'spectrum': List[float],  # FFT magnitude bins
+                'waveform': List[float],  # Downsampled waveform
+                'beat_phase': float,      # 0-1 phase within beat
+                'confidence': float       # Detection confidence
+            }
+        """
+    
+    # Simulation mode for testing
+    def set_simulation_mode(self, enabled: bool) -> None
+    def update_simulation(self, analysis: Dict[str, Any]) -> None
+```
+
+### Reactivity Bus
+
+```python
+# src/vjlive3/audio/bus.py
+class AudioReactivityBus:
+    def __init__(self):
+        self.subscribers: List[Callable] = []
+    
+    def subscribe(self, callback: Callable[[Dict], None]) -> None
+    def unsubscribe(self, callback: Callable[[Dict], None]) -> None
+    def publish(self, analysis: Dict[str, Any]) -> None
+    
+# Global instance
+audio_bus = AudioReactivityBus()
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| Audio stream | System microphone/line-in | Real-time PCM audio |
+| Device selection | User configuration | Audio device index |
+| Sample rate | Configuration (default 44100) | Hz |
+| Buffer size | Configuration (default 2048) | Samples per analysis frame |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| Analysis dict | Context/Matrix | Audio features (bass, mid, high, beat, etc.) |
+| Spectrum data | Visualization plugins | FFT magnitude array |
+| Waveform data | Visualization plugins | Downsampled time-domain signal |
+| Events | Subscribers via bus | Beat detected, silence, clipping |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** store or record audio (use `Recorder` module separately)
+- ❌ Does **not** perform advanced music information retrieval (key detection, chord recognition)
+- ❌ Does **not** handle multi-track separation (source separation is separate module)
+- ❌ Does **not** generate audio (output-only modules)
+- ❌ Does **not** provide MIDI output (use `MIDIController` module)
+- ❌ Does **not** do long-term analysis (use `RhythmEngine` for timeline)
+
+---
+
+## Testing & Validation
+
+### Unit Tests (≥80% coverage)
+
+```python
+# tests/audio/test_analyzer.py
+def test_fft_accuracy():
+    """Verify FFT output matches known signal"""
+    
+def test_bandpass_filters():
+    """Verify bass/mid/high filters isolate correct frequencies"""
+    
+def test_beat_detection():
+    """Verify beat detection on kick drum samples"""
+    
+def test_thread_safety():
+    """Verify concurrent access doesn't corrupt data"""
+```
+
+### Integration Tests
+
+- Real-time analysis with audio file input
+- Multi-device enumeration and switching
+- Latency measurement (audio in → analysis out)
+- Memory leak detection (run 24h stress test)
+
+### Performance Benchmarks
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| FPS impact | < 1ms per frame | Profile with `perf` |
+| Memory | < 50MB | Resident set size |
+| CPU | < 5% @ 60 FPS | Single core utilization |
+| Latency | < 50ms | Audio in → analysis ready |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] FPS ≥ 58 when audio analyzer active (measured via `scripts/check_fps.py`)
+- [ ] All unit tests pass (≥80% coverage via `pytest --cov=src/vjlive3/audio`)
+- [ ] No memory leaks (run 1-hour stress test, RSS stable ±5MB)
+- [ ] Works with at least 3 different audio devices (USB, built-in, virtual)
+- [ ] Graceful degradation when audio device unplugged (recovery within 5s)
+- [ ] Simulation mode produces deterministic outputs for testing
+- [ ] Thread-safe: no race conditions in `get_current_analysis()`
+- [ ] SAFETY_RAIL compliance: No blocking calls in main thread
+
+### Should Pass (Best Effort)
+
+- [ ] Beat detection accuracy > 90% on test dataset (kick/snare)
+- [ ] BPM estimation within ±5 BPM of ground truth
+- [ ] FFT frequency resolution < 10Hz per bin at 44.1kHz
+- [ ] Startup time < 2 seconds (cold start)
+- [ ] Supports sample rates: 44.1kHz, 48kHz, 96kHz
+
+---
+
+## Dependencies
+
+### Python Packages
+- `numpy` - Array operations
+- `scipy` - FFT and signal processing
+- `sounddevice` - Audio I/O (or `pyaudio` as fallback)
+- `librosa` (optional) - Advanced audio analysis
+
+### System Libraries
+- PortAudio (for sounddevice)
+- FFTW (optional, for performance)
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Audio device latency varies | High | Medium | Use fixed buffer sizes, provide latency tuning |
+| Thread safety issues | Medium | High | Use RLock, atomic reads, thorough testing |
+| Memory allocation during callback | Medium | High | Pre-allocate buffers, use memory pool |
+| Device hot-plugging | Medium | Medium | Watchdog thread, automatic reconnection |
+| CPU spikes from FFT | Low | Medium | Frame skipping, adaptive quality |
+| Platform differences (Windows/Linux/macOS) | High | Medium | Abstract audio backend, CI on all platforms |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/audio/analyzer.py` - Original implementation (175 lines)
+- `../VJlive-2/core/audio/analyzer.py` - Enhanced implementation (664 lines)
+- `../vjlive/core/audio/beat.py` - Beat detection algorithm
+- `../VJlive-2/core/audio/rhythm_engine.py` - Rhythm tracking
+
+### Related Tasks
+- P1-A2: Beat detection (builds on this)
+- P1-A3: Reactivity bus (consumes this)
+- P3-EXT010: AudioSpectrumTrails (uses this)
+- P2-D5: Audio-reactive DMX (depends on this)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created based on legacy code audit |
+
+
+
+## Legacy References
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

@@ -15,7 +15,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -131,7 +131,7 @@ PRESETS = {
 def _map(val, lo, hi): return lo + (max(0., min(10., float(val))) / 10.) * (hi - lo)
 
 
-class AdaptiveContrastPlugin(EffectPlugin):
+class AdaptiveContrastPlugin(object):
     """Adaptive contrast effect — local luminance stretching with detail enhancement."""
 
     def __init__(self):

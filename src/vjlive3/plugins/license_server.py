@@ -15,7 +15,6 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any, Set
 import jwt
 
-from vjlive3.plugins.api import PluginBase, PluginContext
 
 _logger = logging.getLogger("vjlive3.plugins.license_server")
 
@@ -40,7 +39,7 @@ class ValidationResult:
     license_data: Optional[Dict[str, Any]] = None
 
 
-class LicenseServer(PluginBase):
+class LicenseServer(object):
     """
     License and RBAC Management Server.
     Complies with P7-B1 specifications for offline/online JWT validation
@@ -68,7 +67,7 @@ class LicenseServer(PluginBase):
         self._db_path = db_path
         self._conn: Optional[sqlite3.Connection] = None
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         """Initialize the plugin context and database connection."""
         super().initialize(context)
         

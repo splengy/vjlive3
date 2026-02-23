@@ -8,7 +8,6 @@ except ImportError:
     HAS_GL = False
 
 from typing import Dict, Any
-from vjlive3.plugins.api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +124,7 @@ void main() {
 }
 """
 
-class DepthDataMuxPlugin(EffectPlugin):
+class DepthDataMuxPlugin(object):
     """
     DepthDataMux composite node for VJLive3.
     Extracts up to 4 input streams and dynamically multiplexes via hardware equations.
@@ -142,7 +141,7 @@ class DepthDataMuxPlugin(EffectPlugin):
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         if self._mock_mode:
             return
 
@@ -255,7 +254,7 @@ class DepthDataMuxPlugin(EffectPlugin):
         gl.glUniform1i(gl.glGetUniformLocation(self.prog, "normalize_w"), 1 if params.get("normalize", True) else 0)
         gl.glUniform1f(gl.glGetUniformLocation(self.prog, "fallback_depth"), float(params.get("fallback_depth", 0.5)))
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         inputs = getattr(context, "inputs", {})
         
         # Mux takes 4 depth sources. The default `input_texture` is ignored unless mapped in context.inputs.

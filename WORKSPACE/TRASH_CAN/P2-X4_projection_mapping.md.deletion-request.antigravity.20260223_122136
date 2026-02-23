@@ -1,0 +1,402 @@
+# P2-X4: Projection Mapping (Warp, Edge-Blend, Mask)
+
+## Overview
+
+**Task ID**: P2-X4  
+**Phase**: Phase 2 - Output & Display  
+**Priority**: P1 (Important)  
+**Status**: ⬜ Todo  
+**Description**: Advanced projection mapping with geometric warping, edge blending, and masking
+
+**Objective**: Port the projection mapping system that enables warping, edge blending, and masking for multi-projector setups and non-flat surfaces, allowing VJLive3 to project onto complex geometries like buildings, stages, and immersive environments.
+
+---
+
+## Legacy Source
+
+### Primary Implementation (vjlive)
+- **File**: `../vjlive/core/vision/output_warper.py`
+- **Class**: `OutputWarper`
+- **Key Features**:
+  - Geometric warping (perspective, mesh, bezier)
+  - Edge blending for multi-projector soft edges
+  - Masking with alpha channels and shapes
+  - Real-time GPU-accelerated processing
+  - Calibration tools (grid, corner pins)
+  - Multiple output support
+
+### Supporting Implementation (VJlive-2)
+- **File**: `../VJlive-2/core/projection/`
+- **Modules**:
+  - `calibration.py` - Calibration tools and workflows
+  - `edge_blender.py` - Advanced edge blending
+  - `mesh_warper.py` - Mesh-based warping
+  - `surface_scanner.py` - Surface detection and mapping
+- **Key Features**:
+  - Enhanced calibration with camera feedback
+  - Multi-projector alignment and color matching
+  - Advanced blending curves (gamma, contrast)
+  - Real-time mesh deformation
+  - Surface scanning for auto-calibration
+  - Warping presets and templates
+
+### Related Modules
+- `../vjlive/core/vision/vision_node.py` - Vision processing integration
+- `../vjlive/core/vision/calibration_loader.py` - Calibration file management
+- `../VJlive-2/core/vision/auto_calibrator.py` - Auto-calibration
+- `../vjlive/core/shaders/` - GLSL shaders for warping/blending
+
+---
+
+## What This Module Does
+
+This task implements a production-ready projection mapping system that:
+
+1. **Geometric Warping**: Distorts output to fit non-planar surfaces
+   - Perspective transform (corner pinning)
+   - Mesh warping (grid-based deformation)
+   - Bezier curve warping (smooth curves)
+   - 3D warping (for complex geometries)
+
+2. **Edge Blending**: Seamlessly combines multiple projectors
+   - Soft edge blending with adjustable feather
+   - Color matching between projectors
+   - Gamma and brightness correction
+   - Real-time blend preview
+
+3. **Masking**: Defines visible regions and shapes
+   - Alpha mask support (image-based)
+   - Geometric masks (circles, polygons)
+   - Animated masks (time-varying)
+   - Multiple mask layers with blending
+
+4. **Calibration**: Tools for aligning projectors to surfaces
+   - Grid overlay for manual adjustment
+   - Camera-based auto-calibration
+   - Point cloud alignment
+   - Calibration save/load
+
+5. **Multi-Output**: Manages multiple projectors/displays
+   - Output window management
+   - Synchronized refresh rates
+   - Frame locking across outputs
+   - Performance optimization
+
+6. **Real-Time Performance**: Maintains 60 FPS with complex warps
+   - GPU-accelerated shaders (GLSL)
+   - Mesh caching and LOD
+   - Frame buffer management
+   - Multi-threaded calibration
+
+---
+
+## Implementation Plan
+
+### Phase 1: Core Warping Engine
+1. Implement coordinate transformation pipeline
+2. Create perspective transform (homography matrix)
+3. Implement mesh warping with vertex displacement
+4. Add bezier curve warping for smooth curves
+5. Create shader-based warping (GLSL) for GPU acceleration
+
+### Phase 2: Edge Blending
+1. Implement blend region definition (linear, radial)
+2. Create feathering algorithms (linear, smoothstep, custom)
+3. Add color correction and matching
+4. Implement gamma and brightness adjustment
+5. Create blend preview mode
+
+### Phase 3: Masking System
+1. Implement mask loading (PNG with alpha, SVG)
+2. Create geometric mask generation (shapes, text)
+3. Add mask animation (time-based, audio-reactive)
+4. Implement mask stacking and blending modes
+5. Create mask editor UI
+
+### Phase 4: Calibration Tools
+1. Create grid overlay with adjustable spacing
+2. Implement corner pinning UI (drag handles)
+3. Add camera capture for auto-calibration
+4. Implement point detection and matching
+5. Create calibration file format (JSON)
+
+### Phase 5: Multi-Output Management
+1. Enumerate available displays/outputs
+2. Create output window configuration
+3. Implement frame synchronization across outputs
+4. Add output-specific warping/blending
+5. Create output presets
+
+### Phase 6: UI & Integration
+1. Build projection mapping UI panel
+2. Add real-time preview with before/after
+3. Create preset browser and manager
+4. Integrate with EffectEngine (apply to effects)
+5. Add keyboard shortcuts for common operations
+
+### Phase 7: Testing & Validation
+1. Unit tests for warping math (homography, mesh)
+2. Integration tests with real projectors
+3. Performance benchmarks (FPS, GPU memory)
+4. Calibration accuracy tests
+5. Multi-projector alignment tests
+
+---
+
+## Public Interface
+
+### ProjectionMapper Class
+
+```python
+# src/vjlive3/projection/mapper.py
+class ProjectionMapper:
+    def __init__(self, renderer: Renderer):
+        """
+        Initialize projection mapping system.
+        
+        Args:
+            renderer: Rendering engine for output
+        """
+    
+    def create_output(
+        self,
+        output_id: str,
+        display_index: int,
+        resolution: Tuple[int, int],
+        warp_type: WarpType = WarpType.PERSPECTIVE
+    ) -> Output:
+        """Create new output with warping"""
+    
+    def set_warp(
+        self,
+        output_id: str,
+        warp_params: WarpParameters
+    ) -> None:
+        """Set warping parameters for output"""
+    
+    def set_edge_blend(
+        self,
+        output_id: str,
+        blend_params: BlendParameters
+    ) -> None:
+        """Set edge blending parameters"""
+    
+    def set_mask(
+        self,
+        output_id: str,
+        mask: Mask  # Image or geometric
+    ) -> None:
+        """Set masking for output"""
+    
+    def calibrate(
+        self,
+        output_id: str,
+        method: CalibrationMethod,
+        camera_frames: List[np.ndarray]
+    ) -> CalibrationResult:
+        """Run calibration procedure"""
+    
+    def save_calibration(self, output_id: str, filepath: str) -> None
+    def load_calibration(self, output_id: str, filepath: str) -> None
+    
+    def render(self, output_id: str, input_texture: Texture) -> Texture:
+        """Apply warping/blending/mask to input texture"""
+    
+    def get_statistics(self) -> ProjectionStats:
+        """Get performance and status info"""
+```
+
+### WarpType Enum
+
+```python
+class WarpType(Enum):
+    PERSPECTIVE = "perspective"     # 4-corner perspective
+    MESH = "mesh"                   # Grid-based mesh warp
+    BEZIER = "bezier"               # Bezier curve warp
+    CUSTOM = "custom"               # Custom shader
+```
+
+### WarpParameters Data Structure
+
+```python
+@dataclass
+class WarpParameters:
+    warp_type: WarpType
+    # Perspective: 4 corner points (normalized 0-1)
+    corners: Optional[Tuple[Point, Point, Point, Point]] = None
+    # Mesh: grid resolution and vertex positions
+    mesh_resolution: Optional[Tuple[int, int]] = None
+    mesh_vertices: Optional[np.ndarray] = None  # Nx2 array
+    # Custom: shader parameters
+    shader_params: Optional[Dict[str, float]] = None
+```
+
+### BlendParameters Data Structure
+
+```python
+@dataclass
+class BlendParameters:
+    enabled: bool = True
+    # Blend region width (0-1)
+    left_width: float = 0.1
+    right_width: float = 0.1
+    top_width: float = 0.0
+    bottom_width: float = 0.0
+    # Blend curve (gamma)
+    curve: float = 2.0
+    # Color correction
+    brightness: float = 1.0
+    contrast: float = 1.0
+    saturation: float = 1.0
+    # Multi-projector: overlap correction
+    overlap_correction: bool = False
+```
+
+---
+
+## Inputs and Outputs
+
+### Inputs
+
+| Input | Source | Description |
+|-------|--------|-------------|
+| Input texture | Renderer/Effect | Source image/video to project |
+| Output config | UI/Configuration | Display index, resolution, warp type |
+| Warp parameters | UI/Calibration | Corner points, mesh vertices, etc. |
+| Blend parameters | UI/Calibration | Edge blend settings |
+| Mask data | UI/File | Mask images or shapes |
+| Calibration images | Camera | Images for auto-calibration |
+
+### Outputs
+
+| Output | Destination | Description |
+|--------|-------------|-------------|
+| Warped texture | Renderer/Display | Final output for projector/display |
+| Calibration data | Storage | Warp/blend parameters saved to file |
+| Preview images | UI | Before/after calibration preview |
+| Statistics | Monitoring | FPS, GPU memory, warp complexity |
+
+---
+
+## What It Does NOT Do
+
+- ❌ Does **not** generate content (use EffectEngine for visuals)
+- ❌ Does **not** handle display management (use OS/GPU drivers)
+- ❌ Does **not** do 3D modeling (use external CAD software)
+- ❌ Does **not** provide camera calibration (use OpenCV directly)
+- ❌ Does **not** store show data (use ShowControl)
+- ❌ Does **not** handle network streaming (use NDI/Spout)
+
+---
+
+## Testing & Validation
+
+### Unit Tests
+
+```python
+def test_perspective_transform():
+    """Verify homography matrix calculation"""
+    
+def test_mesh_warping():
+    """Test mesh vertex interpolation"""
+    
+def test_edge_blending():
+    """Verify blend feathering and color correction"""
+    
+def test_mask_application():
+    """Test mask compositing with various formats"""
+```
+
+### Integration Tests
+
+- Real projectors with test patterns
+- Multi-projector alignment accuracy
+- Edge blending quality (seamless transitions)
+- Calibration workflow (manual + auto)
+- Performance with 4K+ outputs
+
+### Performance Benchmarks
+
+| Metric | Target |
+|--------|--------|
+| Warping FPS | 60 FPS @ 4K resolution |
+| GPU memory | < 100MB per output |
+| CPU overhead | < 1ms per frame |
+| Calibration time | < 2 minutes (auto) |
+| Warp update latency | < 16ms |
+
+---
+
+## Success Criteria
+
+### Must Pass (All Required)
+
+- [ ] FPS ≥ 58 with warping/blending active @ 1080p
+- [ ] All unit tests pass (≥80% coverage)
+- [ ] Warping accuracy: pixel error < 2px vs. ground truth
+- [ ] Edge blending: seam visibility < 5% intensity variation
+- [ ] Supports at least 3 warp types (perspective, mesh, bezier)
+- [ ] Multi-output: 2+ projectors synchronized
+- [ ] Calibration save/load 100% accurate
+- [ ] Thread-safe: no race conditions in rendering
+
+### Should Pass (Best Effort)
+
+- [ ] 4K @ 60 FPS warping performance
+- [ ] Auto-calibration accuracy < 5px error
+- [ ] Real-time warping during playback (no dropped frames)
+- [ ] Support for 10+ simultaneous outputs
+- [ ] Advanced blending (color matching, gamma correction)
+- [ ] Animated masks (audio-reactive, time-based)
+
+---
+
+## Dependencies
+
+- **Rendering**: Requires P2-X3 (Output Mapping) for display management
+- **Shaders**: Requires shader system (GLSL compilation)
+- **Camera**: May integrate with vision modules for auto-calibration
+- **UI**: Requires P1-N4 (Node Graph UI) for calibration tools
+
+---
+
+## Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|------------|--------|------------|
+| Warping artifacts (aliasing) | Medium | Medium | High-quality resampling, mipmapping |
+| GPU memory exhaustion | Medium | High | Texture streaming, LOD, resource limits |
+| Multi-output synchronization | Medium | High | Frame locking, v-sync, triple buffering |
+| Calibration accuracy | Medium | Medium | Camera calibration, optimization algorithms |
+| Shader compatibility | Low | Medium | Fallback software rendering, shader validation |
+
+---
+
+## References
+
+### Legacy Code
+- `../vjlive/core/vision/output_warper.py` - OutputWarper implementation
+- `../VJlive-2/core/projection/calibration.py` - Calibration tools
+- `../VJlive-2/core/projection/edge_blender.py` - Edge blending
+- `../VJlive-2/core/projection/mesh_warper.py` - Mesh warping
+- `../VJlive-2/core/projection/surface_scanner.py` - Surface scanning
+
+### Related Tasks
+- P2-X3: Output Mapping (display management)
+- P2-X5: Multi-display synchronization (related)
+- P3-EXT142: r16_simulated_depth (uses projection mapping)
+- P8-I6: Production Deployment (validation)
+
+---
+
+## Revision History
+
+| Date | Author | Changes |
+|------|--------|---------|
+| 2026-02-23 | Manager | Initial spec created |
+
+
+
+## Legacy References
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

@@ -12,7 +12,6 @@ from unittest.mock import MagicMock, patch
 from vjlive3.plugins.analytics import (
     AnalyticsDashboard, PerformanceMetrics, UsageData
 )
-from vjlive3.plugins.api import PluginContext
 
 # ─── Fixtures ─────────────────────────────────────────────────────────────
 
@@ -38,7 +37,7 @@ def test_init_no_hardware(analytics, memory_db):
     assert analytics._conn is not None
     
     # Test initialize param inheritance
-    ctx = MagicMock(spec=PluginContext)
+    ctx = MagicMock(spec=MagicMock())
     ctx.get_parameter.return_value = "new_db.sqlite"
     
     # Needs to not crash

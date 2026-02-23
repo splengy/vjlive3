@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_erosion_datamosh import DepthErosionDatamoshPlugin
 
 def test_erosion_datamosh_manifest():
@@ -50,7 +49,7 @@ def test_erosion_datamosh_mock_bypass():
     plugin = DepthErosionDatamoshPlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 123, "depth_in": 321}
     ctx.outputs = {}
     
@@ -73,7 +72,7 @@ def test_erosion_datamosh_missing_inputs():
         plugin._width = 1920
         plugin._height = 1080
         
-        ctx = PluginContext(MagicMock())
+        ctx = MagicMock()(MagicMock())
         ctx.inputs = {"video_in": 5}  # missing depth and video_b
         ctx.outputs = {}
         
@@ -86,13 +85,13 @@ def test_erosion_datamosh_missing_inputs():
 
 def test_erosion_datamosh_empty_input():
     plugin = DepthErosionDatamoshPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
 
 def test_erosion_datamosh_full_pipeline():
     plugin = DepthErosionDatamoshPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 1, "video_b_in": 4, "depth_in": 2}
     ctx.outputs = {}
     

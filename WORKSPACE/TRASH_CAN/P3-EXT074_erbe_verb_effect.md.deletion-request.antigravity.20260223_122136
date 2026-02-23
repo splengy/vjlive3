@@ -1,0 +1,21 @@
+# Spec: P3-EXT074 ErbeVerb Effect
+
+## Legacy Source
+
+### v1/v2: `vjlive/effects/erbe_verb.py` and `vjlive/effects/shaders/shaders/erbe_verb.frag`
+- **Classes:** `ErbeVerb(Effect)`
+- **Key logic:**
+  - "Unreal Space" visual effect based on the Make Noise Erbe-Verb module.
+  - Implements a recursive feedback system (ping-pong framebuffer `texPrev`) with specialized filtering for creating modeless reverb-like visuals.
+  - Parameters (`absorb`, `tilt`, `size`) operate in a 0.0 - 10.0 range.
+  - `absorb`: Controls feedback cohesion (inverse decay).
+  - `tilt`: Luminance-based polar filter (preserves either shadows or highlights).
+  - `size`: Controls sample offset and recursive gain (determines space geometry).
+  - A custom GLSL shader `process_feedback` applies the tilt filter, decay (absorb factor), and an expanding UV offset scaled by size. Organic noise is injected to prevent sterile static loops.
+
+### Port Decision
+Port `ErbeVerb` as an `EffectPlugin` in VJLive3 named `ErbeVerbPlugin`.
+- Extract the GLSL shader verbatim.
+- Emulate the `texPrev` ping-pong feedback loop manually using an internal FBO and texture, similar to the Datamosh plugins in VJLive3.
+- Map the legacy parameter bounds explicitly.
+- Introduce `SignalBus` audio feature polling so that bass/mid/treble can automatically optionally modulate `size` or `tilt` for fully reactive spaces.

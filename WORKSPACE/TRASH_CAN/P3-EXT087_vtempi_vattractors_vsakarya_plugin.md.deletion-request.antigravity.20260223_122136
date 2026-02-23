@@ -1,0 +1,158 @@
+# P3-EXT087: VTemPi VAttractors VSakarya Plugin
+
+## What This Module Does
+Implements a VTemPi plugin for Sakarya attractor visualization, where depth values control the attractor parameters and visualization style, creating complex chaotic patterns that respond to depth variations.
+
+## Public Interface
+
+### METADATA
+```python
+METADATA = {
+    "name": "VTemPi VAttractors VSakarya Plugin",
+    "id": "P3-EXT087",
+    "category": "depth_effects",
+    "description": "Sakarya attractor visualization with depth-driven parameter control for VTemPi",
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "priority": 0,
+    "dependencies": ["DepthBuffer", "VTemPiEngine", "AttractorEngine"],
+    "test_coverage": 85
+}
+```
+
+### Parameters
+- `attractor_type` (str): Attractor type: "halvorsen", "lorenz", "sakarya", "thomas"
+- `sakarya_a` (float): Sakarya parameter A (0.1-2.0, default: 0.9)
+- `sakarya_b` (float): Sakarya parameter B (0.1-2.0, default: 0.4)
+- `sakarya_c` (float): Sakarya parameter C (0.1-2.0, default: 0.5)
+- `sakarya_d` (float): Sakarya parameter D (0.1-2.0, default: 0.6)
+- `depth_parameter_mapping` (str): How depth affects parameters: "a_depth", "b_depth", "c_depth", "d_depth", "all_depth"
+- `point_count` (int): Number of attractor points (1000-100000, default: 10000)
+- `point_size` (float): Point size in pixels (1.0-10.0, default: 2.0)
+- `color_mode` (str): Point coloring: "depth", "trajectory", "speed", "fixed"
+- `fixed_color` (list[int]): RGB color when color_mode="fixed" [0-255, 0-255, 0-255]
+
+### Inputs
+- `video` (torch.Tensor[uint8]): Input video frames [B, 3, H, W]
+- `depth` (torch.Tensor[float]): Depth buffer [B, 1, H, W] normalized 0-1
+
+### Outputs
+- `video` (torch.Tensor[uint8]): Attractor visualization [B, 3, H, W]
+
+## What It Does NOT Do
+- Does NOT perform real-time attractor calculation at 4K resolution (performance limit)
+- Does NOT support 3D attractor visualization (2D projection only)
+- Does NOT handle attractor parameter optimization (manual parameter control)
+- Does NOT preserve video quality (intentionally creates attractor patterns)
+- Does NOT support attractor export to data formats (visual only)
+
+## Test Plan
+
+### Unit Tests
+1. `test_attractor_plugin_initialization()`
+   - Verify METADATA constants
+   - Test parameter validation (sakarya parameters 0.1-2.0)
+   - Test default parameter values
+
+2. `test_sakarya_attractor()`
+   - Test sakarya_a: 0.5, 0.9, 2.0
+   - Test sakarya_b: 0.1, 0.4, 2.0
+   - Test sakarya_c: 0.1, 0.5, 2.0
+   - Test sakarya_d: 0.1, 0.6, 2.0
+   - Verify attractor produces correct chaotic patterns
+
+3. `test_depth_parameter_mapping()`
+   - Test all depth_parameter_mapping modes: a_depth, b_depth, c_depth, d_depth, all_depth
+   - Create synthetic depth map with varying regions
+   - Verify attractor parameters vary with depth
+
+4. `test_point_count_scaling()`
+   - Test point_count: 1000, 10000, 100000
+   - Verify attractor detail vs performance tradeoff
+   - Test memory scaling
+
+5. `test_point_size_and_color()`
+   - Test point_size: 1.0, 2.0, 10.0
+   - Test all color_mode options: depth, trajectory, speed, fixed
+   - Verify color mapping correctness
+
+6. `test_attractor_types()`
+   - Test all attractor_type options: halvorsen, lorenz, sakarya, thomas
+   - Verify each attractor produces distinct patterns
+   - Test type switching
+
+7. `test_attractor_dynamics()`
+   - Test attractor stability and chaos
+   - Verify parameter sensitivity
+   - Test with different initial conditions
+
+### Integration Tests
+1. `test_full_pipeline_60fps()`
+   - Process 1000 frames at 1920x1080 with point_count=10000
+   - Verify FPS ≥ 60 on test hardware
+   - Monitor memory usage < 500MB
+
+2. `test_real_depth_attractor_modulation()`
+   - Feed real depth map from MiDaS/DPT
+   - Verify depth-based parameter variations
+   - Test with complex scenes (people, objects, backgrounds)
+
+3. `test_attractor_performance_scaling()`
+   - Test point_count scaling: 1000, 10000, 100000
+   - Verify FPS degradation is linear
+   - Test memory scaling
+
+4. `test_safety_rails_compliance()`
+   - Verify no silent failures on invalid inputs
+   - Test error handling for missing depth
+   - Ensure all exceptions are logged
+
+## Implementation Notes
+
+### Architecture
+- Build on `DepthEffect` base class from P3-VD35
+- Integrate with `VTemPiEngine` from VJlive-2
+- Implement Sakarya attractor equations (4D chaotic system)
+- Add depth-driven parameter modulation: parameter = base + depth_factor × variation
+- Use depth to control attractor parameters dynamically
+- Implement 2D projection of 4D attractor trajectories
+
+### Performance Optimizations
+- Use GPU for attractor calculation (CUDA)
+- Precompute attractor lookup tables for parameter ranges
+- Use shared memory for point buffer access
+- Implement attractor LOD for distance
+
+### Memory Management
+- Allocate point buffer: point_count × 16 bytes (4 floats for 4D position)
+- Use temporal buffer for trajectory history (1 frame)
+- Profile memory with 100000 points, enforce < 2GB peak
+- Free temporary buffers immediately after use
+
+### Safety Rails
+- Enforce sakarya parameters 0.1-2.0
+- Clamp point_count to reasonable limits
+- Validate attractor_type and depth_parameter_mapping as valid options
+- Fallback to default parameters if depth missing
+
+## Deliverables
+1. `src/vjlive3/effects/vtempi_vattractors_vsakarya_plugin.py` - Main effect
+2. `tests/effects/test_vtempi_vattractors_vsakarya_plugin.py` - Tests
+3. `docs/effects/vtempi_vattractors_vsakarya_plugin.md` - Documentation
+4. Update `MODULE_MANIFEST.md`
+
+## Success Criteria
+- ✅ All unit tests pass (≥ 85% coverage)
+- ✅ 60 FPS at 1080p with point_count=10000 on RTX 4070 Ti Super
+- ✅ Depth-based parameter variations work correctly
+- ✅ Zero safety rail violations
+- ✅ Works with real depth maps
+- ✅ Clean code: ≤ 750 lines, no stubs, full type hints
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **Key Algorithms**: TBD (Extract from legacy source)
+- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)
+

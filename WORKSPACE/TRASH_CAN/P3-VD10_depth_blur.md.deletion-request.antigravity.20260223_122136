@@ -1,0 +1,112 @@
+# Spec Template — P3-VD10 Depth Blur
+
+**File naming:** `docs/specs/P3-VD10_depth_blur.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P3-VD10 — Depth Blur (Cinematic DoF)
+
+**Phase:** Phase 3
+**Assigned To:** (Pending Manager Assignment)
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+This module ports the "Depth Blur" effect from VJlive-2. It implements a cinematic, optical-style Depth of Field (DoF) effect using real depth camera data. It simulates real lens optics including adjustable focal planes, bokeh shape simulation, chromatic fringing, and optional tilt-shift modes.
+
+---
+
+## What It Does NOT Do
+
+- It does NOT simply run a generic Gaussian blur. It uses a multi-tap sampling method (Poisson or Disc sampling) to simulate optical bokeh.
+- It does NOT rely on motion estimation.
+
+---
+
+## Public Interface
+
+```python
+from vjlive3.plugins.api import Plugin, VJLiveAPI
+
+METADATA = {
+    "name": "Depth Blur",
+    "description": "Cinematic bokeh depth-of-field using real depth data.",
+    "version": "1.0.0",
+    "parameters": [
+        {"name": "focal_distance", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "focal_range", "type": "float", "min": 0.0, "max": 1.0, "default": 0.2},
+        {"name": "blur_amount", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "fg_blur", "type": "float", "min": 0.0, "max": 1.0, "default": 1.0},
+        {"name": "bg_blur", "type": "float", "min": 0.0, "max": 1.0, "default": 1.0},
+        {"name": "bokeh_bright", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "chromatic_fringe", "type": "float", "min": 0.0, "max": 1.0, "default": 0.2},
+        {"name": "tilt_shift", "type": "float", "min": 0.0, "max": 1.0, "default": 0.0}
+    ],
+    "inputs": ["video_in", "depth_in"],
+    "outputs": ["video_out"]
+}
+
+class DepthBlurPlugin(Plugin):
+    """Cinematic Depth of Field effect."""
+    def __init__(self, api: VJLiveAPI) -> None: ...
+    def on_load(self) -> None: ...
+    def process(self, context) -> None: ...
+    def on_unload(self) -> None: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Port | Type | Description |
+|------|------|-------------|
+| `video_in` | GL Texture | Live RGB video feed |
+| `depth_in` | GL Texture | Depth map used to determine focus distance per pixel |
+| `video_out`| GL Texture | Output with bokeh blur |
+
+---
+
+## Edge Cases and Error Handling
+
+- **Performance**: Multi-tap bokeh sampling is extremely expensive. The shader MUST cap the tap count (e.g. ~16-32 taps) and scale the sample radius carefully to maintain the strict 60 FPS requirement (SAFETY RAIL #1).
+- **Tilt-Shift Fallback**: If `depth_in` is missing, the shader should gracefully fall back to its spatial "Tilt-Shift" mode, rendering a standard horizontal/vertical gradient blur instead of relying on the absent depth texture (SAFETY RAIL #7).
+
+---
+
+## Dependencies
+
+- OpenGL Context.
+- VJLive3 Plugin API.
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_depth_blur_manifest` | Verifies Pydantic manifest structure. |
+| `test_depth_blur_tilt_shift_fallback` | Validates that missing depth input auto-engages tilt-shift mode without error. |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed
+- [ ] All tests pass
+- [ ] No file over 750 lines
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-3] P3-VD10: Depth Blur`
+- [ ] BOARD.md updated
+
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **File Paths**: `TBD`
+

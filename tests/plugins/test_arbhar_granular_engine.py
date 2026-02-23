@@ -17,7 +17,6 @@ sys.modules['OpenGL.GL'] = _g
 from vjlive3.plugins.arbhar_granular_engine import (
     ArbharGranularEnginePlugin, METADATA, PRESETS, MAX_GRAINS, _quality_factor
 )
-from vjlive3.plugins.api import PluginContext
 
 
 @pytest.fixture(autouse=True)
@@ -35,7 +34,7 @@ def plugin(): return ArbharGranularEnginePlugin()
 
 @pytest.fixture
 def ctx():
-    c = PluginContext(MagicMock())
+    c = MagicMock()(MagicMock())
     c.width = 64; c.height = 48; c.time = 0.0
     c.inputs = {"video_in": 10}; c.outputs = {}
     return c

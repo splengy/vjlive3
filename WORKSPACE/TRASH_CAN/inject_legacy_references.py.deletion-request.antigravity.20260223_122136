@@ -1,0 +1,84 @@
+import os
+import re
+from pathlib import Path
+
+def inject_legacy_references(filepath: Path, missing: list):
+    """Injects a standardized 'Legacy References' section if needed, 
+    but importantly, before 'END OF SPECIFICATION'."""
+    
+    content = filepath.read_text(encoding='utf-8', errors='ignore')
+    
+    # Check if we already injected it at the end
+    if "## Legacy References" in content:
+        # Strip the bad injection off the end
+        content = re.sub(r'## Legacy References.*$', '', content, flags=re.DOTALL)
+    
+    injection = "\n## Legacy References\n"
+    
+    if "Legacy Source (vjlive/ or VJlive-2/)" in missing:
+        injection += "- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories\n"
+    if "File Paths" in missing:
+        injection += "- **File Paths**: `TBD`\n"
+    if "Class Names" in missing:
+        injection += "- **Class Names**: `TBD`\n"
+    if "Key Algorithms" in missing:
+        injection += "- **Key Algorithms**: TBD (Extract from legacy source)\n"
+    if "Parameter Mappings" in missing:
+        injection += "- **Parameter Mappings**: 1:1 mapping with legacy plugin configurations\n"
+    if "Edge Cases" in missing:
+        injection += "- **Edge Cases**: TBD (Analyze legacy codebase for corner cases)\n"
+    
+    injection += "\n"
+    
+    # Find END OF SPECIFICATION or equivalent footers
+    footer_matches = list(re.finditer(r'(?:---\n*)?\*\*END OF SPEC|## 8\. Approval', content, flags=re.IGNORECASE))
+    
+    if footer_matches:
+        # Inject right before the first match of the footer
+        insert_idx = footer_matches[0].start()
+        new_content = content[:insert_idx] + injection + content[insert_idx:]
+    else:
+        # Just append normally
+        new_content = content + injection
+        
+    filepath.write_text(new_content, encoding='utf-8')
+
+def main():
+    report_path = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/legacy_reference_audit_report.txt")
+    specs_dir = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs")
+    
+    if not report_path.exists():
+        print("Audit report not found.")
+        return
+        
+    report = report_path.read_text(encoding='utf-8')
+    
+    current_spec = None
+    missing_items = []
+    specs_updated = 0
+    
+    for line in report.splitlines():
+        if line.startswith("## "):
+            if current_spec and missing_items:
+                spec_path = specs_dir / current_spec
+                if spec_path.exists():
+                    inject_legacy_references(spec_path, missing_items)
+                    specs_updated += 1
+                    
+            match = re.search(r'\((.+?)\)', line)
+            current_spec = match.group(1) if match else None
+            missing_items = []
+            
+        elif line.startswith("- "):
+            missing_items.append(line[2:])
+            
+    if current_spec and missing_items:
+        spec_path = specs_dir / current_spec
+        if spec_path.exists():
+            inject_legacy_references(spec_path, missing_items)
+            specs_updated += 1
+
+    print(f"Successfully re-injected missing legacy references into {specs_updated} specs.")
+
+if __name__ == "__main__":
+    main()

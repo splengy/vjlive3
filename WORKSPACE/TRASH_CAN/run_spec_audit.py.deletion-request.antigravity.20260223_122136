@@ -1,0 +1,67 @@
+import os
+import re
+from pathlib import Path
+
+def audit_spec(filepath: Path) -> dict:
+    """Returns a dictionary of missing legacy components for a spec."""
+    content = filepath.read_text(encoding='utf-8', errors='ignore')
+    
+    # We are looking for these specific elements
+    has_source = bool(re.search(r'(?i)vjlive/|vjlive-2/', content))
+    has_files = bool(re.search(r'(?i)\.py|\.glsl|\.frag|\.vert', content))
+    has_classes = bool(re.search(r'(?i)class(es)?[:\s]', content)) # Simple heuristic
+    has_algo = bool(re.search(r'(?i)algorithm|logic|method', content))
+    has_params = bool(re.search(r'(?i)parameter|param|mapping', content))
+    has_edge_cases = bool(re.search(r'(?i)edge case|corner case', content))
+    
+    missing = []
+    if not has_source: missing.append("Legacy Source (vjlive/ or VJlive-2/)")
+    if not has_files: missing.append("File Paths")
+    if not has_classes: missing.append("Class Names")
+    if not has_algo: missing.append("Key Algorithms")
+    if not has_params: missing.append("Parameter Mappings")
+    if not has_edge_cases: missing.append("Edge Cases")
+    
+    return missing
+
+def main():
+    checklist_path = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs_audit_checklist.txt")
+    if not checklist_path.exists():
+        print("Checklist not found.")
+        return
+        
+    lines = checklist_path.read_text(encoding='utf-8').splitlines()
+    spec_lines = [l for l in lines if l.startswith("- [ ] P")]
+    
+    print(f"Auditing {len(spec_lines)} specs backwards...\n")
+    
+    specs_dir = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs")
+    
+    report_path = Path("/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/legacy_reference_audit_report.txt")
+    
+    with open(report_path, 'w', encoding='utf-8') as f:
+        f.write("# Legacy Reference Audit Report\n\n")
+        
+        for line in spec_lines:
+            # Format: - [ ] P8-I8: P8-I8C_agent_plugin_bus.md
+            match = re.search(r'- \[ \] ([A-Z0-9\-]+):\s*(.+)', line)
+            if match:
+                task_id = match.group(1)
+                filename = match.group(2)
+                filepath = specs_dir / filename
+                
+                if filepath.exists():
+                    missing = audit_spec(filepath)
+                    if missing:
+                        f.write(f"## {task_id} ({filename})\n")
+                        f.write(f"Missing elements:\n")
+                        for m in missing:
+                            f.write(f"- {m}\n")
+                        f.write("\n")
+                    else:
+                        f.write(f"## {task_id} ({filename}) - PERFECT\n\n")
+
+    print(f"Done. Wrote full report to {report_path}")
+
+if __name__ == "__main__":
+    main()

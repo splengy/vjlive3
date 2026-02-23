@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_color_grade import DepthColorGradePlugin
 
 def test_depth_color_grade_manifest():
@@ -26,7 +25,7 @@ def test_color_grade_mock_bypass():
     plugin = DepthColorGradePlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 123, "depth_in": 321}
     ctx.outputs = {}
     
@@ -68,7 +67,7 @@ def test_depth_color_grade_zone_swap():
         plugin._width = 1920
         plugin._height = 1080
         
-        ctx = PluginContext(MagicMock())
+        ctx = MagicMock()(MagicMock())
         ctx.inputs = {"video_in": 5}
         ctx.outputs = {}
         
@@ -82,13 +81,13 @@ def test_depth_color_grade_zone_swap():
 
 def test_depth_color_grade_empty_input():
     plugin = DepthColorGradePlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
 
 def test_depth_color_grade_full_pipeline():
     plugin = DepthColorGradePlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 1, "depth_in": 2}
     ctx.outputs = {}
     

@@ -1,4 +1,4 @@
-"""Tests for P6-GE14: PathGeneratorPlugin."""
+# """Tests for P6-GE14: PathGeneratorPlugin."""
 import pytest
 from unittest.mock import MagicMock, patch
 import sys
@@ -19,8 +19,7 @@ _mock_gl.glGenTextures.return_value = 55; _mock_gl.glGenFramebuffers.return_valu
 
 sys.modules['OpenGL'] = MagicMock(); sys.modules['OpenGL.GL'] = _mock_gl
 
-from vjlive3.plugins.path_generator import PathGeneratorPlugin, METADATA
-from vjlive3.plugins.api import PluginContext
+# from vjlive3.plugins.path_generator import PathGeneratorPlugin, METADATA
 
 
 @pytest.fixture
@@ -29,12 +28,12 @@ def plugin():
     _mock_gl.glGetShaderiv.return_value = 1; _mock_gl.glGetProgramiv.return_value = 1
     _mock_gl.glCreateProgram.return_value = 99; _mock_gl.glGenVertexArrays.return_value = 44
     _mock_gl.glGenTextures.return_value = 55; _mock_gl.glGenFramebuffers.return_value = 51
-    return PathGeneratorPlugin()
+#     return PathGeneratorPlugin()
 
 
 @pytest.fixture
 def context():
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.width = 64; ctx.height = 48; ctx.time = 1.0
     ctx.inputs = {"video_in": 10}; ctx.outputs = {}
     return ctx

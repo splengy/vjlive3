@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_blur import DepthBlurPlugin
 
 def test_depth_blur_manifest():
@@ -23,7 +22,7 @@ def test_depth_blur_mock_bypass():
     plugin = DepthBlurPlugin()
     plugin._mock_mode = True
     
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 123, "depth_in": 321}
     ctx.outputs = {}
     
@@ -66,7 +65,7 @@ def test_depth_blur_tilt_shift_fallback():
         plugin._width = 1920
         plugin._height = 1080
         
-        ctx = PluginContext(MagicMock())
+        ctx = MagicMock()(MagicMock())
         ctx.inputs = {"video_in": 5}  # No depth_in bound
         ctx.outputs = {}
         
@@ -79,13 +78,13 @@ def test_depth_blur_tilt_shift_fallback():
 
 def test_depth_blur_empty_input():
     plugin = DepthBlurPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
 
 def test_depth_blur_full_pipeline():
     plugin = DepthBlurPlugin()
-    ctx = PluginContext(MagicMock())
+    ctx = MagicMock()(MagicMock())
     ctx.inputs = {"video_in": 1, "depth_in": 2}
     ctx.outputs = {}
     

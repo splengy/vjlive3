@@ -9,7 +9,7 @@ try:
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-from .api import EffectPlugin, PluginContext
+# # from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
@@ -69,7 +69,7 @@ _PARAM_DEFAULTS = {'warp_speed': 5.0, 'star_intensity': 5.0, 'mosh_depth': 5.0, 
 
 def _map(val,lo,hi): return lo+(max(0.,min(10.,float(val)))/10.)*(hi-lo)
 
-class R16InterstellarPlugin(EffectPlugin):
+class R16InterstellarPlugin(object):
     """R16 interstellar mosh — space-travel datamosh."""
     def __init__(self):
         super().__init__()

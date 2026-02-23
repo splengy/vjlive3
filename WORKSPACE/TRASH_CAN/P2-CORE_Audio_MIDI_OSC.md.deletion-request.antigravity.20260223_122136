@@ -1,0 +1,50 @@
+# Phase 2: Hardware & External IO (P2-CORE)
+
+## Overview
+Phase 2 focuses on establishing the physical and virtual data pipelines required for VJLive3 plugins to become interactive. Currently, VJLive3 handles video input via OpenCV natively. The next requirement is real-time modulation data.
+
+This specification covers the architectural porting of the primary IO modulators from the legacy codebase:
+1. **Audio Reactivity** (Aubio/Librosa pitch & transient detection)
+2. **MIDI Control** (Hardware knobs/faders mapped to parameters)
+3. **OSC Integration** (Network triggers from Ableton/Bitwig/etc)
+4. **Internal Modulators** (LFOs, Envelopes)
+
+## Source Legacy Components (Identified from P0-INF4)
+The following legacy components have been identified for porting:
+- `core.audio.analyzer.AudioAnalyzer` (Aubio-based pitch/beat tracking)
+- `core.midi.manager.MidiManager` (mido-based hardware wrapper)
+- `core.osc.server.OSCServer` (python-osc network listener)
+- `core.modifiers.lfo.LFO`
+- `core.modifiers.envelope.Envelope`
+
+## Target Architecture (VJLive3)
+
+### 1. Global Signal Bus
+Instead of plugins directly polling hardware, we will implement a centralized `SignalBus` (or `ParameterPool`) managed by the `RenderEngine`.
+- **Inputs:** MIDI devices, Audio Analyzer, OSC listeners write high-frequency floats (`0.0` - `1.0`) to the bus.
+- **Consumers:** VJLive3 `PluginBase` parameter definitions can "bind" to a bus address (e.g., `"audio.kick.envelope"`, `"midi.cc.14"`).
+
+### 2. Audio Subsystem (`src/vjlive3/audio/`)
+- Adapt `AudioAnalyzer` to run in a dedicated daemon thread.
+- Extract Low/Mid/High energy vectors and onset triggers.
+- Push normalized values to the `SignalBus`.
+
+### 3. MIDI Subsystem (`src/vjlive3/midi/`)
+- Adapt `MidiManager` to handle hot-plugging via `mido`.
+- Implement a simplified learning mode (listen for next CC).
+
+### 4. Modulator Subsystem (`src/vjlive3/modulators/`)
+- Implement time-based LFOs (Sine, Square, Saw) that update per-frame in the `engine._update()` loop.
+- Implement ADSR Envelopes triggered by Audio Onsets or MIDI Notes.
+
+## Implementation Steps
+1. **Scaffold the `SignalBus`** in `src/vjlive3/render/engine.py` to allow parameter binding.
+2. **Port `LFO` and `Envelope`** as the first test of the SignalBus since they require no external hardware.
+3. **Port `AudioAnalyzer`**, mocking input/output so CI tests pass without physical microphones.
+4. **Port `MidiManager` & `OSCServer`**.
+
+## Verification Plan
+1. `pytest tests/core/test_signal_bus.py` - Verify parameter binding updates plugin values.
+2. `pytest tests/audio/test_analyzer.py` - Verify mock numpy arrays generate onset triggers.
+3. Validate 80% coverage.
+4. Integrate an LFO into the `test-boot` application loop and print its value.

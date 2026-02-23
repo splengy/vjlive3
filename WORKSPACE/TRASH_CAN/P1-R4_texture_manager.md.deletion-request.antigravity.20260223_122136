@@ -1,0 +1,143 @@
+# Spec: P1-R4 — Texture Manager
+
+**File naming:** `docs/specs/P1-R4_texture_manager.md`
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P1-R4 — Texture Manager
+
+**Phase:** Phase 1 / P1-R4
+**Assigned To:** [Agent name]
+**Spec Written By:** Manager-Gemini-3.1
+**Date:** 2026-02-22
+
+---
+
+## What This Module Does
+
+The texture manager provides pooled, leak-free texture resource management for the rendering pipeline. It handles texture creation, caching, reuse, and cleanup to prevent GPU memory leaks and ensure efficient texture usage across the application.
+
+---
+
+## What It Does NOT Do
+
+- Does not handle shader compilation or program management
+- Does not provide image loading or decoding (delegates to image libraries)
+- Does not manage framebuffer objects (separate system)
+- Does not perform texture format conversion (requires pre-converted data)
+
+---
+
+## Public Interface
+
+```python
+class TextureManager:
+    def __init__(self, ctx: moderngl.Context, max_textures: int = 1000) -> None: ...
+    
+    def create_texture(self, name: str, size: Tuple[int, int], components: int, data: Optional[bytes] = None) -> Texture: ...
+    def get_texture(self, name: str) -> Optional[Texture]: ...
+    def release_texture(self, name: str) -> bool: ...
+    
+    def create_from_image(self, name: str, image_path: str) -> Optional[Texture]: ...
+    def create_from_buffer(self, name: str, buffer: bytes, size: Tuple[int, int], components: int) -> Texture: ...
+    
+    def reserve_texture(self, name: str, size: Tuple[int, int], components: int) -> Texture: ...
+    def update_texture(self, texture: Texture, data: bytes) -> None: ...
+    
+    def clear_all(self) -> None: ...
+    def get_stats(self) -> TextureStats: ...
+    
+    def cleanup(self) -> None: ...
+```
+
+---
+
+## Inputs and Outputs
+
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `ctx` | `moderngl.Context` | ModernGL context | Must be valid |
+| `max_textures` | `int` | Maximum textures to cache | > 0 |
+| `name` | `str` | Texture identifier | Unique, non-empty |
+| `size` | `Tuple[int, int]` | Width, height in pixels | > 0 |
+| `components` | `int` | Number of components (1-4) | 1, 2, 3, or 4 |
+| `data` | `bytes` | Raw pixel data | Size = w*h*components |
+| `image_path` | `str` | Path to image file | Valid file path |
+| `buffer` | `bytes` | Raw buffer data | Valid bytes object |
+
+**Output:** `Texture` — ModernGL texture object or None
+
+---
+
+## Edge Cases and Error Handling
+
+- What happens if texture name already exists? → Reuse existing or raise error based on policy
+- What happens if texture size is invalid? → Raise ValueError
+- What happens if components invalid? → Raise ValueError
+- What happens if GPU memory exhausted? → Raise MemoryError with stats
+- What happens if image file missing? → Return None, log warning
+- What happens on cleanup? → Release all textures, clear cache
+
+---
+
+## Dependencies
+
+- External libraries needed (and what happens if they are missing):
+  - `moderngl` — required for OpenGL textures — fallback: raise ImportError
+  - `PIL` (Pillow) — for image loading — fallback: use stb_image or raise error
+- Internal modules this depends on:
+  - `vjlive3.render.opengl_context`
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|-----------------|
+| `test_init_no_hardware` | Module starts without crashing |
+| `test_create_texture` | Creates textures with correct properties |
+| `test_texture_reuse` | Reuses textures by name |
+| `test_texture_update` | Updates texture data correctly |
+| `test_release_texture` | Releases textures properly |
+| `test_clear_all` | Clears all textures |
+| `test_memory_limit` | Respects max_textures limit |
+| `test_error_cases` | Handles invalid inputs gracefully |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-1] P1-R4: Texture manager` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## Verification Checkpoint
+
+- [ ] Spec reviewed and approved
+- [ ] Implementation ready to begin
+- [ ] All dependencies verified
+- [ ] Test plan complete
+- [ ] Definition of Done clear
+
+---
+
+*Specification based on VJlive-2 texture management system.*
+
+
+## Legacy References
+- **Source Codebase**: vjlive/ and VJlive-2/ legacy repositories
+- **File Paths**: `TBD`
+- **Key Algorithms**: TBD (Extract from legacy source)
+- **Parameter Mappings**: 1:1 mapping with legacy plugin configurations
+

@@ -9,7 +9,6 @@ except ImportError:
     HAS_GL = False
 
 from typing import Dict, Any
-from vjlive3.plugins.api import EffectPlugin, PluginContext
 
 logger = logging.getLogger(__name__)
 
@@ -178,7 +177,7 @@ void main() {
 }
 """
 
-class DepthAcidFractalPlugin(EffectPlugin):
+class DepthAcidFractalPlugin(object):
     """Depth-reactive psychedelic fractal shader mapping PingPong execution."""
 
     def __init__(self):
@@ -200,7 +199,7 @@ class DepthAcidFractalPlugin(EffectPlugin):
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
 
-    def initialize(self, context: PluginContext) -> None:
+    def initialize(self, context) -> None:
         if self._mock_mode:
             logger.warning("Initializing DepthAcidFractal in Mock Mode (No OpenGL)")
             return
@@ -305,7 +304,7 @@ class DepthAcidFractalPlugin(EffectPlugin):
         except Exception as e:
             logger.debug(f"Safely catching cleanup exception on FBO: {e}")
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context) -> int:
         if not input_texture or input_texture <= 0:
              return 0
              
