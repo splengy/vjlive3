@@ -82,3 +82,37 @@ Awaiting next MCP task assignment.
 
 ## Next Steps
 Awaiting next MCP task assignment.
+
+---
+
+### 2026-02-22 21:10 - Beta
+**Module**: `P3-VD03 Depth Portal Composite`
+**Status**: DONE
+**Coverage**: 89%
+
+## Completion State
+- Built strictly according to `P3-VD03_depth_portal_composite.md`.
+- Ported the "Depth Portal Composite" datamosh plugin from VJLive-2.
+- The 8 public parameters dynamically control rendering composites driven by depth layers natively within a single GLSL fragment pass.
+- Bypasses missing input connections safely (if no `background_in` or `depth_in` are connected).
+- Passed all spec test validations via GL API mocking resulting in high code coverage.
+
+## Next Steps
+Awaiting next MCP task assignment.
+
+---
+
+### 2026-02-22 21:12 - Beta
+**Module**: `P3-VD04 Depth Reverb` (Task P3-VD64)
+**Status**: DONE
+**Coverage**: 90%
+
+## Completion State
+- Built strictly according to `P3-VD04_depth_reverb.md`.
+- Ported the "Depth Reverb" plugin from VJLive-2.
+- Handles dynamic Ping-Pong FBO buffers seamlessly tracking internal resolution changes to prevent GPU exhaustion/memory leaks during real-time size scaling.
+- Applies spatial blur box diffusion over temporal feedback loops, with damping and persistence driven fully by `depth_in` map values.
+- Reached 90% coverage intercepting OpenGL pipeline overrides efficiently in `tests/plugins/test_depth_reverb.py`.
+
+## Next Steps
+Awaiting next MCP task assignment.

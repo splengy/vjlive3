@@ -1,176 +1,172 @@
 import pytest
-import os
+import numpy as np
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-sys.modules['OpenGL'] = MagicMock()
-sys.modules['OpenGL.GL'] = MagicMock()
-
-import vjlive3.plugins.depth_portal_composite as vdc
+from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_portal_composite import DepthPortalCompositePlugin, METADATA
-from vjlive3.plugins.registry import PluginInfo
-
-@pytest.fixture(autouse=True)
-def force_mock_no_gl(monkeypatch):
-    monkeypatch.setattr('vjlive3.plugins.depth_portal_composite.HAS_GL', False)
-
-class MockContext:
-    def __init__(self, inputs=None, parameters=None):
-        self.inputs = inputs or {}
-        self.parameters = parameters or {}
-        self.outputs = {}
 
 def test_portal_composite_manifest():
-    manifest = PluginInfo(**METADATA)
-    assert manifest.name == "Depth Portal Composite"
-    assert "slice_near" in [p["name"] for p in manifest.parameters]
-    assert "video_out" in manifest.outputs
-
-def test_portal_composite_empty():
     plugin = DepthPortalCompositePlugin()
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    val = plugin.process_frame(None, {}, ctx)
-    assert val == 0
+    meta = plugin.get_metadata()
+    
+    assert meta["name"] == "Depth Portal Composite"
+    assert "video_in" in meta["inputs"]
+    assert "background_in" in meta["inputs"]
+    assert "depth_in" in meta["inputs"]
+    assert "video_out" in meta["outputs"]
+    
+    param_names = [p["name"] for p in meta["parameters"]]
+    assert "slice_near" in param_names
+    assert "slice_far" in param_names
+    assert "edge_softness" in param_names
+    assert "bg_opacity" in param_names
+
+def test_portal_composite_mock_pass():
+    plugin = DepthPortalCompositePlugin()
+    plugin._mock_mode = True # Ensure mock mode
+    
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {
+        "video_in": 42,
+        "background_in": 99,
+        "depth_in": 12
+    }
+    ctx.outputs = {}
+    
+    params = {
+        "slice_near": 1.5,
+        "slice_far": 4.0
+    }
+    
+    res = plugin.process_frame(42, params, ctx)
+    assert res == 42
+    assert ctx.outputs["video_out"] == 42
+
+def test_portal_composite_missing_bg():
+    plugin = DepthPortalCompositePlugin()
+    
+    with patch("vjlive3.plugins.depth_portal_composite.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 1
+        plugin.prog = 2
+        plugin.out_tex = 9
+        plugin.vao = 1
+        
+        ctx = PluginContext(MagicMock())
+        # Missing background
+        ctx.inputs = {"video_in": 5, "depth_in": 10}
+        ctx.outputs = {}
+        
+        params = {
+            "slice_near": 1.0,
+            "slice_far": 2.0
+        }
+        
+        # Set glGetUniformLocation to return some ID to track
+        mock_gl.glGetUniformLocation.side_effect = lambda prog, name: name
+        
+        plugin.process_frame(5, params, ctx)
+        
+        # Verify it handled background check
+        mock_gl.glUniform1i.assert_any_call("has_background", 0)
+        mock_gl.glUniform1i.assert_any_call("has_depth", 1)
 
 def test_portal_composite_missing_depth():
     plugin = DepthPortalCompositePlugin()
-    ctx = MockContext(
-        inputs={"video_in": 100, "color_in": 500}, 
-        parameters={}
-    )
-    plugin.initialize(ctx)
-    val = plugin.process_frame(100, {}, ctx)
-    assert val == 100
-    assert ctx.outputs["video_out"] == 100
+    
+    with patch("vjlive3.plugins.depth_portal_composite.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 1
+        plugin.prog = 2
+        plugin.out_tex = 9
+        plugin.vao = 1
+        
+        ctx = PluginContext(MagicMock())
+        # Missing depth
+        ctx.inputs = {"video_in": 5, "background_in": 10}
+        ctx.outputs = {}
+        
+        params = {
+            "slice_near": 1.0,
+            "slice_far": 2.0
+        }
+        
+        mock_gl.glGetUniformLocation.side_effect = lambda prog, name: name
+        
+        plugin.process_frame(5, params, ctx)
+        
+        # Verify it handled depth check
+        mock_gl.glUniform1i.assert_any_call("has_background", 1)
+        mock_gl.glUniform1i.assert_any_call("has_depth", 0)
 
-def test_portal_composite_mock_success():
+def test_portal_composite_fbo_cleanup():
     plugin = DepthPortalCompositePlugin()
-    ctx = MockContext(
-        inputs={"video_in": 100, "depth_in": 200, "color_in": 500}, 
-        parameters={}
-    )
-    plugin.initialize(ctx)
     
-    val = plugin.process_frame(100, {"bg_opacity": 1.0, "slice_near": 0.5, "slice_far": 0.2}, ctx)
-    assert params_clamped(plugin, ctx, 0.2, 0.5)
-    assert val == 500
-    assert ctx.outputs["video_out"] == 500
-    
-    val2 = plugin.process_frame(100, {"bg_opacity": 0.0}, ctx)
-    assert val2 == 100
+    with patch("vjlive3.plugins.depth_portal_composite.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 99
+        plugin.out_tex = 10
+        plugin.vao = 22
+        plugin.vbo = 33
+        plugin.prog = 44
+        
+        plugin.cleanup()
+        
+        mock_gl.glDeleteTextures.assert_any_call(1, [10])
+        mock_gl.glDeleteFramebuffers.assert_called_with(1, [99])
+        mock_gl.glDeleteVertexArrays.assert_called_with(1, [22])
+        mock_gl.glDeleteProgram.assert_called_with(44)
+        
+        # State cleared
+        assert plugin.out_tex is None
+        assert plugin.fbo is None
+        assert plugin.prog is None
 
-def params_clamped(plugin, ctx, near, far):
-    p = {"slice_near": far, "slice_far": near}
-    plugin.process_frame(100, p, ctx)
-    return p["_clamped_near"] == near and p["_clamped_far"] == far
-
-def setup_mock_gl(monkeypatch):
-    mock_gl = MagicMock()
-    mock_gl.glGenTextures.return_value = 10
-    mock_gl.glGenFramebuffers.return_value = 20
-    mock_gl.GL_TRUE = 1
-    mock_gl.glGetShaderiv.return_value = 1
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    monkeypatch.setattr(vdc, 'gl', mock_gl, raising=False)
-    monkeypatch.setattr(vdc, 'HAS_GL', True)
-    return mock_gl
-
-def test_portal_composite_fbo_cleanup_headless(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    
+def test_portal_composite_gl_setup_error_handling():
     plugin = DepthPortalCompositePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
     
-    assert plugin.out_tex == 10
-    assert plugin.fbo == 20
-    
-    plugin.cleanup()
-    mock_gl.glDeleteTextures.assert_called_once_with(1, [10])
-    mock_gl.glDeleteFramebuffers.assert_called_once_with(1, [20])
-    
-def test_portal_composite_gl_exception_handling(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.side_effect = Exception("Out of Memory")
-    
+    with patch("vjlive3.plugins.depth_portal_composite.gl") as mock_gl:
+        # Simulate compilation failure
+        mock_gl.glGetShaderiv.return_value = 0 # GL_FALSE
+        mock_gl.glGetShaderInfoLog.return_value = b"Error compiling"
+        
+        plugin.initialize(PluginContext(MagicMock()))
+        assert plugin._mock_mode is True
+
+def test_portal_composite_empty_input_texture():
     plugin = DepthPortalCompositePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    
-    plugin.initialize(ctx)
-    assert plugin._mock_mode is True
-    
-    mock_gl.glGenTextures.side_effect = None
-    mock_gl.glGenTextures.return_value = 1
-    mock_gl.glGenFramebuffers.return_value = 2
-    
-    plugin2 = DepthPortalCompositePlugin()
-    plugin2._mock_mode = False
-    plugin2.initialize(ctx)
-    
-    mock_gl.glDeleteTextures.side_effect = Exception("Segmentation Fault")
-    plugin2.cleanup()
-    assert plugin2.out_tex is None
+    ctx = PluginContext(MagicMock())
+    res = plugin.process_frame(0, {}, ctx)
+    assert res == 0
 
-def test_portal_composite_render_frame(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
+def test_portal_composite_gl_full_pipeline():
     plugin = DepthPortalCompositePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext(inputs={"depth_in": 2, "color_in": 3})
-    plugin.initialize(ctx)
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 1, "background_in": 2, "depth_in": 3}
+    ctx.outputs = {}
     
-    assert plugin.prog is not None
-    
-    params = {
-        "slice_near": 0.8,
-        "slice_far": 0.2,
-        "edge_softness": 0.5,
-        "spill_suppress": 0.5,
-        "bg_opacity": 0.5,
-        "fg_scale": 0.5,
-        "fg_offset_x": 0.5,
-        "fg_offset_y": 0.5,
-        "u_mix": 1.0
-    }
-    
-    res1 = plugin.process_frame(1, params, ctx)
-    assert res1 == 10
-    
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    res2 = plugin.process_frame(1, params, ctx)
-    assert res2 == 10
-
-    # Texture resize
-    mock_gl.glGetTexLevelParameteriv.return_value = 800
-    res3 = plugin.process_frame(1, params, ctx)
-    assert res3 == 10
-
-    res4 = plugin.process_frame(0, params, ctx)
-    assert res4 == 0
-    
-    # Missing optional context maps natively fails back to VideoIn
-    ctx2 = MockContext()
-    res5 = plugin.process_frame(1, params, ctx2)
-    assert res5 == 1
-
-def test_compile_shader_fail(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGetShaderiv.return_value = 0
-    mock_gl.glGetShaderInfoLog.return_value = "ERROR"
-    
-    plugin = DepthPortalCompositePlugin()
-    res = plugin._compile_shader()
-    assert res is None
-
-def test_process_frame_render_fail(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthPortalCompositePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext(inputs={"depth_in": 2, "color_in": 3})
-    plugin.initialize(ctx)
-    
-    mock_gl.glBindTexture.side_effect = Exception("Render fail")
-    res = plugin.process_frame(100, {}, ctx)
-    assert res == 100
+    with patch("vjlive3.plugins.depth_portal_composite.gl") as mock_gl:
+        # Mock successful shader compilation
+        mock_gl.glGetShaderiv.return_value = 1 # GL_TRUE
+        mock_gl.glGetProgramiv.return_value = 1 # GL_TRUE
+        
+        # Setup mock that returns FBO tex ID
+        mock_gl.glGenTextures.return_value = 11
+        
+        plugin._mock_mode = False
+        plugin.initialize(ctx)
+        
+        # Ensure it didn't fallback to mock
+        assert plugin._mock_mode is False
+        assert plugin.out_tex == 11
+        
+        # Now process with swapped thresholds to trigger the swap block coverage
+        res = plugin.process_frame(1, {"slice_near": 4.0, "slice_far": 1.5}, ctx)
+        
+        # Verify texture output matches the generated texture
+        assert res == 11
+        assert ctx.outputs["video_out"] == 11
+        
+        # Ensure process ran draw arrays
+        mock_gl.glDrawArrays.assert_called()

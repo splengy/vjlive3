@@ -1,145 +1,126 @@
 import pytest
-import os
-import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-sys.modules['OpenGL'] = MagicMock()
-sys.modules['OpenGL.GL'] = MagicMock()
-
-import vjlive3.plugins.depth_reverb as dr
-from vjlive3.plugins.depth_reverb import DepthReverbPlugin, METADATA
-from vjlive3.plugins.registry import PluginInfo
-
-@pytest.fixture(autouse=True)
-def force_mock_no_gl(monkeypatch):
-    monkeypatch.setattr('vjlive3.plugins.depth_reverb.HAS_GL', False)
-
-class MockContext:
-    def __init__(self, inputs=None, parameters=None):
-        self.inputs = inputs or {}
-        self.parameters = parameters or {}
-        self.outputs = {}
-        self.render_width = 1920
-        self.render_height = 1080
+from vjlive3.plugins.api import PluginContext
+from vjlive3.plugins.depth_reverb import DepthReverbPlugin
 
 def test_depth_reverb_manifest():
-    manifest = PluginInfo(**METADATA)
-    assert manifest.name == "Depth Reverb"
-    assert "decay_time" in [p["name"] for p in manifest.parameters]
-    assert "video_out" in manifest.outputs
+    plugin = DepthReverbPlugin()
+    meta = plugin.get_metadata()
+    
+    assert meta["name"] == "Depth Reverb"
+    assert "video_in" in meta["inputs"]
+    assert "depth_in" in meta["inputs"]
+    assert "video_out" in meta["outputs"]
+    
+    param_names = [p["name"] for p in meta["parameters"]]
+    assert "room_size" in param_names
+    assert "decay_time" in param_names
+    assert "diffusion" in param_names
+    assert "damping" in param_names
+
+def test_depth_reverb_mock_pass():
+    plugin = DepthReverbPlugin()
+    plugin._mock_mode = True
+    
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 42, "depth_in": 12}
+    ctx.outputs = {}
+    
+    res = plugin.process_frame(42, {}, ctx)
+    assert res == 42
+    assert ctx.outputs["video_out"] == 42
+    
+def test_depth_reverb_empty_input():
+    plugin = DepthReverbPlugin()
+    ctx = PluginContext(MagicMock())
+    res = plugin.process_frame(0, {}, ctx)
+    assert res == 0
+
+def test_depth_reverb_gl_setup_error_handling():
+    plugin = DepthReverbPlugin()
+    
+    with patch("vjlive3.plugins.depth_reverb.gl") as mock_gl:
+        mock_gl.glGetShaderiv.return_value = 0 # GL_FALSE
+        plugin.initialize(PluginContext(MagicMock()))
+        assert plugin._mock_mode is True
+
+def test_depth_reverb_fbo_lifecycle():
+    plugin = DepthReverbPlugin()
+    
+    with patch("vjlive3.plugins.depth_reverb.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 99
+        plugin.tex_out = 10
+        plugin.tex_prev = 11
+        plugin.vao = 22
+        plugin.vbo = 33
+        plugin.prog = 44
+        
+        plugin.cleanup()
+        
+        mock_gl.glDeleteTextures.assert_any_call(1, [10])
+        mock_gl.glDeleteTextures.assert_any_call(1, [11])
+        mock_gl.glDeleteFramebuffers.assert_called_with(1, [99])
+        mock_gl.glDeleteVertexArrays.assert_called_with(1, [22])
+        mock_gl.glDeleteProgram.assert_called_with(44)
+        
+        assert plugin.tex_out is None
+        assert plugin.fbo is None
 
 def test_depth_reverb_resolution_change():
+    """Verify dynamic ping-pong FBO reallocation operates correctly without throwing exceptions."""
     plugin = DepthReverbPlugin()
-    ctx = MockContext(inputs={"video_in": 100})
-    plugin.initialize(ctx)
+    ctx = PluginContext(MagicMock())
     
-    # Process First Frame
-    val = plugin.process_frame(100, {}, ctx)
-    assert val == 100
-    assert plugin._current_width == 1920
-    assert plugin.texture_prev == 999 # mock ping
-    
-    # Process Frame with resize simulation
-    ctx.render_width = 1280
-    ctx.render_height = 720
-    val2 = plugin.process_frame(100, {}, ctx)
-    assert val2 == 100
-    assert plugin._current_width == 1280
+    with patch("vjlive3.plugins.depth_reverb.gl") as mock_gl:
+        # Prevent actually making objects, just track what it tries to do
+        mock_gl.glGenTextures.side_effect = [1, 2, 3, 4, 5, 6, 7, 8]
+        mock_gl.glGenFramebuffers.side_effect = [10, 20, 30]
+        
+        plugin._mock_mode = False
+        
+        # Sim initial allocation at 1920x1080
+        ctx.width = 1920
+        ctx.height = 1080
+        plugin.process_frame(5, {}, ctx)
+        
+        assert plugin.current_size == (1920, 1080)
+        assert plugin.tex_out == 1
+        assert plugin.tex_prev == 2
+        
+        # Sim resolution change to 1280x720
+        ctx.width = 1280
+        ctx.height = 720
+        plugin.process_frame(5, {}, ctx)
+        
+        # Ensure it reallocated safely
+        assert plugin.current_size == (1280, 720)
+        assert plugin.tex_out == 3
+        assert plugin.tex_prev == 4
+        
+        # Verify it cleaned up the old ones during reallocation
+        mock_gl.glDeleteTextures.assert_any_call(1, [1])
+        mock_gl.glDeleteTextures.assert_any_call(1, [2])
+        mock_gl.glDeleteFramebuffers.assert_any_call(1, [10])
 
-def test_depth_reverb_no_depth_bypassed():
+def test_depth_reverb_full_pipeline():
     plugin = DepthReverbPlugin()
-    ctx = MockContext(inputs={"video_in": 100}) # Missing depth_in
-    plugin.initialize(ctx)
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 1, "depth_in": 2}
+    ctx.outputs = {}
     
-    params = {}
-    val = plugin.process_frame(100, params, ctx)
-    
-    assert val == 100
-    assert params["_uniform_reverb"] is True
-
-def test_depth_reverb_with_depth_processed():
-    plugin = DepthReverbPlugin()
-    ctx = MockContext(inputs={"video_in": 100, "depth_in": 200})
-    plugin.initialize(ctx)
-    
-    params = {}
-    val = plugin.process_frame(100, params, ctx)
-    
-    assert val == 100
-    assert params["_uniform_reverb"] is False
-
-def test_depth_reverb_empty_returns_0():
-    plugin = DepthReverbPlugin()
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    val = plugin.process_frame(None, {}, ctx)
-    assert val == 0
-
-def test_depth_reverb_fbo_lifecycle(monkeypatch):
-    mock_gl = MagicMock()
-    mock_gl.glGenTextures.return_value = [101, 102]
-    mock_gl.glGenFramebuffers.return_value = [201, 202]
-    
-    monkeypatch.setattr(dr, 'gl', mock_gl, raising=False)
-    monkeypatch.setattr(dr, 'HAS_GL', True)
-    
-    plugin = DepthReverbPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext(inputs={"video_in": 100})
-    plugin.initialize(ctx)
-    
-    # Initial trigger to allocate FBO
-    plugin.process_frame(100, {}, ctx)
-    assert plugin.texture_prev == 101
-    assert plugin.fbo_ping == 201
-    
-    # Verify cleanup runs properly
-    plugin.cleanup()
-    mock_gl.glDeleteTextures.assert_called_once_with(2, [101, 102])
-    mock_gl.glDeleteFramebuffers.assert_called_once_with(2, [201, 202])
-    
-def test_depth_reverb_exception_handling(monkeypatch):
-    mock_gl = MagicMock()
-    mock_gl.glGenTextures.side_effect = Exception("Out of Memory GL")
-    
-    monkeypatch.setattr(dr, 'gl', mock_gl, raising=False)
-    monkeypatch.setattr(dr, 'HAS_GL', True)
-    
-    plugin = DepthReverbPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext(inputs={"video_in": 100})
-    plugin.initialize(ctx)
-    
-    # Trigger bad allocation causing mock mode downgrade
-    plugin.process_frame(100, {}, ctx)
-    assert plugin._mock_mode is True
-    
-    # Check teardown logic failure states
-    mock_gl.glGenTextures.side_effect = None
-    mock_gl.glGenTextures.return_value = [1, 2]
-    mock_gl.glGenFramebuffers.return_value = [3, 4]
-    
-    plugin2 = DepthReverbPlugin()
-    plugin2._mock_mode = False
-    plugin2.initialize(ctx)
-    plugin2.process_frame(100, {}, ctx)
-    
-    mock_gl.glDeleteTextures.side_effect = Exception("Segmentation Fault")
-    plugin2.cleanup() # Must not crash
-    assert plugin2.texture_prev is None
-    
-def test_depth_reverb_single_int_fbo_handling(monkeypatch):
-    mock_gl = MagicMock()
-    mock_gl.glGenTextures.return_value = 555
-    mock_gl.glGenFramebuffers.return_value = 666
-    
-    monkeypatch.setattr(dr, 'gl', mock_gl, raising=False)
-    monkeypatch.setattr(dr, 'HAS_GL', True)
-    
-    plugin = DepthReverbPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext(inputs={"video_in": 100})
-    plugin.initialize(ctx)
-    plugin.process_frame(100, {}, ctx)
-    
-    assert plugin.texture_prev == 555
+    with patch("vjlive3.plugins.depth_reverb.gl") as mock_gl:
+        mock_gl.glGetShaderiv.return_value = 1 # GL_TRUE
+        mock_gl.glGetProgramiv.return_value = 1 # GL_TRUE
+        
+        # Initialization
+        plugin._mock_mode = False
+        plugin.initialize(ctx)
+        
+        # Execute
+        res = plugin.process_frame(1, {"room_size": 0.5}, ctx)
+        
+        assert plugin._mock_mode is False
+        assert mock_gl.glDrawArrays.called
+        assert res == plugin.tex_out

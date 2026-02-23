@@ -916,56 +916,56 @@
 | P3-VD35 | Depth Edge Glow (DepthEdgeGlowPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd35.py` — DepthEdgeGlowPlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-VD36 | Depth Effects (DepthEffectPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd36.py` — DepthEffectPlugin, 8/8 tests ✅ 2026-02-22 |
 ----------|-------------|----------|--------|--------|
-| P3-VD26 | Depth Acid Fractal (DepthAcidFractalDatamoshEffect) | P0 | ✅ Done | Implemented |
-| P3-VD27 | Depth Aware Compression (DepthAwareCompressionEffect) | P0 | ✅ Done | Implemented |
-| P3-VD28 | Depth Blur (DepthBlurEffect) | P0 | ✅ Done | Implemented |
-| P3-VD29 | Depth Camera Splitter (DepthCameraSplitterEffect) | P0 | ✅ Done | Implemented |
-| P3-VD30 | Depth Color Grade (DepthColorGradeEffect) | P0 | ✅ Done | Implemented |
-| P3-VD31 | Depth Contour Datamosh (DepthContourDatamoshEffect) | P0 | ✅ Done | Implemented |
-| P3-VD32 | Depth Data Mux (DepthDataMuxEffect) | P0 | ✅ Done | Implemented |
-| P3-VD33 | Depth Distance Filter (DepthDistanceFilterEffect) | P0 | ✅ Done | Implemented |
-| P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ✅ Done | Implemented |
-| P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ✅ Done | Implemented |
-| P3-VD36 | Depth Effects (DepthEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD40 | Depth Effects (DepthContourEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD41 | Depth Effects (DepthParticle3DEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD42 | Depth Effects (DepthDistortionEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD43 | Depth Effects (DepthFieldEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD44 | Depth Effects (OpticalFlowEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD45 | Depth Effects (BackgroundSubtractionEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD46 | Depth Erosion Datamosh (DepthErosionDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD47 | Depth Feedback Matrix Datamosh (DepthFeedbackMatrixDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD48 | Depth Fog (DepthFogEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD49 | Depth Fracture Datamosh (DepthFractureDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD50 | Depth Fx Loop (DepthFXLoopEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD51 | Depth Groovy Datamosh (DepthGroovyDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD52 | Depth Holographic (DepthHolographicIridescenceEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD53 | Depth Liquid Refraction (DepthLiquidRefractionEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD54 | Depth Loop Injection Datamosh (DepthLoopInjectionDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD55 | Depth Modular Datamosh (DepthModularDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD56 | Depth Modulated Datamosh (DepthModulatedDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD57 | Depth Mosaic (DepthMosaicEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD59 | Depth Motion Transfer (DepthMotionTransferEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD60 | Depth Parallel Universe Datamosh (DepthParallelUniverseDatamoshEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_parallel_universe.py` — DepthParallelUniversePlugin, 6/6 tests ✅ 2026-02-22 |
-| P3-VD61 | Depth Particle Shred (DepthParticleShredEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD62 | Depth Portal Composite (DepthPortalCompositeEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD63 | Depth Raver Datamosh (DepthRaverDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD64 | Depth Reverb (DepthReverbEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD65 | Depth Simulator (DepthSimulatorEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD66 | Depth Slitscan Datamosh (DepthSlitScanDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD67 | Depth Temporal Echo (DepthTemporalEchoEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD68 | Depth Temporal Strat (DepthTemporalStratEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD69 | Depth Vector Field Datamosh (DepthVectorFieldDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD70 | Depth Video Projection (DepthVideoProjectionEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD71 | Depth Void Datamosh (DepthVoidDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD72 | datamosh_3d (DepthDisplacementEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD73 | datamosh_3d (DepthEchoEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD74 | ml_gpu_effects (MLDepthEstimationEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD75 | quantum_depth_nexus_effect (QuantumDepthNexus) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD26 | Depth Acid Fractal (DepthAcidFractalDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT026_depth_acid_fractal_datamosh_effect.md` |
+| P3-VD27 | Depth Aware Compression (DepthAwareCompressionEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT027_depth_aware_compression_effect.md` |
+| P3-VD28 | Depth Blur (DepthBlurEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT028_depth_blur_effect.md` |
+| P3-VD29 | Depth Camera Splitter (DepthCameraSplitterEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT029_depth_camera_splitter_effect.md` |
+| P3-VD30 | Depth Color Grade (DepthColorGradeEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT030_depth_color_grade_effect.md` |
+| P3-VD31 | Depth Contour Datamosh (DepthContourDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT031_depth_contour_datamosh_effect.md` |
+| P3-VD32 | Depth Data Mux (DepthDataMuxEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT032_depth_data_mux_effect.md` |
+| P3-VD33 | Depth Distance Filter (DepthDistanceFilterEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT033_depth_distance_filter_effect.md` |
+| P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT034_depth_dual_effect.md` |
+| P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT035_depth_edge_glow_effect.md` |
+| P3-VD36 | Depth Effects (DepthEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT036_depth_effects_effect.md` |
+| P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT037_depth_effects_point_cloud_effect.md` |
+| P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT038_depth_effects_point_cloud_3d_effect.md` |
+| P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT039_depth_effects_mesh_effect.md` |
+| P3-VD40 | Depth Effects (DepthContourEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT040_depth_effects_contour_effect.md` |
+| P3-VD41 | Depth Effects (DepthParticle3DEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT041_depth_effects_particle_3d_effect.md` |
+| P3-VD42 | Depth Effects (DepthDistortionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT042_depth_effects_distortion_effect.md` |
+| P3-VD43 | Depth Effects (DepthFieldEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT043_depth_effects_field_effect.md` |
+| P3-VD44 | Depth Effects (OpticalFlowEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT044_depth_effects_optical_flow_effect.md` |
+| P3-VD45 | Depth Effects (BackgroundSubtractionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT045_depth_effects_background_subtraction_effect.md` |
+| P3-VD46 | Depth Erosion Datamosh (DepthErosionDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT046_depth_erosion_datamosh_effect.md` |
+| P3-VD47 | Depth Feedback Matrix Datamosh (DepthFeedbackMatrixDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT047_depth_feedback_matrix_datamosh_effect.md` |
+| P3-VD48 | Depth Fog (DepthFogEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT048_depth_fog_effect.md` |
+| P3-VD49 | Depth Fracture Datamosh (DepthFractureDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT049_depth_fracture_datamosh_effect.md` |
+| P3-VD50 | Depth Fx Loop (DepthFXLoopEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT050_depth_fx_loop_effect.md` |
+| P3-VD51 | Depth Groovy Datamosh (DepthGroovyDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT051_depth_groovy_datamosh_effect.md` |
+| P3-VD52 | Depth Holographic (DepthHolographicIridescenceEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT052_depth_holographic_iridescence_effect.md` |
+| P3-VD53 | Depth Liquid Refraction (DepthLiquidRefractionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT053_depth_liquid_refraction_effect.md` |
+| P3-VD54 | Depth Loop Injection Datamosh (DepthLoopInjectionDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT054_depth_loop_injection_datamosh_effect.md` |
+| P3-VD55 | Depth Modular Datamosh (DepthModularDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT055_depth_modular_datamosh_effect.md` |
+| P3-VD56 | Depth Modulated Datamosh (DepthModulatedDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT056_depth_modulated_datamosh_effect.md` |
+| P3-VD57 | Depth Mosaic (DepthMosaicEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT057_depth_mosaic_effect.md` |
+| P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT058_depth_mosh_nexus_effect.md` |
+| P3-VD59 | Depth Motion Transfer (DepthMotionTransferEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT059_depth_motion_transfer_effect.md` |
+| P3-VD60 | Depth Parallel Universe Datamosh (DepthParallelUniverseDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT060_depth_parallel_universe_datamosh_effect.md` |
+| P3-VD61 | Depth Particle Shred (DepthParticleShredEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT061_depth_particle_shred_effect.md` |
+| P3-VD62 | Depth Portal Composite (DepthPortalCompositeEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT062_depth_portal_composite_effect.md` |
+| P3-VD63 | Depth Raver Datamosh (DepthRaverDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT063_depth_raver_datamosh_effect.md` |
+| P3-VD64 | Depth Reverb (DepthReverbEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_reverb.py` — DepthReverbPlugin, 7/7 tests ✅ 2026-02-22 | Spec ready: `docs/specs/P3-EXT064_depth_reverb_effect.md` |
+| P3-VD65 | Depth Simulator (DepthSimulatorEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT065_depth_simulator_effect.md` |
+| P3-VD66 | Depth Slitscan Datamosh (DepthSlitScanDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT066_depth_slitscan_datamosh_effect.md` |
+| P3-VD67 | Depth Temporal Echo (DepthTemporalEchoEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT067_depth_temporal_echo_effect.md` |
+| P3-VD68 | Depth Temporal Strat (DepthTemporalStratEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT068_depth_temporal_strat_effect.md` |
+| P3-VD69 | Depth Vector Field Datamosh (DepthVectorFieldDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT069_depth_vector_field_datamosh_effect.md` |
+| P3-VD70 | Depth Video Projection (DepthVideoProjectionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT070_depth_video_projection_effect.md` |
+| P3-VD71 | Depth Void Datamosh (DepthVoidDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT071_depth_void_datamosh_effect.md` |
+| P3-VD72 | datamosh_3d (DepthDisplacementEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT072_displacement_map_effect.md` |
+| P3-VD73 | datamosh_3d (DepthEchoEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT073_depth_echo_effect.md` |
+| P3-VD74 | ml_gpu_effects (MLDepthEstimationEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT074_ml_depth_estimation_effect.md` |
+| P3-VD75 | quantum_depth_nexus_effect (QuantumDepthNexus) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT075_quantum_depth_nexus_effect.md` |
 
 
 

@@ -119,28 +119,28 @@
   {
     "task_id": "P3-VD03",
     "spec_path": "docs/specs/P3-VD03_depth_portal_composite.md",
-    "status": "in_progress",
+    "status": "completed",
     "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:02:26.231923+00:00",
     "started_at": "2026-02-23T05:05:01.468702+00:00",
-    "completed_at": null
+    "completed_at": "2026-02-23T05:09:54.157475+00:00"
   },
   {
     "task_id": "P3-VD04",
     "spec_path": "docs/specs/P3-VD04_depth_reverb.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:02:26.280813+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-23T05:10:13.043412+00:00",
+    "completed_at": "2026-02-23T05:15:34.304775+00:00"
   },
   {
     "task_id": "P3-VD05",
     "spec_path": "docs/specs/P3-VD05_depth_slice.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:05:22.614212+00:00",
-    "started_at": null,
+    "started_at": "2026-02-23T05:15:53.778586+00:00",
     "completed_at": null
   },
   {
@@ -356,6 +356,15 @@
     "status": "queued",
     "assigned_worker": null,
     "created_at": "2026-02-23T00:40:37.833904+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD37",
+    "spec_path": "docs/specs/P3-P3-VD37_Depth_Effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:16:08.136082+00:00",
     "started_at": null,
     "completed_at": null
   }
