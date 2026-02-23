@@ -137,19 +137,19 @@
   {
     "task_id": "P3-VD05",
     "spec_path": "docs/specs/P3-VD05_depth_slice.md",
-    "status": "in_progress",
+    "status": "completed",
     "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:05:22.614212+00:00",
     "started_at": "2026-02-23T05:15:53.778586+00:00",
-    "completed_at": null
+    "completed_at": "2026-02-23T05:23:25.680120+00:00"
   },
   {
     "task_id": "P3-VD06",
     "spec_path": "docs/specs/P3-VD06_depth_neural_quantum_hyper_tunnel.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:05:22.682803+00:00",
-    "started_at": null,
+    "started_at": "2026-02-23T05:23:45.637524+00:00",
     "completed_at": null
   },
   {
@@ -365,6 +365,321 @@
     "status": "queued",
     "assigned_worker": null,
     "created_at": "2026-02-23T05:16:08.136082+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD38",
+    "spec_path": "docs/specs/P3-P3-VD38_Depth_Particle_3D_Effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:16:29.640471+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD39",
+    "spec_path": "docs/specs/P3-P3-VD39_Depth_Effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:16:41.600254+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD40",
+    "spec_path": "docs/specs/P3-P3-VD40_Depth_Effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:16:52.017380+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD41",
+    "spec_path": "docs/specs/P3-P3-VD41_depth_effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:17:14.266216+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD42",
+    "spec_path": "docs/specs/P3-P3-VD42_depth_effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:17:36.184186+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD43",
+    "spec_path": "docs/specs/P3-P3-VD43_depth_effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:17:41.375159+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD44",
+    "spec_path": "docs/specs/P3-P3-VD44_depth_effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:17:55.895562+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD45",
+    "spec_path": "docs/specs/P3-P3-VD45_depth_effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:18:02.035916+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD46",
+    "spec_path": "docs/specs/P3-P3-VD46_Depth_Erosion_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:18:14.029010+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD47",
+    "spec_path": "docs/specs/P3-P3-VD47_Depth_Feedback_Matrix_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:18:32.664964+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD48",
+    "spec_path": "docs/specs/P3-P3-VD48_Depth_Fog.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:18:49.504588+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD49",
+    "spec_path": "docs/specs/P3-P3-VD49_Depth_Fracture_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:19:01.669794+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD50",
+    "spec_path": "docs/specs/P3-P3-VD50_Depth_Fx_Loop.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:19:06.630896+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD51",
+    "spec_path": "docs/specs/P3-P3-VD51_Depth_Groovy_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:19:18.975711+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD52",
+    "spec_path": "docs/specs/P3-P3-VD52_Depth_Holographic.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:19:32.504142+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD53",
+    "spec_path": "docs/specs/P3-P3-VD53_Depth_Liquid_Refraction.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:19:44.153728+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD54",
+    "spec_path": "docs/specs/P3-P3-VD54_Depth_Loop_Injection_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:19:56.675652+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD55",
+    "spec_path": "docs/specs/P3-P3-VD55_Depth_Modular_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:20:06.822542+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD56",
+    "spec_path": "docs/specs/P3-P3-VD56_Depth_Modulated_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:20:23.598756+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD57",
+    "spec_path": "docs/specs/P3-P3-VD57_Depth_Mosaic.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:20:33.405691+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD58",
+    "spec_path": "docs/specs/P3-P3-VD58_Depth_Mosh_Nexus.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:20:42.225074+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD59",
+    "spec_path": "docs/specs/P3-P3-VD59_Depth_Motion_Transfer.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:20:54.089311+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD61",
+    "spec_path": "docs/specs/P3-P3-VD61_Depth_Particle_Shred.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:21:09.735874+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD62",
+    "spec_path": "docs/specs/P3-P3-VD62_Depth_Portal_Composite.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:21:19.279886+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD64",
+    "spec_path": "docs/specs/P3-P3-VD64_Depth_Reverb.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:21:25.527293+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD66",
+    "spec_path": "docs/specs/P3-P3-VD66_depth_slitscan_datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:21:48.583207+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD67",
+    "spec_path": "docs/specs/P3-P3-VD67_depth_temporal_echo_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:22:07.519856+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD68",
+    "spec_path": "docs/specs/P3-P3-VD68_depth_temporal_strat_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:22:17.392402+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD69",
+    "spec_path": "docs/specs/P3-P3-VD69_depth_vector_field_datamosh_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:22:27.683958+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD70",
+    "spec_path": "docs/specs/P3-P3-VD70_depth_video_projection_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:22:36.741478+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD71",
+    "spec_path": "docs/specs/P3-P3-VD71_depth_void_datamosh_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:22:44.595280+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD72",
+    "spec_path": "docs/specs/P3-P3-VD72_displacement_map_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:22:50.119115+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD73",
+    "spec_path": "docs/specs/P3-P3-VD73_depth_echo_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:22:59.549950+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD74",
+    "spec_path": "docs/specs/P3-P3-VD74_ml_depth_estimation_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:23:04.711131+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD75",
+    "spec_path": "docs/specs/P3-P3-VD75_quantum_depth_nexus_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T05:23:11.173687+00:00",
     "started_at": null,
     "completed_at": null
   }

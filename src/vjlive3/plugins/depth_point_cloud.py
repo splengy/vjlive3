@@ -1,310 +1,297 @@
-import os
-import logging
+"""
+P3-VD37: Depth Point Cloud Effect (2D Pseudo-Cloud)
+Ported from VJlive-2 legacy implementation.
+
+Maps depth values to a blue-to-red color gradient while adding
+synthetic sinusoidal noise.
+"""
+
 from typing import Dict, Any, Optional
-import numpy as np
-
-from vjlive3.plugins.api import EffectPlugin, PluginContext
-
-logger = logging.getLogger(__name__)
-
-try:
-    if os.environ.get("PYTEST_MOCK_GL"):
-        raise ImportError("Forced MOCK GL for pytest")
-    import OpenGL.GL as gl
-    HAS_GL = True
-except ImportError:
-    HAS_GL = False
-    gl = None
-
-BLIT_VERTEX = """
-#version 330 core
-layout(location=0) in vec2 pos;
-layout(location=1) in vec2 uv;
-out vec2 v_uv;
-void main() {
-    gl_Position = vec4(pos, 0.0, 1.0);
-    v_uv = uv;
-}
-"""
-
-BLIT_FRAGMENT = """
-#version 330 core
-in vec2 v_uv;
-out vec4 fragColor;
-uniform sampler2D tex0;
-void main() {
-    fragColor = texture(tex0, v_uv);
-}
-"""
-
-POINT_VERTEX = """
-#version 330 core
-uniform sampler2D depth_tex;
-uniform int tex_width;
-uniform int tex_height;
-uniform float min_depth;
-uniform float max_depth;
-uniform float point_size;
-uniform float point_density;
-
-out vec4 v_color;
-
-void main() {
-    int x = gl_VertexID % tex_width;
-    int y = gl_VertexID / tex_width;
-    
-    // Simulate density downsampling by culling
-    if (point_density < 1.0) {
-        int step = max(1, int(1.0 / max(point_density, 0.01)));
-        if (x % step != 0 || y % step != 0) {
-            gl_Position = vec4(2.0, 2.0, 2.0, 1.0); // Discard
-            return;
-        }
-    }
-    
-    vec2 uv = vec2(float(x) / float(tex_width), float(y) / float(tex_height));
-    float raw_d = texelFetch(depth_tex, ivec2(x, y), 0).r;
-    float depth = raw_d * (max_depth - min_depth) + min_depth;
-    
-    if (raw_d < 0.01 || depth < min_depth || depth > max_depth) {
-        gl_Position = vec4(2.0, 2.0, 2.0, 1.0);
-        return;
-    }
-    
-    // Parallax scaling based on depth
-    float nx = uv.x * 2.0 - 1.0;
-    float ny = uv.y * 2.0 - 1.0;
-    
-    // Push distant points closer to the center to simulate perspective FOV
-    float z_factor = 2.0 / max(depth, 1.0);
-    
-    gl_Position = vec4(nx * z_factor, ny * z_factor, 0.0, 1.0);
-    gl_PointSize = point_size * z_factor;
-    
-    float t = clamp((depth - min_depth) / max(max_depth - min_depth, 0.001), 0.0, 1.0);
-    v_color = vec4(t, 0.5, 1.0 - t, 1.0);
-}
-"""
-
-POINT_FRAGMENT = """
-#version 330 core
-in vec4 v_color;
-out vec4 fragColor;
-uniform float u_mix;
-
-void main() {
-    // Make points circular
-    vec2 coord = gl_PointCoord - vec2(0.5);
-    if (dot(coord, coord) > 0.25) {
-        discard;
-    }
-    fragColor = vec4(v_color.rgb, u_mix);
-}
-"""
+import ctypes
+import OpenGL.GL as gl
+from .api import EffectPlugin, PluginContext
 
 METADATA = {
-    "name": "Depth Point Cloud",
-    "description": "2.5D point cloud depth visualization with dynamic density control.",
-    "version": "1.0.0",
-    "author": "Antigravity",
-    "category": "Visual Depth",
-    "tags": ["depth", "pointcloud", "2.5D", "particles"],
-    "status": "active",
-    "parameters": [
-        {"name": "pointSize", "type": "float", "min": 0.0, "max": 10.0, "default": 2.0},
-        {"name": "pointDensity", "type": "float", "min": 0.0, "max": 10.0, "default": 1.0},
-        {"name": "minDepth", "type": "float", "min": 0.0, "max": 10.0, "default": 1.0},
-        {"name": "maxDepth", "type": "float", "min": 0.0, "max": 10.0, "default": 8.0},
-        {"name": "u_mix", "type": "float", "min": 0.0, "max": 1.0, "default": 1.0}
-    ],
+    "name": "DepthPointCloud",
+    "version": "3.0.0",
+    "description": "2D pseudo-point cloud effect mapping depth to gradient and noise",
+    "author": "VJLive3 Team",
+    "license": "GPLv3",
+    "plugin_type": "depth_effect",
+    "category": "visual",
+    "tags": ["depth", "point_cloud", "false_color", "noise"],
+    "priority": 10,
+    "dependencies": [],
+    "incompatible": ["NoDepthSupport"],
     "inputs": ["video_in", "depth_in"],
-    "outputs": ["video_out"]
+    "outputs": ["video_out"],
+    "parameters": [
+        {"name": "point_size", "type": "float", "default": 2.0, "min": 0.1, "max": 20.0},
+        {"name": "point_density", "type": "float", "default": 1.0, "min": 0.01, "max": 1.0},
+        {"name": "min_depth", "type": "float", "default": 1.0, "min": 0.0, "max": 5.0},
+        {"name": "max_depth", "type": "float", "default": 8.0, "min": 0.0, "max": 10.0},
+        {"name": "mix_amount", "type": "float", "default": 1.0, "min": 0.0, "max": 1.0}
+    ]
 }
 
+FRAGMENT_SOURCE = """#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform sampler2D tex0;        // Original video
+uniform sampler2D depth_tex;   // Depth data
+uniform float u_mix;           // mix_amount
+uniform float point_size;      // Inherited from legacy (unused in fragment but preserved for interface compatibility)
+uniform float min_depth;
+uniform float max_depth;
+uniform float has_depth;
+uniform vec2 resolution;
+
+// Depth-based color mapping
+vec3 depth_to_color(float depth_val) {
+    float safe_diff = max(max_depth - min_depth, 0.0001);
+    float t = clamp((depth_val - min_depth) / safe_diff, 0.0, 1.0);
+    return mix(vec3(0.0, 0.0, 1.0), vec3(1.0, 0.0, 0.0), t);
+}
+
+void main() {
+    vec4 original = texture(tex0, uv);
+
+    if (has_depth > 0.0) {
+        // Evaluate native distance representation dynamically bounded
+        float safe_diff = max(max_depth - min_depth, 0.0001);
+        float depth = texture(depth_tex, uv).r * safe_diff + min_depth;
+
+        if (depth > min_depth && depth < max_depth) {
+            // Create depth-based visualization gradient
+            vec3 depth_color = depth_to_color(depth);
+
+            // Add synthetic sinusoidal noise/interference effect based on depth
+            float noise = sin(uv.x * 100.0 + depth * 10.0) * 0.1;
+            depth_color += vec3(noise);
+
+            // Blend with original video
+            fragColor = vec4(mix(original.rgb, depth_color, u_mix * 0.5), original.a);
+        } else {
+            fragColor = original;
+        }
+    } else {
+        fragColor = original;
+    }
+}
+"""
 
 class DepthPointCloudPlugin(EffectPlugin):
-    """P3-VD37: Depth Effects Point Cloud translated to ultra-fast hardware instancing."""
-    
-    def __init__(self) -> None:
+    """
+    Depth Point Cloud Effect for VJLive3.
+    Applies a colorized noise pass over standard video guided by a depth texture.
+    """
+    def __init__(self):
         super().__init__()
-        self._mock_mode = not HAS_GL
-        self.blit_prog = None
-        self.prog = None
-        
-        self.texture: Optional[int] = None
-        self.fbo: Optional[int] = None
+        self.program = 0
+        self.fbo = 0
+        self.target_texture = 0
+        self.width = 0
+        self.height = 0
+        self._initialized = False
 
-    def _compile_shader(self, v_src, f_src):
-        if not HAS_GL: return None
-        try:
-            vertex = gl.glCreateShader(gl.GL_VERTEX_SHADER)
-            gl.glShaderSource(vertex, v_src)
-            gl.glCompileShader(vertex)
-            
-            fragment = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
-            gl.glShaderSource(fragment, f_src)
-            gl.glCompileShader(fragment)
-            
-            if gl.glGetShaderiv(fragment, gl.GL_COMPILE_STATUS) != gl.GL_TRUE:
-                logger.error(f"Fragment compile failed: {gl.glGetShaderInfoLog(fragment)}")
-                return None
-                
-            prog = gl.glCreateProgram()
-            gl.glAttachShader(prog, vertex)
-            gl.glAttachShader(prog, fragment)
-            gl.glLinkProgram(prog)
-            return prog
-        except Exception as e:
-            logger.error(f"Failed to compile shader locally: {e}")
-            return None
+    def get_metadata(self) -> Dict[str, Any]:
+        return METADATA
 
-    def initialize(self, context: PluginContext) -> None:
-        super().initialize(context)
-        if self._mock_mode:
-            return
+    def initialize(self, context: PluginContext) -> bool:
+        """Compile internal shader and generate FBO."""
+        if not hasattr(gl, 'glCreateProgram'):
+            return False
             
         try:
-            self.blit_prog = self._compile_shader(BLIT_VERTEX, BLIT_FRAGMENT)
-            self.prog = self._compile_shader(POINT_VERTEX, POINT_FRAGMENT)
-            if not self.prog or not self.blit_prog:
-                self._mock_mode = True
-                return
-
-            tex_id = gl.glGenTextures(1)
-            fbo_id = gl.glGenFramebuffers(1)
-            if isinstance(tex_id, list): tex_id = tex_id[0]
-            if isinstance(fbo_id, list): fbo_id = fbo_id[0]
+            # Vertex shader (Standard passthrough)
+            vs_source = """#version 330 core
+            layout (location = 0) in vec3 aPos;
+            layout (location = 1) in vec2 aTexCoords;
+            out vec2 uv;
+            void main() {
+                uv = aTexCoords;
+                gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+            }
+            """
+            
+            # Use shader compiler from context if available, otherwise manual compile
+            if context and hasattr(context, 'engine') and context.engine:
+                try:
+                    self.program = context.engine.compilers['shader'].compile(vs_source, FRAGMENT_SOURCE)
+                except Exception:
+                    self.program = self._compile_shader_fallback(vs_source, FRAGMENT_SOURCE)
+            else:
+                self.program = self._compile_shader_fallback(vs_source, FRAGMENT_SOURCE)
                 
-            self.texture = tex_id
-            self.fbo = fbo_id
-                
-            self.vao = gl.glGenVertexArrays(1)
-            self.vbo = gl.glGenBuffers(1)
-            gl.glBindVertexArray(self.vao)
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vbo)
-            
-            quad_data = np.array([
-                -1.0, -1.0,  0.0, 0.0,
-                 1.0, -1.0,  1.0, 0.0,
-                -1.0,  1.0,  0.0, 1.0,
-                 1.0,  1.0,  1.0, 1.0
-            ], dtype=np.float32)
-            
-            gl.glBufferData(gl.GL_ARRAY_BUFFER, quad_data.nbytes, quad_data, gl.GL_STATIC_DRAW)
-            gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(0))
-            gl.glEnableVertexAttribArray(0)
-            gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(8))
-            gl.glEnableVertexAttribArray(1)
-            gl.glBindVertexArray(0)
-            
-            # Point rendering doesn't need a quad VBO, but we need an empty VAO 
-            # to keep OpenGL happy when throwing thousands of gl_VertexIDs at it.
-            self.point_vao = gl.glGenVertexArrays(1)
-            
-        except Exception as e:
-            logger.warning(f"Failed to initialize GL FBOs inside DepthPointCloud: {e}")
-            self._mock_mode = True
+            if self.program == 0:
+                return False
 
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
-        if input_texture is None or input_texture == 0:
+            self._initialized = True
+            return True
+            
+        except Exception:
+            return False
+
+    def _compile_shader_fallback(self, vs: str, fs: str) -> int:
+        """Fallback compiler for direct OpenGL loading"""
+        vs_id = gl.glCreateShader(gl.GL_VERTEX_SHADER)
+        gl.glShaderSource(vs_id, vs)
+        gl.glCompileShader(vs_id)
+        if not gl.glGetShaderiv(vs_id, gl.GL_COMPILE_STATUS):
+            gl.glDeleteShader(vs_id)
             return 0
             
-        if self._mock_mode:
-            context.outputs["video_out"] = input_texture
+        fs_id = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
+        gl.glShaderSource(fs_id, fs)
+        gl.glCompileShader(fs_id)
+        if not gl.glGetShaderiv(fs_id, gl.GL_COMPILE_STATUS):
+            gl.glDeleteShader(vs_id)
+            gl.glDeleteShader(fs_id)
+            return 0
+            
+        prog = gl.glCreateProgram()
+        gl.glAttachShader(prog, vs_id)
+        gl.glAttachShader(prog, fs_id)
+        gl.glLinkProgram(prog)
+        
+        gl.glDeleteShader(vs_id)
+        gl.glDeleteShader(fs_id)
+        
+        if not gl.glGetProgramiv(prog, gl.GL_LINK_STATUS):
+            gl.glDeleteProgram(prog)
+            return 0
+            
+        return prog
+
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+        """Render the depth point cloud false color mapping."""
+        if not self._initialized or self.program == 0:
             return input_texture
 
-        try:
-            depth_in = context.inputs.get("depth_in", input_texture)
-
-            gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
-            w = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_WIDTH)
-            h = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_HEIGHT)
-            
-            # Resize FBO tex
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture)
-            tex_w = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_WIDTH)
-            if tex_w != w:
-                gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
-                gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
-                gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.texture, 0)
-                
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
-            gl.glViewport(0, 0, w, h)
-            gl.glClearColor(0, 0, 0, 1)
-            gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-            
-            # --- Pass 1: Blit Original Video ---
-            gl.glUseProgram(self.blit_prog)
-            gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
-            gl.glUniform1i(gl.glGetUniformLocation(self.blit_prog, "tex0"), 0)
-            
-            gl.glBindVertexArray(self.vao)
-            gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
-            gl.glBindVertexArray(0)
-            
-            # --- Pass 2: Render Point Cloud Over It ---
-            gl.glUseProgram(self.prog)
-            
-            # Enable blending for transparent points
-            gl.glEnable(gl.GL_BLEND)
-            gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
-            gl.glEnable(gl.GL_PROGRAM_POINT_SIZE)
-            
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex_width"), w)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex_height"), h)
-            gl.glUniform1f(gl.glGetUniformLocation(self.prog, "u_mix"), params.get("u_mix", 1.0))
-            
-            psize = 0.1 + (params.get("pointSize", 2.0) / 10.0) * 19.9
-            pdensity = 0.01 + (params.get("pointDensity", 1.0) / 10.0) * 0.99
-            dmin = 0.0 + (params.get("minDepth", 1.0) / 10.0) * 5.0
-            dmax = 0.0 + (params.get("maxDepth", 8.0) / 10.0) * 10.0
-            
-            gl.glUniform1f(gl.glGetUniformLocation(self.prog, "point_size"), psize)
-            gl.glUniform1f(gl.glGetUniformLocation(self.prog, "point_density"), pdensity)
-            gl.glUniform1f(gl.glGetUniformLocation(self.prog, "min_depth"), dmin)
-            gl.glUniform1f(gl.glGetUniformLocation(self.prog, "max_depth"), dmax)
-            
-            gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, depth_in)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_tex"), 0)
-            
-            gl.glBindVertexArray(self.point_vao)
-            vertex_count = w * h
-            gl.glDrawArrays(gl.GL_POINTS, 0, vertex_count)
-            gl.glBindVertexArray(0)
-            
-            gl.glDisable(gl.GL_PROGRAM_POINT_SIZE)
-            gl.glDisable(gl.GL_BLEND)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
-            
-            context.outputs["video_out"] = self.texture
-            return self.texture
-            
-        except Exception as e:
-            logger.error(f"Render failed in Depth Point Cloud: {e}")
+        has_gl = hasattr(gl, 'glBindFramebuffer')
+        if not has_gl:
             return input_texture
+            
+        # 1. Update Resolution
+        w = params.get("width", 1920)
+        h = params.get("height", 1080)
+        self._ensure_fbo(w, h)
+        
+        # 2. Get the depth map from context
+        depth_tex = 0
+        if context and hasattr(context, 'textures') and "depth_map" in context.textures:
+            depth_tex = context.textures["depth_map"]
+            
+        # 3. Render Pass
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glViewport(0, 0, w, h)
+        gl.glClearColor(0.0, 0.0, 0.0, 0.0)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+        
+        gl.glUseProgram(self.program)
+        
+        # Bind Texture 0: Original Video
+        gl.glActiveTexture(gl.GL_TEXTURE0)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
+        gl.glUniform1i(gl.glGetUniformLocation(self.program, "tex0"), 0)
+        
+        # Bind Texture 1: Depth Map 
+        has_depth_val = 0.0
+        if depth_tex > 0:
+            gl.glActiveTexture(gl.GL_TEXTURE1)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, depth_tex)
+            gl.glUniform1i(gl.glGetUniformLocation(self.program, "depth_tex"), 1)
+            has_depth_val = 1.0
+            
+        gl.glUniform1f(gl.glGetUniformLocation(self.program, "has_depth"), has_depth_val)
+        
+        # Mapping Uniforms
+        gl.glUniform1f(gl.glGetUniformLocation(self.program, "u_mix"), float(params.get("mix_amount", 1.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.program, "point_size"), float(params.get("point_size", 2.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.program, "min_depth"), float(params.get("min_depth", 1.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.program, "max_depth"), float(params.get("max_depth", 8.0)))
+        gl.glUniform2f(gl.glGetUniformLocation(self.program, "resolution"), float(w), float(h))
+        
+        # Draw Quad (assumes global quad is available or we bypass inside standard pipeline)
+        self._draw_quad()
+        
+        # Restore State
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+        gl.glUseProgram(0)
+        gl.glActiveTexture(gl.GL_TEXTURE0)
+        
+        return self.target_texture
 
-    def cleanup(self) -> None:
-        if not self._mock_mode:
-            try:
-                if self.texture is not None:
-                    gl.glDeleteTextures(1, [self.texture])
-                if self.fbo is not None:
-                    gl.glDeleteFramebuffers(1, [self.fbo])
-                if self.prog:
-                    gl.glDeleteProgram(self.prog)
-                if hasattr(self, 'blit_prog') and self.blit_prog:
-                    gl.glDeleteProgram(self.blit_prog)
-                if hasattr(self, 'vao') and self.vao:
-                    gl.glDeleteVertexArrays(1, [self.vao])
-                if hasattr(self, 'point_vao') and self.point_vao:
-                    gl.glDeleteVertexArrays(1, [self.point_vao])
-                if hasattr(self, 'vbo') and self.vbo:
-                    gl.glDeleteBuffers(1, [self.vbo])
-            except Exception as e:
-                logger.error(f"Error cleaning up FBOs/Textures during layout PointCloud unload: {e}")
-                
-        self.texture = None
-        self.fbo = None
+    def _ensure_fbo(self, w: int, h: int):
+        """Create or resize FBO."""
+        if self.width == w and self.height == h and self.fbo != 0:
+            return
+            
+        self.width = w
+        self.height = h
+        
+        if self.fbo != 0:
+            gl.glDeleteFramebuffers(1, [self.fbo])
+            gl.glDeleteTextures(1, [self.target_texture])
+            
+        self.fbo = gl.glGenFramebuffers(1)
+        self.target_texture = gl.glGenTextures(1)
+        
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.target_texture)
+        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.target_texture, 0)
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+
+    def _draw_quad(self):
+        """Draw fullscreen quad avoiding VAO dependencies for raw test harnesses"""
+        quad_vao = gl.glGenVertexArrays(1)
+        quad_vbo = gl.glGenBuffers(1)
+        
+        gl.glBindVertexArray(quad_vao)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, quad_vbo)
+        
+        # x, y, z, u, v
+        vertices = (gl.GLfloat * 20)(
+            -1.0, -1.0, 0.0, 0.0, 0.0,
+             1.0, -1.0, 0.0, 1.0, 0.0,
+            -1.0,  1.0, 0.0, 0.0, 1.0,
+             1.0,  1.0, 0.0, 1.0, 1.0
+        )
+        
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, ctypes.sizeof(vertices), vertices, gl.GL_STATIC_DRAW)
+        
+        # Position
+        gl.glVertexAttribPointer(0, 3, gl.GL_FLOAT, gl.GL_FALSE, 5 * ctypes.sizeof(gl.GLfloat), ctypes.c_void_p(0))
+        gl.glEnableVertexAttribArray(0)
+        # TexCoords
+        gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 5 * ctypes.sizeof(gl.GLfloat), ctypes.c_void_p(3 * ctypes.sizeof(gl.GLfloat)))
+        gl.glEnableVertexAttribArray(1)
+        
+        gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
+        
+        gl.glDeleteBuffers(1, [quad_vbo])
+        gl.glDeleteVertexArrays(1, [quad_vao])
+
+    def cleanup(self):
+        """Release OpenGL resources."""
+        if hasattr(gl, 'glDeleteProgram') and self.program != 0:
+            gl.glDeleteProgram(self.program)
+            self.program = 0
+            
+        if hasattr(gl, 'glDeleteFramebuffers') and self.fbo != 0:
+            gl.glDeleteFramebuffers(1, [self.fbo])
+            self.fbo = 0
+            
+        if hasattr(gl, 'glDeleteTextures') and self.target_texture != 0:
+            gl.glDeleteTextures(1, [self.target_texture])
+            self.target_texture = 0
+            
+        self._initialized = False
+
+def create_plugin() -> EffectPlugin:
+    return DepthPointCloudPlugin()

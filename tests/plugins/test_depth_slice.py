@@ -1,79 +1,114 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.depth_slice import DepthSlicePlugin, METADATA
 from vjlive3.plugins.api import PluginContext
+from vjlive3.plugins.depth_slice import DepthSlicePlugin
 
 def test_depth_slice_manifest():
-    """Validates plugin manifest structure and expected parameters."""
-    assert METADATA["name"] == "Depth Slice"
-    assert "num_slices" in [p["name"] for p in METADATA["parameters"]]
-    assert "video_in" in METADATA["inputs"]
-    assert "depth_in" in METADATA["inputs"]
-    assert "video_out" in METADATA["outputs"]
-    
     plugin = DepthSlicePlugin()
-    assert plugin.name == "Depth Slice"
-    assert plugin.params["num_slices"] == 8
+    meta = plugin.get_metadata()
+    
+    assert meta["name"] == "Depth Slice"
+    assert "video_in" in meta["inputs"]
+    assert "depth_in" in meta["inputs"]
+    assert "video_out" in meta["outputs"]
+    
+    param_names = [p["name"] for p in meta["parameters"]]
+    assert "num_slices" in param_names
+    assert "slice_thickness" in param_names
+    assert "color_shift" in param_names
+    assert "glitch_amount" in param_names
 
-def test_depth_slice_bypass():
-    """Bypasses gracefully when depth texture is absent."""
+def test_depth_slice_mock_bypass():
+    """Verify standard logic passing through straight when rendering system lacks OpenGL."""
     plugin = DepthSlicePlugin()
-    context = MagicMock(spec=PluginContext)
+    plugin._mock_mode = True
     
-    # Setup context returns: Video is present, Depth is NOT present
-    def get_texture_mock(name):
-        if name == "video_in":
-            return 42 # Fake GL texture ID
-        return None
-        
-    context.get_texture.side_effect = get_texture_mock
-    plugin.initialize(context)
-    plugin.process()
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 77, "depth_in": 99}
+    ctx.outputs = {}
     
-    # Should have called set_texture with video_out = 42 (passthrough)
-    context.set_texture.assert_called_with("video_out", 42)
+    res = plugin.process_frame(77, {}, ctx)
+    assert res == 77
+    assert ctx.outputs["video_out"] == 77
+    
+def test_depth_slice_empty_input_handled():
+    plugin = DepthSlicePlugin()
+    ctx = PluginContext(MagicMock())
+    res = plugin.process_frame(0, {}, ctx)
+    assert res == 0
 
-def test_depth_slice_processing_mock():
-    """Tests normal execution when both textures are present."""
+def test_depth_slice_gl_compilation_fallback():
     plugin = DepthSlicePlugin()
-    context = MagicMock(spec=PluginContext)
     
-    # Setup context returns: Both are present
-    def get_texture_mock(name):
-        if name == "video_in": return 42
-        if name == "depth_in": return 99
-        return None
+    with patch("vjlive3.plugins.depth_slice.gl") as mock_gl:
+        mock_gl.glGetShaderiv.return_value = 0 # GL_FALSE
+        plugin.initialize(PluginContext(MagicMock()))
         
-    def get_param_mock(name):
-        if name == "depth_slice.num_slices": return 16
-        if name == "depth_slice.slice_thickness": return 0.5
-        return None
-        
-    context.get_texture.side_effect = get_texture_mock
-    context.get_parameter.side_effect = get_param_mock
-    
-    plugin.initialize(context)
-    plugin.process()
-    
-    # Verify params were read and clamped/updated
-    assert plugin.params["num_slices"] == 16
-    assert plugin.params["slice_thickness"] == 0.5
-    
-    # Should have emitted a new output texture
-    context.set_texture.assert_called_with("video_out", 1042)
+        # Shader failed, safely entered mock isolated mode.
+        assert plugin._mock_mode is True
 
-def test_depth_slice_missing_everything():
+def test_depth_slice_fbo_cleanup_handling():
     plugin = DepthSlicePlugin()
-    context = MagicMock(spec=PluginContext)
-    context.get_texture.return_value = None
     
-    plugin.initialize(context)
-    plugin.process()
-    
-    # process returns early, no texture outputs
-    context.set_texture.assert_not_called()
-    
-def test_depth_slice_cleanup():
+    with patch("vjlive3.plugins.depth_slice.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 99
+        plugin.out_tex = 10
+        plugin.vao = 22
+        plugin.vbo = 33
+        plugin.prog = 44
+        
+        plugin.cleanup()
+        
+        mock_gl.glDeleteTextures.assert_any_call(1, [10])
+        mock_gl.glDeleteFramebuffers.assert_called_with(1, [99])
+        mock_gl.glDeleteVertexArrays.assert_called_with(1, [22])
+        mock_gl.glDeleteProgram.assert_called_with(44)
+        
+        assert plugin.out_tex is None
+
+def test_depth_slice_bypass_missing_depth():
+    """Missing depth natively passes through shader uniformly without slice computations."""
     plugin = DepthSlicePlugin()
-    plugin.cleanup() # shouldn't crash
+    
+    with patch("vjlive3.plugins.depth_slice.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 1
+        plugin.prog = 2
+        plugin.out_tex = 9
+        plugin.vao = 1
+        
+        ctx = PluginContext(MagicMock())
+        # Missing depth texture mapped intentionally 
+        ctx.inputs = {"video_in": 5}
+        ctx.outputs = {}
+        
+        # Identify the tracked uniform integer location proxy mapping
+        mock_gl.glGetUniformLocation.side_effect = lambda prog, name: name
+        
+        plugin.process_frame(5, {}, ctx)
+        
+        mock_gl.glUniform1i.assert_any_call("has_depth", 0)
+
+def test_depth_slice_full_pipeline_hit():
+    """Verify executing complete fragment shader process logic directly allocating FBOs naturally."""
+    plugin = DepthSlicePlugin()
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 1, "depth_in": 2}
+    ctx.outputs = {}
+    
+    with patch("vjlive3.plugins.depth_slice.gl") as mock_gl:
+        mock_gl.glGetShaderiv.return_value = 1 # GL_TRUE
+        mock_gl.glGetProgramiv.return_value = 1 # GL_TRUE
+        mock_gl.glGenTextures.return_value = 15 
+        
+        plugin._mock_mode = False
+        plugin.initialize(ctx)
+        
+        res = plugin.process_frame(1, {"num_slices": 10}, ctx)
+        
+        assert plugin._mock_mode is False
+        assert mock_gl.glDrawArrays.called
+        assert res == 15
+        assert ctx.outputs["video_out"] == 15

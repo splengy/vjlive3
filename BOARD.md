@@ -927,7 +927,7 @@
 | P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT034_depth_dual_effect.md` |
 | P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT035_depth_edge_glow_effect.md` |
 | P3-VD36 | Depth Effects (DepthEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT036_depth_effects_effect.md` |
-| P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT037_depth_effects_point_cloud_effect.md` |
+| P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT037_depth_effects_point_cloud_effect.md` |
 | P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT038_depth_effects_point_cloud_3d_effect.md` |
 | P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT039_depth_effects_mesh_effect.md` |
 | P3-VD40 | Depth Effects (DepthContourEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT040_depth_effects_contour_effect.md` |
@@ -959,6 +959,7 @@
 | P3-VD66 | Depth Slitscan Datamosh (DepthSlitScanDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT066_depth_slitscan_datamosh_effect.md` |
 | P3-VD67 | Depth Temporal Echo (DepthTemporalEchoEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT067_depth_temporal_echo_effect.md` |
 | P3-VD68 | Depth Temporal Strat (DepthTemporalStratEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT068_depth_temporal_strat_effect.md` |
+| P3-VD05 | Depth Slice (DepthSliceEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_slice.py` — DepthSlicePlugin, 7/7 tests ✅ 2026-02-22 |
 | P3-VD69 | Depth Vector Field Datamosh (DepthVectorFieldDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT069_depth_vector_field_datamosh_effect.md` |
 | P3-VD70 | Depth Video Projection (DepthVideoProjectionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT070_depth_video_projection_effect.md` |
 | P3-VD71 | Depth Void Datamosh (DepthVoidDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT071_depth_void_datamosh_effect.md` |
