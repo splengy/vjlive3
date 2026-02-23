@@ -1,432 +1,355 @@
-import os
-import logging
-from typing import Dict, Any, Optional
 import numpy as np
+import logging
 
-from vjlive3.plugins.api import EffectPlugin, PluginContext
-
-logger = logging.getLogger(__name__)
-
-# Mock GL for headless pytests via environment flag injection
 try:
-    if os.environ.get("PYTEST_MOCK_GL"):
-        raise ImportError("Forced MOCK GL for pytest")
     import OpenGL.GL as gl
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-    gl = None
+
+from typing import Dict, Any
+from vjlive3.plugins.api import EffectPlugin, PluginContext
+
+logger = logging.getLogger(__name__)
+
+METADATA = {
+    "name": "DepthDual",
+    "version": "3.0.0",
+    "description": "Composite two depth effects with blending",
+    "author": "VJLive3 Team",
+    "license": "GPLv3",
+    "plugin_type": "depth_effect",
+    "category": "composite",
+    "tags": ["depth", "dual", "composite", "blend"],
+    "priority": 1,
+    "dependencies": ["DepthBuffer"],
+    "incompatible": ["NoDepthSupport"],
+    "inputs": ["video_in", "depth_in"],
+    "outputs": ["video_out"],
+    "parameters": [
+        {"name": "effect_a_type", "type": "str", "default": "blur", "options": ["blur", "color_grade", "distortion", "none"]},
+        {"name": "effect_b_type", "type": "str", "default": "color_grade", "options": ["blur", "color_grade", "distortion", "none"]},
+        {"name": "blend_mode", "type": "str", "default": "depth", "options": ["depth", "uniform", "radial", "custom"]},
+        {"name": "blend_threshold", "type": "float", "default": 0.5, "min": 0.0, "max": 1.0},
+        {"name": "blend_transition", "type": "float", "default": 0.2, "min": 0.0, "max": 0.5},
+        {"name": "effect_a_params", "type": "dict", "default": {}},
+        {"name": "effect_b_params", "type": "dict", "default": {}},
+        {"name": "invert_blend", "type": "bool", "default": False}
+    ]
+}
+
+VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec2 texcoord;
+out vec2 uv;
+void main() {
+    uv = texcoord;
+    gl_Position = vec4(position, 0.0, 1.0);
+}
+"""
 
 DEPTH_DUAL_FRAGMENT = """
 #version 330 core
-in vec2 v_uv;
+in vec2 uv;
 out vec4 fragColor;
 
-uniform sampler2D tex0;           // Primary video
-uniform sampler2D texPrev;        // Feedback loop
-uniform sampler2D depth_a;        // Depth camera A
-uniform sampler2D depth_b;        // Depth camera B
-uniform float time;
+uniform sampler2D tex0;
+uniform sampler2D depth_tex;
 uniform vec2 resolution;
-uniform float u_mix;
 
-// Core
-uniform float interaction_mode;    // Which dual-depth interaction (0-10 maps to 6 modes)
-uniform float interaction_amount;  // Intensity of the interaction
-uniform float depth_align;         // Alignment offset between two depth maps
-uniform float depth_scale_b;       // Scale compensation for depth B (different ranges)
+uniform int effect_a_type; // 0=none, 1=blur, 2=color_grade, 3=distortion
+uniform int effect_b_type;
+uniform int blend_mode; // 0=depth, 1=uniform, 2=radial, 3=custom (maps to uniform)
+uniform float blend_threshold;
+uniform float blend_transition;
+uniform bool invert_blend;
 
-// Collision
-uniform float collision_glow;      // Glow at collision surfaces
-uniform float collision_width;     // Width of collision detection zone
-uniform float collision_hue;       // Color of collision visualization
-
-// Interference
-uniform float interference_freq;   // Interference pattern frequency
-uniform float interference_phase;  // Phase offset between depth waves
-
-// Volume
-uniform float volume_density;      // Volumetric rendering density
-uniform float volume_absorption;   // Light absorption in volume
-
-// Visual
-uniform float edge_enhance;        // Enhanced edges from dual-depth
-uniform float color_depth_a;       // Color tint from depth A
-uniform float color_depth_b;       // Color tint from depth B
-uniform float feedback;            // Temporal feedback
+uniform vec4 params_a;
+uniform vec4 params_b;
 
 vec3 hsv2rgb(vec3 c) {
     vec3 p = abs(fract(c.xxx + vec3(1.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
     return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
 }
 
-// Sobel edge on a depth texture
-float depth_edge(sampler2D dtex, vec2 p) {
-    float t = 1.5 / max(resolution.x, 1.0);
-    float ml = texture(dtex, p + vec2(-t, 0)).r;
-    float mr = texture(dtex, p + vec2( t, 0)).r;
-    float mu = texture(dtex, p + vec2(0, -t)).r;
-    float md = texture(dtex, p + vec2(0,  t)).r;
-    return length(vec2(mr - ml, md - mu));
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 apply_effect(int type, vec3 color, vec4 params, vec2 uv_coord) {
+    if (type == 0) return color; // none
+    
+    if (type == 1) { // blur (params_x = radius proxy 0-1)
+        int r = int(params.x * 20.0);
+        if (r <= 0) return color;
+        vec3 blurred = vec3(0.0);
+        float total = 0.0;
+        for (int x = -r; x <= r; x++) {
+            for (int y = -r; y <= r; y++) {
+                vec2 offset = vec2(float(x), float(y)) / resolution;
+                float w = 1.0 / (1.0 + float(abs(x) + abs(y)));
+                blurred += texture(tex0, clamp(uv_coord + offset, 0.0, 1.0)).rgb * w;
+                total += w;
+            }
+        }
+        return blurred / total;
+    }
+    
+    if (type == 2) { // color_grade (xyz = tint, w = intensity)
+        vec3 tint = params.xyz;
+        if(length(tint) < 0.001) tint = vec3(1.0);
+        return mix(color, color * tint * 1.5, params.w);
+    }
+    
+    if (type == 3) { // distortion (x = freq, y = amplitude)
+        vec2 d = vec2(sin(uv_coord.y * params.x * 20.0), cos(uv_coord.x * params.x * 20.0)) * params.y * 0.05;
+        return texture(tex0, clamp(uv_coord + d, 0.0, 1.0)).rgb;
+    }
+    
+    return color;
 }
 
 void main() {
-    vec4 source = texture(tex0, v_uv);
-    vec4 previous = texture(texPrev, v_uv);
-
-    // Read both depth maps
-    float dA = texture(depth_a, v_uv).r;
-    float dB = texture(depth_b, v_uv + vec2(depth_align * 0.1, 0.0)).r;
-
-    // Scale compensation
-    dB *= depth_scale_b;
-
-    // Depth difference and relationship
-    float diff = abs(dA - dB);
-    float avg = (dA + dB) * 0.5;
-    float min_d = min(dA, dB);
-    float max_d = max(dA, dB);
-
-    float edgeA = depth_edge(depth_a, v_uv);
-    float edgeB = depth_edge(depth_b, v_uv + vec2(depth_align * 0.1, 0.0));
-    float dual_edge = max(edgeA, edgeB);
-
-    float bass = pow(abs(sin(time * 2.5)), 4.0);
-    float mode = interaction_mode;
-    vec3 result = source.rgb;
-
-    // ====== MODE 0: COLLISION ======
-    if (mode < 1.7) {
-        float collision_zone = smoothstep(collision_width * 0.1, 0.0, diff);
-        vec3 coll_color = hsv2rgb(vec3(
-            collision_hue + time * 0.1,
-            0.8,
-            collision_zone * collision_glow * 2.0
-        ));
-        result = mix(source.rgb, source.rgb + coll_color, collision_zone * interaction_amount);
-        
-        float coll_edge = smoothstep(0.02, 0.0, abs(diff - collision_width * 0.05));
-        result += coll_color * coll_edge * 0.5;
+    float depth = texture(depth_tex, uv).r;
+    vec3 color = texture(tex0, uv).rgb;
+    
+    // Calculate blend weight
+    float weight = 0.0;
+    float trans = max(blend_transition, 0.001); // Prevent div-by-zero
+    
+    if (blend_mode == 0) { // depth
+        weight = smoothstep(blend_threshold - trans, blend_threshold + trans, depth);
+    } else if (blend_mode == 1 || blend_mode == 3) { // uniform / custom
+        weight = blend_threshold;
+    } else if (blend_mode == 2) { // radial
+        float dist = length(uv - 0.5) * 2.0; // 0 at center, 1 at edges
+        weight = smoothstep(blend_threshold - trans, blend_threshold + trans, dist);
     }
-    // ====== MODE 1: INTERFERENCE ======
-    else if (mode < 3.3) {
-        float wave_a = sin(dA * interference_freq * 30.0 + time * 2.0);
-        float wave_b = sin(dB * interference_freq * 30.0 + time * 2.0 + interference_phase * 6.283);
-        
-        float constructive = (wave_a + wave_b) * 0.5;
-        float destructive = abs(wave_a - wave_b) * 0.5;
-        
-        vec3 int_color = hsv2rgb(vec3(
-            constructive * 0.3 + time * 0.05,
-            0.7 + destructive * 0.3,
-            0.5 + constructive * 0.5
-        ));
-        
-        float pattern = constructive * constructive;
-        result = mix(source.rgb, int_color, pattern * interaction_amount * 0.7);
-        
-        float standing = smoothstep(0.1, 0.0, abs(constructive)) * smoothstep(0.1, 0.0, abs(destructive));
-        result += vec3(standing * 0.3) * interaction_amount;
+    
+    if (invert_blend) {
+        weight = 1.0 - weight;
     }
-    // ====== MODE 2: DIFFERENCE ======
-    else if (mode < 5.0) {
-        float disagree = smoothstep(0.01, 0.15, diff);
-        vec3 diff_color = (dA < dB) ? 
-            hsv2rgb(vec3(color_depth_a, 0.9, 0.8 + disagree * 0.2)) : 
-            hsv2rgb(vec3(color_depth_b, 0.9, 0.8 + disagree * 0.2));
-            
-        result = mix(source.rgb, diff_color, disagree * interaction_amount * 0.6);
-        float strong_disagree = smoothstep(0.1, 0.3, diff);
-        result += diff_color * strong_disagree * 0.3 * bass;
-    }
-    // ====== MODE 3: VOLUMETRIC ======
-    else if (mode < 6.7) {
-        float solidity = 1.0 - smoothstep(0.0, 0.1 * volume_density, diff);
-        float thickness = max_d - min_d;
-        float absorption = exp(-thickness * volume_absorption * 10.0);
-        
-        vec3 vol_color = source.rgb * absorption;
-        vol_color *= 1.0 + solidity * 0.5;
-        
-        float vol_edge = smoothstep(0.02, 0.08, diff) * smoothstep(0.15, 0.08, diff);
-        vec3 edge_glow = hsv2rgb(vec3(avg + time * 0.1, 0.7, 1.0));
-        vol_color += edge_glow * vol_edge * interaction_amount;
-        
-        result = mix(source.rgb, vol_color, interaction_amount);
-    }
-    // ====== MODE 4: XOR ======
-    else if (mode < 8.3) {
-        float occ_a = smoothstep(0.02, 0.1, dB - dA);
-        float occ_b = smoothstep(0.02, 0.1, dA - dB);
-        float xor_mask = abs(occ_a - occ_b);
-        
-        vec3 xor_color = source.rgb;
-        xor_color = mix(xor_color, xor_color * hsv2rgb(vec3(color_depth_a, 0.6, 1.2)), occ_a * interaction_amount);
-        xor_color = mix(xor_color, xor_color * hsv2rgb(vec3(color_depth_b, 0.6, 1.2)), occ_b * interaction_amount);
-        
-        float xor_edge = smoothstep(0.08, 0.05, abs(occ_a - occ_b));
-        xor_color += vec3(xor_edge * 0.3) * interaction_amount;
-        result = xor_color;
-    }
-    // ====== MODE 5: PARALLAX ======
-    else {
-        float disparity = (dA - dB);
-        float shift_amount = disparity * interaction_amount * 0.05;
-        vec2 shifted_uv = clamp(v_uv + vec2(shift_amount, 0.0), 0.001, 0.999);
-        
-        vec4 shifted = texture(tex0, shifted_uv);
-        result.r = source.r;
-        result.g = shifted.g;
-        result.b = shifted.b;
-        
-        vec3 parallax_tint = hsv2rgb(vec3(avg * 0.5 + time * 0.05, 0.3, 1.0));
-        result = mix(result, result * parallax_tint, abs(disparity) * 2.0);
-    }
-
-    if (edge_enhance > 0.0) {
-        float combined_edge = edgeA + edgeB;
-        float exclusive_edge = abs(edgeA - edgeB);
-        vec3 edge_color = hsv2rgb(vec3(time * 0.1 + avg, 0.8, 1.0));
-        result += edge_color * combined_edge * edge_enhance * 3.0;
-        result += vec3(1.0, 0.5, 0.0) * exclusive_edge * edge_enhance * 2.0;
-    }
-
-    if (feedback > 0.0) {
-        float fb = feedback * (0.3 + avg * 0.4);
-        result = mix(result, previous.rgb, clamp(fb, 0.0, 0.9));
-    }
-
-    fragColor = mix(source, vec4(clamp(result, 0.0, 1.5), 1.0), u_mix);
+    
+    vec3 result_a = apply_effect(effect_a_type, color, params_a, uv);
+    vec3 result_b = apply_effect(effect_b_type, color, params_b, uv);
+    
+    vec3 composite = mix(result_a, result_b, weight);
+    fragColor = vec4(clamp(composite, 0.0, 1.0), 1.0);
 }
 """
 
-METADATA = {
-    "name": "Depth Dual",
-    "description": "Six interaction modes for mapping stereo depth fields: Collision, Interference, Difference, Volumetric, XOR, Parallax.",
-    "version": "1.0.0",
-    "author": "Antigravity",
-    "category": "Visual Depth",
-    "tags": ["dual", "depth", "stereo", "parallax"],
-    "status": "active",
-    "parameters": [
-        {"name": "interactionMode", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "interactionAmount", "type": "float", "min": 0.0, "max": 10.0, "default": 6.0},
-        {"name": "depthAlign", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "depthScaleB", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "collisionGlow", "type": "float", "min": 0.0, "max": 10.0, "default": 6.0},
-        {"name": "collisionWidth", "type": "float", "min": 0.0, "max": 10.0, "default": 4.0},
-        {"name": "collisionHue", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "interferenceFreq", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "interferencePhase", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0},
-        {"name": "volumeDensity", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "volumeAbsorption", "type": "float", "min": 0.0, "max": 10.0, "default": 4.0},
-        {"name": "edgeEnhance", "type": "float", "min": 0.0, "max": 10.0, "default": 4.0},
-        {"name": "colorDepthA", "type": "float", "min": 0.0, "max": 10.0, "default": 2.0},
-        {"name": "colorDepthB", "type": "float", "min": 0.0, "max": 10.0, "default": 6.0},
-        {"name": "feedback", "type": "float", "min": 0.0, "max": 10.0, "default": 3.0},
-        {"name": "u_mix", "type": "float", "min": 0.0, "max": 1.0, "default": 1.0}
-    ],
-    "inputs": ["video_in", "depth_in_a", "depth_in_b"],
-    "outputs": ["video_out"]
-}
-
-
 class DepthDualPlugin(EffectPlugin):
-    """P3-VD34: Depth Dual effect port mapping VJlive-2 dual depth patterns to VJLive3."""
-    
-    def __init__(self) -> None:
+    """
+    DepthDual compositing node for VJLive3.
+    Applies up to two distinct nested VFX configurations (A and B) and maps them topographically using a unified fragment shader evaluating smoothstep distributions safely.
+    """
+    def __init__(self):
         super().__init__()
         self._mock_mode = not HAS_GL
         self.prog = None
-        self.ping_pong = 0
-        self.time = 0.0
-        
-        self.textures: Dict[str, Optional[int]] = {"feedback_0": None, "feedback_1": None}
-        self.fbos: Dict[str, Optional[int]] = {"feedback_0": None, "feedback_1": None}
+        self.out_tex = None
+        self.fbo = None
+        self.vao = None
+        self.vbo = None
 
-    def _compile_shader(self):
-        if not HAS_GL: return None
-        try:
-            vertex = gl.glCreateShader(gl.GL_VERTEX_SHADER)
-            gl.glShaderSource(vertex, "#version 330 core\\nlayout(location=0) in vec2 pos; layout(location=1) in vec2 uv; out vec2 v_uv; void main() { gl_Position = vec4(pos, 0.0, 1.0); v_uv = uv; }")
-            gl.glCompileShader(vertex)
-            
-            fragment = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
-            gl.glShaderSource(fragment, DEPTH_DUAL_FRAGMENT)
-            gl.glCompileShader(fragment)
-            
-            if gl.glGetShaderiv(fragment, gl.GL_COMPILE_STATUS) != gl.GL_TRUE:
-                logger.error(f"Fragment compile failed: {gl.glGetShaderInfoLog(fragment)}")
-                return None
-                
-            prog = gl.glCreateProgram()
-            gl.glAttachShader(prog, vertex)
-            gl.glAttachShader(prog, fragment)
-            gl.glLinkProgram(prog)
-            return prog
-        except Exception as e:
-            logger.error(f"Failed to compile shader locally: {e}")
-            return None
+    def get_metadata(self) -> Dict[str, Any]:
+        return METADATA
 
     def initialize(self, context: PluginContext) -> None:
-        super().initialize(context)
+        if self._mock_mode:
+            return
+
+        try:
+            self._compile_shader()
+            self._setup_quad()
+            self._setup_fbo(1920, 1080)
+        except Exception as e:
+            logger.error(f"Failed to initialize OpenGL in DepthDual: {e}")
+            self._mock_mode = True
+
+    def _compile_shader(self):
+        vs = gl.glCreateShader(gl.GL_VERTEX_SHADER)
+        gl.glShaderSource(vs, VERTEX_SHADER)
+        gl.glCompileShader(vs)
+        if not gl.glGetShaderiv(vs, gl.GL_COMPILE_STATUS):
+            raise RuntimeError(f"VS Error: {gl.glGetShaderInfoLog(vs)}")
+
+        fs = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
+        gl.glShaderSource(fs, DEPTH_DUAL_FRAGMENT)
+        gl.glCompileShader(fs)
+        if not gl.glGetShaderiv(fs, gl.GL_COMPILE_STATUS):
+            raise RuntimeError(f"FS Error: {gl.glGetShaderInfoLog(fs)}")
+
+        self.prog = gl.glCreateProgram()
+        gl.glAttachShader(self.prog, vs)
+        gl.glAttachShader(self.prog, fs)
+        gl.glLinkProgram(self.prog)
+        if not gl.glGetProgramiv(self.prog, gl.GL_LINK_STATUS):
+            raise RuntimeError(f"Program Link Error: {gl.glGetProgramInfoLog(self.prog)}")
+            
+        gl.glDeleteShader(vs)
+        gl.glDeleteShader(fs)
+
+    def _setup_quad(self):
+        vertices = np.array([
+            -1.0, -1.0,  0.0, 0.0,
+             1.0, -1.0,  1.0, 0.0,
+            -1.0,  1.0,  0.0, 1.0,
+             1.0,  1.0,  1.0, 1.0,
+        ], dtype=np.float32)
+        
+        self.vao = gl.glGenVertexArrays(1)
+        self.vbo = gl.glGenBuffers(1)
+        
+        gl.glBindVertexArray(self.vao)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vbo)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices.nbytes, vertices, gl.GL_STATIC_DRAW)
+        
+        gl.glEnableVertexAttribArray(0)
+        gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(0))
+        gl.glEnableVertexAttribArray(1)
+        gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(8))
+        gl.glBindVertexArray(0)
+
+    def _setup_fbo(self, w: int, h: int):
+        self.fbo = gl.glGenFramebuffers(1)
+        self.out_tex = gl.glGenTextures(1)
+        
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.out_tex)
+        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.out_tex, 0)
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+
+    def _parse_params_to_vec4(self, e_type: str, p_dict: dict) -> list[float]:
+        if not isinstance(p_dict, dict):
+            p_dict = {}
+            
+        if e_type == "blur":
+            r = float(p_dict.get("radius", 0.5))
+            return [r, 0.0, 0.0, 0.0]
+        elif e_type == "color_grade":
+            tint = p_dict.get("tint", [1.0, 1.0, 1.0])
+            if not isinstance(tint, list) or len(tint) < 3: tint = [1.0, 1.0, 1.0]
+            intensity = float(p_dict.get("intensity", 0.5))
+            return [float(tint[0]), float(tint[1]), float(tint[2]), intensity]
+        elif e_type == "distortion":
+            f = float(p_dict.get("frequency", 0.5))
+            a = float(p_dict.get("amplitude", 0.2))
+            return [f, a, 0.0, 0.0]
+            
+        return [0.0, 0.0, 0.0, 0.0]
+
+    def _bind_uniforms(self, params: Dict[str, Any], w: int, h: int):
+        # Type A mapping
+        ea_str = params.get("effect_a_type", "blur")
+        ea_idx = 0
+        if ea_str == "blur": ea_idx = 1
+        elif ea_str == "color_grade": ea_idx = 2
+        elif ea_str == "distortion": ea_idx = 3
+        
+        # Type B mapping
+        eb_str = params.get("effect_b_type", "color_grade")
+        eb_idx = 0
+        if eb_str == "blur": eb_idx = 1
+        elif eb_str == "color_grade": eb_idx = 2
+        elif eb_str == "distortion": eb_idx = 3
+        
+        # Blending mode mapping
+        b_mode_str = params.get("blend_mode", "depth")
+        b_idx = 0
+        if b_mode_str == "uniform": b_idx = 1
+        elif b_mode_str == "radial": b_idx = 2
+        elif b_mode_str == "custom": b_idx = 3
+        
+        # Map sub dictionaries to static arrays
+        dict_a = params.get("effect_a_params", {})
+        dict_b = params.get("effect_b_params", {})
+        v4_a = self._parse_params_to_vec4(ea_str, dict_a)
+        v4_b = self._parse_params_to_vec4(eb_str, dict_b)
+        
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "effect_a_type"), ea_idx)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "effect_b_type"), eb_idx)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "blend_mode"), b_idx)
+        
+        gl.glUniform2f(gl.glGetUniformLocation(self.prog, "resolution"), float(w), float(h))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "blend_threshold"), float(params.get("blend_threshold", 0.5)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "blend_transition"), float(params.get("blend_transition", 0.2)))
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "invert_blend"), 1 if params.get("invert_blend", False) else 0)
+        
+        gl.glUniform4f(gl.glGetUniformLocation(self.prog, "params_a"), v4_a[0], v4_a[1], v4_a[2], v4_a[3])
+        gl.glUniform4f(gl.glGetUniformLocation(self.prog, "params_b"), v4_b[0], v4_b[1], v4_b[2], v4_b[3])
+
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+        if not input_texture or input_texture <= 0:
+             return 0
+             
+        depth_texture = getattr(context, "inputs", {}).get("depth_in", input_texture)
+        
+        if self._mock_mode:
+            if hasattr(context, "outputs"):
+                context.outputs["video_out"] = input_texture
+            return input_texture
+            
+        w, h = getattr(context, 'width', 1920), getattr(context, 'height', 1080)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glViewport(0, 0, w, h)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+        
+        gl.glUseProgram(self.prog)
+        
+        gl.glActiveTexture(gl.GL_TEXTURE0)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex0"), 0)
+        
+        gl.glActiveTexture(gl.GL_TEXTURE1)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, depth_texture)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_tex"), 1)
+        
+        self._bind_uniforms(params, w, h)
+        
+        gl.glBindVertexArray(self.vao)
+        gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
+        gl.glBindVertexArray(0)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+        
+        if hasattr(context, "outputs"):
+            context.outputs["video_out"] = self.out_tex
+            
+        return self.out_tex
+
+    def cleanup(self) -> None:
         if self._mock_mode:
             return
             
         try:
-            self.prog = self._compile_shader()
-            if not self.prog:
-                self._mock_mode = True
-                return
-
-            tex_ids = gl.glGenTextures(2)
-            fbo_ids = gl.glGenFramebuffers(2)
-            if isinstance(tex_ids, int): tex_ids = [tex_ids, tex_ids+1]
-            if isinstance(fbo_ids, int): fbo_ids = [fbo_ids, fbo_ids+1]
-                
-            for i, key in enumerate(self.textures.keys()):
-                self.textures[key] = tex_ids[i]
-                self.fbos[key] = fbo_ids[i]
-                
-            self.vao = gl.glGenVertexArrays(1)
-            self.vbo = gl.glGenBuffers(1)
-            gl.glBindVertexArray(self.vao)
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vbo)
-            
-            quad_data = np.array([
-                -1.0, -1.0,  0.0, 0.0,
-                 1.0, -1.0,  1.0, 0.0,
-                -1.0,  1.0,  0.0, 1.0,
-                 1.0,  1.0,  1.0, 1.0
-            ], dtype=np.float32)
-            
-            gl.glBufferData(gl.GL_ARRAY_BUFFER, quad_data.nbytes, quad_data, gl.GL_STATIC_DRAW)
-            gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(0))
-            gl.glEnableVertexAttribArray(0)
-            gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(8))
-            gl.glEnableVertexAttribArray(1)
-            gl.glBindVertexArray(0)
-            
+            if self.out_tex:
+                gl.glDeleteTextures(1, [self.out_tex])
+                self.out_tex = None
+            if self.fbo:
+                gl.glDeleteFramebuffers(1, [self.fbo])
+                self.fbo = None
+            if self.vbo:
+                gl.glDeleteBuffers(1, [self.vbo])
+                self.vbo = None
+            if self.vao:
+                gl.glDeleteVertexArrays(1, [self.vao])
+                self.vao = None
+            if self.prog:
+                gl.glDeleteProgram(self.prog)
+                self.prog = None
         except Exception as e:
-            logger.warning(f"Failed to initialize GL FBOs inside DepthDualPlugin: {e}")
-            self._mock_mode = True
-
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
-        if input_texture is None or input_texture == 0:
-            return 0
-            
-        self.time += 0.016
-            
-        if self._mock_mode:
-            context.outputs["video_out"] = input_texture
-            return input_texture
-
-        try:
-            depth_in_a = context.inputs.get("depth_in_a", input_texture)
-            depth_in_b = context.inputs.get("depth_in_b", input_texture)
-
-            gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
-            w = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_WIDTH)
-            h = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_HEIGHT)
-            
-            # Ping-pong for temporal feedback
-            current_fbo = self.fbos[f"feedback_{1 - self.ping_pong}"]
-            current_tex = self.textures[f"feedback_{1 - self.ping_pong}"]
-            prev_tex = self.textures[f"feedback_{self.ping_pong}"]
-            
-            gl.glBindTexture(gl.GL_TEXTURE_2D, current_tex)
-            tex_w = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_WIDTH)
-            if tex_w != w:
-                for k in ["feedback_0", "feedback_1"]:
-                    gl.glBindTexture(gl.GL_TEXTURE_2D, self.textures[k])
-                    gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
-                    gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-                    gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbos[k])
-                    gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.textures[k], 0)
-                
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, current_fbo)
-            gl.glViewport(0, 0, w, h)
-            
-            gl.glUseProgram(self.prog)
-            self._bind_uniforms(params, w, h)
-            
-            # Textures
-            gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex0"), 0)
-            
-            gl.glActiveTexture(gl.GL_TEXTURE1)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, prev_tex)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "texPrev"), 1)
-            
-            gl.glActiveTexture(gl.GL_TEXTURE2)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, depth_in_a)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_a"), 2)
-            
-            gl.glActiveTexture(gl.GL_TEXTURE3)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, depth_in_b)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_b"), 3)
-            
-            gl.glBindVertexArray(self.vao)
-            gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
-            gl.glBindVertexArray(0)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
-            
-            self.ping_pong = 1 - self.ping_pong
-            context.outputs["video_out"] = current_tex
-            return current_tex
-            
-        except Exception as e:
-            logger.error(f"Render failed in Depth Dual: {e}")
-            return input_texture
-
-    def _map_param(self, params, name, out_min, out_max, default_val):
-        val = params.get(name, default_val)
-        return out_min + (val / 10.0) * (out_max - out_min)
-
-    def _bind_uniforms(self, params, w, h):
-        gl.glUniform2f(gl.glGetUniformLocation(self.prog, "resolution"), float(w), float(h))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "time"), float(self.time))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "u_mix"), params.get("u_mix", 1.0))
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "interaction_mode"), self._map_param(params, 'interactionMode', 0.0, 10.0, 0.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "interaction_amount"), self._map_param(params, 'interactionAmount', 0.0, 1.0, 6.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "depth_align"), self._map_param(params, 'depthAlign', -0.5, 0.5, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "depth_scale_b"), self._map_param(params, 'depthScaleB', 0.5, 2.0, 5.0))
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "collision_glow"), self._map_param(params, 'collisionGlow', 0.0, 1.0, 6.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "collision_width"), self._map_param(params, 'collisionWidth', 0.0, 1.0, 4.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "collision_hue"), self._map_param(params, 'collisionHue', 0.0, 1.0, 5.0))
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "interference_freq"), self._map_param(params, 'interferenceFreq', 0.0, 1.0, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "interference_phase"), self._map_param(params, 'interferencePhase', 0.0, 1.0, 0.0))
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "volume_density"), self._map_param(params, 'volumeDensity', 0.0, 1.0, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "volume_absorption"), self._map_param(params, 'volumeAbsorption', 0.0, 1.0, 4.0))
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "edge_enhance"), self._map_param(params, 'edgeEnhance', 0.0, 1.0, 4.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "color_depth_a"), self._map_param(params, 'colorDepthA', 0.0, 1.0, 2.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "color_depth_b"), self._map_param(params, 'colorDepthB', 0.0, 1.0, 6.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "feedback"), self._map_param(params, 'feedback', 0.0, 1.0, 3.0))
-
-    def cleanup(self) -> None:
-        if not self._mock_mode:
-            try:
-                textures_to_delete = [t for t in self.textures.values() if t is not None]
-                if textures_to_delete:
-                    gl.glDeleteTextures(len(textures_to_delete), textures_to_delete)
-                fbos_to_delete = [f for f in self.fbos.values() if f is not None]
-                if fbos_to_delete:
-                    gl.glDeleteFramebuffers(len(fbos_to_delete), fbos_to_delete)
-                if self.prog:
-                    gl.glDeleteProgram(self.prog)
-                if hasattr(self, 'vao') and self.vao:
-                    gl.glDeleteVertexArrays(1, [self.vao])
-                if hasattr(self, 'vbo') and self.vbo:
-                    gl.glDeleteBuffers(1, [self.vbo])
-            except Exception as e:
-                logger.error(f"Error cleaning up FBOs/Textures during DepthDual unload: {e}")
-                
-        for k in self.textures:
-            self.textures[k] = None
-            self.fbos[k] = None
+            logger.error(f"Cleanup Error in DepthDual: {e}")

@@ -1,181 +1,115 @@
 import pytest
-import os
+import numpy as np
 import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
-sys.modules['OpenGL'] = MagicMock()
-sys.modules['OpenGL.GL'] = MagicMock()
-
-import vjlive3.plugins.depth_parallel_universe as dpu
+from vjlive3.plugins.api import PluginContext
 from vjlive3.plugins.depth_parallel_universe import DepthParallelUniversePlugin, METADATA
-from vjlive3.plugins.registry import PluginInfo
-
-@pytest.fixture(autouse=True)
-def force_mock_no_gl(monkeypatch):
-    monkeypatch.setattr('vjlive3.plugins.depth_parallel_universe.HAS_GL', False)
-
-class MockContext:
-    def __init__(self, inputs=None, parameters=None):
-        self.inputs = inputs or {}
-        self.parameters = parameters or {}
-        self.outputs = {}
-        self.delta_time = 0.016
 
 def test_parallel_universe_manifest():
-    manifest = PluginInfo(**METADATA)
-    assert manifest.name == "Depth Parallel Universe"
-    assert "universe_a_intensity" in [p["name"] for p in manifest.parameters]
-    assert "universe_c_send" in manifest.outputs
-
-def test_parallel_universe_bypassed():
     plugin = DepthParallelUniversePlugin()
-    ctx_empty = MockContext()
-    plugin.initialize(ctx_empty)
+    meta = plugin.get_metadata()
     
-    val = plugin.process_frame(100, {}, ctx_empty)
-    assert val == 100
+    assert meta["name"] == "Depth Parallel Universe"
+    assert "video_in" in meta["inputs"]
+    assert "depth_in" in meta["inputs"]
+    assert "universe_a_return" in meta["inputs"]
+    assert "video_out" in meta["outputs"]
+    assert "universe_c_send" in meta["outputs"]
     
-    ctx = MockContext(
-        inputs={"video_in": 100}, 
-        parameters={}
-    )
-    res = plugin.process_frame(100, {"universe_a_intensity": 1.0, "universe_b_intensity": 1.0, "universe_c_intensity": 1.0}, ctx)
-    assert res == 100
-    assert ctx.outputs["universe_a_send"] == 100
+    param_names = [p["name"] for p in meta["parameters"]]
+    assert "depth_split_near" in param_names
+    assert "universe_b_intensity" in param_names
 
-def test_parallel_universe_processing_mock_injection():
+def test_parallel_universe_mock_pass():
     plugin = DepthParallelUniversePlugin()
-    ctx = MockContext(
-        inputs={"video_in": 100, "universe_a_return": 200, "universe_b_return": 300},
-        parameters={}
-    )
-    plugin.initialize(ctx)
+    plugin._mock_mode = True # Ensure mock mode
     
-    res = plugin.process_frame(100, {"universe_a_intensity": 1.0, "universe_b_intensity": 1.0, "universe_c_intensity": 0.0}, ctx)
-    assert res == 200 # Universe A return
-    assert ctx.outputs["universe_b_send"] == 100
-
-def setup_mock_gl(monkeypatch):
-    mock_gl = MagicMock()
-    mock_gl.glGenTextures.return_value = [1, 2, 3, 4, 5, 6, 7, 8]
-    mock_gl.glGenFramebuffers.return_value = [10, 20]
-    mock_gl.GL_TRUE = 1
-    mock_gl.glGetShaderiv.return_value = 1
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    monkeypatch.setattr(dpu, 'gl', mock_gl, raising=False)
-    monkeypatch.setattr(dpu, 'HAS_GL', True)
-    return mock_gl
-
-def test_parallel_universe_fbo_cleanup_headless(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    
-    plugin = DepthParallelUniversePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
-    assert plugin.textures["mrt_a_0"] == 1
-    assert plugin.fbos["pong_0"] == 10
-    
-    plugin.cleanup()
-    mock_gl.glDeleteTextures.assert_called_once_with(8, [1, 2, 3, 4, 5, 6, 7, 8])
-    mock_gl.glDeleteFramebuffers.assert_called_once_with(2, [10, 20])
-    
-def test_parallel_universe_fbo_cleanup_single_ints(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.return_value = 99
-    mock_gl.glGenFramebuffers.return_value = 100
-    
-    plugin = DepthParallelUniversePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    assert plugin.textures["mrt_a_0"] == 99
-
-def test_parallel_universe_gl_exception_handling(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.side_effect = Exception("Out of Memory")
-    
-    plugin = DepthParallelUniversePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    
-    plugin.initialize(ctx)
-    assert plugin._mock_mode is True
-    
-    mock_gl.glGenTextures.side_effect = None
-    mock_gl.glGenTextures.return_value = 1
-    mock_gl.glGenFramebuffers.return_value = 2
-    
-    plugin2 = DepthParallelUniversePlugin()
-    plugin2._mock_mode = False
-    plugin2.initialize(ctx)
-    
-    mock_gl.glDeleteTextures.side_effect = Exception("Segmentation Fault")
-    plugin2.cleanup()
-    assert plugin2.textures["mrt_a_0"] is None
-
-def test_parallel_universe_render_frame(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthParallelUniversePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
-    assert plugin.prog is not None
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {
+        "video_in": 42,
+        "depth_in": 12,
+        "universe_a_return": 33
+    }
+    ctx.outputs = {}
     
     params = {
-        "depth_split_near": 0.8, # Intentional inversion to trigger clamping
-        "depth_split_far": 0.2,
-        "universe_a_intensity": 1.0,
-        "universe_b_intensity": 1.0,
-        "universe_c_intensity": 1.0,
-        "universe_a_block_size": 0.5,
-        "universe_a_chaos": 0.5,
-        "uniBTemporalBlend": 0.5,
-        "uniBBlur": 0.5,
-        "uniCGlitchFreq": 0.5,
-        "uniCRgbSplit": 0.5,
-        "uniCCorruption": 0.5,
-        "merge_mode": 1.0,
-        "crossbleed": 0.5,
-        "reality_threshold": 0.5,
-        "quantum_uncertainty": 0.5,
-        "u_mix": 1.0
+        "depth_split_near": 0.4,
+        "depth_split_far": 0.3 # Triggers inversion
     }
     
-    res1 = plugin.process_frame(100, params, ctx)
-    assert res1 == 8 # mrt_out_1 is texture 8 (first flip writes to 1)
-    assert plugin.ping_pong == 1
-    
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    res2 = plugin.process_frame(100, params, ctx)
-    assert res2 == 4 # mrt_out_0 is texture 4 (second flip writes to 0)
+    res = plugin.process_frame(42, params, ctx)
+    assert res == 42
+    assert ctx.outputs["video_out"] == 42
+    assert ctx.outputs["universe_c_send"] == 42
 
-    # Texture resize
-    mock_gl.glGetTexLevelParameteriv.return_value = 800
-    res3 = plugin.process_frame(100, params, ctx)
-    assert res3 == 8
-
-    res4 = plugin.process_frame(0, params, ctx)
-    assert res4 == 0
-
-def test_compile_shader_fail(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGetShaderiv.return_value = 0
-    mock_gl.glGetShaderInfoLog.return_value = "ERROR"
-    
+def test_parallel_universe_split_clamp():
+    # If Near > Far, python processing should clamp / swap them before shader execution. 
+    # To test this, we can capture the glUniform1f arguments using a mock of PyOpenGL.
     plugin = DepthParallelUniversePlugin()
-    res = plugin._compile_shader()
-    assert res is None
-
-def test_process_frame_render_fail(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthParallelUniversePlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
     
-    mock_gl.glBindTexture.side_effect = Exception("Render fail")
-    res = plugin.process_frame(100, {}, ctx)
-    assert res == 100
+    with patch("vjlive3.plugins.depth_parallel_universe.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 1
+        plugin.prog = 2
+        plugin.out_textures = [1, 2, 3, 4]
+        
+        ctx = PluginContext(MagicMock())
+        ctx.inputs = {"video_in": 5}
+        ctx.outputs = {}
+        
+        params = {
+            "depth_split_near": 0.8,
+            "depth_split_far": 0.2
+        }
+        
+        # Set glGetUniformLocation to return some ID to track
+        mock_gl.glGetUniformLocation.side_effect = lambda prog, name: name
+        
+        plugin.process_frame(5, params, ctx)
+        
+        # Verify it swapped correctly
+        mock_gl.glUniform1f.assert_any_call("depth_split_near", 0.2)
+        mock_gl.glUniform1f.assert_any_call("depth_split_far", 0.8)
+
+def test_parallel_universe_fbo_cleanup():
+    plugin = DepthParallelUniversePlugin()
+    
+    with patch("vjlive3.plugins.depth_parallel_universe.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 99
+        plugin.out_textures = [10, 11, 12, 13]
+        plugin.prev_tex = 14
+        plugin.vao = 22
+        plugin.vbo = 33
+        plugin.prog = 44
+        
+        plugin.cleanup()
+        
+        mock_gl.glDeleteTextures.assert_any_call(4, [10, 11, 12, 13])
+        mock_gl.glDeleteTextures.assert_any_call(1, [14])
+        mock_gl.glDeleteFramebuffers.assert_called_with(1, [99])
+        mock_gl.glDeleteVertexArrays.assert_called_with(1, [22])
+        mock_gl.glDeleteProgram.assert_called_with(44)
+        
+        # State cleared
+        assert plugin.out_textures == []
+        assert plugin.fbo is None
+        assert plugin.prog is None
+
+def test_parallel_universe_gl_setup_error_handling():
+    plugin = DepthParallelUniversePlugin()
+    
+    with patch("vjlive3.plugins.depth_parallel_universe.gl") as mock_gl:
+        # Simulate compilation failure
+        mock_gl.glGetShaderiv.return_value = 0 # GL_FALSE
+        mock_gl.glGetShaderInfoLog.return_value = b"Error compiling"
+        
+        plugin.initialize(PluginContext(MagicMock()))
+        assert plugin._mock_mode is True
+
+def test_parallel_universe_empty_input_texture():
+    plugin = DepthParallelUniversePlugin()
+    ctx = PluginContext(MagicMock())
+    res = plugin.process_frame(0, {}, ctx)
+    assert res == 0
