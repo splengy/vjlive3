@@ -1,129 +1,99 @@
-# Spec: P1-A1 — Audio Analyzer (FFT + Waveform)
+# P1-A1: FFT + Waveform Analysis Engine
 
-**File naming:** `docs/specs/P1-A1_audio_analyzer.md`
-**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+## Overview
+A high-performance audio analysis system that provides real-time FFT and waveform data for audio-reactive visual effects.
 
----
+## Technical Requirements
 
-## Task: P1-A1 — Audio Analyzer
+### Core Functionality
+- **FFT Analysis**: Real-time Fast Fourier Transform computation
+- **Waveform Analysis**: Time-domain signal processing
+- **Multi-channel Support**: Handle stereo and multi-channel audio
+- **Low Latency**: Sub-10ms processing time
+- **Thread Safety**: Safe concurrent access from multiple plugins
 
-**Phase:** Phase 1 / P1-A1
-**Assigned To:** [Agent name]
-**Spec Written By:** Manager-Gemini-3.1
-**Date:** 2026-02-22
+### Input/Output
+- **Input**: Audio buffer (float32, 44.1kHz or 48kHz)
+- **Output**: FFT spectrum (magnitude + phase), waveform data
 
----
+### Parameters
+- `fft_size`: FFT window size (128, 256, 512, 1024, 2048)
+- `hop_size`: FFT hop size (50% overlap default)
+- `window_type`: Hamming, Hann, Blackman, or rectangular
+- `smoothing`: Spectral smoothing factor (0-1.0)
+- `peak_decay`: Peak hold decay time (ms)
+- `min_frequency`: Minimum frequency to analyze (20Hz)
+- `max_frequency`: Maximum frequency to analyze (20kHz)
 
-## What This Module Does
+### Architecture
+- **AudioBuffer**: Circular buffer for incoming audio
+- **FFTProcessor**: Core FFT computation using NumPy/FFTW
+- **WaveformProcessor**: Time-domain signal analysis
+- **AnalyzerManager**: Thread-safe access control
+- **DataCache**: Recent analysis results for smooth transitions
 
-The audio analyzer provides real-time FFT (Fast Fourier Transform) and waveform analysis of audio input. It computes frequency spectrum, spectral features (centroid, rolloff, flux), and time-domain features (RMS, peak, zero-crossing rate) for use in audio-reactive visual effects and beat detection.
+### Performance Considerations
+- Use SIMD-optimized FFT libraries (FFTW, Intel MKL)
+- Implement double buffering for thread safety
+- Cache intermediate results for repeated queries
+- Use GPU acceleration for large FFT sizes
+- Implement adaptive quality based on system load
 
----
+## Integration Points
+- **Plugin System**: Register as AudioAnalyzer
+- **Node Graph**: Add to audio analysis node collection
+- **MIDI Mapping**: Map analysis parameters to MIDI
+- **Audio Sources**: Connect to multiple audio input sources
+- **Effect Framework**: Provide data to audio-reactive effects
 
-## What It Does NOT Do
+## Testing Requirements
+- **Unit Tests**: Verify FFT accuracy against reference implementations
+- **Performance Tests**: Ensure sub-10ms latency
+- **Stress Tests**: Handle high sample rates and multiple channels
+- **Thread Safety Tests**: Concurrent access validation
+- **Audio Quality Tests**: Verify no artifacts or distortion
 
-- Does not perform beat detection (delegates to P1-A2)
-- Does not handle audio input from multiple sources (delegates to P1-A4)
-- Does not emit events or drive effects (delegates to P1-A3)
-- Does not include audio playback or recording
-
----
-
-## Public Interface
-
-```python
-class AudioAnalyzer:
-    def __init__(self, sample_rate: int = 44100, fft_size: int = 2048) -> None: ...
-    
-    def process(self, audio_data: np.ndarray) -> AudioFeatures: ...
-    
-    def get_spectrum(self) -> np.ndarray: ...
-    def get_waveform(self) -> np.ndarray: ...
-    
-    def get_spectral_centroid(self) -> float: ...
-    def get_spectral_rolloff(self) -> float: ...
-    def get_spectral_flux(self) -> float: ...
-    
-    def get_rms(self) -> float: ...
-    def get_peak(self) -> float: ...
-    def get_zero_crossing_rate(self) -> float: ...
-    
-    def reset(self) -> None: ...
-```
-
----
-
-## Inputs and Outputs
-
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `sample_rate` | `int` | Audio sample rate in Hz | 8000-192000 |
-| `fft_size` | `int` | FFT window size (power of 2) | 256-8192 |
-| `audio_data` | `np.ndarray` | Raw audio samples | 1D float array, length = fft_size |
-
-**Output:** `AudioFeatures` — Dataclass containing all computed features
-
----
-
-## Edge Cases and Error Handling
-
-- What happens if audio_data length != fft_size? → Pad or truncate, log warning
-- What happens if audio_data is all zeros? → Return zeroed features
-- What happens if audio_data clips? → Clamp to [-1.0, 1.0] range
-- What happens if FFT fails? → Return zeroed features, log error
-- What happens on cleanup? → Release FFT plan and buffers
-
----
+## Safety Rails
+- **Memory Limits**: Monitor buffer sizes and allocations
+- **Performance Guardrails**: Fallback to lower quality if overloaded
+- **Input Validation**: Validate audio format and sample rate
+- **Error Handling**: Graceful degradation on audio source failure
+- **Resource Cleanup**: Proper buffer deallocation
 
 ## Dependencies
+- NumPy for numerical operations
+- SciPy for FFT implementation
+- PyAudio or PortAudio for audio input
+- ModernGL for GPU acceleration (optional)
+- Threading and synchronization primitives
 
-- External libraries needed (and what happens if they are missing):
-  - `numpy` — required for FFT and array operations — fallback: raise ImportError
-  - `scipy` (optional) — for advanced window functions — fallback: use numpy windows
-- Internal modules this depends on:
-  - None (standalone analysis module)
+## Implementation Notes
+- Use overlap-add method for continuous FFT analysis
+- Implement spectral whitening for better frequency resolution
+- Add beat detection as a derived feature
+- Provide both magnitude and phase information
+- Support real-time parameter adjustment
 
----
+## Verification Criteria
+- [ ] FFT accuracy within 0.1% of reference implementation
+- [ ] Waveform analysis shows correct amplitude and timing
+- [ ] Latency stays below 10ms at 1024-point FFT
+- [ ] Thread-safe access from multiple plugins
+- [ ] Smooth parameter transitions without glitches
+- [ ] Handles sample rate changes gracefully
+- [ ] No memory leaks after extended operation
 
-## Test Plan
+## Related Tasks
+- P1-A2: Real-time beat detection
+- P1-A3: Audio-reactive effect framework
+- P1-A4: Multi-source audio input
+- P1-R3: Shader compilation system (for visual effects)
 
-| Test Name | What It Verifies |
-|-----------|-----------------|
-| `test_init_no_hardware` | Module starts without crashing |
-| `test_fft_spectrum` | FFT produces correct frequency bins |
-| `test_waveform_buffer` | Waveform buffer updates correctly |
-| `test_spectral_features` | Centroid, rolloff, flux computed correctly |
-| `test_time_features` | RMS, peak, ZCR computed correctly |
-| `test_silence_input` | Handles silent input gracefully |
-| `test_clipping_input` | Handles clipped input correctly |
-| `test_edge_cases` | Handles invalid parameters gracefully |
-
-**Minimum coverage:** 80% before task is marked done.
-
----
-
-## Definition of Done
-
-- [ ] Spec reviewed (by Manager or User before code starts)
-- [ ] All tests listed above pass
-- [ ] No file over 750 lines
-- [ ] No stubs in code
-- [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-1] P1-A1: Audio analyzer (FFT + waveform)` message
-- [ ] BOARD.md updated
-- [ ] Lock released
-- [ ] AGENT_SYNC.md handoff note written
-
----
-
-## Verification Checkpoint
-
-- [ ] Spec reviewed and approved
-- [ ] Implementation ready to begin
-- [ ] All dependencies verified
-- [ ] Test plan complete
-- [ ] Definition of Done clear
-
----
-
-*Specification based on VJlive-2 audio analysis system.*
+## Performance Targets
+- FFT Size 128: <1ms latency
+- FFT Size 256: <2ms latency  
+- FFT Size 512: <4ms latency
+- FFT Size 1024: <8ms latency
+- FFT Size 2048: <15ms latency
+- Memory usage: <10MB per instance
+- CPU usage: <5% on modern hardware

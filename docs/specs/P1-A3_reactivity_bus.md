@@ -1,136 +1,124 @@
-# Spec: P1-A3 — Reactivity Bus (Audio-Reactive Framework)
+# P1-A3: Audio-Reactive Effect Framework
 
-**File naming:** `docs/specs/P1-A3_reactivity_bus.md`
-**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+## Overview
+A comprehensive framework for creating audio-reactive visual effects that respond to real-time audio analysis data.
 
----
+## Technical Requirements
 
-## Task: P1-A3 — Reactivity Bus
+### Core Functionality
+- **Parameter Mapping**: Map audio features to visual parameters
+- **Effect Chaining**: Chain multiple audio-reactive effects
+- **Real-time Updates**: Update parameters at audio rate
+- **Smooth Transitions**: Interpolate parameter changes smoothly
+- **Effect Categories**: Organize effects by audio feature type
 
-**Phase:** Phase 1 / P1-A3
-**Assigned To:** [Agent name]
-**Spec Written By:** Manager-Gemini-3.1
-**Date:** 2026-02-22
+### Input/Output
+- **Input**: Audio analysis data (FFT, waveform, beat events)
+- **Output**: Parameter updates for visual effects
 
----
+### Parameters
+- `mapping_type`: Linear, exponential, logarithmic, or custom
+- `smoothing`: Parameter smoothing factor (0-1.0)
+- `sensitivity`: Audio sensitivity for parameter changes
+- `min_value`, `max_value`: Parameter range limits
+- `response_curve`: Custom response curve function
+- `attack_time`, `release_time`: Parameter transition times
+- `quantization`: Parameter quantization steps
+- `modulation_depth`: Audio modulation depth
 
-## What This Module Does
+### Architecture
+- **ReactivityBus**: Central hub for audio-reactive data
+- **ParameterMapper**: Maps audio features to parameters
+- **EffectRegistry**: Registers audio-reactive effects
+- **SmoothInterpolator**: Smooth parameter transitions
+- **ModulationEngine**: Advanced audio modulation
+- **EventDispatcher**: Dispatches parameter updates
 
-The reactivity bus provides a publish-subscribe framework for audio-reactive effects. It distributes audio features and beat events to registered plugins, allowing them to react to audio input. The bus manages feature smoothing, parameter mapping, and ensures thread-safe communication between audio analysis and rendering systems.
+### Effect Categories
+- **Spectrum Effects**: React to frequency spectrum
+- **Beat Effects**: React to beat detection
+- **Waveform Effects**: React to time-domain signal
+- **Transient Effects**: React to audio transients
+- **Pattern Effects**: React to rhythmic patterns
 
----
+### Performance Considerations
+- Use double buffering for smooth parameter updates
+- Implement efficient data structures for real-time access
+- Cache parameter mappings for repeated use
+- Use GPU acceleration for parameter interpolation
+- Implement adaptive quality based on system load
 
-## What It Does NOT Do
+## Integration Points
+- **Plugin System**: Register as AudioReactiveEffect
+- **Node Graph**: Add to audio-reactive node collection
+- **Audio Analyzer**: Connect to FFT and waveform data
+- **Beat Detector**: Connect to beat events
+- **Effect Framework**: Provide parameters to visual effects
+- **MIDI Mapping**: Map reactivity parameters to MIDI
 
-- Does not perform audio analysis (delegates to P1-A1)
-- Does not detect beats (delegates to P1-A2)
-- Does not handle audio input sources (delegates to P1-A4)
-- Does not provide UI for mapping parameters (delegates to P1-N4)
+## Testing Requirements
+- **Unit Tests**: Verify parameter mapping accuracy
+- **Performance Tests**: Ensure real-time performance
+- **Visual Tests**: Validate visual responses to audio
+- **Stress Tests**: Handle complex audio patterns
+- **Integration Tests**: Test with complete effect chains
 
----
-
-## Public Interface
-
-```python
-class ReactivityBus:
-    def __init__(self) -> None: ...
-    
-    def subscribe(self, plugin_id: str, callback: ReactivityCallback) -> None: ...
-    def unsubscribe(self, plugin_id: str) -> None: ...
-    
-    def publish_features(self, features: AudioFeatures) -> None: ...
-    def publish_beat(self, beat_info: BeatInfo) -> None: ...
-    
-    def map_parameter(self, plugin_id: str, param_name: str, source: str, curve: MappingCurve) -> None: ...
-    def unmap_parameter(self, plugin_id: str, param_name: str) -> None: ...
-    
-    def get_mapped_value(self, plugin_id: str, param_name: str) -> float: ...
-    
-    def start_smoothing(self, plugin_id: str, param_name: str, smoothing_time: float) -> None: ...
-    def stop_smoothing(self, plugin_id: str, param_name: str) -> None: ...
-    
-    def clear_mappings(self, plugin_id: str) -> None: ...
-    def cleanup(self) -> None: ...
-```
-
----
-
-## Inputs and Outputs
-
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `plugin_id` | `str` | Unique plugin identifier | Non-empty |
-| `callback` | `ReactivityCallback` | Function to call on update | Callable |
-| `features` | `AudioFeatures` | Audio analysis results | From P1-A1 |
-| `beat_info` | `BeatInfo` | Beat detection result | From P1-A2 |
-| `param_name` | `str` | Plugin parameter name | Valid parameter |
-| `source` | `str` | Audio feature source (e.g., 'bass', 'mid', 'treble') | Known feature |
-| `curve` | `MappingCurve` | Response curve for mapping | Linear, exponential, etc. |
-| `smoothing_time` | `float` | Smoothing time in seconds | > 0 |
-
-**Output:** Publishes mapped parameter values to subscribed callbacks
-
----
-
-## Edge Cases and Error Handling
-
-- What happens if plugin subscribes twice? → Replace existing subscription
-- What happens if plugin unsubscribes but not subscribed? → Ignore
-- What happens if mapping source doesn't exist? → Use default value
-- What happens if smoothing time is invalid? → Use default smoothing
-- What happens on cleanup? → Clear all subscriptions and mappings
-
----
+## Safety Rails
+- **Memory Limits**: Monitor parameter buffer sizes
+- **Performance Guardrails**: Fallback to simpler mappings if overloaded
+- **Input Validation**: Validate audio data ranges
+- **Error Handling**: Graceful degradation on audio source failure
+- **Resource Cleanup**: Proper buffer deallocation
 
 ## Dependencies
+- AudioAnalyzer for FFT and waveform data
+- BeatDetector for beat events
+- ModernGL for GPU acceleration
+- Threading and synchronization primitives
+- Effect framework for parameter updates
 
-- External libraries needed (and what happens if they are missing):
-  - None required for basic functionality
-- Internal modules this depends on:
-  - `vjlive3.audio.audio_analyzer` (P1-A1)
-  - `vjlive3.audio.beat_detector` (P1-A2)
+## Implementation Notes
+- Use normalized audio data for consistent mapping
+- Implement multiple mapping algorithms (linear, exponential, etc.)
+- Add support for custom response curves
+- Provide beat-synchronized parameter updates
+- Support both continuous and quantized parameter changes
 
----
+## Verification Criteria
+- [ ] Parameter mapping accuracy within 1% of expected values
+- [ ] Smooth transitions without visual artifacts
+- [ ] Real-time performance at 60 FPS
+- [ ] Handles complex audio patterns correctly
+- [ ] Supports all audio feature types
+- [ ] No memory leaks after extended operation
+- [ ] Works with all registered effects
 
-## Test Plan
+## Related Tasks
+- P1-A1: FFT + Waveform Analysis Engine
+- P1-A2: Real-time beat detection
+- P1-R3: Shader compilation system (for visual effects)
+- P1-P3: Hot-reloadable plugin system
 
-| Test Name | What It Verifies |
-|-----------|-----------------|
-| `test_init_no_hardware` | Module starts without crashing |
-| `test_subscribe_unsubscribe` | Subscription management works |
-| `test_publish_features` | Features published to callbacks |
-| `test_publish_beat` | Beat events published to callbacks |
-| `test_parameter_mapping` | Audio features mapped to parameters |
-| `test_smoothing` | Parameter smoothing works correctly |
-| `test_multiple_plugins` | Handles multiple subscribers |
-| `test_edge_cases` | Handles invalid inputs gracefully |
+## Performance Targets
+- Update rate: 60 FPS minimum
+- Parameter update latency: <2ms
+- Memory usage: <5MB per instance
+- CPU usage: <5% on modern hardware
+- Smoothness: No visual artifacts during parameter changes
+- Responsiveness: <50ms response to audio changes
 
-**Minimum coverage:** 80% before task is marked done.
+## Advanced Features
+- **Multi-band Reactivity**: Separate reactivity for different frequency bands
+- **Beat-synchronized Modulation**: Parameters change on beat boundaries
+- **Pattern Recognition**: React to specific rhythmic patterns
+- **Dynamic Sensitivity**: Adjust sensitivity based on audio content
+- **Cross-effect Modulation**: Parameters modulate other parameters
+- **Audio-driven Animation**: Create complex animations from audio
+- **Machine Learning Integration**: Learn optimal parameter mappings
 
----
-
-## Definition of Done
-
-- [ ] Spec reviewed (by Manager or User before code starts)
-- [ ] All tests listed above pass
-- [ ] No file over 750 lines
-- [ ] No stubs in code
-- [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-1] P1-A3: Reactivity bus` message
-- [ ] BOARD.md updated
-- [ ] Lock released
-- [ ] AGENT_SYNC.md handoff note written
-
----
-
-## Verification Checkpoint
-
-- [ ] Spec reviewed and approved
-- [ ] Implementation ready to begin
-- [ ] All dependencies verified
-- [ ] Test plan complete
-- [ ] Definition of Done clear
-
----
-
-*Specification based on VJlive-2 reactivity bus architecture.*
+## Effect Examples
+- **Spectrum Visualizer**: Bars or waveforms responding to frequency content
+- **Beat-driven Animation**: Objects pulse or move on beat events
+- **Transient Effects**: Visual flashes on audio transients
+- **Pattern-based Effects**: Complex animations based on rhythmic patterns
+- **Audio-driven Particles**: Particle systems responding to audio features

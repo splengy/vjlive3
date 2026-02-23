@@ -1,122 +1,115 @@
-# Spec: P1-A2 — Beat Detector
+# P1-A2: Real-time Beat Detection
 
-**File naming:** `docs/specs/P1-A2_beat_detector.md`
-**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+## Overview
+A sophisticated beat detection system that identifies rhythmic patterns in audio streams for synchronization with visual effects.
 
----
+## Technical Requirements
 
-## Task: P1-A2 — Beat Detector
+### Core Functionality
+- **Beat Detection**: Identify tempo and beat positions in real-time
+- **Onset Detection**: Detect note onsets and transients
+- **Rhythm Analysis**: Analyze complex rhythmic patterns
+- **Tempo Tracking**: Maintain stable tempo estimates
+- **Multi-genre Support**: Handle various musical styles
 
-**Phase:** Phase 1 / P1-A2
-**Assigned To:** [Agent name]
-**Spec Written By:** Manager-Gemini-3.1
-**Date:** 2026-02-22
+### Input/Output
+- **Input**: Audio buffer from AudioAnalyzer
+- **Output**: Beat events, tempo estimates, phase information
 
----
+### Parameters
+- `detection_method`: Spectral flux, complex domain, or hybrid
+- `sensitivity`: Beat detection sensitivity (0-1.0)
+- `min_tempo`: Minimum detectable tempo (40 BPM)
+- `max_tempo`: Maximum detectable tempo (200 BPM)
+- `smoothing`: Tempo smoothing factor (0-1.0)
+- `onset_threshold`: Onset detection threshold (0-1.0)
+- `pattern_length`: Pattern analysis window (1-8 beats)
+- `sync_mode`: Free-running, master, or slave
 
-## What This Module Does
+### Algorithm
+- **Spectral Flux**: Energy changes in frequency domain
+- **Complex Domain**: Phase-based onset detection
+- **Auto-correlation**: Tempo estimation from signal correlation
+- **Dynamic Programming**: Pattern matching for rhythm analysis
+- **Kalman Filtering**: Tempo smoothing and prediction
 
-The beat detector analyzes audio in real-time to detect rhythmic beats and tempo. It uses onset detection algorithms, energy analysis, and temporal smoothing to identify beat times and estimate BPM, providing the core timing signal for audio-reactive visual effects and synchronization.
+### Architecture
+- **BeatDetector**: Core beat detection algorithms
+- **TempoTracker**: Tempo estimation and smoothing
+- **PatternAnalyzer**: Rhythm pattern recognition
+- **EventGenerator**: Beat event scheduling
+- **SyncManager**: Time synchronization with external sources
 
----
+### Performance Considerations
+- Use FFT data from AudioAnalyzer to avoid redundant computation
+- Implement incremental algorithms for real-time performance
+- Use fixed-point arithmetic for efficiency
+- Cache recent beat positions for pattern analysis
+- Implement adaptive quality based on audio complexity
 
-## What It Does NOT Do
+## Integration Points
+- **Plugin System**: Register as BeatDetector
+- **Node Graph**: Add to beat detection node collection
+- **MIDI Mapping**: Map beat parameters to MIDI
+- **Audio Sources**: Connect to multiple audio input sources
+- **Effect Framework**: Provide beat data to audio-reactive effects
+- **Timecode System**: Sync with external timecode sources
 
-- Does not perform FFT analysis (delegates to P1-A1)
-- Does not handle audio input from multiple sources (delegates to P1-A4)
-- Does not emit events or drive effects (delegates to P1-A3)
-- Does not include tempo prediction or adaptive learning (basic detection only)
+## Testing Requirements
+- **Unit Tests**: Verify beat detection accuracy against reference tracks
+- **Performance Tests**: Ensure sub-5ms latency
+- **Stress Tests**: Handle complex rhythms and tempo changes
+- **Genre Tests**: Validate across musical styles
+- **Sync Tests**: Verify synchronization with external sources
 
----
-
-## Public Interface
-
-```python
-class BeatDetector:
-    def __init__(self, sample_rate: int = 44100, lookahead: int = 10) -> None: ...
-    
-    def process(self, audio_data: np.ndarray, features: AudioFeatures) -> Optional[BeatInfo]: ...
-    
-    def get_tempo(self) -> float: ...
-    def get_beat_phase(self) -> float: ...
-    def is_beat(self) -> bool: ...
-    
-    def reset(self) -> None: ...
-```
-
----
-
-## Inputs and Outputs
-
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `sample_rate` | `int` | Audio sample rate in Hz | 8000-192000 |
-| `lookahead` | `int` | Beat detection lookahead frames | 1-100 |
-| `audio_data` | `np.ndarray` | Raw audio samples | 1D float array |
-| `features` | `AudioFeatures` | Pre-computed audio features | From P1-A1 |
-
-**Output:** `BeatInfo` — Dataclass with beat time, tempo, confidence or None
-
----
-
-## Edge Cases and Error Handling
-
-- What happens if audio is silent? → No beat detected, return None
-- What happens if tempo is unstable? → Smooth tempo estimates over time
-- What happens if multiple beats detected close together? → Use onset strength to pick strongest
-- What happens on initialization? → Start with default tempo 120 BPM
-- What happens on cleanup? → Reset internal state
-
----
+## Safety Rails
+- **Memory Limits**: Monitor buffer sizes and allocations
+- **Performance Guardrails**: Fallback to simpler algorithms if overloaded
+- **Input Validation**: Validate audio format and sample rate
+- **Error Handling**: Graceful degradation on audio source failure
+- **Resource Cleanup**: Proper buffer deallocation
 
 ## Dependencies
+- NumPy for numerical operations
+- SciPy for signal processing
+- AudioAnalyzer for FFT data
+- Threading and synchronization primitives
+- Timecode system for external sync
 
-- External libraries needed (and what happens if they are missing):
-  - `numpy` — required for signal processing — fallback: raise ImportError
-- Internal modules this depends on:
-  - `vjlive3.audio.audio_analyzer` (P1-A1)
+## Implementation Notes
+- Use multi-resolution analysis for robust beat detection
+- Implement beat tracking with memory for tempo stability
+- Add pattern recognition for complex rhythms
+- Support both downbeat and upbeat detection
+- Provide beat phase information for precise synchronization
 
----
+## Verification Criteria
+- [ ] Beat detection accuracy >95% on reference tracks
+- [ ] Tempo tracking error <2% over 30-second periods
+- [ ] Latency stays below 5ms
+- [ ] Handles tempo changes smoothly
+- [ ] Supports complex rhythms (polyrhythms, syncopation)
+- [ ] Syncs accurately with external timecode
+- [ ] No memory leaks after extended operation
 
-## Test Plan
+## Related Tasks
+- P1-A1: FFT + Waveform Analysis Engine
+- P1-A3: Audio-reactive effect framework
+- P1-A4: Multi-source audio input
+- P2-X2: Timecode sync system
 
-| Test Name | What It Verifies |
-|-----------|-----------------|
-| `test_init_no_hardware` | Module starts without crashing |
-| `test_beat_detection` | Detects beats on percussive audio |
-| `test_tempo_estimation` | Estimates BPM correctly |
-| `test_beat_phase` | Beat phase calculation works |
-| `test_silence_handling` | No false beats on silence |
-| `test_steady_tempo` | Consistent tempo on steady beats |
-| `test_variable_tempo` | Adapts to tempo changes |
-| `test_edge_cases` | Handles extreme audio levels |
+## Performance Targets
+- Detection latency: <5ms
+- Memory usage: <5MB per instance
+- CPU usage: <3% on modern hardware
+- Tempo estimation accuracy: <2% error
+- Beat detection accuracy: >95% on standard tracks
+- Pattern recognition: Support for 2-8 beat patterns
 
-**Minimum coverage:** 80% before task is marked done.
-
----
-
-## Definition of Done
-
-- [ ] Spec reviewed (by Manager or User before code starts)
-- [ ] All tests listed above pass
-- [ ] No file over 750 lines
-- [ ] No stubs in code
-- [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-1] P1-A2: Beat detector` message
-- [ ] BOARD.md updated
-- [ ] Lock released
-- [ ] AGENT_SYNC.md handoff note written
-
----
-
-## Verification Checkpoint
-
-- [ ] Spec reviewed and approved
-- [ ] Implementation ready to begin
-- [ ] All dependencies verified
-- [ ] Test plan complete
-- [ ] Definition of Done clear
-
----
-
-*Specification based on VJlive-2 beat detection system.*
+## Advanced Features
+- **Downbeat Detection**: Identify first beat of each measure
+- **Meter Recognition**: Detect 3/4, 4/4, 6/8 time signatures
+- **Swing Detection**: Identify swing feel and amount
+- **Genre Classification**: Adapt algorithms to musical style
+- **Predictive Tracking**: Anticipate upcoming beats
+- **Multi-tempo Support**: Handle tempo changes and rubato

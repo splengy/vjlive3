@@ -1,0 +1,151 @@
+# P3-EXT073: VTemPi Human Resolution
+
+## What This Module Does
+Implements human resolution perception effects for VTemPi system, where depth values control the perceived resolution and detail level of visual elements, creating depth-aware resolution variations that simulate human visual acuity changes with distance.
+
+## Public Interface
+
+### METADATA
+```python
+METADATA = {
+    "name": "VTemPi Human Resolution",
+    "id": "P3-EXT073",
+    "category": "depth_effects",
+    "description": "Depth-driven human resolution perception effects for VTemPi visual detail variations",
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "priority": 0,
+    "dependencies": ["DepthBuffer", "VTemPiEngine"],
+    "test_coverage": 85
+}
+```
+
+### Parameters
+- `resolution_base` (int): Base resolution level (1-8, default: 4)
+- `depth_resolution_mapping` (str): How depth affects resolution: "near_high", "far_low", "mid_vary", "uniform"
+- `resolution_variation` (int): Resolution variation amount (0-3, default: 1)
+- `perception_model` (str): Human perception model: "standard", "enhanced", "reduced", "artistic"
+- `detail_threshold` (float): Detail threshold for resolution changes (0.0-1.0, default: 0.3)
+- `smooth_transition` (bool): Smooth resolution transitions (default: True)
+- `resolution_filter` (str): Resolution filtering: "nearest", "linear", "bicubic", "smart"
+
+### Inputs
+- `video` (torch.Tensor[uint8]): Input video frames [B, 3, H, W]
+- `depth` (torch.Tensor[float]): Depth buffer [B, 1, H, W] normalized 0-1
+
+### Outputs
+- `video` (torch.Tensor[uint8]): VTemPi resolution-modulated output [B, 3, H, W]
+
+## What It Does NOT Do
+- Does NOT perform actual resolution scaling (simulated via detail reduction)
+- Does NOT support resolution for transparent objects (limited accuracy)
+- Does NOT preserve video quality (intentionally reduces detail)
+- Does NOT handle resolution for complex scenes with many details (simplified)
+- Does NOT support resolution for HDR content (SDR only)
+
+## Test Plan
+
+### Unit Tests
+1. `test_vtempi_human_resolution_initialization()`
+   - Verify METADATA constants
+   - Test parameter validation (resolution_base 1-8, detail_threshold 0-1, resolution_variation 0-3)
+   - Test default parameter values
+
+2. `test_resolution_parameters()`
+   - Test resolution_base: 1, 4, 8
+   - Test resolution_variation: 0, 1, 3
+   - Verify resolution calculation
+   - Test extreme values
+
+3. `test_depth_resolution_mapping()`
+   - Test all depth_resolution_mapping modes: near_high, far_low, mid_vary, uniform
+   - Create synthetic depth map with varying regions
+   - Verify resolution varies with depth
+
+4. `test_perception_models()`
+   - Test all perception_model options: standard, enhanced, reduced, artistic
+   - Verify perception model effects
+   - Test model switching
+
+5. `test_detail_threshold()`
+   - Test detail_threshold: 0.0, 0.3, 1.0
+   - Verify detail-based resolution changes
+   - Test threshold sensitivity
+
+6. `test_smooth_transition()`
+   - Enable/disable smooth_transition
+   - Verify smooth vs abrupt resolution changes
+   - Test transition quality
+
+7. `test_resolution_filtering()`
+   - Test all resolution_filter options: nearest, linear, bicubic, smart
+   - Verify filtering quality
+   - Test filter performance vs quality tradeoff
+
+8. `test_resolution_and_detail_interaction()`
+   - Test combined resolution and detail modulation
+   - Verify synchronized modulation
+   - Test with different depth mappings
+
+### Integration Tests
+1. `test_full_pipeline_60fps()`
+   - Process 1000 frames at 1920x1080 with resolution_base=4
+   - Verify FPS ≥ 60 on test hardware
+   - Monitor memory usage < 2x input size
+
+2. `test_real_depth_human_resolution()`
+   - Feed real depth map from MiDaS/DPT
+   - Verify depth-based resolution variations
+   - Test with complex scenes (people, objects, backgrounds)
+
+3. `test_perception_model_variation()`
+   - Test all perception_model options
+   - Verify distinct perception effects
+   - Test with different depth mappings
+
+4. `test_safety_rails_compliance()`
+   - Verify no silent failures on invalid inputs
+   - Test error handling for missing depth
+   - Ensure all exceptions are logged
+
+## Implementation Notes
+
+### Architecture
+- Build on `DepthEffect` base class from P3-VD35
+- Integrate with `VTemPiEngine` from VJlive-2 if available
+- Implement resolution modulation: resolution = base + depth_factor × variation
+- Add perception model effects: detail reduction based on model type
+- Implement detail-based resolution changes: resolution = f(detail, detail_threshold)
+- Use depth-driven modulation for both resolution and detail
+
+### Performance Optimizations
+- Use GPU for resolution calculation (CUDA)
+- Precompute depth factor lookup table
+- Use shared memory for resolution buffer access
+- Implement resolution LOD for distance
+
+### Memory Management
+- Allocate resolution buffer same size as frame (1920×1080×1 = 2MB for resolution levels)
+- Use temporal buffer for smooth transitions (1 frame)
+- Profile memory with 4K input, enforce < 4GB peak
+- Free temporary buffers immediately after use
+
+### Safety Rails
+- Enforce resolution_base 1-8, detail_threshold 0-1, resolution_variation 0-3
+- Validate depth_resolution_mapping and perception_model as valid options
+- Validate resolution_filter as valid option
+- Fallback to uniform resolution if depth missing
+
+## Deliverables
+1. `src/vjlive3/effects/vtempi_human_resolution.py` - Main effect
+2. `tests/effects/test_vtempi_human_resolution.py` - Tests
+3. `docs/effects/vtempi_human_resolution.md` - Documentation
+4. Update `MODULE_MANIFEST.md`
+
+## Success Criteria
+- ✅ All unit tests pass (≥ 85% coverage)
+- ✅ 60 FPS at 1080p on RTX 4070 Ti Super
+- ✅ Depth-based resolution variations work correctly
+- ✅ Zero safety rail violations
+- ✅ Works with real depth maps
+- ✅ Clean code: ≤ 750 lines, no stubs, full type hints

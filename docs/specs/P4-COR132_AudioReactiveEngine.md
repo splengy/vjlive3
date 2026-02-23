@@ -1,0 +1,329 @@
+# P4-COR132: AudioReactiveEngine — Audio-to-DMX & Parameter Reactivity System
+
+## Mission Context
+The `AudioReactiveEngine` is the core system that transforms audio analysis data into actionable control signals for VJLive3. It converts audio features (FFT, beat, frequency bands) into DMX output for lighting control, and provides audio-reactive parameter modulation for visual effects. This engine is the bridge between the AudioEngine's analysis and the rest of the system's reactivity.
+
+## Technical Requirements
+
+### Core Responsibilities
+1. **Audio Feature Processing**
+   - Consume audio features from AudioEngine (FFT, waveform, beat events, frequency bands)
+   - Apply smoothing and filtering to reduce jitter
+   - Extract derived features (onset strength, spectral flux, energy)
+   - Normalize features to consistent ranges (0.0-1.0 or 0.0-10.0)
+
+2. **DMX Output Generation**
+   - Map audio features to DMX channels using configurable curves
+   - Support multiple DMX universes and fixtures
+   - Generate smooth parameter transitions to avoid strobe-like artifacts
+   - Provide beat-synced DMX effects (strobe, chase, dimmer pulse)
+
+3. **Audio-Reactive Parameter Modulation**
+   - Expose audio features as parameter sources for visual effects
+   - Provide audio-reactive presets for common mappings
+   - Support custom mapping curves and scaling
+   - Enable time-based patterns (loops, sequences) driven by audio
+
+4. **Performance Optimization**
+   - Real-time processing with minimal latency (<10 ms from audio to DMX)
+   - Efficient mapping algorithms with O(1) lookup where possible
+   - Thread-safe operation for multi-threaded audio capture
+   - Configurable quality/performance tradeoffs
+
+5. **Configuration and Persistence**
+   - Load audio-reactive presets from ConfigManager
+   - Save/restore custom mappings and curves
+   - Support for multiple preset profiles (by genre, mood, etc.)
+   - Hot-swappable presets without stopping DMX output
+
+### Architecture Constraints
+- **Singleton Pattern**: One global `AudioReactiveEngine` instance coordinated via `AIIntegration`
+- **Low Latency**: Processing must complete within 10 ms to maintain sync
+- **Thread Safety**: Audio features may arrive from capture thread
+- **Deterministic**: Same audio input should produce same DMX output
+- **Configurable**: All mappings and curves exposed via configuration
+
+### Key Interfaces
+```python
+class AudioReactiveEngine:
+    def __init__(self, config: AudioReactiveConfig, event_bus: Optional[EventBus] = None):
+        """Initialize audio reactive engine with configuration."""
+        pass
+
+    def initialize(self) -> None:
+        """Load presets, initialize DMX bridge, start processing."""
+        pass
+
+    def start(self) -> None:
+        """Begin audio-reactive processing."""
+        pass
+
+    def stop(self) -> None:
+        """Pause audio reactivity."""
+        pass
+
+    def cleanup(self) -> None:
+        """Release DMX resources, save presets."""
+        pass
+
+    def process_audio_features(self, features: AudioFeatures, timestamp: float) -> None:
+        """Process new audio features and update DMX output."""
+        pass
+
+    def get_dmx_value(self, channel: int, universe: int = 0) -> int:
+        """Get current DMX value for a channel (0-255)."""
+        pass
+
+    def set_mapping(self, mapping: AudioToDmxMapping) -> None:
+        """Configure a new audio-to-DMX mapping."""
+        pass
+
+    def remove_mapping(self, mapping_id: str) -> None:
+        """Remove an existing mapping."""
+        pass
+
+    def get_active_preset(self) -> AudioReactivePreset:
+        """Get the currently active audio-reactive preset."""
+        pass
+
+    def set_preset(self, preset_id: str) -> None:
+        """Switch to a different audio-reactive preset."""
+        pass
+
+    def get_parameter_value(self, param_name: str) -> float:
+        """Get current audio-reactive parameter value (for visual effects)."""
+        pass
+
+    def register_parameter_source(self, param_config: ParameterReactiveConfig) -> None:
+        """Register a parameter to be driven by audio features."""
+        pass
+
+    def unregister_parameter_source(self, param_name: str) -> None:
+        """Unregister an audio-reactive parameter."""
+        pass
+
+    def get_status(self) -> AudioReactiveEngineStatus:
+        """Return engine status and statistics."""
+        pass
+```
+
+### Dependencies
+- **ConfigManager**: Load `AudioReactiveConfig` and presets
+- **EventBus**: Publish `AudioReactiveUpdate`, `PresetChanged`, `DMXValueChanged` events
+- **HealthMonitor**: Report engine health and DMX output status
+- **AudioEngine**: Source of audio features (FFT, beat, bands)
+- **DMXEngine**: Destination for DMX output values
+- **AIIntegration**: Coordinate with AI subsystems for mood-influenced reactivity
+
+## Implementation Notes
+
+### Audio Feature Smoothing
+```python
+class FeatureSmoother:
+    """Smooth audio features to reduce jitter."""
+
+    def __init__(self, smoothing_factor: float = 0.8):
+        self.smoothing_factor = smoothing_factor
+        self._previous_values: Dict[str, float] = {}
+
+    def smooth(self, feature_name: str, new_value: float) -> float:
+        """Apply exponential smoothing to feature value."""
+        if feature_name not in self._previous_values:
+            self._previous_values[feature_name] = new_value
+            return new_value
+
+        smoothed = (self.smoothing_factor * self._previous_values[feature_name] +
+                   (1 - self.smoothing_factor) * new_value)
+        self._previous_values[feature_name] = smoothed
+        return smoothed
+```
+
+### DMX Mapping System
+```python
+class AudioToDmxMapping:
+    """Maps audio features to DMX channels."""
+
+    source_feature: AudioFeatureType  # e.g., BASS, MID, TREBLE, BEAT_ENERGY
+    target_channel: int
+    target_universe: int
+    curve: MappingCurve  # linear, exponential, logarithmic, custom
+    scale: float  # multiplier
+    offset: float  # additive offset
+    min_value: int  # 0-255
+    max_value: int  # 0-255
+    smoothing: float  # 0.0-1.0, higher = smoother
+
+    def compute(self, feature_value: float) -> int:
+        """Compute DMX value from audio feature."""
+        # Apply curve
+        mapped = self.curve.apply(feature_value)
+        # Apply scale and offset
+        scaled = mapped * self.scale + self.offset
+        # Clamp to range
+        clamped = max(0.0, min(1.0, scaled))
+        # Map to DMX range
+        dmx_value = int(self.min_value + clamped * (self.max_value - self.min_value))
+        return dmx_value
+```
+
+### Beat-Synced Effects
+```python
+class BeatSyncedEffect:
+    """DMX effect synchronized to audio beats."""
+
+    effect_type: BeatEffectType  # STROBE, CHASE, PULSE, DIM
+    beat_threshold: float  # minimum beat confidence to trigger
+    decay_time: float  # seconds for effect to decay
+    channels: List[DmxChannelMapping]
+
+    def on_beat(self, beat_confidence: float, timestamp: float) -> None:
+        """Trigger effect on beat detection."""
+        if beat_confidence >= self.beat_threshold:
+            self._trigger_effect(timestamp)
+
+    def _trigger_effect(self, timestamp: float) -> None:
+        """Apply effect to mapped DMX channels."""
+        # Implementation depends on effect type
+        pass
+```
+
+### Audio-Reactive Parameters for Visual Effects
+```python
+class ParameterReactiveConfig:
+    """Configures a visual effect parameter to react to audio."""
+
+    parameter_name: str  # e.g., "scale", "rotation_speed", "color_intensity"
+    source_feature: AudioFeatureType  # which audio feature to use
+    mapping: MappingCurve
+    scale: float
+    offset: float
+    smoothing: float
+    min_value: float
+    max_value: float
+
+    def compute(self, feature_value: float) -> float:
+        """Compute parameter value from audio feature."""
+        # Similar to DMX mapping but for effect parameters (0.0-10.0 range)
+        mapped = self.mapping.apply(feature_value)
+        scaled = mapped * self.scale + self.offset
+        clamped = max(self.min_value, min(self.max_value, scaled))
+        return clamped
+```
+
+### Preset System
+Presets define complete audio-reactive configurations:
+- **DMX Mappings**: List of audio-to-DMX channel mappings
+- **Parameter Mappings**: List of audio-to-parameter mappings
+- **Beat Effects**: Configured beat-synced DMX effects
+- **Smoothing Settings**: Global smoothing factors
+- **Curve Definitions**: Custom mapping curves
+
+Presets can be:
+- **Genre-specific**: Rock, electronic, ambient, etc.
+- **Mood-specific**: Energetic, calm, chaotic, focused
+- **Performance-specific**: Opening, build, climax, wind-down
+
+## Verification Checkpoints
+
+### 1. Unit Tests (≥80% coverage)
+- [ ] `tests/audio_reactive/test_engine.py`: Engine lifecycle, preset management
+- [ ] `tests/audio_reactive/test_mapping.py`: DMX mapping calculation, curves, smoothing
+- [ ] `tests/audio_reactive/test_beat_sync.py`: Beat-synced effects, timing accuracy
+- [ ] `tests/audio_reactive/test_parameters.py`: Parameter reactivity, smoothing
+- [ ] `tests/audio_reactive/test_presets.py`: Preset loading, switching, persistence
+- [ ] `tests/audio_reactive/test_integration.py`: AudioEngine + AudioReactiveEngine + DMXEngine
+
+### 2. Integration Tests
+- [ ] AudioReactiveEngine + AudioEngine: Audio features correctly processed
+- [ ] AudioReactiveEngine + DMXEngine: DMX output matches mappings
+- [ ] AudioReactiveEngine + RenderEngine: Audio-reactive parameters drive effects
+- [ ] AudioReactiveEngine + EventBus: Audio reactive events published
+- [ ] Preset switching mid-performance: Smooth transitions
+
+### 3. Performance Tests
+- [ ] Processing latency: <10 ms from audio features to DMX output
+- [ ] CPU usage: <5% for 100+ DMX mappings
+- [ ] Memory usage: <50 MB for engine + presets
+- [ ] Smoothing quality: No visible jitter in DMX values
+
+### 4. Manual QA
+- [ ] Connect audio source, verify DMX output responds to music
+- [ ] Test beat-synced strobe effect on lighting fixture
+- [ ] Switch presets during performance, verify smooth transition
+- [ ] Test audio-reactive visual parameters (scale, rotation, color)
+- [ ] Simulate audio dropouts, verify graceful handling
+
+## Resources
+
+### Legacy References
+- `vjlive/audio_reactive.py` — AudioReactiveEngine (legacy implementation)
+- `vjlive/audio_reactor.py` — AudioReactor and AudioReactorManager
+- `vjlive/depth_audio.py` — DepthAudioReactor
+- `vjlive/audio_features.py` — Audio feature definitions
+
+### Existing VJLive3 Code
+- `src/vjlive3/audio/engine.py` — AudioEngine (source of audio features)
+- `src/vjlive3/core/dmx/engine.py` — DMXEngine (destination for DMX output)
+- `src/vjlive3/core/event_bus.py` — Event bus for audio reactive events
+- `src/vjlive3/plugins/astra.py` — Threaded capture pattern
+
+### External Documentation
+- DMX512 protocol: https://en.wikipedia.org/wiki/DMX512
+- Audio reactivity patterns: "Audio Visualization: Theory and Practice"
+- Smoothing filters: "Digital Signal Processing: Principles, Algorithms and Applications"
+
+## Success Criteria
+
+### Functional Completeness
+- [ ] AudioReactiveEngine consumes audio features from AudioEngine
+- [ ] DMX mappings correctly convert audio features to DMX values (0-255)
+- [ ] Beat-synced effects trigger accurately on detected beats
+- [ ] Audio-reactive parameters update visual effects in real-time
+- [ ] Preset system supports at least 5 genre/mood presets
+
+### Performance
+- [ ] Processing latency: <10 ms from audio features to DMX output
+- [ ] CPU usage: <5% for 100+ DMX mappings
+- [ ] Memory usage: <50 MB for engine + presets
+- [ ] Smoothing quality: No visible jitter in DMX values
+
+### Reliability
+- [ ] Engine recovers from audio feature dropouts gracefully
+- [ ] No crashes during 24-hour continuous operation
+- [ ] All exceptions logged with context, no silent failures
+- [ ] Unit test coverage ≥ 80%
+
+### Integration
+- [ ] AudioReactiveEngine integrates with AudioEngine for feature input
+- [ ] DMX output correctly drives lighting fixtures via DMXEngine
+- [ ] Audio-reactive parameters work with visual effects plugins
+- [ ] Presets persist across application restarts
+- [ ] Event bus publishes audio reactive events for visual responses
+
+## Dependencies (Blocking)
+- P1-A1: FFT + waveform analysis engine (provides audio features)
+- P1-A3: Audio-reactive effect framework (defines parameter reactivity)
+- P2-D1: DMX512 core engine (for DMX output)
+- P4-COR118: AudioEngine (source of audio features)
+- ConfigManager: For loading `AudioReactiveConfig` and presets
+- EventBus: For publishing audio reactive events
+- DMXEngine: For DMX output
+
+## Notes for Implementation Engineer (Beta)
+
+This is a **real-time audio-to-DMX** conversion engine. It must be:
+- **Low-Latency**: <10 ms processing time is critical for sync
+- **Smooth**: DMX values must not jitter; use proper smoothing
+- **Configurable**: All mappings and curves must be adjustable
+- **Well-Tested**: 80% coverage mandatory, include performance tests
+
+Start by:
+1. Reading `vjlive/audio_reactive.py` and `vjlive/audio_reactor.py` to understand legacy design
+2. Defining `AudioReactiveConfig` Pydantic model with preset configurations
+3. Implementing feature smoothing and mapping curve system
+4. Building DMX mapping engine with beat-synced effects
+5. Adding parameter reactivity system for visual effects
+6. Implementing preset management and persistence
+7. Writing tests alongside implementation (TDD style)
+
+The spec is **auto-approved**. Proceed to implementation following the workflow: SPEC → CODE → TEST → VERIFY → COMMIT → UPDATE BOARD.

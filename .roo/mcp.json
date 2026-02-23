@@ -12,7 +12,8 @@
 				"read_text_file",
 				"list_directory",
 				"create_directory",
-				"edit_file"
+				"edit_file",
+				"move_file"
 			]
 		},
 		"context7": {
@@ -23,14 +24,18 @@
 			],
 			"env": {
 				"DEFAULT_MINIMUM_TOKENS": ""
-			}
+			},
+			"disabled": true,
+			"alwaysAllow": []
 		},
 		"puppeteer": {
 			"command": "npx",
 			"args": [
 				"-y",
 				"@modelcontextprotocol/server-puppeteer"
-			]
+			],
+			"disabled": true,
+			"alwaysAllow": []
 		},
 		"time": {
 			"command": "uvx",
@@ -60,6 +65,15 @@
 			"env": {
 				"SSE_URL": "http://localhost:8000/sse"
 			}
+		},
+		"playwright": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@playwright/mcp@0.0.38"
+			],
+			"disabled": true,
+			"alwaysAllow": []
 		}
 	}
 }

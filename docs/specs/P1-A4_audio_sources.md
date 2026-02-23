@@ -1,145 +1,134 @@
-# Spec: P1-A4 — Audio Sources (Multi-Input Management)
+# P1-A4: Multi-Source Audio Input
 
-**File naming:** `docs/specs/P1-A4_audio_sources.md`
-**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+## Overview
+A flexible audio input system that supports multiple audio sources with real-time switching and mixing capabilities.
 
----
+## Technical Requirements
 
-## Task: P1-A4 — Audio Sources
+### Core Functionality
+- **Multiple Sources**: Support for various audio input types
+- **Real-time Switching**: Seamless source switching without glitches
+- **Audio Mixing**: Mix multiple sources with individual levels
+- **Latency Management**: Minimize input latency
+- **Format Conversion**: Handle different audio formats and sample rates
 
-**Phase:** Phase 1 / P1-A4
-**Assigned To:** [Agent name]
-**Spec Written By:** Manager-Gemini-3.1
-**Date:** 2026-02-22
+### Input Sources
+- **Microphone**: Built-in or external microphones
+- **Line Input**: Line-level audio inputs
+- **Audio File**: Playback of audio files (MP3, WAV, FLAC)
+- **Network Stream**: Audio over network protocols
+- **Virtual Cable**: Virtual audio cable inputs
+- **MIDI Audio**: Audio generated from MIDI events
 
----
+### Parameters
+- `source_type`: Microphone, line input, file, network, virtual, MIDI
+- `device_index`: Hardware device index
+- `sample_rate`: Audio sample rate (44.1kHz, 48kHz, 96kHz)
+- `buffer_size`: Audio buffer size (256, 512, 1024, 2048 samples)
+- `latency`: Target latency in milliseconds
+- `volume`: Input volume level (0-100%)
+- `pan`: Stereo panning (-100% to 100%)
+- `mute`: Mute state
+- `solo`: Solo state (for mixing)
+- `mix_mode`: Replace, mix, or crossfade between sources
 
-## What This Module Does
+### Architecture
+- **AudioInputManager**: Central manager for all audio sources
+- **SourceRegistry**: Registry of available audio sources
+- **FormatConverter**: Handles sample rate and format conversion
+- **BufferManager**: Manages audio buffers and latency
+- **MixerEngine**: Mixes multiple audio sources
+- **DeviceManager**: Manages hardware audio devices
+- **StreamProcessor**: Processes audio streams in real-time
 
-The audio sources system manages multiple audio input sources, including system audio capture, file playback, microphone input, and network streams. It provides a unified interface for audio acquisition, format conversion, and buffering, ensuring consistent sample rates and channel configurations across all sources.
+### Performance Considerations
+- Use double buffering for glitch-free operation
+- Implement efficient format conversion algorithms
+- Cache device information for quick access
+- Use SIMD-optimized audio processing
+- Implement adaptive buffering based on system load
 
----
+## Integration Points
+- **Audio Analyzer**: Connect to FFT and waveform analysis
+- **Beat Detector**: Connect to beat detection algorithms
+- **Audio-Reactive Effects**: Provide audio data to effects
+- **Plugin System**: Register as AudioInputSource
+- **Node Graph**: Add to audio input node collection
+- **MIDI Mapping**: Map input parameters to MIDI
 
-## What It Does NOT Do
+## Testing Requirements
+- **Unit Tests**: Verify audio format conversion accuracy
+- **Performance Tests**: Ensure low latency operation
+- **Device Tests**: Validate all supported audio devices
+- **Stress Tests**: Handle multiple simultaneous sources
+- **Integration Tests**: Test with complete audio pipeline
 
-- Does not perform audio analysis (delegates to P1-A1)
-- Does not detect beats (delegates to P1-A2)
-- Does not distribute audio to effects (delegates to P1-A3)
-- Does not include advanced audio effects or processing
-
----
-
-## Public Interface
-
-```python
-class AudioSource:
-    def __init__(self, source_type: str, config: Dict[str, Any]) -> None: ...
-    
-    def start(self) -> None: ...
-    def stop(self) -> None: ...
-    def is_running(self) -> bool: ...
-    
-    def read(self, num_samples: int) -> np.ndarray: ...
-    def get_sample_rate(self) -> int: ...
-    def get_channels(self) -> int: ...
-    
-    def get_level(self) -> float: ...
-    def get_name(self) -> str: ...
-
-
-class AudioSourceManager:
-    def __init__(self, target_sample_rate: int = 44100, buffer_size: int = 2048) -> None: ...
-    
-    def add_source(self, source: AudioSource) -> str: ...
-    def remove_source(self, source_id: str) -> bool: ...
-    def get_source(self, source_id: str) -> Optional[AudioSource]: ...
-    
-    def list_sources(self) -> List[str]: ...
-    
-    def mix_all(self) -> np.ndarray: ...
-    def get_mixed_level(self) -> float: ...
-    
-    def start_all(self) -> None: ...
-    def stop_all(self) -> None: ...
-    
-    def cleanup(self) -> None: ...
-```
-
----
-
-## Inputs and Outputs
-
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `source_type` | `str` | Type of audio source | 'system', 'file', 'mic', 'network' |
-| `config` | `Dict[str, Any]` | Source configuration | Source-specific keys |
-| `num_samples` | `int` | Number of samples to read | > 0 |
-| `target_sample_rate` | `int` | Output sample rate | 8000-192000 |
-| `buffer_size` | `int` | Internal buffer size | Power of 2, 256-8192 |
-
-**Output:** `np.ndarray` — Mixed audio samples (1D or 2D for multi-channel)
-
----
-
-## Edge Cases and Error Handling
-
-- What happens if source fails to start? → Log error, mark source as failed
-- What happens if source drops samples? → Insert silence, log warning
-- What happens if sample rates mismatch? → Resample to target rate
-- What happens if all sources stop? → Output silence
-- What happens on cleanup? → Stop all sources, release resources
-
----
+## Safety Rails
+- **Memory Limits**: Monitor audio buffer sizes
+- **Performance Guardrails**: Fallback to lower quality if overloaded
+- **Input Validation**: Validate audio format and device availability
+- **Error Handling**: Graceful degradation on device failure
+- **Resource Cleanup**: Proper device deallocation
 
 ## Dependencies
+- PyAudio or PortAudio for audio I/O
+- NumPy for audio processing
+- Threading and synchronization primitives
+- AudioAnalyzer for analysis integration
+- BeatDetector for beat detection integration
 
-- External libraries needed (and what happens if they are missing):
-  - `numpy` — required for audio buffers — fallback: raise ImportError
-  - `soundfile` or `pyaudio` — for audio I/O — fallback: use system defaults
-- Internal modules this depends on:
-  - None (standalone audio module)
+## Implementation Notes
+- Use WASAPI/CoreAudio for low-latency operation on Windows
+- Implement ASIO support for professional audio interfaces
+- Add support for JACK on Linux systems
+- Provide virtual audio cable support for routing
+- Implement audio file playback with format support
 
----
+## Verification Criteria
+- [ ] All supported audio devices work correctly
+- [ ] Format conversion maintains audio quality
+- [ ] Latency stays below 10ms for live sources
+- [ ] Seamless source switching without glitches
+- [ ] Audio mixing works with multiple sources
+- [ ] No audio artifacts or distortion
+- [ ] Handles sample rate changes gracefully
 
-## Test Plan
+## Related Tasks
+- P1-A1: FFT + Waveform Analysis Engine
+- P1-A2: Real-time beat detection
+- P1-A3: Audio-reactive effect framework
+- P1-R3: Shader compilation system (for visual effects)
 
-| Test Name | What It Verifies |
-|-----------|-----------------|
-| `test_init_no_hardware` | Module starts without crashing |
-| `test_add_remove_source` | Source management works |
-| `test_mix_all` | Mixes multiple sources correctly |
-| `test_sample_rate_conversion` | Resamples to target rate |
-| `test_buffer_management` | Buffering works without underruns |
-| `test_source_failure` | Handles source failures gracefully |
-| `test_level_monitoring` | Level meters work |
-| `test_edge_cases` | Handles invalid configurations |
+## Performance Targets
+- Latency: <10ms for live sources
+- Format conversion: <1ms per buffer
+- Mixing: <2ms for 4 sources
+- Memory usage: <10MB per instance
+- CPU usage: <5% on modern hardware
+- Sample rate support: 44.1kHz, 48kHz, 96kHz
+- Buffer sizes: 256, 512, 1024, 2048 samples
 
-**Minimum coverage:** 80% before task is marked done.
+## Advanced Features
+- **Automatic Device Detection**: Auto-detect available audio devices
+- **Device Profiles**: Save and load device configurations
+- **Audio Routing**: Route audio between different applications
+- **Real-time Effects**: Apply effects to audio input
+- **Audio Recording**: Record audio from any source
+- **Network Audio**: Stream audio over network protocols
+- **MIDI Integration**: Convert MIDI to audio for analysis
+- **Audio Analysis**: Real-time audio feature extraction
 
----
+## Source Types Details
+- **Microphone**: Built-in, USB, XLR, wireless
+- **Line Input**: Instrument, mixer, synthesizer
+- **Audio File**: MP3, WAV, FLAC, OGG, M4A
+- **Network Stream**: Icecast, SHOUTcast, custom protocols
+- **Virtual Cable**: VB-Cable, Virtual Audio Cable
+- **MIDI Audio**: Synthesizer, sampler, drum machine
 
-## Definition of Done
-
-- [ ] Spec reviewed (by Manager or User before code starts)
-- [ ] All tests listed above pass
-- [ ] No file over 750 lines
-- [ ] No stubs in code
-- [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-1] P1-A4: Audio sources` message
-- [ ] BOARD.md updated
-- [ ] Lock released
-- [ ] AGENT_SYNC.md handoff note written
-
----
-
-## Verification Checkpoint
-
-- [ ] Spec reviewed and approved
-- [ ] Implementation ready to begin
-- [ ] All dependencies verified
-- [ ] Test plan complete
-- [ ] Definition of Done clear
-
----
-
-*Specification based on VJlive-2 audio source management system.*
+## Format Support
+- **Sample Rates**: 44.1kHz, 48kHz, 96kHz, 192kHz
+- **Bit Depths**: 16-bit, 24-bit, 32-bit float
+- **Channels**: Mono, stereo, surround (up to 8 channels)
+- **Formats**: PCM, IEEE float, ALAW, MULAW
+- **Container Formats**: WAV, AIFF, CAF, RAW

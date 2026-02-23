@@ -1,97 +1,125 @@
+import os
 import pytest
-from unittest.mock import MagicMock
+import numpy as np
+from typing import Dict, Any
 
-from vjlive3.plugins.depth_acid_fractal import DepthAcidFractalPlugin, METADATA
+from vjlive3.plugins.depth_acid_fractal import DepthAcidFractalDatamoshPlugin, METADATA
 from vjlive3.plugins.api import PluginContext
 
-def test_acid_fractal_manifest():
-    """Verifies Pydantic/Dict manifest structure."""
-    assert METADATA["name"] == "Depth Acid Fractal"
-    assert "video_in" in METADATA["inputs"]
-    assert "fractal_intensity" in [p["name"] for p in METADATA["parameters"]]
-    assert "prism_split" in [p["name"] for p in METADATA["parameters"]]
-    
-    plugin = DepthAcidFractalPlugin()
-    assert plugin.name == "Depth Acid Fractal"
+@pytest.fixture
+def plugin():
+    return DepthAcidFractalDatamoshPlugin()
 
-def test_acid_fractal_fbo_cleanup():
-    """Ensures no textures are left dangling after on_unload/cleanup."""
-    plugin = DepthAcidFractalPlugin()
-    context = MagicMock()
+@pytest.fixture
+def context():
+    ctx = PluginContext(engine=None)
+    ctx.inputs = {}
+    ctx.outputs = {}
+    ctx.inputs["depth_in"] = 123  # Mock texture ID
+    return ctx
+    return ctx
+
+def test_plugin_metadata():
+    """Verify metadata follows VJLive3 standards"""
+    assert METADATA["name"] == "DepthAcidFractalDatamoshEffect"
+    assert "version" in METADATA
+    assert "fractal" in METADATA["tags"]
+    assert "depth_in" in METADATA["inputs"]
+    assert "video_out" in METADATA["outputs"]
     
+    # Check parameters
+    params = METADATA["parameters"]
+    names = [p["name"] for p in params]
+    assert "fractal_type" in names
+    assert "datamosh_strength" in names
+    assert "color_shift" in names
+    assert "zoom" in names
+
+def test_plugin_initialization_mock_mode(plugin, context):
+    """Test plugin initializes safely without OpenGL context"""
+    plugin._mock_mode = True
     plugin.initialize(context)
-    assert plugin._fbo_feedback_a is True
-    assert plugin._fbo_feedback_b is True
+    assert plugin._mock_mode is True
+    assert plugin.prog is None
+
+def test_process_frame_empty_input(plugin, context):
+    """Test handling of 0/None input texture"""
+    res = plugin.process_frame(0, {}, context)
+    assert res == 0
+    res2 = plugin.process_frame(None, {}, context)
+    assert res2 == 0
+
+def test_process_frame_mock_mode(plugin, context):
+    """Test process_frame falls back to passthrough correctly in mock mode"""
+    plugin._mock_mode = True
+    input_tex = 404
+    
+    result = plugin.process_frame(input_tex, {"fractal_type": 1}, context)
+    assert result == input_tex
+    assert context.outputs["video_out"] == input_tex
+
+def test_plugin_cleanup(plugin):
+    """Test cleanup runs without errors regardless of state"""
+    try:
+        plugin.cleanup()
+    except Exception as e:
+        pytest.fail(f"Cleanup raised exception: {e}")
+
+def test_all_metadata_parameters_have_bounds():
+    """Verify all parameters have min/max/default"""
+    for param in METADATA["parameters"]:
+        assert "name" in param
+        assert "type" in param
+        assert "min" in param
+        assert "max" in param
+        assert "default" in param
+        assert param["min"] <= param["default"] <= param["max"]
+
+from unittest.mock import MagicMock, patch
+
+@patch('vjlive3.plugins.depth_acid_fractal.gl')
+@patch('vjlive3.plugins.depth_acid_fractal.HAS_GL', True)
+def test_full_gl_execution(mock_gl, plugin, context):
+    """Test full initialization and rendering path using mocked GL"""
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
+    
+    # Initialize
+    plugin._mock_mode = False
+    plugin.initialize(context)
+    assert plugin.prog is not None
+    assert plugin._mock_mode is False
+    
+    # Process Frame
+    res = plugin.process_frame(123, {"fractal_type": 1}, context)
+    assert res is not None
+    
+    # Ensure uniform binding occurred
+    mock_gl.glUniform1f.assert_called()
+
+@patch('vjlive3.plugins.depth_acid_fractal.gl')
+@patch('vjlive3.plugins.depth_acid_fractal.HAS_GL', True)
+def test_gl_compile_failure(mock_gl, plugin, context):
+    """Test shader compilation failure fallback to mock mode"""
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_FALSE
+    
+    plugin._mock_mode = False
+    plugin.initialize(context)
+    assert plugin._mock_mode is True
+
+@patch('vjlive3.plugins.depth_acid_fractal.gl')
+@patch('vjlive3.plugins.depth_acid_fractal.HAS_GL', True)
+def test_gl_cleanup(mock_gl, plugin, context):
+    """Test cleanup of GL resources"""
+    plugin._mock_mode = False
+    plugin.textures["feedback_0"] = 1
+    plugin.fbos["feedback_0"] = 1
+    plugin.prog = 1
+    plugin.vao = 1
+    plugin.vbo = 1
     
     plugin.cleanup()
-    assert plugin._fbo_feedback_a is False
-    assert plugin._fbo_feedback_b is False
-
-def test_acid_fractal_bypass():
-    """Works cleanly when depth_in is not provided."""
-    plugin = DepthAcidFractalPlugin()
-    context = MagicMock()
     
-    def get_texture_mock(name):
-        if name == "video_in": return 444
-        return None
-        
-    context.get_texture.side_effect = get_texture_mock
-    
-    plugin.initialize(context)
-    plugin.process()
-    
-    # Assert video passed through unmodified
-    context.set_texture.assert_called_with("video_out", 444)
-
-def test_acid_fractal_processing_ping_pong():
-    """Validates the FBO ping pong logic works with valid textures and clamps parameters."""
-    plugin = DepthAcidFractalPlugin()
-    context = MagicMock()
-    
-    def get_texture_mock(name):
-        if name == "video_in": return 100
-        if name == "depth_in": return 200
-        return None
-        
-    def get_param_mock(name):
-        if name == "acid_fractal.zoom_blur": return 5.0 # Overshoot
-        if name == "acid_fractal.prism_split": return -1.0 # Undershoot
-        return None
-        
-    context.get_texture.side_effect = get_texture_mock
-    context.get_parameter.side_effect = get_param_mock
-    
-    plugin.initialize(context)
-    
-    # State 0 initially
-    assert plugin._ping_pong_state == 0
-    
-    # Process Frame 1
-    plugin.process()
-    assert plugin._ping_pong_state == 1
-    context.set_texture.assert_called_with("video_out", 10099) # 100 + 9999
-    
-    # Bound clamping verified
-    assert plugin.params["zoom_blur"] == 1.0  # Clamped to max
-    assert plugin.params["prism_split"] == 0.0 # Clamped to min
-    
-    # Process Frame 2 (Ping-Pong back)
-    plugin.process()
-    assert plugin._ping_pong_state == 0
-    context.set_texture.assert_called_with("video_out", 9100) # 100 + 9000
-
-def test_acid_fractal_missing_video():
-    plugin = DepthAcidFractalPlugin()
-    context = MagicMock()
-    context.get_texture.return_value = None
-    
-    plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_not_called()
-    
-def test_acid_fractal_no_context():
-    plugin = DepthAcidFractalPlugin()
-    plugin.process() # should not crash
-    plugin._read_params_from_context() # should not crash
+    mock_gl.glDeleteTextures.assert_called()
+    mock_gl.glDeleteFramebuffers.assert_called()
+    mock_gl.glDeleteProgram.assert_called()
+    assert plugin.textures["feedback_0"] is None

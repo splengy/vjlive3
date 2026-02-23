@@ -1,0 +1,483 @@
+# P4-COR068: IAgent — Standard Agent Interface
+
+## Mission Context
+The `IAgent` interface defines the standard contract for all autonomous agents in VJLive3. Every agent, from simple performance assistants to complex collaborative AI partners, must implement this interface to ensure consistent lifecycle management, state reporting, and integration with the AgentManager and AIIntegration systems. This is the foundational abstraction that enables the entire agent ecosystem.
+
+## Technical Requirements
+
+### Core Responsibilities
+1. **Standardized Agent Contract**
+   - Define clear lifecycle methods (initialize, start, stop, cleanup)
+   - Standard state reporting (active, idle, error, paused)
+   - Consistent configuration interface
+   - Uniform error handling and reporting
+
+2. **Agent Capabilities**
+   - Declare supported interaction modes (ADVISE, COLLABORATE, AUTONOMOUS)
+   - Expose available actions and parameters
+   - Provide capability discovery for orchestration
+   - Support for hot-swapping and dynamic reconfiguration
+
+3. **Performance Integration**
+   - Bridge to VJLive performance system via AgentPerformanceBridge
+   - Receive performance context (BPM, mood, audience response)
+   - Execute visual actions (effect suggestions, parameter changes)
+   - Publish agent events (suggestions, state changes, errors)
+
+4. **Resource Management**
+   - Declare resource requirements (CPU, GPU, memory)
+   - Support for graceful degradation under resource constraints
+   - Clean resource cleanup on shutdown
+   - Memory and connection leak prevention
+
+5. **Observability and Health**
+   - Comprehensive health status reporting
+   - Performance metrics (latency, throughput, error rates)
+   - Structured logging with context
+   - Integration with HealthMonitor
+
+### Architecture Constraints
+- **Interface-Only**: IAgent is an abstract interface, not an implementation
+- **Minal**: The interface should be as small as possible while covering all needs
+- **Backward-Compatible**: Future extensions must not break existing implementations
+- **Type-Safe**: Full type hints and Pydantic models for all data structures
+- **Async-Ready**: Support for asynchronous operations where appropriate
+
+### Key Interface Definition
+```python
+class IAgent(ABC):
+    """Standard interface for all autonomous VJLive agents."""
+
+    @property
+    @abstractmethod
+    def agent_id(self) -> str:
+        """Unique identifier for this agent instance."""
+        pass
+
+    @property
+    @abstractmethod
+    def agent_type(self) -> AgentType:
+        """Type of agent (PerformanceAgent, GhostAgent, etc.)."""
+        pass
+
+    @property
+    @abstractmethod
+    def capabilities(self) -> AgentCapabilities:
+        """Declared capabilities and supported features."""
+        pass
+
+    @abstractmethod
+    def initialize(self, config: AgentConfig) -> None:
+        """Initialize the agent with configuration."""
+        pass
+
+    @abstractmethod
+    def start(self) -> None:
+        """Start agent processing."""
+        pass
+
+    @abstractmethod
+    def stop(self) -> None:
+        """Stop agent processing gracefully."""
+        pass
+
+    @abstractmethod
+    def cleanup(self) -> None:
+        """Cleanup all resources, connections, threads."""
+        pass
+
+    @abstractmethod
+    def get_status(self) -> AgentStatus:
+        """Get current agent status and health."""
+        pass
+
+    @abstractmethod
+    def get_performance_bridge(self) -> Optional[AgentPerformanceBridge]:
+        """Get the bridge to VJLive performance system (if available)."""
+        pass
+
+    @abstractmethod
+    def on_performance_context(self, context: PerformanceContext) -> None:
+        """Receive updated performance context (BPM, mood, etc.)."""
+        pass
+
+    @abstractmethod
+    def on_visual_event(self, event: VisualEvent) -> None:
+        """React to visual events (effect triggered, parameter change)."""
+        pass
+
+    @abstractmethod
+    def on_audio_feature(self, feature: AudioFeature) -> None:
+        """React to audio features (beat, energy, frequency bands)."""
+        pass
+
+    @abstractmethod
+    def on_agent_interaction(self, interaction: AgentInteraction) -> None:
+        """React to interactions from other agents."""
+        pass
+
+    @abstractmethod
+    def get_suggestion(self, context: SuggestionContext) -> Optional[AgentSuggestion]:
+        """Generate a suggestion based on current context (for ADVISE mode)."""
+        pass
+
+    @abstractmethod
+    def execute_action(self, action: AgentAction) -> ExecutionResult:
+        """Execute a specific action (for COLLABORATE/AUTONOMOUS modes)."""
+        pass
+
+    @abstractmethod
+    def can_execute(self, action: AgentAction) -> bool:
+        """Check if this agent can execute the given action."""
+        pass
+
+    @abstractmethod
+    def get_resource_usage(self) -> ResourceUsage:
+        """Get current resource consumption (CPU, memory, GPU)."""
+        pass
+
+    @abstractmethod
+    def is_healthy(self) -> bool:
+        """Check if agent is in healthy state."""
+        pass
+```
+
+### Supporting Data Structures
+```python
+class AgentType(Enum):
+    PERFORMANCE = "performance"
+    GHOST = "ghost"
+    STROBE = "strobe"
+    WORKER = "worker"
+    DREAMER = "dreamer"
+    COMPOSITE = "composite"
+    CUSTOM = "custom"
+
+class AgentCapabilities:
+    interaction_modes: List[AgentInteractionMode]  # ADVISE, COLLABORATE, AUTONOMOUS
+    supported_actions: List[AgentActionType]
+    max_concurrent_suggestions: int
+    requires_performance_bridge: bool
+    supports_mood_influence: bool
+    supports_audio_reactivity: bool
+    supports_visual_analysis: bool
+    resource_requirements: ResourceRequirements
+
+class AgentStatus:
+    agent_id: str
+    agent_type: AgentType
+    state: AgentState  # ACTIVE, IDLE, ERROR, PAUSED, STOPPED
+    uptime: float
+    last_activity: float
+    error_count: int
+    last_error: Optional[str]
+    health_score: float  # 0.0-1.0
+    resource_usage: ResourceUsage
+    active_suggestions: int
+    queued_suggestions: int
+
+class AgentInteractionMode(Enum):
+    ADVISE = "advise"
+    COLLABORATE = "collaborate"
+    AUTONOMOUS = "autonomous"
+
+class AgentState(Enum):
+    ACTIVE = "active"
+    IDLE = "idle"
+    ERROR = "error"
+    PAUSED = "paused"
+    STOPPED = "stopped"
+    INITIALIZING = "initializing"
+
+class SuggestionContext:
+    performance_context: PerformanceContext
+    recent_actions: List[AgentAction]
+    audience_response: Optional[AudienceResponse]
+    time_in_performance: float
+    agent_mood: Optional[MoodState]
+    constraints: List[Constraint]
+
+class AgentAction:
+    action_id: str
+    action_type: AgentActionType
+    parameters: Dict[str, Any]
+    priority: float  # 0.0-1.0
+    timestamp: float
+    agent_id: str
+    estimated_impact: float  # 0.0-1.0
+
+class ExecutionResult:
+    success: bool
+    action_id: str
+    execution_time: float
+    result_data: Optional[Dict[str, Any]]
+    error: Optional[str]
+    metrics: Dict[str, float]
+
+class ResourceUsage:
+    cpu_percent: float
+    memory_mb: float
+    gpu_memory_mb: Optional[float]
+    thread_count: int
+    open_connections: int
+```
+
+## Implementation Notes
+
+### Base Agent Class
+Provide a base implementation to simplify agent development:
+```python
+class BaseAgent(IAgent):
+    """Base class for VJLive agents with common functionality."""
+
+    def __init__(self, config: AgentConfig, event_bus: EventBus):
+        self.config = config
+        self.event_bus = event_bus
+        self._state = AgentState.INITIALIZING
+        self._performance_bridge: Optional[AgentPerformanceBridge] = None
+        self._resource_tracker = ResourceTracker()
+        self._logger = logging.getLogger(f"agent.{self.agent_id}")
+
+    def initialize(self, config: AgentConfig) -> None:
+        """Override in subclass."""
+        raise NotImplementedError
+
+    def start(self) -> None:
+        """Override in subclass."""
+        raise NotImplementedError
+
+    def stop(self) -> None:
+        """Override in subclass."""
+        raise NotImplementedError
+
+    def cleanup(self) -> None:
+        """Override in subclass."""
+        raise NotImplementedError
+
+    def get_status(self) -> AgentStatus:
+        """Default implementation returns basic status."""
+        return AgentStatus(
+            agent_id=self.agent_id,
+            agent_type=self.agent_type,
+            state=self._state,
+            uptime=self._get_uptime(),
+            last_activity=self._get_last_activity(),
+            error_count=self._error_count,
+            last_error=self._last_error,
+            health_score=self._calculate_health(),
+            resource_usage=self.get_resource_usage(),
+            active_suggestions=0,
+            queued_suggestions=0
+        )
+
+    # Default implementations for optional methods
+    def on_performance_context(self, context: PerformanceContext) -> None:
+        """Default: ignore performance context updates."""
+        pass
+
+    def on_visual_event(self, event: VisualEvent) -> None:
+        """Default: ignore visual events."""
+        pass
+
+    def on_audio_feature(self, feature: AudioFeature) -> None:
+        """Default: ignore audio features."""
+        pass
+
+    def on_agent_interaction(self, interaction: AgentInteraction) -> None:
+        """Default: ignore agent interactions."""
+        pass
+
+    def get_suggestion(self, context: SuggestionContext) -> Optional[AgentSuggestion]:
+        """Default: no suggestion."""
+        return None
+
+    def execute_action(self, action: AgentAction) -> ExecutionResult:
+        """Default: cannot execute actions."""
+        return ExecutionResult(
+            success=False,
+            action_id=action.action_id,
+            execution_time=0.0,
+            error="Agent does not support action execution"
+        )
+
+    def can_execute(self, action: AgentAction) -> bool:
+        """Default: cannot execute any actions."""
+        return False
+
+    def get_resource_usage(self) -> ResourceUsage:
+        """Default: return tracked resource usage."""
+        return self._resource_tracker.get_usage()
+```
+
+### Agent Registration and Discovery
+```python
+class AgentRegistry:
+    """Registry for agent discovery and management."""
+
+    def __init__(self):
+        self._agents: Dict[str, IAgent] = {}
+        self._by_type: Dict[AgentType, List[IAgent]] = defaultdict(list)
+
+    def register(self, agent: IAgent) -> None:
+        """Register an agent."""
+        self._agents[agent.agent_id] = agent
+        self._by_type[agent.agent_type].append(agent)
+
+    def unregister(self, agent_id: str) -> None:
+        """Unregister an agent."""
+        if agent_id in self._agents:
+            agent = self._agents[agent_id]
+            self._by_type[agent.agent_type].remove(agent)
+            del self._agents[agent_id]
+
+    def get_agent(self, agent_id: str) -> Optional[IAgent]:
+        """Get agent by ID."""
+        return self._agents.get(agent_id)
+
+    def get_agents_by_type(self, agent_type: AgentType) -> List[IAgent]:
+        """Get all agents of a specific type."""
+        return list(self._by_type[agent_type])
+
+    def list_all(self) -> List[IAgent]:
+        """List all registered agents."""
+        return list(self._agents.values())
+
+    def find_capable(self, action: AgentAction) -> List[IAgent]:
+        """Find agents capable of executing the given action."""
+        return [
+            agent for agent in self._agents.values()
+            if agent.can_execute(action)
+        ]
+```
+
+### Lifecycle Management
+AgentManager will use these lifecycle methods:
+```python
+# Initialization sequence
+agent.initialize(config)
+agent.start()
+agent.register_with_bridge()  # if needed
+
+# Runtime
+agent.on_performance_context(context)
+agent.on_audio_feature(feature)
+suggestion = agent.get_suggestion(context)
+result = agent.execute_action(action)
+
+# Shutdown
+agent.stop()
+agent.cleanup()
+agent.unregister_from_bridge()
+```
+
+## Verification Checkpoints
+
+### 1. Interface Compliance Tests
+- [ ] `tests/agents/test_interface.py`: All agent implementations correctly implement IAgent
+- [ ] `tests/agents/test_base_agent.py`: BaseAgent provides sensible defaults
+- [ ] `tests/agents/test_registry.py`: AgentRegistry correctly tracks agents
+- [ ] `tests/agents/test_lifecycle.py`: Lifecycle methods called in correct order
+
+### 2. Integration Tests
+- [ ] IAgent + AgentManager: AgentManager can manage any IAgent implementation
+- [ ] IAgent + EventBus: Agent events properly published
+- [ ] IAgent + PerformanceBridge: Performance context flows correctly
+- [ ] IAgent + HealthMonitor: Health status accurately reported
+
+### 3. Contract Tests
+- [ ] All concrete agents pass interface compliance tests
+- [ ] Agent capabilities correctly declared and discoverable
+- [ ] Resource usage accurately reported
+- [ ] Error handling consistent across all agents
+
+### 4. Performance Tests
+- [ ] Agent method overhead: <0.1 ms per call
+- [ ] Registry lookup: O(1) performance
+- [ ] Memory overhead: <1 MB per agent for interface structures
+- [ ] Startup time: <100 ms per agent initialization
+
+### 5. Manual QA
+- [ ] Create a minimal test agent implementing IAgent
+- [ ] Verify AgentManager can load, start, stop, and cleanup the agent
+- [ ] Test agent failure recovery
+- [ ] Verify event bus integration
+- [ ] Test resource usage reporting accuracy
+
+## Resources
+
+### Legacy References
+- `vjlive/agents/base.py` — IAgent interface (legacy)
+- `vjlive/agents/agent_manager.py` — AgentManager using IAgent
+- `vjlive/agents/agent_bridge.py` — Performance bridge interface
+- `vjlive/agents/ghost_agent.py` — Example agent implementation
+
+### Existing VJLive3 Code
+- `src/vjlive3/core/ai_integration.py` — AI subsystem coordination
+- `src/vjlive3/core/event_bus.py` — Event bus for agent events
+- `src/vjlive3/agents/agent_manager.py` — Agent lifecycle management
+- `src/vjlive3/agents/agent_bridge.py` — Performance bridge
+
+### External Documentation
+- Interface design patterns: "Design Patterns: Elements of Reusable Object-Oriented Software"
+- Abstract base classes in Python: https://docs.python.org/3/library/abc.html
+- Agent architectures: "The Agent Architecture: A Survey"
+
+## Success Criteria
+
+### Interface Completeness
+- [ ] IAgent defines all necessary methods for agent lifecycle
+- [ ] All data structures are well-defined with complete type hints
+- [ ] BaseAgent provides sensible defaults for optional methods
+- [ ] AgentRegistry supports discovery and capability queries
+
+### Usability
+- [ ] Concrete agents can implement IAgent with minimal boilerplate
+- [ ] BaseAgent reduces implementation effort by >50%
+- [ ] Clear documentation and examples for agent developers
+- [ ] Error messages are helpful and actionable
+
+### Reliability
+- [ ] All agent implementations pass interface compliance tests
+- [ ] Lifecycle methods work correctly in all states
+- [ ] Resource usage accurately reported
+- [ ] No crashes due to interface violations
+
+### Performance
+- [ ] Agent method overhead: <0.1 ms per call
+- [ ] Registry lookup: O(1) performance
+- [ ] Memory overhead: <1 MB per agent
+- [ ] Startup time: <100 ms per agent
+
+### Integration
+- [ ] AgentManager can manage any IAgent implementation
+- [ ] Event bus integration works for all agent events
+- [ ] Performance bridge correctly routes agent actions
+- [ ] HealthMonitor receives accurate agent health data
+
+## Dependencies (Blocking)
+- None! This is the foundational interface. It should be implemented first.
+- However, it will be used by: AgentManager, AgentPersona, AgentOrchestrator, etc.
+
+## Notes for Implementation Engineer (Alpha)
+
+This is the **most foundational** component of the entire agent system. Every single agent must implement this interface. It must be:
+
+- **Complete**: Cover all agent lifecycle and integration needs
+- **Clear**: Unambiguous method contracts and data structures
+- **Stable**: Once released, interface changes must be carefully considered
+- **Well-Documented**: Every method and data structure thoroughly documented
+- **Tested**: Comprehensive interface compliance tests
+
+Start by:
+1. Reviewing all existing agent implementations in legacy codebase
+2. Identifying common patterns and required methods
+3. Defining the minimal complete interface
+4. Creating supporting data structures with full type hints
+5. Implementing BaseAgent with sensible defaults
+6. Creating AgentRegistry for discovery
+7. Writing comprehensive interface compliance tests
+8. Creating example minimal agent to validate the interface
+
+The spec is **auto-approved**. Proceed to implementation following the workflow: SPEC → CODE → TEST → VERIFY → COMMIT → UPDATE BOARD.
+
+**Important**: This interface will be used by dozens of agents. Get it right the first time.

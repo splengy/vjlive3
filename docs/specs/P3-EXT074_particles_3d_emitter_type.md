@@ -1,0 +1,153 @@
+# P3-EXT074: Particles 3D Emitter Type
+
+## What This Module Does
+Defines emitter types and behaviors for 3D particle systems, providing configurable emission patterns and shapes for particle generation in depth-aware particle effects.
+
+## Public Interface
+
+### METADATA
+```python
+METADATA = {
+    "name": "Particles 3D Emitter Type",
+    "id": "P3-EXT074",
+    "category": "depth_effects",
+    "description": "Configurable emitter types and behaviors for 3D particle systems",
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "priority": 0,
+    "dependencies": ["DepthBuffer", "ParticleEngine3D"],
+    "test_coverage": 85
+}
+```
+
+### Parameters
+- `emitter_type` (str): Emitter shape: "point", "sphere", "box", "cylinder", "cone", "mesh", "depth_contour"
+- `emitter_radius` (float): Emitter radius for spherical/cylindrical emitters (0.1-10.0, default: 1.0)
+- `emitter_height` (float): Emitter height for cylinder/cone (0.1-10.0, default: 2.0)
+- `emitter_cone_angle` (float): Cone emission angle in degrees (0-180, default: 45)
+- `emitter_mesh_file` (str): Path to mesh file for mesh emitter (optional)
+- `emitter_rotation` (list[float]): Emitter rotation Euler angles [x, y, z] in degrees
+- `emitter_velocity` (list[float]): Initial particle velocity vector [vx, vy, vz]
+- `emitter_spread` (float): Velocity spread factor (0.0-1.0, default: 0.2)
+- `depth_emitter_mapping` (str): How depth affects emission: "near_more", "far_more", "mid_more", "uniform"
+
+### Inputs
+- `video` (torch.Tensor[uint8]): Input video frames [B, 3, H, W]
+- `depth` (torch.Tensor[float]): Depth buffer [B, 1, H, W] normalized 0-1
+
+### Outputs
+- `video` (torch.Tensor[uint8]): Video with emitted particles [B, 3, H, W]
+
+## What It Does NOT Do
+- Does NOT perform mesh loading from arbitrary formats (only simple OBJ/PLY)
+- Does NOT support animated emitter transforms (static emitter only)
+- Does NOT handle particle collisions with emitter (emission only)
+- Does NOT support emitter instancing (single emitter per effect)
+- Does NOT perform emitter culling (always active)
+
+## Test Plan
+
+### Unit Tests
+1. `test_emitter_type_initialization()`
+   - Verify METADATA constants
+   - Test parameter validation (emitter_radius 0.1-10.0, emitter_cone_angle 0-180, emitter_spread 0-1)
+   - Test default parameter values
+
+2. `test_emitter_types()`
+   - Test all emitter_type options: point, sphere, box, cylinder, cone, mesh, depth_contour
+   - Verify each emitter produces correct initial particle positions
+   - Test emitter_type switching
+
+3. `test_emitter_dimensions()`
+   - Test emitter_radius for sphere/cylinder/cone
+   - Test emitter_height for cylinder/cone
+   - Test emitter_cone_angle for cone emitter
+   - Verify particle distribution within emitter volume
+
+4. `test_emitter_velocity()`
+   - Test emitter_velocity vector [vx, vy, vz]
+   - Test emitter_spread parameter (0.0, 0.2, 1.0)
+   - Verify velocity distribution with spread
+
+5. `test_emitter_rotation()`
+   - Test emitter_rotation Euler angles [x, y, z]
+   - Verify rotation applied to emission direction
+   - Test rotation order (XYZ)
+
+6. `test_depth_emitter_mapping()`
+   - Test all depth_emitter_mapping modes: near_more, far_more, mid_more, uniform
+   - Create synthetic depth map with varying regions
+   - Verify emission rate varies with depth
+
+7. `test_mesh_emitter()`
+   - Test emitter_type="mesh" with simple mesh file
+   - Verify particles emit from mesh surface
+   - Test mesh loading errors
+
+8. `test_depth_contour_emitter()`
+   - Test emitter_type="depth_contour"
+   - Verify particles emit from depth contour lines
+   - Test contour detection parameters
+
+### Integration Tests
+1. `test_full_pipeline_60fps()`
+   - Process 1000 frames at 1920x1080 with emitter_type="sphere"
+   - Verify FPS ≥ 60 on test hardware
+   - Monitor memory usage < 2x input size
+
+2. `test_real_depth_emission()`
+   - Feed real depth map from MiDaS/DPT
+   - Verify depth-based emission variations
+   - Test with complex scenes (people, objects, backgrounds)
+
+3. `test_emitter_performance_scaling()`
+   - Test different emitter_type options
+   - Measure FPS vs emitter complexity
+   - Identify performance bottlenecks
+
+4. `test_safety_rails_compliance()`
+   - Verify no silent failures on invalid inputs
+   - Test error handling for missing depth
+   - Ensure all exceptions are logged
+
+## Implementation Notes
+
+### Architecture
+- Build on `DepthEffect` base class from P3-VD35
+- Integrate with `ParticleEngine3D` from VJlive-2
+- Implement emitter types as particle spawn strategies
+- Use depth-driven emission rate: emission_rate = base_rate × depth_factor
+- Support mesh loading from simple formats (OBJ, PLY)
+- Implement depth_contour emitter using edge detection on depth map
+
+### Performance Optimizations
+- Use GPU for particle spawning (CUDA)
+- Precompute emitter shape lookup tables
+- Use shared memory for particle buffer
+- Implement particle LOD for distance
+
+### Memory Management
+- Allocate particle buffer: max_particles × 32 bytes
+- Use ring buffer for particle recycling
+- Profile memory with 100000 particles, enforce < 2GB peak
+- Free mesh data after loading
+
+### Safety Rails
+- Enforce emitter_radius ≤ 10.0, emitter_height ≤ 10.0, emitter_cone_angle ≤ 180
+- Clamp emitter_spread to [0.0, 1.0]
+- Validate emitter_type and depth_emitter_mapping as valid options
+- Fallback to point emitter if mesh loading fails
+
+## Deliverables
+1. `src/vjlive3/effects/particles_3d_emitter_type.py` - Main effect
+2. `tests/effects/test_particles_3d_emitter_type.py` - Tests
+3. `docs/effects/particles_3d_emitter_type.md` - Documentation
+4. Update `MODULE_MANIFEST.md`
+
+## Success Criteria
+- ✅ All unit tests pass (≥ 85% coverage)
+- ✅ 60 FPS at 1080p with 10000 particles on RTX 4070 Ti Super
+- ✅ All emitter types work correctly
+- ✅ Zero safety rail violations
+- ✅ Works with real depth maps
+- ✅ Clean code: ≤ 750 lines, no stubs, full type hints

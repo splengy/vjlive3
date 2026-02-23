@@ -1,60 +1,81 @@
-# P3-VD26: Depth Acid Fractal
+# P3-P3-VD26: Depth Acid Fractal Datamosh Effect
 
-> **Task ID:** `P3-VD26`  
-> **Priority:** P0 (Critical)  
-> **Source:** VJlive-2 (`plugins/vdepth/depth_acid_fractal.py`)  
-> **Class:** `DepthAcidFractalDatamoshEffect`  
-> **Phase:** Phase 3  
-> **Status:** ✅ Done  
-
-## Mission Context
-
-Port the `DepthAcidFractalDatamoshEffect` effect from `VJlive-2` codebase into VJLive3's clean architecture. This plugin is part of the Depth collection and is essential for complete feature parity.
+## Overview
+A psychedelic datamosh effect that applies fractal transformations to depth-mapped video, creating acid-like visual distortions with recursive patterns.
 
 ## Technical Requirements
 
-- Implement as a VJLive3 plugin following the manifest-based registry system
-- Inherit from appropriate base class (likely `Effect` or specialized depth/audio base)
-- Ensure 60 FPS performance (Safety Rail 1)
-- Achieve ≥80% test coverage (Safety Rail 5)
-- File size ≤750 lines (Safety Rail 4)
-- No silent failures, proper error handling (Safety Rail 7)
+### Core Functionality
+- **Fractal Generation**: Implement Mandelbrot/Julia set fractal algorithms
+- **Depth Integration**: Apply fractal patterns based on depth values
+- **Datamosh Effects**: Add temporal distortion and pixelation
+- **Real-time Performance**: Maintain 60 FPS on modern hardware
 
-## Implementation Notes
+### Input/Output
+- **Input**: RGBA video texture + depth map (16-bit or 32-bit float)
+- **Output**: RGBA video texture with fractal acid effects applied
 
-**Original Location:** `VJlive-2/plugins/vdepth/depth_acid_fractal.py`  
-**Description:** No description available
+### Parameters
+- `fractal_type`: Mandelbrot or Julia set selection
+- `iterations`: Fractal iteration count (1-1000)
+- `zoom`: Fractal zoom level (0.01-10.0)
+- `offset_x`, `offset_y`: Fractal coordinate offsets
+- `color_shift`: Hue rotation based on depth (0-360°)
+- `datamosh_strength`: Temporal distortion intensity (0-1.0)
+- `pixelation`: Block size for pixelation effect (1-64 pixels)
 
-### Porting Strategy
+### Shader Implementation
+- **Vertex Shader**: Pass through with depth-based vertex displacement
+- `depth_threshold`: Depth cutoff for fractal application
+- **Fragment Shader**: Main fractal computation and color mapping
+- **Compute Shader**: Optional for complex fractal calculations
 
-1. Study the original implementation in `VJlive-2/plugins/vdepth/depth_acid_fractal.py`
-2. Identify dependencies and required resources (shaders, textures, etc.)
-3. Adapt to VJLive3's plugin architecture (see `src/vjlive3/plugins/`)
-4. Write comprehensive tests (≥80% coverage)
-5. Verify against original behavior with test vectors
-6. Document any deviations or improvements
+### Performance Considerations
+- Use GPU compute shaders for fractal calculations
+- Implement level-of-detail for fractal detail based on zoom
+- Cache fractal patterns for repeated coordinates
+- Optimize memory access patterns for depth map sampling
 
-## Verification Checkpoints
+## Integration Points
+- **Plugin System**: Register as DepthAcidFractalDatamoshEffect
+- **Node Graph**: Add to depth effect node collection
+- **MIDI Mapping**: Map parameters to MIDI controllers
+- **Audio Reactivity**: Link fractal parameters to audio analysis
 
-- [x] Plugin loads successfully via registry
-- [x] All parameters exposed and editable
-- [x] Renders at 60 FPS minimum
-- [x] Test coverage ≥80%
-- [x] No safety rail violations
-- [x] Original functionality verified (side-by-side comparison)
+## Testing Requirements
+- **Unit Tests**: Verify fractal generation accuracy
+- **Integration Tests**: Test with depth camera input
+- **Performance Tests**: Ensure 60 FPS target
+- **Visual Regression**: Compare output against reference images
 
-## Resources
-
-- Original source: `VJlive-2/plugins/vdepth/depth_acid_fractal.py`
-- Audit report: `docs/audit_report_comprehensive.json`
-- Plugin system spec: `docs/specs/P1-P1_plugin_registry.md` (or appropriate)
-- Base classes: `src/vjlive3/plugins/`, `src/vjlive3/render/`
+## Safety Rails
+- **Memory Limits**: Monitor GPU memory usage
+- **Performance Guardrails**: Fallback to lower quality if FPS drops
+- **Input Validation**: Validate depth map format and range
+- **Error Handling**: Graceful degradation on shader compilation failure
 
 ## Dependencies
+- ModernGL for OpenGL context
+- GLSL 4.5+ for advanced shader features
+- Depth camera integration (Astra/Kinect)
+- Audio analysis system for reactivity
 
-- [ ] List any dependencies on other plugins or systems
+## Implementation Notes
+- Use signed distance functions for fractal rendering
+- Implement smooth coloring algorithms for visual appeal
+- Add temporal coherence for smooth datamosh transitions
+- Consider multi-pass rendering for complex effects
 
----
+## Verification Criteria
+- [ ] Fractal patterns render correctly at all zoom levels
+- [ ] Depth integration produces meaningful visual separation
+- [ ] Datamosh effects are smooth and controllable
+- [ ] Performance maintains 60 FPS with 1080p input
+- [ ] All parameters respond smoothly to MIDI/audio input
+- [ ] Shader compiles on target hardware (NVIDIA/AMD/Intel)
 
-**Bespoke Snowflake Principle:** This plugin is unique. Do not batch-process. Give it individual attention and quality.
-
+## Related Tasks
+- P3-VD27: Depth Aware Compression
+- P3-VD28: Depth Blur
+- P3-VD29: Depth Camera Splitter
+- P3-VD30: Depth Color Grade

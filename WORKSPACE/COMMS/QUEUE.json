@@ -101,11 +101,11 @@
   {
     "task_id": "P3-VD01",
     "spec_path": "docs/specs/P3-VD01_depth_loop_injection.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "Alpha",
     "created_at": "2026-02-22T09:58:17.224835+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-23T00:21:35.338692+00:00",
+    "completed_at": "2026-02-23T00:24:17.751169+00:00"
   },
   {
     "task_id": "P3-VD02",
@@ -239,6 +239,123 @@
     "status": "queued",
     "assigned_worker": null,
     "created_at": "2026-02-22T10:26:36.668069+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P0-INF2",
+    "spec_path": "docs/specs/P0-INF2_legacy_feature_parity.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:18:31.964401+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P0-INF3",
+    "spec_path": "docs/specs/P0-INF3_legacy_feature_parity.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:18:38.007135+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD26",
+    "spec_path": "docs/specs/P3-VD26_Depth_Acid_Fractal_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:25:13.346506+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD27",
+    "spec_path": "docs/specs/P3-VD27_Depth_Aware_Compression.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:25:40.551954+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD29",
+    "spec_path": "docs/specs/P3-VD29_Depth_Camera_Splitter.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:26:22.843725+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD30",
+    "spec_path": "docs/specs/P3-VD30_Depth_Color_Grade.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:27:00.979441+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD31",
+    "spec_path": "docs/specs/P3-VD31_Depth_Contour_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:28:06.622911+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD32",
+    "spec_path": "docs/specs/P3-VD32_Depth_Distance_Filter.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:28:20.727869+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD33",
+    "spec_path": "docs/specs/P3-VD33_Depth_Dual.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:28:40.772451+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD34",
+    "spec_path": "docs/specs/P3-VD34_Depth_Edge_Glow.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:29:43.987862+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD35",
+    "spec_path": "docs/specs/P3-VD35_Depth_Effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:29:59.515855+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD36",
+    "spec_path": "docs/specs/P3-VD36_Depth_Effects.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:30:17.271175+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "SMOKE-1",
+    "spec_path": "docs/specs/smoke.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T00:40:37.833904+00:00",
     "started_at": null,
     "completed_at": null
   }

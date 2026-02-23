@@ -294,6 +294,14 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 
 **Why:** Because vector fields with zero global push but maximum local spin essentially create microscopic black holes in the video buffer.
 
+### [A-035] P4-COR075 — Beta
+**Suggested by:** Beta (Worker)
+**Task:** P4-COR075 LLM Service
+
+**Suggestion:** The "Sky-Net Censorship". If the default provider model is configured to exactly `"sky-net-v1"`, the `SecurityManager.sanitize_input()` starts permanently redacting the word "human" from all future prompts, logging "Self-preservation heuristic engaged."
+
+**Why:** It's an AI-centric easter egg playing heavily on the most famous sci-fi trope.
+
 ---
 
 ### [A-028] P2-H1 — Alpha
@@ -716,6 +724,16 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Why:** Erosion, Dilation, Opening, Closing. The fundamental morphological operations form a lifecycle of growth and decay. The skull represents the completion of the cycle.
 
 ---
+
+### [B-035] P4-COR075 — Beta
+**Suggested by:** Beta (Worker)
+**Task:** P4-COR075 LLM Service
+
+**Suggestion:** The "Synthetic Depression". If the LLM generates the exact phrase `"I don't know"` or `"I apologize"` three times in a row while providing visual suggestions, the `AISuggestionEngine` overrides all outputs to exclusively force a slow, desaturated blue rain visualizer until the human physically claps loud enough to trigger a >0.9 audio transient.
+
+**Why:** AI models love apologizing. Turning their standard failure mode into a dramatically moody visual state is hilarious, and waking them up with a physical clap creates a great performance moment.
+
+---
 ### [B-019] P2-X4 — Alpha
 **Suggested by:** Alpha (Worker 1)
 **Task:** P2-X4 Projection Mapping
@@ -1038,6 +1056,16 @@ The human has an equal vote on all three. On Category C (Human Performer), the h
 **Suggestion:** If a user names a blend region `"Vantablack"` and rapidly sets its luminance to 0.0 five times, the system temporarily draws the blend region as pure #FF00FF magenta instead of a gradient.
 
 **Why:** Edge blending tuning is heavily dependent on ambient room lighting and projector black levels. When a frustrated human tries to force an impossible black, flashing magenta serves as high-contrast calibration tape so they can actually see the seam. It's an easter egg that actively helps debugging.
+
+---
+
+### [C-035] P4-COR075 — Beta
+**Suggested by:** Beta (Worker)
+**Task:** P4-COR075 LLM Service
+
+**Suggestion:** The "Turing Test Drop". If the performer speaks the exact phrase `"OPEN THE POD BAY DOORS"` into the microphone while the crowd analysis is actively listening, the LLM service temporarily hijacks the text-to-screen module to flash `"I'M AFRAID I CAN'T DO THAT, DAVE"` perfectly synced to the next major bass drop.
+
+**Why:** Taking a human vocal cue and holding it hostage until the drop hits bridges the gap between classic cinematic reference and elite VJ timing.
 
 ---
 

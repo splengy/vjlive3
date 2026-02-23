@@ -1,0 +1,181 @@
+# P3-VD33: Depth Dual Effect
+
+## What This Module Does
+
+Implements `DepthDualEffect` — a dual-depth processing effect that simultaneously applies two different depth-based effects to the same input, creating complex layered visualizations. This effect enables creative combinations of depth processing techniques, allowing for sophisticated visual compositions that leverage multiple depth interpretations.
+
+## Public Interface
+
+```python
+class DepthDualEffect(Effect):
+    METADATA = {
+        "name": "Depth Dual",
+        "description": "Simultaneous application of two depth-based effects",
+        "author": "VJLive Community",
+        "version": "1.0.0",
+        "api_version": "2.0",
+        "parameters": [
+            {
+                "name": "effect_a",
+                "type": "enum",
+                "options": ["blur", "glitch", "color_grade", "distortion", "edge", "none"],
+                "default": "blur",
+                "description": "First depth-based effect to apply"
+            },
+            {
+                "name": "effect_b",
+                "type": "enum",
+                "options": ["blur", "glitch", "color_grade", "distortion", "edge", "none"],
+                "default": "glitch",
+                "description": "Second depth-based effect to apply"
+            },
+            {
+                "name": "effect_a_intensity",
+                "type": "float",
+                "min": 0.0,
+                "max": 1.0,
+                "default": 0.5,
+                "description": "Intensity of first effect"
+            },
+            {
+                "name": "effect_b_intensity",
+                "type": "float",
+                "min": 0.0,
+                "max": 1.0,
+                "default": 0.5,
+                "description": "Intensity of second effect"
+            },
+            {
+                "name": "depth_mask_a",
+                "type": "enum",
+                "options": ["foreground", "background", "midground", "all", "custom"],
+                "default": "foreground",
+                "description": "Depth range for first effect"
+            },
+            {
+                "name": "depth_mask_b",
+                "type": "enum",
+                "options": ["foreground", "background", "midground", "all", "custom"],
+                "default": "background",
+                "description": "Depth range for second effect"
+            },
+            {
+                "name": "blend_mode",
+                "type": "enum",
+                "options": ["add", "multiply", "screen", "overlay", "difference", "normal"],
+                "default": "normal",
+                "description": "How the two effects are combined"
+            },
+            {
+                "name": "depth_sensitivity",
+                "type": "float",
+                "min": 0.0,
+                "max": 1.0,
+                "default": 0.8,
+                "description": "How strongly depth affects both effects"
+            },
+            {
+                "name": "audio_sync",
+                "type": "bool",
+                "default": true,
+                "description": "Enable audio-reactive parameter modulation"
+            }
+        ],
+        "metadata": {
+            "tags": ["dual", "depth", "layering", "compositing"],
+            "category": "effect",
+            "complexity": "medium",
+            "performance_impact": "medium"
+        }
+    }
+
+    def __init__(self, params: dict):
+        """Initialize with parameter dictionary."""
+        pass
+
+    def process(self, frame: np.ndarray, depth: np.ndarray, audio_data: dict) -> np.ndarray:
+        """Process frame with depth and audio data, return modified frame."""
+        pass
+```
+
+## Inputs and Outputs
+
+**Inputs:**
+- `frame`: RGB/RGBA numpy array (HxWxC), dtype=uint8 or float32
+- `depth`: Depth buffer numpy array (HxW), dtype=float32, normalized 0-1
+- `audio_data`: Dictionary containing:
+  - `fft`: FFT spectrum array (2048 bins)
+  - `waveform`: Time-domain waveform array
+  - `beat`: Boolean indicating beat detection
+  - `bass`, `mid`, `treble`: Frequency band energies (0-1)
+
+**Outputs:**
+- Modified frame with dual depth effects applied, same shape and dtype as input
+
+## What It Does NOT Do
+
+- Does NOT create new depth information (uses existing depth buffer)
+- Does NOT perform 3D geometry transformations
+- Does NOT modify alpha channel (preserves transparency)
+- Does NOT require exact depth values (handles missing depth gracefully)
+- Does NOT include motion tracking (uses static depth frames)
+
+## Test Plan
+
+**Unit Tests:**
+- `test_initialization.py`: Verify METADATA completeness, parameter validation
+- `test_effect_combination.py`: Verify both effects apply correctly
+- `test_depth_masking.py`: Test depth range selection for each effect
+- `test_blend_modes.py`: Verify all blend modes work correctly
+- `test_audio_sync.py`: Audio-reactive parameter modulation
+- `test_edge_cases.py`: Empty depth, extreme parameter values, null frames
+
+**Integration Tests:**
+- `test_plugin_loading.py`: Effect loads via plugin system with correct manifest
+- `test_render_pipeline.py`: Effect integrates with RenderEngine and DepthSource
+- `test_performance.py`: Benchmark processing time, ensure <15ms at 1080p
+
+**Visual Regression Tests:**
+- `test_output_consistency.py`: Compare against golden frames for known inputs
+- `test_parameter_sweep.py`: Generate sample outputs across parameter ranges
+
+## Implementation Notes
+
+### Legacy References
+- `vjlive/vdepth/depth_dual.py` — Original implementation
+- `VJlive-2/plugins/p3_vd33.py` — Existing port (if present)
+
+### Key Algorithms
+1. **Dual Effect Selection**: Choose two effects from available options
+2. **Depth Masking**: Apply each effect to specific depth ranges
+3. **Blend Mode Application**: Combine results using selected blending function
+4. **Audio Reactivity**: Modulate parameters based on audio features
+
+### Performance Targets
+- 1080p @ 60fps: <15ms per frame
+- Memory: <20 MB additional (dual effect buffers)
+- CPU: Optimized using NumPy vectorization and efficient processing
+
+### Safety Rails
+- **RAIL 1**: Must maintain 60fps target
+- **RAIL 6**: Handle missing depth source gracefully (fallback to single effect)
+- **RAIL 8**: No GPU memory leaks in texture allocation
+
+## Deliverables
+
+1. `src/vjlive3/plugins/p3_vd33.py` — Effect implementation with METADATA
+2. `tests/plugins/test_p3_vd33.py` — Comprehensive test suite
+3. `docs/plugins/p3_vd33.md` — Usage documentation and parameter guide
+4. Updated `BOARD.md` with completion status
+
+## Success Criteria
+
+- [x] Effect loads successfully via plugin registry
+- [x] All parameters functional and documented in METADATA
+- [x] Both effects apply correctly to their designated depth ranges
+- [x] Blend modes work as expected (add, multiply, screen, etc.)
+- [x] Audio reactivity works (beat triggers parameter changes)
+- [x] ≥80% test coverage across implementation
+- [x] Performance: <15ms per 1080p frame (66+ fps)
+- [x] No safety rail violations during testing
+- [x] Code follows VJLive3 architecture patterns
