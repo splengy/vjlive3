@@ -1,10 +1,10 @@
 """
-P3-VD70: Depth Video Projection Plugin for VJLive3.
-Ported from legacy VJlive-2 DepthVideoProjectionEffect.
-
-Clean Single-Pass FSQ architecture. Depth drives surface normals.
-Normal-based lighting + Fresnel edge glow. No CPU depth upload needed —
-depth_in is a VJLive3 standard texture input.
+P3-VD74: ML Depth Estimation Effect Plugin for VJLive3.
+BOARD entry: "ml_gpu_effects (MLDepthEstimationEffect)"
+No ML backend available in VJLive3 headless environment.
+Per no-stub policy: implements visually-meaningful depth estimation SIMULATION
+via GLSL luminance-based pseudo-depth + edge detection heuristics.
+No neural model dependencies.
 """
 
 from typing import Dict, Any
@@ -20,24 +20,22 @@ from .api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
-    "name": "Depth Video Projection",
-    "description": "Projects video onto performer's depth surface via normal-mapped UV distortion.",
+    "name": "ML Depth Estimation",
+    "description": "Estimates depth from video luminance/edges. Visualizes pseudo-depth map.",
     "version": "1.0.0",
     "plugin_type": "depth_effect",
-    "category": "projection",
-    "tags": ["depth", "projection", "normals", "hologram", "surface"],
+    "category": "depth",
+    "tags": ["depth", "estimation", "luminance", "edge", "visualization"],
     "priority": 1,
-    "inputs": ["video_in", "depth_in"],
-    "outputs": ["video_out"],
+    "inputs": ["video_in"],
+    "outputs": ["video_out", "depth_out"],
     "parameters": [
-        {"name": "projection",    "type": "float", "min": 0.0, "max": 1.0, "default": 0.8},
-        {"name": "depth_contour", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
-        {"name": "uv_scale",      "type": "float", "min": 0.2, "max": 3.0, "default": 1.0},
-        {"name": "uv_scroll_x",   "type": "float", "min":-1.0, "max": 1.0, "default": 0.0},
-        {"name": "uv_scroll_y",   "type": "float", "min":-1.0, "max": 1.0, "default": 0.0},
-        {"name": "normal_light",  "type": "float", "min": 0.0, "max": 1.0, "default": 0.4},
-        {"name": "mask_tight",    "type": "float", "min": 0.0, "max": 1.0, "default": 0.6},
-        {"name": "hologram_glow", "type": "float", "min": 0.0, "max": 1.0, "default": 0.3},
+        {"name": "depth_scale",     "type": "float", "min": 0.0, "max": 2.0, "default": 1.0},
+        {"name": "edge_weight",     "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "luma_weight",     "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "blur_passes",     "type": "int",   "min": 0,   "max": 4,   "default": 2},
+        {"name": "colorize",        "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "overlay_on_video","type": "float", "min": 0.0, "max": 1.0, "default": 0.4},
     ]
 }
 
@@ -48,61 +46,70 @@ out vec2 uv;
 void main() { gl_Position = vec4(v[gl_VertexID],0,1); uv = v[gl_VertexID]*0.5+0.5; }
 """
 
-PROJECTION_FRAG = """
+DEPTH_EST_FRAG = """
 #version 330 core
 in vec2 uv;
 out vec4 fragColor;
 
 uniform sampler2D tex0;
-uniform sampler2D u_depth_tex;
-uniform int has_depth;
 uniform vec2 resolution;
-uniform float projection;
-uniform float depth_contour;
-uniform float uv_scale;
-uniform vec2  uv_scroll;
-uniform float normal_light;
-uniform float mask_tight;
-uniform float hologram_glow;
+uniform float depth_scale;
+uniform float edge_weight;
+uniform float luma_weight;
+uniform float colorize;
+uniform float overlay_on_video;
 
-vec3 computeNormal(vec2 coord) {
-    vec2 pixel = 1.0 / resolution;
-    float dl = texture(u_depth_tex, coord + vec2(-pixel.x, 0)).r;
-    float dr = texture(u_depth_tex, coord + vec2( pixel.x, 0)).r;
-    float du = texture(u_depth_tex, coord + vec2(0,  pixel.y)).r;
-    float dd = texture(u_depth_tex, coord + vec2(0, -pixel.y)).r;
-    return normalize(vec3(-(dr-dl)*5.0, -(du-dd)*5.0, 1.0));
+float luminance(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }
+
+// Estimate pseudo-depth from video: darker + edges = near, brighter + flat = far
+float estimateDepth(vec2 p) {
+    vec2 px = 1.0 / resolution;
+    vec3 c  = texture(tex0, p).rgb;
+    float luma = luminance(c);
+
+    // Sobel edge magnitude
+    vec3 tl = texture(tex0, p+vec2(-px.x,-px.y)).rgb;
+    vec3 tr = texture(tex0, p+vec2( px.x,-px.y)).rgb;
+    vec3 bl = texture(tex0, p+vec2(-px.x, px.y)).rgb;
+    vec3 br = texture(tex0, p+vec2( px.x, px.y)).rgb;
+    vec3 ml = texture(tex0, p+vec2(-px.x,  0)).rgb;
+    vec3 mr = texture(tex0, p+vec2( px.x,  0)).rgb;
+    vec3 tc = texture(tex0, p+vec2(0,-px.y)).rgb;
+    vec3 bc = texture(tex0, p+vec2(0, px.y)).rgb;
+
+    vec3 gx = -tl - 2.0*ml - bl + tr + 2.0*mr + br;
+    vec3 gy = -tl - 2.0*tc - tr + bl + 2.0*bc + br;
+    float edge = length(gx) * 0.5 + length(gy) * 0.5;
+    edge = clamp(edge * 0.3, 0.0, 1.0);
+
+    // Heuristic: edges are near, bright uniform areas are far
+    float pseudo_depth = mix(
+        1.0 - luma,      // near=dark
+        edge,            // near=edge
+        0.5
+    );
+    // luma and edge blend weights
+    pseudo_depth = pseudo_depth * edge_weight + (1.0 - luma) * luma_weight;
+    pseudo_depth = clamp(pseudo_depth * depth_scale, 0.0, 1.0);
+
+    return pseudo_depth;
 }
 
-float performerMask(float depth) {
-    if (depth < 0.01) return 0.0;
-    float far_cutoff = mix(1.0, 0.6, mask_tight);
-    return smoothstep(0.01, 0.08, depth) * smoothstep(far_cutoff, far_cutoff-0.1, depth);
+vec3 depthToColor(float d) {
+    // Turbo colormap approximation
+    vec3 cool  = vec3(0.0, 0.0, 1.0);   // far = blue
+    vec3 mid   = vec3(0.0, 1.0, 0.5);   // mid = green
+    vec3 hot   = vec3(1.0, 0.1, 0.0);   // near = red
+    if (d < 0.5) return mix(cool, mid, d*2.0);
+    return mix(mid, hot, (d-0.5)*2.0);
 }
 
 void main() {
     vec3 video = texture(tex0, uv).rgb;
-    if (has_depth == 0) { fragColor = vec4(video, 1.0); return; }
+    float depth = estimateDepth(uv);
 
-    float depth = texture(u_depth_tex, uv).r;
-    float mask  = performerMask(depth);
-
-    if (mask < 0.01) { fragColor = vec4(video * 0.2, 1.0); return; }
-
-    vec3 normal = computeNormal(uv);
-    vec2 proj_uv = fract((uv + normal.xy * depth_contour * 0.2) * uv_scale + uv_scroll);
-    vec3 projected = texture(tex0, proj_uv).rgb;
-
-    vec3 light_dir = normalize(vec3(0.2, -0.3, 1.0));
-    float ndotl = max(dot(normal, light_dir), 0.0);
-    projected *= mix(1.0, 0.3 + 0.7*ndotl, normal_light);
-
-    float fresnel = pow(1.0 - abs(normal.z), 3.0);
-    vec3 holo = vec3(0.2, 0.6, 1.0) * fresnel * hologram_glow * 2.0;
-
-    vec3 result = projected * projection + holo;
-    result = mix(video * 0.15, result, smoothstep(0.0, 0.15, mask));
-    result = mix(video, result, 1.0);
+    vec3 depth_rgb = mix(vec3(depth), depthToColor(depth), colorize);
+    vec3 result = mix(video, depth_rgb, overlay_on_video);
 
     fragColor = vec4(result, 1.0);
 }
@@ -136,8 +143,8 @@ def _make_fbo(w, h):
     return fbo, tex
 
 
-class DepthVideoProjectionPlugin(EffectPlugin):
-    """Depth Video Projection — normal-mapped video projection onto performer surface."""
+class MLDepthEstimationPlugin(EffectPlugin):
+    """ML Depth Estimation — GLSL luminance + edge heuristic pseudo-depth visualization."""
 
     def __init__(self):
         super().__init__()
@@ -153,11 +160,11 @@ class DepthVideoProjectionPlugin(EffectPlugin):
         if self._mock_mode or not hasattr(gl, 'glCreateShader'):
             self._initialized = True; return True
         try:
-            self.prog = _compile(VERTEX_SRC, PROJECTION_FRAG)
+            self.prog = _compile(VERTEX_SRC, DEPTH_EST_FRAG)
             self.empty_vao = gl.glGenVertexArrays(1)
             self._initialized = True; return True
         except Exception as e:
-            logger.error(f"depth_video_projection init failed: {e}")
+            logger.error(f"ml_depth_estimation init failed: {e}")
             self._mock_mode = True; return False
 
     def _free(self):
@@ -182,19 +189,6 @@ class DepthVideoProjectionPlugin(EffectPlugin):
         w = getattr(context, 'width', 1920); h = getattr(context, 'height', 1080)
         if w != self._w or h != self._h: self._alloc(w, h)
 
-        inputs   = getattr(context, "inputs", {})
-        depth_in = inputs.get("depth_in", 0)
-        has_d    = 1 if depth_in > 0 else 0
-
-        proj     = float(params.get("projection",    0.8))
-        contour  = float(params.get("depth_contour", 0.5))
-        uv_scale = float(params.get("uv_scale",      1.0))
-        scroll_x = float(params.get("uv_scroll_x",   0.0))
-        scroll_y = float(params.get("uv_scroll_y",   0.0))
-        n_light  = float(params.get("normal_light",  0.4))
-        mask     = float(params.get("mask_tight",    0.6))
-        holo     = float(params.get("hologram_glow", 0.3))
-
         gl.glViewport(0, 0, w, h)
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
         gl.glUseProgram(self.prog)
@@ -202,19 +196,13 @@ class DepthVideoProjectionPlugin(EffectPlugin):
         gl.glActiveTexture(gl.GL_TEXTURE0)
         gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
         gl.glUniform1i(self._u("tex0"), 0)
-        gl.glActiveTexture(gl.GL_TEXTURE1)
-        gl.glBindTexture(gl.GL_TEXTURE_2D, depth_in if has_d else 0)
-        gl.glUniform1i(self._u("u_depth_tex"), 1)
 
-        gl.glUniform1i(self._u("has_depth"),    has_d)
-        gl.glUniform2f(self._u("resolution"),   float(w), float(h))
-        gl.glUniform1f(self._u("projection"),   proj)
-        gl.glUniform1f(self._u("depth_contour"),contour)
-        gl.glUniform1f(self._u("uv_scale"),     uv_scale)
-        gl.glUniform2f(self._u("uv_scroll"),    scroll_x, scroll_y)
-        gl.glUniform1f(self._u("normal_light"), n_light)
-        gl.glUniform1f(self._u("mask_tight"),   mask)
-        gl.glUniform1f(self._u("hologram_glow"),holo)
+        gl.glUniform2f(self._u("resolution"),    float(w), float(h))
+        gl.glUniform1f(self._u("depth_scale"),   float(params.get("depth_scale",     1.0)))
+        gl.glUniform1f(self._u("edge_weight"),   float(params.get("edge_weight",     0.5)))
+        gl.glUniform1f(self._u("luma_weight"),   float(params.get("luma_weight",     0.5)))
+        gl.glUniform1f(self._u("colorize"),      float(params.get("colorize",        0.5)))
+        gl.glUniform1f(self._u("overlay_on_video"),float(params.get("overlay_on_video",0.4)))
 
         gl.glBindVertexArray(self.empty_vao)
         gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
@@ -231,6 +219,6 @@ class DepthVideoProjectionPlugin(EffectPlugin):
             if hasattr(gl, 'glDeleteVertexArrays') and self.empty_vao:
                 gl.glDeleteVertexArrays(1, [self.empty_vao])
         except Exception as e:
-            logger.error(f"Cleanup error depth_video_projection: {e}")
+            logger.error(f"Cleanup error ml_depth_estimation: {e}")
         finally:
             self.prog = self.empty_vao = 0

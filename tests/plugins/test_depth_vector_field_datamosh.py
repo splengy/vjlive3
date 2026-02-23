@@ -1,81 +1,100 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+import sys
+
+mock_gl = MagicMock()
+mock_gl.GL_VERTEX_SHADER   = 35633; mock_gl.GL_FRAGMENT_SHADER = 35632
+mock_gl.GL_COMPILE_STATUS  = 35713; mock_gl.GL_LINK_STATUS     = 35714
+mock_gl.GL_TEXTURE_2D      = 3553;  mock_gl.GL_RGBA            = 6408
+mock_gl.GL_UNSIGNED_BYTE   = 5121;  mock_gl.GL_LINEAR           = 9729
+mock_gl.GL_CLAMP_TO_EDGE   = 33071; mock_gl.GL_FRAMEBUFFER      = 36160
+mock_gl.GL_COLOR_ATTACHMENT0 = 36064; mock_gl.GL_COLOR_BUFFER_BIT = 16384
+mock_gl.GL_TRIANGLE_STRIP  = 5
+mock_gl.GL_FALSE = 0; mock_gl.GL_TRUE = 1
+mock_gl.glCreateShader.return_value    = 1
+mock_gl.glGetShaderiv.return_value     = mock_gl.GL_TRUE
+mock_gl.glGetProgramiv.return_value    = mock_gl.GL_TRUE
+mock_gl.glGenVertexArrays.return_value = 44
+_c = {"fbo": 50, "tex": 60, "prog": 98}
+def _gp():     _c["prog"]+=1; return _c["prog"]
+def _gfbo(n):  _c["fbo"] +=1; return _c["fbo"]
+def _gtex(n):  _c["tex"] +=1; return _c["tex"]
+mock_gl.glCreateProgram.side_effect   = _gp
+mock_gl.glGenFramebuffers.side_effect = _gfbo
+mock_gl.glGenTextures.side_effect     = _gtex
+
+sys.modules['OpenGL']    = MagicMock()
+sys.modules['OpenGL.GL'] = mock_gl
 
 from vjlive3.plugins.depth_vector_field_datamosh import DepthVectorFieldDatamoshPlugin, METADATA
+from vjlive3.plugins.api import PluginContext
 
-def test_vfd_manifest():
-    """Verifies Pydantic manifest compatibility structure with heavy parameters."""
-    assert METADATA["name"] == "Depth Vector Field Datamosh"
-    assert "video_in" in METADATA["inputs"]
-    assert "video_b_in" in METADATA["inputs"]
-    assert "depth_in" in METADATA["inputs"]
-    assert "vector_scale" in [p["name"] for p in METADATA["parameters"]]
-    assert "accumulation" in [p["name"] for p in METADATA["parameters"]]
-    
-    plugin = DepthVectorFieldDatamoshPlugin()
-    assert plugin.name == "Depth Vector Field Datamosh"
 
-def test_vfd_missing_depth():
-    """Validates missing depth passthrough logic."""
-    plugin = DepthVectorFieldDatamoshPlugin()
-    context = MagicMock()
-    
-    context.get_texture.side_effect = lambda n: 118 if n == "video_in" else None
-    
+@pytest.fixture
+def plugin():
+    mock_gl.reset_mock()
+    mock_gl.glGetShaderiv.return_value  = mock_gl.GL_TRUE
+    mock_gl.glGetProgramiv.return_value = mock_gl.GL_TRUE
+    _c.update({"fbo": 50, "tex": 60, "prog": 98})
+    return DepthVectorFieldDatamoshPlugin()
+
+
+@pytest.fixture
+def context():
+    ctx = PluginContext(MagicMock())
+    ctx.width = 1920; ctx.height = 1080
+    ctx.inputs = {"video_in": 777, "depth_in": 888}
+    ctx.time = 3.0; ctx.outputs = {}
+    return ctx
+
+
+def test_metadata(plugin):
+    m = plugin.get_metadata()
+    assert m["name"] == "Depth Vector Field Datamosh"
+    pnames = [p["name"] for p in m["parameters"]]
+    assert "vector_scale" in pnames; assert "chromatic_drift" in pnames
+    assert len(pnames) == 10
+
+
+@patch('vjlive3.plugins.depth_vector_field_datamosh.gl', mock_gl)
+def test_initialize(plugin, context):
+    assert plugin.initialize(context) is True
+
+
+@patch('vjlive3.plugins.depth_vector_field_datamosh.gl', mock_gl)
+def test_empty_input(plugin, context):
     plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_called_with("video_out", 118)
+    assert plugin.process_frame(0, {}, context) == 0
 
-def test_vfd_processing():
-    """Validates math clamping and generic vector accumulation simulation layout (base video)."""
-    plugin = DepthVectorFieldDatamoshPlugin()
-    context = MagicMock()
-    
-    context.get_texture.side_effect = lambda n: 200 if n == "video_in" else (300 if n == "depth_in" else None)
-    
-    def get_param_mock(name):
-        if name == "vector_field.vector_scale": return 500.0 # Max is 1.0
-        if name == "vector_field.accumulation": return -2.0 # Min is 0.0
-        return None
-        
-    context.get_parameter.side_effect = get_param_mock
-    
-    plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_called_with("video_out", 18200) # 200 + 18000
-    
-    assert plugin.params["vector_scale"] == 1.0
-    assert plugin.params["accumulation"] == 0.0
 
-def test_vfd_fallback_video_b():
-    """Validates it processes correctly with video b present"""
-    plugin = DepthVectorFieldDatamoshPlugin()
-    context = MagicMock()
-    
-    context.get_texture.side_effect = lambda n: 200 if n == "video_in" else (300 if n == "depth_in" else 400) # 400 is video_b_in
-    
-    plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_called_with("video_out", 18400) # video_b (400) + 18000
+@patch('vjlive3.plugins.depth_vector_field_datamosh.gl', mock_gl)
+@patch('vjlive3.plugins.depth_vector_field_datamosh.hasattr')
+def test_mock_fallback(mock_hasattr, plugin, context):
+    def chk(obj, attr): return False if attr == 'glCreateShader' else True
+    mock_hasattr.side_effect = chk
+    assert plugin.process_frame(777, {}, context) == 777
 
-def test_vfd_missing_video():
-    plugin = DepthVectorFieldDatamoshPlugin()
-    context = MagicMock()
-    context.get_texture.return_value = None
-    
+
+@patch('vjlive3.plugins.depth_vector_field_datamosh.gl', mock_gl)
+def test_process_frame(plugin, context):
     plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_not_called()
-    
-def test_vfd_no_context():
-    plugin = DepthVectorFieldDatamoshPlugin()
-    plugin.process() # should not crash
-    plugin._read_params_from_context() # should not crash
-    
-def test_vfd_cleanup():
-    plugin = DepthVectorFieldDatamoshPlugin()
-    plugin.cleanup() # Ensure no trace
+    params = {"vector_scale": 0.5, "temporal_blend": 0.4, "chromatic_drift": 0.3,
+              "color_bleed": 0.3, "feedback_strength": 0.3, "accumulation": 0.2}
+    plugin.process_frame(777, params, context)
+    mock_gl.glDrawArrays.assert_called()
+
+
+@patch('vjlive3.plugins.depth_vector_field_datamosh.gl', mock_gl)
+def test_compile_fail(plugin, context):
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_FALSE
+    mock_gl.glGetShaderInfoLog.return_value = b"err"
+    assert plugin.initialize(context) is False
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
+
+
+@patch('vjlive3.plugins.depth_vector_field_datamosh.gl', mock_gl)
+def test_cleanup(plugin, context):
+    plugin.initialize(context)
+    plugin.prog = 99
+    plugin.cleanup()
+    mock_gl.glDeleteProgram.assert_any_call(99)

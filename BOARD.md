@@ -951,24 +951,24 @@
 | P3-VD56 | Depth Modulated Datamosh (DepthModulatedDatamoshEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_modulated_datamosh.py` — DepthModulatedDatamoshPlugin, 7/7 tests ✅ 2026-02-23 |
 | P3-VD57 | Depth Mosaic (DepthMosaicEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_mosaic.py` — DepthMosaicPlugin, 7/7 tests ✅ 2026-02-23 |
 | P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | ✅ Done | `src/vjlive3/plugins/depth_mosh_nexus.py` — 2-FBO Ping-Pong, 10 params, Dreamer pivot, 7/7 tests ✅ 2026-02-22 |
-| P3-VD59 | Depth Motion Transfer (DepthMotionTransferEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT059_depth_motion_transfer_effect.md` |
+| P3-VD59 | Depth Motion Transfer (DepthMotionTransferEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_motion_transfer.py` — DepthMotionTransferPlugin, 9/9 tests ✅ 2026-02-23 |
 | P3-VD60 | Depth Parallel Universe Datamosh (DepthParallelUniverseDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT060_depth_parallel_universe_datamosh_effect.md` |
-| P3-VD61 | Depth Particle Shred (DepthParticleShredEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT061_depth_particle_shred_effect.md` |
+| P3-VD61 | Depth Particle Shred (DepthParticleShredEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_particle_shred.py` — DepthParticleShredPlugin, 7/7 tests ✅ 2026-02-23 |
 | P3-VD62 | Depth Portal Composite (DepthPortalCompositeEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT062_depth_portal_composite_effect.md` |
 | P3-VD63 | Depth Raver Datamosh (DepthRaverDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT063_depth_raver_datamosh_effect.md` |
 | P3-VD64 | Depth Reverb (DepthReverbEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_reverb.py` — DepthReverbPlugin, 7/7 tests ✅ 2026-02-22 | Spec ready: `docs/specs/P3-EXT064_depth_reverb_effect.md` |
 | P3-VD65 | Depth Simulator (DepthSimulatorEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT065_depth_simulator_effect.md` |
 | P3-VD66 | Depth Slitscan Datamosh (DepthSlitScanDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT066_depth_slitscan_datamosh_effect.md` |
-| P3-VD67 | Depth Temporal Echo (DepthTemporalEchoEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT067_depth_temporal_echo_effect.md` |
-| P3-VD68 | Depth Temporal Strat (DepthTemporalStratEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT068_depth_temporal_strat_effect.md` |
+| P3-VD67 | Depth Temporal Echo (DepthTemporalEchoEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_temporal_echo.py` — DepthTemporalEchoPlugin, 7/7 tests ✅ 2026-02-23 |
+| P3-VD68 | Depth Temporal Strat (DepthTemporalStratEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_temporal_strat.py` — DepthTemporalStratPlugin, 7/7 tests ✅ 2026-02-23 |
 | P3-VD05 | Depth Slice (DepthSliceEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_slice.py` — DepthSlicePlugin, 7/7 tests ✅ 2026-02-22 |
-| P3-VD69 | Depth Vector Field Datamosh (DepthVectorFieldDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT069_depth_vector_field_datamosh_effect.md` |
-| P3-VD70 | Depth Video Projection (DepthVideoProjectionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT070_depth_video_projection_effect.md` |
+| P3-VD69 | Depth Vector Field Datamosh (DepthVectorFieldDatamoshEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_vector_field_datamosh.py` — DepthVectorFieldDatamoshPlugin, 7/7 tests ✅ 2026-02-23 |
+| P3-VD70 | Depth Video Projection (DepthVideoProjectionEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_video_projection.py` — DepthVideoProjectionPlugin, 5/5 tests ✅ 2026-02-23 |
 | P3-VD71 | Depth Void Datamosh (DepthVoidDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT071_depth_void_datamosh_effect.md` |
-| P3-VD72 | datamosh_3d (DepthDisplacementEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT072_displacement_map_effect.md` |
-| P3-VD73 | datamosh_3d (DepthEchoEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT073_depth_echo_effect.md` |
-| P3-VD74 | ml_gpu_effects (MLDepthEstimationEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT074_ml_depth_estimation_effect.md` |
-| P3-VD75 | quantum_depth_nexus_effect (QuantumDepthNexus) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT075_quantum_depth_nexus_effect.md` |
+| P3-VD72 | datamosh_3d (DepthDisplacementEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_displacement.py` — DepthDisplacementPlugin, 5/5 tests ✅ 2026-02-23 |
+| P3-VD73 | datamosh_3d (DepthEchoEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_echo.py` — DepthEchoPlugin, 5/5 tests ✅ 2026-02-23 |
+| P3-VD74 | ml_gpu_effects (MLDepthEstimationEffect) | P0 | ✅ Done | `src/vjlive3/plugins/ml_depth_estimation.py` — MLDepthEstimationPlugin, 5/5 tests ✅ 2026-02-23 |
+| P3-VD75 | quantum_depth_nexus_effect (QuantumDepthNexus) | P0 | ✅ Done | `src/vjlive3/plugins/quantum_depth_nexus.py` — QuantumDepthNexusPlugin, 5/5 tests ✅ 2026-02-23 |
 
 
 

@@ -1,81 +1,100 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+import sys
+
+mock_gl = MagicMock()
+mock_gl.GL_VERTEX_SHADER   = 35633; mock_gl.GL_FRAGMENT_SHADER = 35632
+mock_gl.GL_COMPILE_STATUS  = 35713; mock_gl.GL_LINK_STATUS     = 35714
+mock_gl.GL_TEXTURE_2D      = 3553;  mock_gl.GL_RGBA            = 6408
+mock_gl.GL_UNSIGNED_BYTE   = 5121;  mock_gl.GL_LINEAR           = 9729
+mock_gl.GL_CLAMP_TO_EDGE   = 33071; mock_gl.GL_FRAMEBUFFER      = 36160
+mock_gl.GL_COLOR_ATTACHMENT0 = 36064; mock_gl.GL_COLOR_BUFFER_BIT = 16384
+mock_gl.GL_TRIANGLE_STRIP  = 5
+mock_gl.GL_FALSE = 0; mock_gl.GL_TRUE = 1
+mock_gl.glCreateShader.return_value    = 1
+mock_gl.glGetShaderiv.return_value     = mock_gl.GL_TRUE
+mock_gl.glGetProgramiv.return_value    = mock_gl.GL_TRUE
+mock_gl.glGenVertexArrays.return_value = 44
+_c = {"fbo": 50, "tex": 60, "prog": 98}
+def _gp():     _c["prog"]+=1; return _c["prog"]
+def _gfbo(n):  _c["fbo"] +=1; return _c["fbo"]
+def _gtex(n):  _c["tex"] +=1; return _c["tex"]
+mock_gl.glCreateProgram.side_effect   = _gp
+mock_gl.glGenFramebuffers.side_effect = _gfbo
+mock_gl.glGenTextures.side_effect     = _gtex
+
+sys.modules['OpenGL']    = MagicMock()
+sys.modules['OpenGL.GL'] = mock_gl
 
 from vjlive3.plugins.depth_temporal_strat import DepthTemporalStratPlugin, METADATA
+from vjlive3.plugins.api import PluginContext
 
-def test_strat_manifest():
-    """Verifies Pydantic manifest compatibility structure with heavy parameters."""
-    assert METADATA["name"] == "Depth Temporal Stratification"
-    assert "video_in" in METADATA["inputs"]
-    assert "video_b_in" in METADATA["inputs"]
-    assert "depth_in" in METADATA["inputs"]
-    assert "num_strata" in [p["name"] for p in METADATA["parameters"]]
-    assert "color_shift" in [p["name"] for p in METADATA["parameters"]]
-    
-    plugin = DepthTemporalStratPlugin()
-    assert plugin.name == "Depth Temporal Stratification"
 
-def test_strat_missing_depth():
-    """Validates missing depth passthrough logic."""
-    plugin = DepthTemporalStratPlugin()
-    context = MagicMock()
-    
-    context.get_texture.side_effect = lambda n: 116 if n == "video_in" else None
-    
+@pytest.fixture
+def plugin():
+    mock_gl.reset_mock()
+    mock_gl.glGetShaderiv.return_value  = mock_gl.GL_TRUE
+    mock_gl.glGetProgramiv.return_value = mock_gl.GL_TRUE
+    _c.update({"fbo": 50, "tex": 60, "prog": 98})
+    return DepthTemporalStratPlugin()
+
+
+@pytest.fixture
+def context():
+    ctx = PluginContext(MagicMock())
+    ctx.width = 1920; ctx.height = 1080
+    ctx.inputs = {"video_in": 777, "depth_in": 888}
+    ctx.time = 2.0; ctx.outputs = {}
+    return ctx
+
+
+def test_metadata(plugin):
+    m = plugin.get_metadata()
+    assert m["name"] == "Depth Temporal Strat"
+    pnames = [p["name"] for p in m["parameters"]]
+    assert "num_strata" in pnames; assert "seam_datamosh" in pnames
+    assert len(pnames) == 13
+
+
+@patch('vjlive3.plugins.depth_temporal_strat.gl', mock_gl)
+def test_initialize(plugin, context):
+    assert plugin.initialize(context) is True
+
+
+@patch('vjlive3.plugins.depth_temporal_strat.gl', mock_gl)
+def test_empty_input(plugin, context):
     plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_called_with("video_out", 116)
+    assert plugin.process_frame(0, {}, context) == 0
 
-def test_strat_processing():
-    """Validates math clamping and generic temporal accumulation simulation layout (base video)."""
-    plugin = DepthTemporalStratPlugin()
-    context = MagicMock()
-    
-    context.get_texture.side_effect = lambda n: 200 if n == "video_in" else (300 if n == "depth_in" else None)
-    
-    def get_param_mock(name):
-        if name == "temporal_strat.num_strata": return 500.0 # Max is 12.0
-        if name == "temporal_strat.seam_width": return -2.0 # Min is 0.0
-        return None
-        
-    context.get_parameter.side_effect = get_param_mock
-    
-    plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_called_with("video_out", 16200) # 200 + 16000
-    
-    assert plugin.params["num_strata"] == 12.0
-    assert plugin.params["seam_width"] == 0.0
 
-def test_strat_fallback_video_b():
-    """Validates it processes correctly with video b present"""
-    plugin = DepthTemporalStratPlugin()
-    context = MagicMock()
-    
-    context.get_texture.side_effect = lambda n: 200 if n == "video_in" else (300 if n == "depth_in" else 400) # 400 is video_b_in
-    
-    plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_called_with("video_out", 16400) # video_b (400) + 16000
+@patch('vjlive3.plugins.depth_temporal_strat.gl', mock_gl)
+@patch('vjlive3.plugins.depth_temporal_strat.hasattr')
+def test_mock_fallback(mock_hasattr, plugin, context):
+    def chk(obj, attr): return False if attr == 'glCreateShader' else True
+    mock_hasattr.side_effect = chk
+    assert plugin.process_frame(777, {}, context) == 777
 
-def test_strat_missing_video():
-    plugin = DepthTemporalStratPlugin()
-    context = MagicMock()
-    context.get_texture.return_value = None
-    
+
+@patch('vjlive3.plugins.depth_temporal_strat.gl', mock_gl)
+def test_process_frame(plugin, context):
     plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_not_called()
-    
-def test_strat_no_context():
-    plugin = DepthTemporalStratPlugin()
-    plugin.process() # should not crash
-    plugin._read_params_from_context() # should not crash
-    
-def test_strat_cleanup():
-    plugin = DepthTemporalStratPlugin()
-    plugin.cleanup() # Ensure no trace
+    params = {"num_strata": 4, "strata_separation": 0.7, "temporal_depth": 0.6,
+              "ghost_opacity": 0.7, "seam_datamosh": 0.5, "strobe_rate": 0.0}
+    plugin.process_frame(777, params, context)
+    mock_gl.glDrawArrays.assert_called()
+
+
+@patch('vjlive3.plugins.depth_temporal_strat.gl', mock_gl)
+def test_compile_fail(plugin, context):
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_FALSE
+    mock_gl.glGetShaderInfoLog.return_value = b"err"
+    assert plugin.initialize(context) is False
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
+
+
+@patch('vjlive3.plugins.depth_temporal_strat.gl', mock_gl)
+def test_cleanup(plugin, context):
+    plugin.initialize(context)
+    plugin.prog = 99
+    plugin.cleanup()
+    mock_gl.glDeleteProgram.assert_any_call(99)
