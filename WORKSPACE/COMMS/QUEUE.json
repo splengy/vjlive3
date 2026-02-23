@@ -173,19 +173,19 @@
   {
     "task_id": "P3-VD09",
     "spec_path": "docs/specs/P3-VD09_depth_acid_fractal.md",
-    "status": "in_progress",
+    "status": "completed",
     "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:19:29.844895+00:00",
     "started_at": "2026-02-23T05:39:27.989768+00:00",
-    "completed_at": null
+    "completed_at": "2026-02-23T05:44:41.180210+00:00"
   },
   {
     "task_id": "P3-VD10",
     "spec_path": "docs/specs/P3-VD10_depth_blur.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:19:29.892975+00:00",
-    "started_at": null,
+    "started_at": "2026-02-23T05:45:00.955908+00:00",
     "completed_at": null
   },
   {

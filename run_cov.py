@@ -1,12 +1,11 @@
 import coverage
 import pytest
 import sys
-import json
 
-cov = coverage.Coverage(source=['vjlive3.plugins.depth_r16_wave'])
+cov = coverage.Coverage(source=['vjlive3.plugins.depth_acid_fractal'])
 cov.start()
 
-sys.argv = ['pytest', 'tests/plugins/test_depth_r16_wave.py', '-v']
+sys.argv = ['pytest', 'tests/plugins/test_depth_acid_fractal.py', '-v']
 pytest.main()
 
 cov.stop()
