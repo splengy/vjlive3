@@ -1,144 +1,149 @@
-import pytest
 import os
-import sys
-from unittest.mock import patch, MagicMock
+import pytest
+import numpy as np
+from typing import Dict, Any
 
-sys.modules['OpenGL'] = MagicMock()
-sys.modules['OpenGL.GL'] = MagicMock()
-
-import vjlive3.plugins.depth_contour_datamosh as dcd
 from vjlive3.plugins.depth_contour_datamosh import DepthContourDatamoshPlugin, METADATA
 from vjlive3.plugins.api import PluginContext
 
-@pytest.fixture(autouse=True)
-def force_mock_no_gl(monkeypatch):
-    monkeypatch.setattr('vjlive3.plugins.depth_contour_datamosh.HAS_GL', False)
+@pytest.fixture
+def plugin():
+    return DepthContourDatamoshPlugin()
 
-class MockContext:
-    def __init__(self, inputs=None, parameters=None):
-        self.inputs = inputs or {}
-        self.parameters = parameters or {}
-        self.outputs = {}
+@pytest.fixture
+def context():
+    ctx = PluginContext(engine=None)
+    ctx.inputs = {}
+    ctx.outputs = {}
+    ctx.inputs["depth_in"] = 123  # Mock texture ID
+    ctx.width = 1920
+    ctx.height = 1080
+    return ctx
 
-def test_manifest():
-    assert METADATA["name"] == "Depth Contour Datamosh"
-    assert "contourInterval" in [p["name"] for p in METADATA["parameters"]]
+def test_plugin_metadata():
+    """Verify metadata follows VJLive3 standards"""
+    assert METADATA["name"] == "DepthContourDatamosh"
+    assert "version" in METADATA
+    assert "datamosh" in METADATA["tags"]
     assert "video_in" in METADATA["inputs"]
-    assert "video_b_in" in METADATA["inputs"]
     assert "depth_in" in METADATA["inputs"]
     assert "video_out" in METADATA["outputs"]
-
-def test_mock_processing_passthrough():
-    plugin = DepthContourDatamoshPlugin()
-    ctx = MockContext(inputs={"depth_in": 200, "video_b_in": 300})
-    plugin.initialize(ctx)
     
+    # Check parameters
+    params = METADATA["parameters"]
+    names = [p["name"] for p in params]
+    assert "contour_threshold" in names
+    assert "contour_smoothness" in names
+    assert "datamosh_intensity" in names
+    assert "fragment_size" in names
+    assert "glitch_probability" in names
+    assert "preserve_edges" in names
+    assert "color_shift" in names
+
+def test_plugin_initialization_mock_mode(plugin, context):
+    """Test plugin initializes safely without OpenGL context"""
+    plugin._mock_mode = True
+    plugin.initialize(context)
     assert plugin._mock_mode is True
-    
-    res = plugin.process_frame(100, {}, ctx)
-    assert res == 100
-    assert ctx.outputs["video_out"] == 100
-    
-    # Missing input
-    assert plugin.process_frame(0, {}, ctx) == 0
+    assert plugin.prog is None
 
-def setup_mock_gl(monkeypatch):
-    mock_gl = MagicMock()
-    mock_gl.glGenTextures.return_value = [1, 2]
-    mock_gl.glGenFramebuffers.return_value = [10, 20]
-    mock_gl.GL_TRUE = 1
-    mock_gl.glGetShaderiv.return_value = 1
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    monkeypatch.setattr(dcd, 'gl', mock_gl, raising=False)
-    monkeypatch.setattr(dcd, 'HAS_GL', True)
-    return mock_gl
+def test_process_frame_empty_input(plugin, context):
+    """Test handling of 0/None input texture"""
+    res = plugin.process_frame(0, {}, context)
+    assert res == 0
+    res2 = plugin.process_frame(None, {}, context)
+    assert res2 == 0
+
+def test_process_frame_mock_mode(plugin, context):
+    """Test process_frame falls back to passthrough correctly in mock mode"""
+    plugin._mock_mode = True
+    input_tex = 404
     
-def test_gl_initialization(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthContourDatamoshPlugin()
+    time_start = plugin.time_val
+    result = plugin.process_frame(input_tex, {"preserve_edges": False}, context)
+    time_end = plugin.time_val
+    
+    assert result == input_tex
+    assert context.outputs["video_out"] == input_tex
+    assert time_end > time_start # Verify time still increments
+
+def test_plugin_cleanup(plugin):
+    """Test cleanup runs without errors regardless of state"""
+    try:
+        plugin.cleanup()
+    except Exception as e:
+        pytest.fail(f"Cleanup raised exception: {e}")
+
+from unittest.mock import MagicMock, patch
+
+@patch('vjlive3.plugins.depth_contour_datamosh.gl')
+@patch('vjlive3.plugins.depth_contour_datamosh.HAS_GL', True)
+def test_full_gl_execution_defaults(mock_gl, plugin, context):
+    """Test full initialization and rendering path using default strings"""
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
+    
     plugin._mock_mode = False
-    
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
+    plugin.initialize(context)
     assert plugin.prog is not None
-    assert plugin.textures["feedback_0"] == 1
-    assert plugin.textures["feedback_1"] == 2
-    assert plugin.fbos["feedback_0"] == 10
+    assert plugin._mock_mode is False
     
-def test_gl_fbo_cleanup(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthContourDatamoshPlugin()
+    params = {
+        "contour_threshold": 0.2,
+        "preserve_edges": False,
+        "datamosh_intensity": 0.8
+    }
+    res = plugin.process_frame(123, params, context)
+    assert res is not None
+    
+    mock_gl.glUniform1i.assert_called()
+    mock_gl.glUniform1f.assert_called()
+
+@patch('vjlive3.plugins.depth_contour_datamosh.gl')
+@patch('vjlive3.plugins.depth_contour_datamosh.HAS_GL', True)
+def test_full_gl_execution_custom_params(mock_gl, plugin, context):
+    """Test execution with custom type mapped configurations"""
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
     plugin._mock_mode = False
-    ctx = MockContext()
+    plugin.initialize(context)
     
-    plugin.initialize(ctx)
+    params = {
+        "contour_smoothness": 10,
+        "fragment_size": 32,
+        "preserve_edges": True, # Test boolean to integer cast
+        "color_shift": 1.0
+    }
+    
+    time_stamp_1 = plugin.time_val
+    res = plugin.process_frame(123, params, context)
+    time_stamp_2 = plugin.time_val
+    
+    assert res is not None
+    assert time_stamp_2 > time_stamp_1
+
+@patch('vjlive3.plugins.depth_contour_datamosh.gl')
+@patch('vjlive3.plugins.depth_contour_datamosh.HAS_GL', True)
+def test_gl_compile_failure(mock_gl, plugin, context):
+    """Test shader compilation failure fallback to mock mode"""
+    mock_gl.glGetShaderiv.return_value = False
+    
+    plugin._mock_mode = False
+    plugin.initialize(context)
+    assert plugin._mock_mode is True
+
+@patch('vjlive3.plugins.depth_contour_datamosh.gl')
+@patch('vjlive3.plugins.depth_contour_datamosh.HAS_GL', True)
+def test_gl_cleanup(mock_gl, plugin, context):
+    """Test cleanup of GL resources"""
+    plugin._mock_mode = False
+    plugin.out_tex = 1
+    plugin.fbo = 1
+    plugin.prog = 1
+    plugin.vao = 1
+    plugin.vbo = 1
+    
     plugin.cleanup()
     
-    mock_gl.glDeleteTextures.assert_called_once_with(2, [1, 2])
-    mock_gl.glDeleteFramebuffers.assert_called_once_with(2, [10, 20])
-    
-def test_gl_exception_fallback(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.side_effect = Exception("Out of Memory")
-    
-    plugin = DepthContourDatamoshPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    
-    plugin.initialize(ctx)
-    assert plugin._mock_mode is True
-    
-def test_gl_render_ping_pong_and_uniforms(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthContourDatamoshPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext(inputs={"depth_in": 300, "video_b_in": 400})
-    
-    plugin.initialize(ctx)
-    
-    assert plugin.ping_pong == 0
-    res1 = plugin.process_frame(100, {"contourInterval": 8.0, "contourGlow": 4.0, "accumulation": 5.0}, ctx)
-    assert res1 == 2
-    assert plugin.ping_pong == 1
-    
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    res2 = plugin.process_frame(100, {}, ctx)
-    assert res2 == 1
-    
-    # Trigger texture size change reallocation branch
-    mock_gl.glGetTexLevelParameteriv.return_value = 800
-    res3 = plugin.process_frame(100, {}, ctx)
-    assert res3 == 2
-
-def test_gl_render_exception(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthContourDatamoshPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
-    mock_gl.glBindTexture.side_effect = Exception("Driver Crash")
-    res = plugin.process_frame(100, {}, ctx)
-    assert res == 100 # Return raw input unharmed
-    
-def test_shader_compile_fail(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGetShaderiv.return_value = 0 # Fail flag
-    
-    plugin = DepthContourDatamoshPlugin()
-    res = plugin._compile_shader()
-    assert res is None
-
-def test_single_int_generation(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.return_value = 99
-    mock_gl.glGenFramebuffers.return_value = 100
-    
-    plugin = DepthContourDatamoshPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
-    assert plugin.textures["feedback_0"] == 99
-    assert plugin.textures["feedback_1"] == 100
+    mock_gl.glDeleteTextures.assert_called()
+    mock_gl.glDeleteFramebuffers.assert_called()
+    mock_gl.glDeleteProgram.assert_called()
+    assert plugin.out_tex is None

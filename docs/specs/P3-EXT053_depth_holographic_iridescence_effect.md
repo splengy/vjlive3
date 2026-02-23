@@ -1,81 +1,229 @@
-# P3-EXT053: Depth Holographic Iridescence Effect
+# P3-EXT053 Depth Holographic Iridescence Effect
 
 ## What This Module Does
-Creates a holographic iridescence effect where depth values control the interference patterns and color shifting. Simulates the appearance of holographic surfaces that shift colors based on viewing angle and depth. Produces shimmering, rainbow-like effects that follow depth contours.
+
+Depth Holographic Iridescence Effect creates shimmering, rainbow-like holographic effects that respond to depth information. The effect produces iridescent color shifts that vary based on depth, creating a sense of ethereal, otherworldly visuals where different depth planes exhibit different holographic properties. This effect simulates light interference patterns with depth-based modulation.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthHolographicIridescence",
-    "version": "3.0.0",
-    "description": "Holographic iridescence controlled by depth",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "holographic",
+    "name": "Depth Holographic Iridescence Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Creates depth-based holographic iridescence effects",
+    "category": "Depth Effects",
     "tags": ["depth", "holographic", "iridescence", "rainbow", "interference"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "iridescence_intensity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Overall intensity of iridescence effect"
+        },
+        "iridescence_scale": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Scale of iridescence pattern"
+        },
+        "color_shift_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Speed of color shifting animation"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth affects iridescence intensity"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "hologram_strength": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Strength of holographic shimmer"
+        },
+        "hologram_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 2.0,
+            "description": "Speed of holographic shimmer"
+        },
+        "interference_scale": {
+            "type": "float",
+            "min": 0.001,
+            "max": 0.1,
+            "default": 0.01,
+            "description": "Scale of interference pattern"
+        },
+        "interference_strength": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Strength of interference pattern"
+        },
+        "fresnel_effect": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Strength of Fresnel edge effect"
+        },
+        "fresnel_power": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 2.0,
+            "description": "Power of Fresnel falloff"
+        },
+        "scanline_enable": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable holographic scanlines"
+        },
+        "scanline_density": {
+            "type": "float",
+            "min": 10.0,
+            "max": 500.0,
+            "default": 100.0,
+            "description": "Density of scanlines"
+        },
+        "scanline_strength": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Strength of scanline effect"
+        },
+        "glitch_enable": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable holographic glitches"
+        },
+        "glitch_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.1,
+            "description": "Amount of glitch effect"
+        },
+        "glitch_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Speed of glitch animation"
+        }
+    }
 }
 ```
 
-### Parameters
-- `iridescence_intensity: float` (default: 0.5, min: 0.0, max: 1.0) - Strength of iridescence effect
-- `color_shift_speed: float` (default: 1.0, min: 0.1, max: 5.0) - Speed of color shifting
-- `depth_scale: float` (default: 1.0, min: 0.1, max: 5.0) - How much depth affects color
-- `wave_frequency: float` (default: 10.0, min: 1.0, max: 50.0) - Frequency of interference pattern
-- `wave_amplitude: float` (default: 1.0, min: 0.1, max: 3.0) - Amplitude of color waves
-- `base_color: list[float]` (default: [0.5, 0.5, 0.5]) - Base color before iridescence
-- `specular_highlight: float` (default: 0.3, min: 0.0, max: 1.0) - Strength of specular highlights
-- `animate: bool` (default: True) - Enable animation
-- `view_angle: float` (default: 0.0, min: 0.0, max: 360.0) - Simulated viewing angle
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `timestamp: float` (optional) - Current time for animation
-
-### Outputs
-- `video: Frame` (same format as input) - Holographic iridescent video
-
 ## What It Does NOT Do
-- Does NOT perform full hologram reconstruction (only color effects)
-- Does NOT support physical-based rendering of holographic materials
-- Does NOT include 3D light field computation
-- Does NOT handle HDR metadata preservation
-- Does NOT support custom interference patterns beyond sine waves
-- Does NOT include hologram animation beyond color shifting
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform full volumetric holography (surface effect only)
+- Does not support 3D holographic reconstruction
+- Does not handle multiple holographic layers (single layer only)
 
 ## Test Plan
-1. Unit tests for iridescence color calculation
-2. Verify depth modulates color shifting correctly
-3. Test animation speed and continuity
-4. Performance: ≥ 60 FPS at 1080p
-5. Memory: < 100MB additional RAM
-6. Visual: verify holographic shimmer effect
+
+1. **Iridescence Intensity Tests:**
+   - Test with zero iridescence (no effect)
+   - Test with maximum iridescence (full rainbow)
+   - Test with different iridescence intensities
+
+2. **Scale Tests:**
+   - Test with small scale (fine patterns)
+   - Test with large scale (broad patterns)
+   - Test with different scales
+
+3. **Color Shift Tests:**
+   - Test with no color shifting
+   - Test with fast color shifting
+   - Test with maximum color shifting
+
+4. **Depth Response Tests:**
+   - Test linear depth response
+   - Test exponential depth response
+   - Test logarithmic depth response
+   - Test different exponent values
+
+5. **Hologram Tests:**
+   - Test with no hologram effect
+   - Test with different hologram strengths
+   - Test with different hologram speeds
+
+6. **Interference Tests:**
+   - Test with no interference
+   - Test with different interference scales
+   - Test with different interference strengths
+
+7. **Fresnel Tests:**
+   - Test with no Fresnel effect
+   - Test with different Fresnel strengths
+   - Test with different Fresnel powers
+
+8. **Scanline Tests:**
+   - Test with scanlines disabled
+   - Test with different scanline densities
+   - Test with different scanline strengths
+
+9. **Glitch Tests:**
+   - Test with glitches disabled
+   - Test with different glitch amounts
+   - Test with different glitch speeds
+
+10. **Performance Tests:**
+    - Measure FPS with different effect intensities
+    - Test with various resolutions
+    - Verify GPU memory usage
+
+11. **Quality Tests:**
+    - Check for visual artifacts
+    - Verify smooth color transitions
+    - Test with moving objects
+    - Test with static scenes
 
 ## Implementation Notes
-- Compute iridescence color using thin-film interference simulation
-- Use depth to modulate phase shift: phase = depth * depth_scale * wave_frequency
-- Generate color from phase using cosine-based palette: color = base_color + wave_amplitude * cos(phase + view_angle)
-- Animate by adding timestamp * color_shift_speed to phase
-- Add specular_highlight based on depth gradient magnitude
-- Blend with original video using iridescence_intensity
-- Optimize with precomputed color lookup tables
-- Follow SAFETY_RAILS: handle edge cases, no silent failures
+
+- Use GPU shader for real-time holographic calculation
+- Implement efficient depth-based iridescence modulation
+- Support real-time parameter adjustment
+- Provide holographic preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_holographic_iridescence.py`
-- `tests/effects/test_depth_holographic_iridescence.py`
-- `docs/plugins/depth_holographic_iridescence.md`
+
+- `src/vjlive3/plugins/depth_holographic_iridescence.py` - Main plugin implementation
+- `tests/plugins/test_depth_holographic_iridescence.py` - Comprehensive test suite
+- `docs/plugins/depth_holographic_iridescence.md` - User documentation
+- `shaders/depth_holographic_iridescence.glsl` - GPU shader for holographic effect
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Holographic iridescence works with depth
-- [x] Animation smooth and controllable
-- [x] 60 FPS at 1080p
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Depth-based holographic iridescence with configurable parameters
+- ✅ Multiple iridescence patterns and color shifting options
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Configurable holographic shimmer and interference effects
+- ✅ Optional scanlines and glitch effects
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails
