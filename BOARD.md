@@ -946,7 +946,7 @@
 | P3-VD52 | Depth Holographic (DepthHolographicIridescenceEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT052_depth_holographic_iridescence_effect.md` |
 | P3-VD53 | Depth Liquid Refraction (DepthLiquidRefractionEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT053_depth_liquid_refraction_effect.md` |
 | P3-VD54 | Depth Loop Injection Datamosh (DepthLoopInjectionDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT054_depth_loop_injection_datamosh_effect.md` |
-| P3-VD55 | Depth Modular Datamosh (DepthModularDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT055_depth_modular_datamosh_effect.md` |
+| P3-VD55 | Depth Modular Datamosh (DepthModularDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT055_depth_modular_datamosh_effect.md` |
 | P3-VD56 | Depth Modulated Datamosh (DepthModulatedDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT056_depth_modulated_datamosh_effect.md` |
 | P3-VD57 | Depth Mosaic (DepthMosaicEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT057_depth_mosaic_effect.md` |
 | P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT058_depth_mosh_nexus_effect.md` |
