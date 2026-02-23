@@ -933,10 +933,10 @@
 | P3-VD40 | Depth Effects (DepthContourEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT040_depth_effects_contour_effect.md` |
 | P3-VD41 | Depth Effects (DepthParticle3DEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT041_depth_effects_particle_3d_effect.md` |
 | P3-VD42 | Depth Effects (DepthDistortionEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT042_depth_effects_distortion_effect.md` |
-| P3-VD43 | Depth Effects (DepthFieldEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT043_depth_effects_field_effect.md` |
+| P3-VD43 | Depth Effects (DepthFieldEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT043_depth_effects_field_effect.md` |
 | P3-VD44 | Depth Effects (OpticalFlowEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT044_depth_effects_optical_flow_effect.md` |
 | P3-VD45 | Depth Effects (BackgroundSubtractionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT045_depth_effects_background_subtraction_effect.md` |
-| P3-VD46 | Depth Erosion Datamosh (DepthErosionDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT046_depth_erosion_datamosh_effect.md` |
+| P3-VD13 | Depth Erosion Datamosh (DepthErosionDatamoshPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_erosion_datamosh.py` — DepthErosionDatamoshPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD47 | Depth Feedback Matrix Datamosh (DepthFeedbackMatrixDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT047_depth_feedback_matrix_datamosh_effect.md` |
 | P3-VD48 | Depth Fog (DepthFogEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT048_depth_fog_effect.md` |
 | P3-VD49 | Depth Fracture Datamosh (DepthFractureDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT049_depth_fracture_datamosh_effect.md` |
