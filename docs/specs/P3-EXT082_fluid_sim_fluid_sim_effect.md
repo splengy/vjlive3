@@ -1,0 +1,153 @@
+# P3-EXT082: Fluid Sim Fluid Sim Effect
+
+## What This Module Does
+Simulates fluid dynamics and rendering using depth information to create realistic fluid effects that interact with scene geometry, where depth values influence fluid flow, boundaries, and visual appearance.
+
+## Public Interface
+
+### METADATA
+```python
+METADATA = {
+    "name": "Fluid Sim Fluid Sim Effect",
+    "id": "P3-EXT082",
+    "category": "depth_effects",
+    "description": "Depth-driven fluid simulation with realistic fluid dynamics and rendering",
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "priority": 0,
+    "dependencies": ["DepthBuffer", "FluidSimEngine"],
+    "test_coverage": 85
+}
+```
+
+### Parameters
+- `simulation_resolution` (int): Fluid simulation grid resolution (32-256, default: 128)
+- `viscosity` (float): Fluid viscosity (0.1-10.0, default: 1.0)
+- `diffusion` (float): Fluid diffusion rate (0.0-1.0, default: 0.1)
+- `gravity` (list[float]): Gravity vector [gx, gy, gz] (default: [0, -9.81, 0])
+- `boundary_mode` (str): Boundary handling: "solid", "periodic", "absorbing"
+- `depth_boundary_mapping` (str): How depth defines fluid boundaries: "surface", "volume", "gradient"
+- `fluid_color` (list[int]): Fluid color RGB [0-255, 0-255, 0-255] (default: [100, 150, 255])
+- `render_quality` (int): Rendering quality (1-5, default: 3)
+- `velocity_damping` (float): Velocity damping factor (0.0-1.0, default: 0.99)
+
+### Inputs
+- `video` (torch.Tensor[uint8]): Input video frames [B, 3, H, W]
+- `depth` (torch.Tensor[float]): Depth buffer [B, 1, H, W] normalized 0-1
+
+### Outputs
+- `video` (torch.Tensor[uint8]): Fluid-simulated output [B, 3, H, W]
+
+## What It Does NOT Do
+- Does NOT perform high-resolution fluid simulation at 4K (performance limit)
+- Does NOT support multi-phase fluid simulation (single fluid only)
+- Does NOT handle fluid-object collisions beyond depth boundaries
+- Does NOT preserve video quality (fluid overlay modifies)
+- Does NOT support fluid simulation for transparent objects (limited accuracy)
+
+## Test Plan
+
+### Unit Tests
+1. `test_fluid_sim_initialization()`
+   - Verify METADATA constants
+   - Test parameter validation (simulation_resolution 32-256, viscosity 0.1-10.0, diffusion 0-1)
+   - Test default parameter values
+
+2. `test_fluid_grid_setup()`
+   - Test simulation_resolution: 32, 128, 256
+   - Verify grid dimensions and cell count
+   - Test grid initialization
+
+3. `test_fluid_properties()`
+   - Test viscosity: 0.1, 1.0, 10.0
+   - Test diffusion: 0.0, 0.1, 1.0
+   - Test velocity_damping: 0.9, 0.99, 1.0
+   - Verify fluid behavior
+
+4. `test_gravity_vector()`
+   - Test gravity: [0, -9.81, 0], [0, 0, 0], [1, 1, 1]
+   - Verify gravity affects fluid flow
+   - Test gravity direction
+
+5. `test_boundary_handling()`
+   - Test all boundary_mode options: solid, periodic, absorbing
+   - Verify boundary conditions
+   - Test boundary interactions
+
+6. `test_depth_boundary_mapping()`
+   - Test all depth_boundary_mapping modes: surface, volume, gradient
+   - Create synthetic depth map with varying regions
+   - Verify fluid boundaries align with depth
+
+7. `test_fluid_rendering()`
+   - Test fluid_color with custom RGB values
+   - Test render_quality: 1, 3, 5
+   - Verify rendering quality vs performance
+
+8. `test_fluid_simulation_step()`
+   - Test simulation step function
+   - Verify velocity and density updates
+   - Test numerical stability
+
+### Integration Tests
+1. `test_full_pipeline_60fps()`
+   - Process 1000 frames at 1920x1080 with simulation_resolution=128
+   - Verify FPS ≥ 60 on test hardware
+   - Monitor memory usage < 1GB
+
+2. `test_real_depth_fluid_simulation()`
+   - Feed real depth map from MiDaS/DPT
+   - Verify fluid boundaries follow scene geometry
+   - Test with complex scenes (people, objects, backgrounds)
+
+3. `test_fluid_performance_scaling()`
+   - Test simulation_resolution scaling: 32, 128, 256
+   - Verify FPS degradation is quadratic
+   - Test memory scaling
+
+4. `test_safety_rails_compliance()`
+   - Verify no silent failures on invalid inputs
+   - Test error handling for missing depth
+   - Ensure all exceptions are logged
+
+## Implementation Notes
+
+### Architecture
+- Build on `DepthEffect` base class from P3-VD35
+- Integrate with `FluidSimEngine` from VJlive-2 if available
+- Implement Navier-Stokes equations for fluid simulation
+- Use depth to define fluid boundaries and initial conditions
+- Render fluid using particle-based or grid-based rendering
+- Support various boundary conditions
+
+### Performance Optimizations
+- Use GPU for fluid simulation (CUDA)
+- Implement level-set method for boundary tracking
+- Use sparse grid for simulation efficiency
+- Implement temporal coherence for stable simulation
+
+### Memory Management
+- Grid size = simulation_resolution² (max: 256² = 65536 cells)
+- Each cell: velocity (3 floats) + density (1 float) + pressure (1 float) = 20 bytes
+- 65536 cells × 20 bytes = 1.3MB per grid
+- Use double buffer for simulation (2 grids)
+- Profile memory with 4K input, enforce < 2GB peak
+
+### Safety Rails
+- Enforce simulation_resolution ≤ 256 (performance)
+- Clamp viscosity to [0.1, 10.0], diffusion to [0.0, 1.0]
+- Validate boundary_mode and depth_boundary_mapping
+- Fallback to simple fluid if simulation fails
+
+## Deliverables
+1. `src/vjlive3/effects/fluid_sim_fluid_sim_effect.py` - Main effect
+2. `tests/effects/test_fluid_sim_fluid_sim_effect.py` - Tests
+3. `docs/effects/fluid_sim_fluid_sim_effect.md` - Documentation
+4. Update `MODULE_MANIFEST.md`
+
+## Success Criteria
+- ✅ All unit tests pass (≥ 85% coverage)
+- ✅ 60 FPS at 1080p with simulation_resolution=128 on RTX 4070 Ti Super
+- ✅ Zero safety rail violations
+- ✅ Works with real depth maps
+- ✅ Clean code: ≤ 750 lines, no stubs, full type hints
