@@ -950,7 +950,7 @@
 | P3-VD55 | Depth Modular Datamosh (DepthModularDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT055_depth_modular_datamosh_effect.md` |
 | P3-VD56 | Depth Modulated Datamosh (DepthModulatedDatamoshEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_modulated_datamosh.py` — DepthModulatedDatamoshPlugin, 7/7 tests ✅ 2026-02-23 |
 | P3-VD57 | Depth Mosaic (DepthMosaicEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_mosaic.py` — DepthMosaicPlugin, 7/7 tests ✅ 2026-02-23 |
-| P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT058_depth_mosh_nexus_effect.md` |
+| P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | ✅ Done | `src/vjlive3/plugins/depth_mosh_nexus.py` — 2-FBO Ping-Pong, 10 params, Dreamer pivot, 7/7 tests ✅ 2026-02-22 |
 | P3-VD59 | Depth Motion Transfer (DepthMotionTransferEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT059_depth_motion_transfer_effect.md` |
 | P3-VD60 | Depth Parallel Universe Datamosh (DepthParallelUniverseDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT060_depth_parallel_universe_datamosh_effect.md` |
 | P3-VD61 | Depth Particle Shred (DepthParticleShredEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT061_depth_particle_shred_effect.md` |
