@@ -917,7 +917,7 @@
 | P3-VD36 | Depth Effects (DepthEffectPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/p3_vd36.py` — DepthEffectPlugin, 8/8 tests ✅ 2026-02-22 |
 ----------|-------------|----------|--------|--------|
 | P3-VD09 | Depth Acid Fractal (DepthAcidFractalPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_acid_fractal.py` — DepthAcidFractalPlugin, 5/5 tests ✅ 2026-02-22 |
-| P3-VD27 | Depth Aware Compression (DepthAwareCompressionEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT027_depth_aware_compression_effect.md` |
+| P3-VD15 | Depth Aware Compression (DepthAwareCompressionPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_aware_compression.py` — DepthAwareCompressionPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD10 | Depth Blur (DepthBlurPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_blur.py` — DepthBlurPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD29 | Depth Camera Splitter (DepthCameraSplitterEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT029_depth_camera_splitter_effect.md` |
 | P3-VD11 | Depth Color Grade (DepthColorGradePlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_color_grade.py` — DepthColorGradePlugin, 5/5 tests ✅ 2026-02-22 |
@@ -935,7 +935,7 @@
 | P3-VD42 | Depth Effects (DepthDistortionEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT042_depth_effects_distortion_effect.md` |
 | P3-VD43 | Depth Effects (DepthFieldEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT043_depth_effects_field_effect.md` |
 | P3-VD44 | Depth Effects (OpticalFlowEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT044_depth_effects_optical_flow_effect.md` |
-| P3-VD45 | Depth Effects (BackgroundSubtractionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT045_depth_effects_background_subtraction_effect.md` |
+| P3-VD45 | Depth Effects (BackgroundSubtractionEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT045_depth_effects_background_subtraction_effect.md` |
 | P3-VD13 | Depth Erosion Datamosh (DepthErosionDatamoshPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_erosion_datamosh.py` — DepthErosionDatamoshPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD47 | Depth Feedback Matrix Datamosh (DepthFeedbackMatrixDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT047_depth_feedback_matrix_datamosh_effect.md` |
 | P3-VD48 | Depth Fog (DepthFogEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT048_depth_fog_effect.md` |

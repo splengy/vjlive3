@@ -2,10 +2,10 @@ import coverage
 import pytest
 import sys
 
-cov = coverage.Coverage(source=['vjlive3.plugins.depth_fracture_datamosh'])
+cov = coverage.Coverage(source=['vjlive3.plugins.depth_aware_compression'])
 cov.start()
 
-sys.argv = ['pytest', 'tests/plugins/test_depth_fracture_datamosh.py', '-v']
+sys.argv = ['pytest', 'tests/plugins/test_depth_aware_compression.py', '-v']
 pytest.main()
 
 cov.stop()
