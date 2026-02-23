@@ -2,10 +2,10 @@ import coverage
 import pytest
 import sys
 
-cov = coverage.Coverage(source=['vjlive3.plugins.depth_color_grade'])
+cov = coverage.Coverage(source=['vjlive3.plugins.depth_contour_datamosh'])
 cov.start()
 
-sys.argv = ['pytest', 'tests/plugins/test_depth_color_grade.py', '-v']
+sys.argv = ['pytest', 'tests/plugins/test_depth_contour_datamosh.py', '-v']
 pytest.main()
 
 cov.stop()
