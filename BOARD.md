@@ -925,7 +925,7 @@
 | P3-VD32 | Depth Data Mux (DepthDataMuxEffect) | P0 | ✅ Done | Implemented |
 | P3-VD33 | Depth Distance Filter (DepthDistanceFilterEffect) | P0 | ✅ Done | Implemented |
 | P3-VD34 | Depth Dual (DepthDualEffect) | P0 | ✅ Done | Implemented |
-| P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD35 | Depth Edge Glow (DepthEdgeGlowEffect) | P0 | ✅ Done | Implemented |
 | P3-VD36 | Depth Effects (DepthEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | ◯ Todo | VJlive-2 |
@@ -950,7 +950,7 @@
 | P3-VD57 | Depth Mosaic (DepthMosaicEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD58 | Depth Mosh Nexus (DepthMoshNexus) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD59 | Depth Motion Transfer (DepthMotionTransferEffect) | P0 | ◯ Todo | VJlive-2 |
-| P3-VD60 | Depth Parallel Universe Datamosh (DepthParallelUniverseDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |
+| P3-VD60 | Depth Parallel Universe Datamosh (DepthParallelUniverseDatamoshEffect) | P0 | ✅ Done | `src/vjlive3/plugins/depth_parallel_universe.py` — DepthParallelUniversePlugin, 6/6 tests ✅ 2026-02-22 |
 | P3-VD61 | Depth Particle Shred (DepthParticleShredEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD62 | Depth Portal Composite (DepthPortalCompositeEffect) | P0 | ◯ Todo | VJlive-2 |
 | P3-VD63 | Depth Raver Datamosh (DepthRaverDatamoshEffect) | P0 | ◯ Todo | VJlive-2 |

@@ -113,3 +113,35 @@ def test_parallel_universe_empty_input_texture():
     ctx = PluginContext(MagicMock())
     res = plugin.process_frame(0, {}, ctx)
     assert res == 0
+
+def test_parallel_universe_gl_full_pipeline():
+    plugin = DepthParallelUniversePlugin()
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 1, "depth_in": 2, "universe_a_return": 3}
+    ctx.outputs = {}
+    
+    with patch("vjlive3.plugins.depth_parallel_universe.gl") as mock_gl:
+        # Mock successful shader compilation
+        mock_gl.glGetShaderiv.return_value = 1 # GL_TRUE
+        mock_gl.glGetProgramiv.return_value = 1 # GL_TRUE
+        
+        # Setup mocks that return ID lists
+        mock_gl.glGenTextures.side_effect = [[11, 12, 13, 14], 15] # 4 for fb, 1 for prev
+        
+        plugin._mock_mode = False
+        plugin.initialize(ctx)
+        
+        # Ensure it didn't fallback to mock
+        assert plugin._mock_mode is False
+        assert len(plugin.out_textures) == 4
+        
+        # Now process
+        res = plugin.process_frame(1, {"depth_split_near": 0.5, "depth_split_far": 0.7}, ctx)
+        
+        # Verify texture outputs
+        assert res == plugin.out_textures[0]
+        assert ctx.outputs["video_out"] == plugin.out_textures[0]
+        assert ctx.outputs["universe_b_send"] == plugin.out_textures[2]
+        
+        # Ensure process ran draw arrays
+        mock_gl.glDrawArrays.assert_called()
