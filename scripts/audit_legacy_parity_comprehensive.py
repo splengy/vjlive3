@@ -239,24 +239,39 @@ def main():
 
     # 3. priority_matrix.yaml
     yaml_path = output_dir / "priority_matrix.yaml"
-    priority_data = {"phases": {
-        "Phase 3: Depth & Spatiotemporal": categories.get("Depth", []) + categories.get("Spatiotemporal", []),
-        "Phase 4: Audio Families & Generators": categories.get("Audio", []) + categories.get("Generator", []),
-        "Phase 5: Datamosh & Glitch": categories.get("Datamosh", []) + categories.get("Glitch", []),
-        "Phase 6: Quantum & AI": categories.get("Quantum", []) + categories.get("AI", []),
-        "Phase 7: Utility & Core": categories.get("Utility", []) + categories.get("Core", [])
-    }}
+    
+    phases = {
+        "Phase 3: Depth & Spatiotemporal": [],
+        "Phase 4: Audio Families & Generators": [],
+        "Phase 5: Datamosh & Glitch": [],
+        "Phase 6: Quantum & AI": [],
+        "Phase 7: Utility & Core": []
+    }
+    
+    for p in missing_plugins:
+        name = p.get('class_name', 'Unknown')
+        name_lower = name.lower()
+        if any(kw in name_lower for kw in ['quantum', 'neural', 'ai', 'ml', 'brain']):
+            phases["Phase 6: Quantum & AI"].append(name)
+        elif any(kw in name_lower for kw in ['datamosh', 'glitch', 'mosh', 'pixel']):
+            phases["Phase 5: Datamosh & Glitch"].append(name)
+        elif any(kw in name_lower for kw in ['depth', 'spatial', 'temporal', 'motion', 'optical']):
+            phases["Phase 3: Depth & Spatiotemporal"].append(name)
+        elif any(kw in name_lower for kw in ['audio', 'gen', 'vco', 'vca', 'mix', 'visual', 'sound', 'osc']):
+            phases["Phase 4: Audio Families & Generators"].append(name)
+        else:
+            phases["Phase 7: Utility & Core"].append(name)
     
     # Write a simple YAML manually to avoid PyYAML dependency issues
     with open(yaml_path, 'w', encoding='utf-8') as f:
         f.write("priority_matrix:\n")
         f.write("  phases:\n")
-        for phase, plugins in priority_data["phases"].items():
+        for phase, plugins in phases.items():
             f.write(f"    '{phase}':\n")
             if not plugins:
                 f.write("      []\n")
-            for p in plugins:
-                f.write(f"      - {p.get('class_name', 'Unknown')}\n")
+            for p_name in sorted(set(plugins)):
+                f.write(f"      - {p_name}\n")
 
     # Generate detailed report
     report_path = VJLIVE3_ROOT / "docs" / "audit_report_comprehensive.json"

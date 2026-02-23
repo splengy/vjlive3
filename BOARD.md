@@ -54,7 +54,7 @@
 
 | Task ID | Description | Priority | Status | Source |
 |---------|-------------|----------|--------|--------|
-| P0-INF2 | Legacy Feature Parity - 218 missing plugins (comprehensive audit) | P0 | ⬜ Todo | Comprehensive audit of vjlive/ & VJlive-2/ |
+| P0-INF2 | Legacy Feature Parity - 218 missing plugins (comprehensive audit) | P0 | ✅ Done | Comprehensive audit of vjlive/ & VJlive-2/ ✅ 2026-02-22 |
 | | **Spec:** `docs/specs/P0-INF2_legacy_feature_parity.md` | | | |
 | | **Critical Collections:** | | | |
 | | - Depth Collection: 50 missing depth plugins | | | |
@@ -940,7 +940,7 @@
 | P3-VD47 | Depth Feedback Matrix Datamosh (DepthFeedbackMatrixDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT047_depth_feedback_matrix_datamosh_effect.md` |
 | P3-VD48 | Depth Fog (DepthFogEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT048_depth_fog_effect.md` |
 | P3-VD14 | Depth Fracture Datamosh (DepthFractureDatamoshPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_fracture_datamosh.py` — DepthFractureDatamoshPlugin, 5/5 tests ✅ 2026-02-22 |
-| P3-VD50 | Depth Fx Loop (DepthFXLoopEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT050_depth_fx_loop_effect.md` |
+| P3-VD50 | Depth Fx Loop (DepthFXLoopEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT050_depth_fx_loop_effect.md` |
 | P3-VD51 | Depth Groovy Datamosh (DepthGroovyDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT051_depth_groovy_datamosh_effect.md` |
 | P3-VD52 | Depth Holographic (DepthHolographicIridescenceEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT052_depth_holographic_iridescence_effect.md` |
 | P3-VD53 | Depth Liquid Refraction (DepthLiquidRefractionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT053_depth_liquid_refraction_effect.md` |
