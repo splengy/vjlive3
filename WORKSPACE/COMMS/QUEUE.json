@@ -682,5 +682,23 @@
     "created_at": "2026-02-23T05:23:11.173687+00:00",
     "started_at": null,
     "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT001",
+    "spec_path": "docs/specs/P3-EXT001_ascii_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T06:34:15.381531+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT002",
+    "spec_path": "docs/specs/P3-EXT002_adaptive_contrast_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-23T06:37:07.384562+00:00",
+    "started_at": null,
+    "completed_at": null
   }
 ]
