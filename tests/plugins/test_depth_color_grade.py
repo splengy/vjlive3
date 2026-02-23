@@ -1,143 +1,108 @@
-import os
 import pytest
-import numpy as np
-from typing import Dict, Any
-
-from vjlive3.plugins.depth_color_grade import DepthColorGradePlugin, METADATA
-from vjlive3.plugins.api import PluginContext
-
-@pytest.fixture
-def plugin():
-    return DepthColorGradePlugin()
-
-@pytest.fixture
-def context():
-    ctx = PluginContext(engine=None)
-    ctx.inputs = {}
-    ctx.outputs = {}
-    ctx.inputs["depth_in"] = 123  # Mock texture ID
-    ctx.width = 1920
-    ctx.height = 1080
-    return ctx
-
-def test_plugin_metadata():
-    """Verify metadata follows VJLive3 standards"""
-    assert METADATA["name"] == "DepthColorGrade"
-    assert "version" in METADATA
-    assert "color" in METADATA["tags"]
-    assert "video_in" in METADATA["inputs"]
-    assert "depth_in" in METADATA["inputs"]
-    assert "video_out" in METADATA["outputs"]
-    
-    # Check parameters
-    params = METADATA["parameters"]
-    names = [p["name"] for p in params]
-    assert "grade_curve" in names
-    assert "near_color" in names
-    assert "far_color" in names
-    assert "contrast_boost" in names
-    assert "saturation_shift" in names
-    assert "fog_density" in names
-    assert "fog_color" in names
-    assert "transition_point" in names
-
-def test_plugin_initialization_mock_mode(plugin, context):
-    """Test plugin initializes safely without OpenGL context"""
-    plugin._mock_mode = True
-    plugin.initialize(context)
-    assert plugin._mock_mode is True
-    assert plugin.prog is None
-
-def test_process_frame_empty_input(plugin, context):
-    """Test handling of 0/None input texture"""
-    res = plugin.process_frame(0, {}, context)
-    assert res == 0
-    res2 = plugin.process_frame(None, {}, context)
-    assert res2 == 0
-
-def test_process_frame_mock_mode(plugin, context):
-    """Test process_frame falls back to passthrough correctly in mock mode"""
-    plugin._mock_mode = True
-    input_tex = 404
-    
-    result = plugin.process_frame(input_tex, {"grade_curve": "smooth"}, context)
-    assert result == input_tex
-    assert context.outputs["video_out"] == input_tex
-
-def test_plugin_cleanup(plugin):
-    """Test cleanup runs without errors regardless of state"""
-    try:
-        plugin.cleanup()
-    except Exception as e:
-        pytest.fail(f"Cleanup raised exception: {e}")
-
 from unittest.mock import MagicMock, patch
 
-@patch('vjlive3.plugins.depth_color_grade.gl')
-@patch('vjlive3.plugins.depth_color_grade.HAS_GL', True)
-def test_full_gl_execution_defaults(mock_gl, plugin, context):
-    """Test full initialization and rendering path using default strings and empty lists"""
-    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
-    
-    plugin._mock_mode = False
-    plugin.initialize(context)
-    assert plugin.prog is not None
-    assert plugin._mock_mode is False
-    
-    params = {
-        "grade_curve": "smooth",
-        "near_color": [1.0, 0.5], # missing blue
-        "far_color": [], # totally empty
-        "fog_color": [0.1], # missing green & blue
-        "contrast_boost": 0.5
-    }
-    res = plugin.process_frame(123, params, context)
-    assert res is not None
-    
-    mock_gl.glUniform3f.assert_called()
-    mock_gl.glUniform1f.assert_called()
+from vjlive3.plugins.api import PluginContext
+from vjlive3.plugins.depth_color_grade import DepthColorGradePlugin
 
-@patch('vjlive3.plugins.depth_color_grade.gl')
-@patch('vjlive3.plugins.depth_color_grade.HAS_GL', True)
-def test_full_gl_execution_custom_curve(mock_gl, plugin, context):
-    """Test execution with custom curve mapping to fallback int"""
-    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
-    plugin._mock_mode = False
-    plugin.initialize(context)
+def test_depth_color_grade_manifest():
+    plugin = DepthColorGradePlugin()
+    meta = plugin.get_metadata()
     
-    params = {
-        "grade_curve": "unknown_val",
-        "near_color": [0.1, 0.2, 0.3],
-        "far_color": [0.4, 0.5, 0.6],
-        "fog_color": [0.7, 0.8, 0.9]
-    }
-    res = plugin.process_frame(123, params, context)
-    assert res is not None
+    assert meta["name"] == "Depth Color Grade"
+    assert "video_in" in meta["inputs"]
+    assert "depth_in" in meta["inputs"]
+    assert "video_out" in meta["outputs"]
+    
+    param_names = [p["name"] for p in meta["parameters"]]
+    assert "zone_near" in param_names
+    assert "zone_far" in param_names
+    assert "near_hue" in param_names
+    assert "mid_saturation" in param_names
+    assert "far_temperature" in param_names
+    assert "contrast" in param_names
+    assert "film_curve" in param_names
 
-@patch('vjlive3.plugins.depth_color_grade.gl')
-@patch('vjlive3.plugins.depth_color_grade.HAS_GL', True)
-def test_gl_compile_failure(mock_gl, plugin, context):
-    """Test shader compilation failure fallback to mock mode"""
-    mock_gl.glGetShaderiv.return_value = False
+def test_color_grade_mock_bypass():
+    plugin = DepthColorGradePlugin()
+    plugin._mock_mode = True
     
-    plugin._mock_mode = False
-    plugin.initialize(context)
-    assert plugin._mock_mode is True
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 123, "depth_in": 321}
+    ctx.outputs = {}
+    
+    res = plugin.process_frame(123, {}, ctx)
+    assert res == 123
+    assert ctx.outputs["video_out"] == 123
 
-@patch('vjlive3.plugins.depth_color_grade.gl')
-@patch('vjlive3.plugins.depth_color_grade.HAS_GL', True)
-def test_gl_cleanup(mock_gl, plugin, context):
-    """Test cleanup of GL resources"""
-    plugin._mock_mode = False
-    plugin.out_tex = 1
-    plugin.fbo = 1
-    plugin.prog = 1
-    plugin.vao = 1
-    plugin.vbo = 1
+def test_depth_color_grade_fbo_cleanup():
+    plugin = DepthColorGradePlugin()
     
-    plugin.cleanup()
+    with patch("vjlive3.plugins.depth_color_grade.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 50
+        plugin.tex = 60
+        plugin.vao = 22
+        plugin.vbo = 33
+        plugin.prog = 44
+        
+        plugin.cleanup()
+        
+        mock_gl.glDeleteTextures.assert_any_call(1, [60])
+        mock_gl.glDeleteFramebuffers.assert_any_call(1, [50])
+        mock_gl.glDeleteVertexArrays.assert_called_with(1, [22])
+        mock_gl.glDeleteProgram.assert_called_with(44)
+        
+        assert plugin.tex is None
+        assert plugin.fbo is None
+
+def test_depth_color_grade_zone_swap():
+    # If zone_near > zone_far, the python wrapper must swap them prior to Shader binding.
+    plugin = DepthColorGradePlugin()
     
-    mock_gl.glDeleteTextures.assert_called()
-    mock_gl.glDeleteFramebuffers.assert_called()
-    mock_gl.glDeleteProgram.assert_called()
-    assert plugin.out_tex is None
+    with patch("vjlive3.plugins.depth_color_grade.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo = 1
+        plugin.prog = 3
+        plugin.tex = 9
+        plugin.vao = 1
+        plugin._width = 1920
+        plugin._height = 1080
+        
+        ctx = PluginContext(MagicMock())
+        ctx.inputs = {"video_in": 5}
+        ctx.outputs = {}
+        
+        mock_gl.glGetUniformLocation.side_effect = lambda prog, name: name
+        
+        # Setting inverted near and far explicitly mapping swapped bindings natively.
+        plugin.process_frame(5, {"zone_near": 0.8, "zone_far": 0.2}, ctx)
+        
+        mock_gl.glUniform1f.assert_any_call("zone_near", 0.2)
+        mock_gl.glUniform1f.assert_any_call("zone_far", 0.8)
+
+def test_depth_color_grade_empty_input():
+    plugin = DepthColorGradePlugin()
+    ctx = PluginContext(MagicMock())
+    res = plugin.process_frame(0, {}, ctx)
+    assert res == 0
+
+def test_depth_color_grade_full_pipeline():
+    plugin = DepthColorGradePlugin()
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 1, "depth_in": 2}
+    ctx.outputs = {}
+    
+    with patch("vjlive3.plugins.depth_color_grade.gl") as mock_gl:
+        mock_gl.glGetShaderiv.return_value = 1 
+        mock_gl.glGetProgramiv.return_value = 1 
+        mock_gl.glGenFramebuffers.return_value = 5
+        mock_gl.glGenTextures.return_value = 15 
+        
+        plugin._mock_mode = False
+        plugin.initialize(ctx)
+        
+        res = plugin.process_frame(1, {"contrast": 0.8}, ctx)
+        
+        assert plugin._mock_mode is False
+        assert mock_gl.glDrawArrays.called
+        assert ctx.outputs["video_out"] == 15

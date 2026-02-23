@@ -13,29 +13,34 @@ from vjlive3.plugins.api import EffectPlugin, PluginContext
 logger = logging.getLogger(__name__)
 
 METADATA = {
-    "name": "DepthColorGrade",
-    "version": "3.0.0",
-    "description": "Depth-based color grading and correction",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "color",
-    "tags": ["depth", "color", "grade", "correction", "atmosphere"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"],
-    "inputs": ["video_in", "depth_in"],
-    "outputs": ["video_out"],
+    "name": "Depth Color Grade",
+    "description": "Per-depth-band color grading (near, mid, far zones).",
+    "version": "1.0.0",
     "parameters": [
-        {"name": "grade_curve", "type": "str", "default": "linear", "options": ["linear", "smooth", "stepped", "custom"]},
-        {"name": "near_color", "type": "list", "default": [1.0, 1.0, 1.0]},
-        {"name": "far_color", "type": "list", "default": [0.8, 0.9, 1.0]},
-        {"name": "contrast_boost", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0},
-        {"name": "saturation_shift", "type": "float", "default": 0.0, "min": -1.0, "max": 1.0},
-        {"name": "fog_density", "type": "float", "default": 0.0, "min": 0.0, "max": 1.0},
-        {"name": "fog_color", "type": "list", "default": [0.7, 0.8, 1.0]},
-        {"name": "transition_point", "type": "float", "default": 0.5, "min": 0.0, "max": 1.0}
-    ]
+        {"name": "zone_near", "type": "float", "min": 0.0, "max": 1.0, "default": 0.3},
+        {"name": "zone_far", "type": "float", "min": 0.0, "max": 1.0, "default": 0.6},
+        {"name": "zone_blend", "type": "float", "min": 0.0, "max": 0.5, "default": 0.1},
+        
+        {"name": "near_hue", "type": "float", "min": 0.0, "max": 1.0, "default": 0.0},
+        {"name": "near_saturation", "type": "float", "min": 0.0, "max": 2.0, "default": 1.0},
+        {"name": "near_temperature", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "near_exposure", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        
+        {"name": "mid_hue", "type": "float", "min": 0.0, "max": 1.0, "default": 0.0},
+        {"name": "mid_saturation", "type": "float", "min": 0.0, "max": 2.0, "default": 1.0},
+        {"name": "mid_temperature", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "mid_exposure", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        
+        {"name": "far_hue", "type": "float", "min": 0.0, "max": 1.0, "default": 0.0},
+        {"name": "far_saturation", "type": "float", "min": 0.0, "max": 2.0, "default": 1.0},
+        {"name": "far_temperature", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "far_exposure", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        
+        {"name": "contrast", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "film_curve", "type": "float", "min": 0.0, "max": 10.0, "default": 0.0}
+    ],
+    "inputs": ["video_in", "depth_in"],
+    "outputs": ["video_out"]
 }
 
 VERTEX_SHADER = """
@@ -49,23 +54,37 @@ void main() {
 }
 """
 
-DEPTH_COLOR_GRADE_FRAGMENT = """
+FRAGMENT_SHADER = """
 #version 330 core
 in vec2 uv;
 out vec4 fragColor;
 
 uniform sampler2D tex0;
-uniform sampler2D depth_tex;
-uniform vec2 resolution;
+uniform sampler2D depthTex;
 
-uniform int grade_curve; // 0=linear, 1=smooth, 2=stepped, 3=custom
-uniform vec3 near_color;
-uniform vec3 far_color;
-uniform float contrast_boost;
-uniform float saturation_shift;
-uniform float fog_density;
-uniform vec3 fog_color;
-uniform float transition_point;
+uniform int has_depth;
+
+uniform float zone_near;
+uniform float zone_far;
+uniform float zone_blend;
+
+uniform float near_hue;
+uniform float near_saturation;
+uniform float near_temperature;
+uniform float near_exposure;
+
+uniform float mid_hue;
+uniform float mid_saturation;
+uniform float mid_temperature;
+uniform float mid_exposure;
+
+uniform float far_hue;
+uniform float far_saturation;
+uniform float far_temperature;
+uniform float far_exposure;
+
+uniform float contrast;
+uniform float film_curve;
 
 vec3 rgb2hsv(vec3 c) {
     vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
@@ -81,60 +100,74 @@ vec3 hsv2rgb(vec3 c) {
     return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
 }
 
-float get_weight(float depth) {
-    if (grade_curve == 1) { // smooth
-        return smoothstep(0.0, 1.0, depth);
-    } else if (grade_curve == 2) { // stepped
-        return step(transition_point, depth);
-    } 
-    // linear or custom default
-    return depth;
+vec3 grade(vec3 color, float hue_shift, float sat_mult, float temp, float exposure) {
+    color *= pow(2.0, (exposure - 0.5) * 2.0);
+    
+    float t = (temp - 0.5) * 0.3;
+    color.r += t;
+    color.b -= t;
+    
+    vec3 hsv = rgb2hsv(clamp(color, 0.0, 1.0));
+    hsv.x = fract(hsv.x + hue_shift);
+    hsv.y *= sat_mult;
+    hsv.y = clamp(hsv.y, 0.0, 1.0);
+    
+    return hsv2rgb(hsv);
+}
+
+vec3 apply_curve(vec3 color, float mode) {
+    if (mode < 3.3) {
+        return color;
+    } else if (mode < 6.6) {
+        return color * color * (3.0 - 2.0 * color);
+    } else {
+        return log(1.0 + color * 9.0) / log(10.0);
+    }
 }
 
 void main() {
-    float depth = texture(depth_tex, uv).r;
-    vec3 color = texture(tex0, uv).rgb;
-    
-    // Depth-lerped grade
-    float w = get_weight(depth);
-    vec3 grade_mult = mix(near_color, far_color, w);
-    color *= grade_mult;
-    
-    // Saturation shift
-    if (saturation_shift != 0.0) {
-        vec3 hsv = rgb2hsv(clamp(color, 0.0, 1.0));
-        hsv.y = clamp(hsv.y * (1.0 + saturation_shift), 0.0, 1.0);
-        color = hsv2rgb(hsv);
+    float depth = 0.5; // Default mapping aligns to MID structure safely globally
+    if (has_depth == 1) {
+        depth = texture(depthTex, uv).r;
     }
     
-    // Contrast boost
-    if (contrast_boost != 0.0) {
-        color = mix(vec3(0.5), color, 1.0 + contrast_boost);
+    vec4 source = texture(tex0, uv);
+    vec3 color = source.rgb;
+    
+    float blend = zone_blend * 0.15 + 0.01;
+    float near_mask = 1.0 - smoothstep(zone_near - blend, zone_near + blend, depth);
+    float far_mask = smoothstep(zone_far - blend, zone_far + blend, depth);
+    float mid_mask = max(1.0 - near_mask - far_mask, 0.0);
+    
+    vec3 near_graded = grade(color, near_hue, near_saturation, near_temperature, near_exposure);
+    vec3 mid_graded = grade(color, mid_hue, mid_saturation, mid_temperature, mid_exposure);
+    vec3 far_graded = grade(color, far_hue, far_saturation, far_temperature, far_exposure);
+    
+    vec3 graded = near_graded * near_mask + mid_graded * mid_mask + far_graded * far_mask;
+    
+    if (contrast != 0.5) {
+        float c = (contrast - 0.5) * 2.0;
+        graded = mix(vec3(0.5), graded, 1.0 + c);
     }
     
-    // Exponential fog
-    if (fog_density > 0.0) {
-        float fog_factor = 1.0 - exp(-depth * fog_density * 4.0); // 4.0 scales local scene space
-        color = mix(color, fog_color, clamp(fog_factor, 0.0, 1.0));
-    }
-    
-    fragColor = vec4(clamp(color, 0.0, 1.0), 1.0);
+    graded = apply_curve(clamp(graded, 0.0, 1.0), film_curve);
+    fragColor = vec4(clamp(graded, 0.0, 1.0), 1.0);
 }
 """
 
-
 class DepthColorGradePlugin(EffectPlugin):
-    """
-    DepthColorGrade plugin port for VJLive3.
-    """
+    """3-Zone Depth Spatial Color Corrector mapped to real-time depth boundaries."""
+
     def __init__(self):
         super().__init__()
         self._mock_mode = not HAS_GL
         self.prog = None
-        self.out_tex = None
         self.fbo = None
+        self.tex = None
         self.vao = None
         self.vbo = None
+        self._width = 0
+        self._height = 0
 
     def get_metadata(self) -> Dict[str, Any]:
         return METADATA
@@ -147,7 +180,6 @@ class DepthColorGradePlugin(EffectPlugin):
         try:
             self._compile_shader()
             self._setup_quad()
-            self._setup_fbo(1920, 1080)
         except Exception as e:
             logger.error(f"Failed to initialize OpenGL in DepthColorGrade: {e}")
             self._mock_mode = True
@@ -160,7 +192,7 @@ class DepthColorGradePlugin(EffectPlugin):
             raise RuntimeError(f"Vertex Shader Error: {gl.glGetShaderInfoLog(vs)}")
 
         fs = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
-        gl.glShaderSource(fs, DEPTH_COLOR_GRADE_FRAGMENT)
+        gl.glShaderSource(fs, FRAGMENT_SHADER)
         gl.glCompileShader(fs)
         if not gl.glGetShaderiv(fs, gl.GL_COMPILE_STATUS):
             raise RuntimeError(f"Fragment Shader Error: {gl.glGetShaderInfoLog(fs)}")
@@ -196,73 +228,98 @@ class DepthColorGradePlugin(EffectPlugin):
         gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(8))
         gl.glBindVertexArray(0)
 
-    def _setup_fbo(self, w: int, h: int):
-        self.fbo = gl.glGenFramebuffers(1)
-        self.out_tex = gl.glGenTextures(1)
+    def _allocate_buffers(self, w: int, h: int):
+        self._free_fbo()
+        self._width = w
+        self._height = h
         
-        gl.glBindTexture(gl.GL_TEXTURE_2D, self.out_tex)
+        self.fbo = gl.glGenFramebuffers(1)
+        self.tex = gl.glGenTextures(1)
+            
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.tex)
         gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+        
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
         gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
         
-        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
-        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.out_tex, 0)
+        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.tex, 0)
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
 
-    def _bind_uniforms(self, params: Dict[str, Any], w: int, h: int):
-        gl.glUniform2f(gl.glGetUniformLocation(self.prog, "resolution"), float(w), float(h))
-        
-        curve_map = {"linear": 0, "smooth": 1, "stepped": 2, "custom": 3}
-        c_val = curve_map.get(params.get("grade_curve", "linear"), 0)
-        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "grade_curve"), c_val)
-
-        # Parse robust colors avoiding IndexErrors if user supplies empty arrays
-        nc = params.get("near_color", [1.0, 1.0, 1.0])
-        fc = params.get("far_color", [0.8, 0.9, 1.0])
-        foc = params.get("fog_color", [0.7, 0.8, 1.0])
-        
-        gl.glUniform3f(gl.glGetUniformLocation(self.prog, "near_color"), 
-                       nc[0] if len(nc)>0 else 1.0, nc[1] if len(nc)>1 else 1.0, nc[2] if len(nc)>2 else 1.0)
-        gl.glUniform3f(gl.glGetUniformLocation(self.prog, "far_color"), 
-                       fc[0] if len(fc)>0 else 0.8, fc[1] if len(fc)>1 else 0.9, fc[2] if len(fc)>2 else 1.0)
-        gl.glUniform3f(gl.glGetUniformLocation(self.prog, "fog_color"), 
-                       foc[0] if len(foc)>0 else 0.7, foc[1] if len(foc)>1 else 0.8, foc[2] if len(foc)>2 else 1.0)
-
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "contrast_boost"), float(params.get("contrast_boost", 0.0)))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "saturation_shift"), float(params.get("saturation_shift", 0.0)))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "fog_density"), float(params.get("fog_density", 0.0)))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "transition_point"), float(params.get("transition_point", 0.5)))
+    def _free_fbo(self):
+        try:
+            if self.tex is not None:
+                gl.glDeleteTextures(1, [self.tex])
+            if self.fbo is not None:
+                gl.glDeleteFramebuffers(1, [self.fbo])
+            self.tex = None
+            self.fbo = None
+        except Exception as e:
+            logger.debug(f"Safely catching cleanup exception on FBO: {e}")
 
     def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
         if not input_texture or input_texture <= 0:
              return 0
              
-        depth_texture = getattr(context, "inputs", {}).get("depth_in", input_texture)
-        
         if self._mock_mode:
             if hasattr(context, "outputs"):
                 context.outputs["video_out"] = input_texture
             return input_texture
             
-        w, h = getattr(context, 'width', 1920), getattr(context, 'height', 1080)
+        inputs = getattr(context, "inputs", {})
+        depth_in = inputs.get("depth_in", 0)
         
+        w, h = getattr(context, 'width', 1920), getattr(context, 'height', 1080)
+        if w != self._width or h != self._height:
+            self._allocate_buffers(w, h)
+            
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
         gl.glViewport(0, 0, w, h)
-        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         
+        gl.glClearColor(0.0, 0.0, 0.0, 1.0)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
         gl.glUseProgram(self.prog)
         
         gl.glActiveTexture(gl.GL_TEXTURE0)
         gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
         gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex0"), 0)
         
-        gl.glActiveTexture(gl.GL_TEXTURE1)
-        gl.glBindTexture(gl.GL_TEXTURE_2D, depth_texture)
-        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_tex"), 1)
+        gl.glActiveTexture(gl.GL_TEXTURE2)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, depth_in)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depthTex"), 2)
         
-        self._bind_uniforms(params, w, h)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "has_depth"), 1 if depth_in > 0 else 0)
+        
+        # Explicit bounding logic ensuring zone validity mapping seamlessly structurally
+        z_near = float(params.get("zone_near", 0.3))
+        z_far = float(params.get("zone_far", 0.6))
+        if z_near > z_far:
+            z_near, z_far = z_far, z_near
+            
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "zone_near"), z_near)
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "zone_far"), z_far)
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "zone_blend"), float(params.get("zone_blend", 0.1)))
+        
+        # Load Color Controls per Zone
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "near_hue"), float(params.get("near_hue", 0.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "near_saturation"), float(params.get("near_saturation", 1.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "near_temperature"), float(params.get("near_temperature", 0.5)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "near_exposure"), float(params.get("near_exposure", 0.5)))
+        
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "mid_hue"), float(params.get("mid_hue", 0.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "mid_saturation"), float(params.get("mid_saturation", 1.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "mid_temperature"), float(params.get("mid_temperature", 0.5)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "mid_exposure"), float(params.get("mid_exposure", 0.5)))
+        
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "far_hue"), float(params.get("far_hue", 0.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "far_saturation"), float(params.get("far_saturation", 1.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "far_temperature"), float(params.get("far_temperature", 0.5)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "far_exposure"), float(params.get("far_exposure", 0.5)))
+        
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "contrast"), float(params.get("contrast", 0.5)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "film_curve"), float(params.get("film_curve", 0.0)))
         
         gl.glBindVertexArray(self.vao)
         gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
@@ -271,28 +328,23 @@ class DepthColorGradePlugin(EffectPlugin):
         gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
         
         if hasattr(context, "outputs"):
-            context.outputs["video_out"] = self.out_tex
+            context.outputs["video_out"] = self.tex
             
-        return self.out_tex
+        return self.tex
 
     def cleanup(self) -> None:
         if self._mock_mode:
             return
             
         try:
-            if self.out_tex:
-                gl.glDeleteTextures(1, [self.out_tex])
-                self.out_tex = None
-            if self.fbo:
-                gl.glDeleteFramebuffers(1, [self.fbo])
-                self.fbo = None
-            if self.vbo:
+            self._free_fbo()
+            if self.vbo is not None:
                 gl.glDeleteBuffers(1, [self.vbo])
                 self.vbo = None
-            if self.vao:
+            if self.vao is not None:
                 gl.glDeleteVertexArrays(1, [self.vao])
                 self.vao = None
-            if self.prog:
+            if self.prog is not None:
                 gl.glDeleteProgram(self.prog)
                 self.prog = None
         except Exception as e:

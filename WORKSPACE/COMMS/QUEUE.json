@@ -182,28 +182,28 @@
   {
     "task_id": "P3-VD10",
     "spec_path": "docs/specs/P3-VD10_depth_blur.md",
-    "status": "in_progress",
+    "status": "completed",
     "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:19:29.892975+00:00",
     "started_at": "2026-02-23T05:45:00.955908+00:00",
-    "completed_at": null
+    "completed_at": "2026-02-23T05:48:14.988560+00:00"
   },
   {
     "task_id": "P3-VD11",
     "spec_path": "docs/specs/P3-VD11_depth_color_grade.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:22:35.483226+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-23T05:48:30.466798+00:00",
+    "completed_at": "2026-02-23T05:51:58.524939+00:00"
   },
   {
     "task_id": "P3-VD12",
     "spec_path": "docs/specs/P3-VD12_depth_contour_datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:22:35.539336+00:00",
-    "started_at": null,
+    "started_at": "2026-02-23T05:52:30.470559+00:00",
     "completed_at": null
   },
   {

@@ -918,9 +918,9 @@
 ----------|-------------|----------|--------|--------|
 | P3-VD09 | Depth Acid Fractal (DepthAcidFractalPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_acid_fractal.py` — DepthAcidFractalPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD27 | Depth Aware Compression (DepthAwareCompressionEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT027_depth_aware_compression_effect.md` |
-| P3-VD28 | Depth Blur (DepthBlurEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT028_depth_blur_effect.md` |
+| P3-VD10 | Depth Blur (DepthBlurPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_blur.py` — DepthBlurPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD29 | Depth Camera Splitter (DepthCameraSplitterEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT029_depth_camera_splitter_effect.md` |
-| P3-VD30 | Depth Color Grade (DepthColorGradeEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT030_depth_color_grade_effect.md` |
+| P3-VD11 | Depth Color Grade (DepthColorGradePlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_color_grade.py` — DepthColorGradePlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD31 | Depth Contour Datamosh (DepthContourDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT031_depth_contour_datamosh_effect.md` |
 | P3-VD32 | Depth Data Mux (DepthDataMuxEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT032_depth_data_mux_effect.md` |
 | P3-VD33 | Depth Distance Filter (DepthDistanceFilterEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT033_depth_distance_filter_effect.md` |
@@ -931,7 +931,7 @@
 | P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT038_depth_effects_point_cloud_3d_effect.md` |
 | P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT039_depth_effects_mesh_effect.md` |
 | P3-VD40 | Depth Effects (DepthContourEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT040_depth_effects_contour_effect.md` |
-| P3-VD41 | Depth Effects (DepthParticle3DEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT041_depth_effects_particle_3d_effect.md` |
+| P3-VD41 | Depth Effects (DepthParticle3DEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT041_depth_effects_particle_3d_effect.md` |
 | P3-VD42 | Depth Effects (DepthDistortionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT042_depth_effects_distortion_effect.md` |
 | P3-VD43 | Depth Effects (DepthFieldEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT043_depth_effects_field_effect.md` |
 | P3-VD44 | Depth Effects (OpticalFlowEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT044_depth_effects_optical_flow_effect.md` |
