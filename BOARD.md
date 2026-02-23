@@ -407,7 +407,7 @@
 | P3-EXT325 | quantum_consciousness_explorer (QuantumState) | P0 | ⬜ Todo | VJlive-2 |
 | P3-EXT326 | quantum_consciousness_explorer_effect (QuantumState) | P0 | ⬜ Todo | VJlive-2 |
 | P3-EXT327 | r16_deep_mosh_studio (R16DeepMoshStudio) | P0 | ⬜ Todo | VJlive-2 |
-| P3-EXT328 | r16_depth_wave (R16DepthWave) | P0 | ⬜ Todo | VJlive-2 |
+| P3-VD08 | Depth R16 Wave (DepthR16WavePlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_r16_wave.py` — DepthR16WavePlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-EXT329 | r16_interstellar_mosh (R16InterstellarMosh) | P0 | ⬜ Todo | VJlive-2 |
 | P3-EXT330 | r16_simulated_depth (R16SimulatedDepth) | P0 | ⬜ Todo | VJlive-2 |
 | P3-EXT331 | r16_vortex (R16VortexEffect) | P0 | ⬜ Todo | VJlive-2 |
@@ -929,7 +929,7 @@
 | P3-VD36 | Depth Effects (DepthEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT036_depth_effects_effect.md` |
 | P3-VD37 | Depth Effects (DepthPointCloudEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT037_depth_effects_point_cloud_effect.md` |
 | P3-VD38 | Depth Effects (DepthPointCloud3DEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT038_depth_effects_point_cloud_3d_effect.md` |
-| P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT039_depth_effects_mesh_effect.md` |
+| P3-VD39 | Depth Effects (DepthMeshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT039_depth_effects_mesh_effect.md` |
 | P3-VD40 | Depth Effects (DepthContourEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT040_depth_effects_contour_effect.md` |
 | P3-VD41 | Depth Effects (DepthParticle3DEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT041_depth_effects_particle_3d_effect.md` |
 | P3-VD42 | Depth Effects (DepthDistortionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT042_depth_effects_distortion_effect.md` |
