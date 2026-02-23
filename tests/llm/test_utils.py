@@ -15,6 +15,15 @@ def test_security_filtering():
     response = "   Here is some markdown   "
     assert SecurityManager.filter_output(response) == "Here is some markdown"
 
+def test_security_empty_inputs():
+    assert SecurityManager.sanitize_input("") == ""
+    assert SecurityManager.filter_output("") == ""
+
+@patch("os.environ.get")
+def test_security_get_api_key_env(mock_env_get):
+    mock_env_get.return_value = "env-key"
+    assert SecurityManager.get_api_key("openai", "") == "env-key"
+
 def test_utils_build_prompt():
     messages = LLMUtils.build_prompt("System", "User", {"key": "val"})
     assert len(messages) == 2

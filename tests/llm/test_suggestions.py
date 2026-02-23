@@ -42,3 +42,22 @@ def test_suggestions_no_provider():
         assert result["transition"] == "cut"
         
     asyncio.run(run_test())
+
+def test_suggestions_json_parse_error():
+    async def run_test():
+        class MockProviderError(LLMProvider):
+            @property
+            def provider_name(self): return "mock"
+            async def generate(self, messages):
+                return 'invalid json {'
+            async def validate_connection(self): return True
+            
+        service = Mock()
+        service.get_provider.return_value = MockProviderError(api_key="", model_name="", max_tokens=100, temperature=0.7)
+        
+        engine = AISuggestionEngine(service)
+        result = await engine.generate_suggestions({}, [])
+        assert result["description"] == "Parse failure fallback"
+        
+    asyncio.run(run_test())
+

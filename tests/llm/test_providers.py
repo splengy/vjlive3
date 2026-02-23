@@ -63,3 +63,97 @@ def test_local_provider(mock_client_class, test_messages):
         assert res == "Local Success!"
         
     asyncio.run(run_test())
+
+@patch("vjlive3.llm.providers.openai.httpx.AsyncClient")
+def test_openai_validate_connection(mock_client_class):
+    async def run_test():
+        mock_client = AsyncMock()
+        mock_client_class.return_value.__aenter__.return_value = mock_client
+        mock_response = AsyncMock()
+        mock_response.status_code = 200
+        mock_client.get.return_value = mock_response
+        
+        provider = OpenAIProvider(api_key="test", model_name="gpt-4", max_tokens=100, temperature=0.7)
+        is_valid = await provider.validate_connection()
+        assert is_valid is True
+        
+        # Test failure
+        mock_response.status_code = 401
+        is_valid = await provider.validate_connection()
+        assert is_valid is False
+        
+        # Test no api key
+        provider_no_key = OpenAIProvider(api_key="", model_name="gpt", max_tokens=10, temperature=0)
+        assert await provider_no_key.validate_connection() is False
+        
+        with pytest.raises(ValueError):
+            await provider_no_key.generate([{"role": "user", "content": "hi"}])
+            
+        # Test non-200 in generate
+        mock_post_response = AsyncMock()
+        mock_post_response.status_code = 500
+        mock_post_response.text = "Internal Server Error"
+        mock_client.post.return_value = mock_post_response
+        with pytest.raises(Exception):
+             await provider.generate([{"role": "user", "content": "hi"}])
+
+    asyncio.run(run_test())
+    
+@patch("vjlive3.llm.providers.anthropic.httpx.AsyncClient")
+def test_anthropic_validate_connection(mock_client_class):
+    async def run_test():
+        mock_client = AsyncMock()
+        mock_client_class.return_value.__aenter__.return_value = mock_client
+        mock_response = AsyncMock()
+        mock_response.status_code = 200
+        mock_client.post.return_value = mock_response
+        
+        provider = AnthropicProvider(api_key="test", model_name="claude", max_tokens=100, temperature=0.7)
+        is_valid = await provider.validate_connection()
+        assert is_valid is True
+        
+        mock_response.status_code = 401
+        is_valid = await provider.validate_connection()
+        assert is_valid is False
+        
+        provider_no_key = AnthropicProvider(api_key="", model_name="claude", max_tokens=10, temperature=0)
+        assert await provider_no_key.validate_connection() is False
+        
+        with pytest.raises(ValueError):
+            await provider_no_key.generate([{"role": "user", "content": "hi"}])
+            
+        # Test non-200 in generate
+        mock_post_response = AsyncMock()
+        mock_post_response.status_code = 500
+        mock_client.post.return_value = mock_post_response
+        with pytest.raises(Exception):
+             await provider.generate([{"role": "user", "content": "hi"}])
+
+    asyncio.run(run_test())
+
+@patch("vjlive3.llm.providers.local.httpx.AsyncClient")
+def test_local_validate_connection(mock_client_class):
+    async def run_test():
+        mock_client = AsyncMock()
+        mock_client_class.return_value.__aenter__.return_value = mock_client
+        mock_response = AsyncMock()
+        mock_response.status_code = 200
+        mock_client.get.return_value = mock_response
+        
+        provider = LocalProvider(api_key="", model_name="local", max_tokens=100, temperature=0.7)
+        is_valid = await provider.validate_connection()
+        assert is_valid is True
+        
+        mock_response.status_code = 401
+        is_valid = await provider.validate_connection()
+        assert is_valid is False
+        
+        # Test non-200 in generate
+        mock_post_response = AsyncMock()
+        mock_post_response.status_code = 500
+        mock_client.post.return_value = mock_post_response
+        with pytest.raises(Exception):
+             await provider.generate([{"role": "user", "content": "hi"}])
+
+    asyncio.run(run_test())
+
