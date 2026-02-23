@@ -1,82 +1,189 @@
-# P3-EXT051: Depth Fog Effect
+# P3-EXT051 Depth Fog Effect
 
 ## What This Module Does
-Applies exponential fog based on depth values. Creates atmospheric perspective by blending the video with a fog color that increases with distance from the camera. Simulates natural fog, mist, or haze effects that are stronger for distant objects.
+
+Depth Fog Effect adds atmospheric fog based on depth information, creating realistic depth-based atmospheric effects. Distant objects are obscured by fog while nearby objects remain clear, simulating natural atmospheric conditions. The fog density, color, and falloff are all depth-controlled, creating immersive environmental effects.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthFogEffect",
-    "version": "3.0.0",
-    "description": "Depth-based atmospheric fog",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "atmosphere",
-    "tags": ["depth", "fog", "atmosphere", "haze"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Fog Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Adds atmospheric fog based on depth information",
+    "category": "Depth Effects",
+    "tags": ["depth", "fog", "atmospheric", "environment"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "fog_color": {
+            "type": "color",
+            "default": "#808080",
+            "description": "Color of the fog"
+        },
+        "fog_density": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Overall density of the fog"
+        },
+        "fog_start": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Depth at which fog begins (0-1)"
+        },
+        "fog_end": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 1.0,
+            "description": "Depth at which fog is fully opaque"
+        },
+        "falloff_curve": {
+            "type": "enum",
+            "options": ["linear", "exponential", "exponential_squared", "custom"],
+            "default": "exponential",
+            "description": "Curve for fog falloff"
+        },
+        "falloff_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for exponential falloff curves"
+        },
+        "depth_scale": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Scale factor for depth values"
+        },
+        "noise_enable": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enable noise variation in fog"
+        },
+        "noise_scale": {
+            "type": "float",
+            "min": 0.001,
+            "max": 0.1,
+            "default": 0.01,
+            "description": "Scale of noise pattern"
+        },
+        "noise_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Animation speed for noise"
+        },
+        "noise_strength": {
+            "type": "float",
+            "min": 0.0,
+            "max": 0.5,
+            "default": 0.1,
+            "description": "Strength of noise variation"
+        },
+        "light_angle": {
+            "type": "float",
+            "min": 0.0,
+            "max": 360.0,
+            "default": 0.0,
+            "description": "Angle for directional light effect"
+        },
+        "light_intensity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Intensity of directional light"
+        },
+        "light_color": {
+            "type": "color",
+            "default": "#ffffff",
+            "description": "Color of directional light"
+        }
+    }
 }
 ```
 
-### Parameters
-- `fog_density: float` (default: 0.5, min: 0.0, max: 2.0) - Fog thickness
-- `fog_color: list[float]` (default: [0.7, 0.8, 1.0]) - Fog color (RGB 0-1)
-- `fog_start: float` (default: 0.3, min: 0.0, max: 1.0) - Distance where fog begins
-- `fog_end: float` (default: 1.0, min: 0.0, max: 1.0) - Distance where fog is fully opaque
-- `falloff: str` (default: "exponential", options: ["linear", "exponential", "exponential_squared"]) - Fog falloff curve
-- `depth_scale: float` (default: 1.0, min: 0.1, max: 10.0) - Scale depth values before fog calculation
-- `depth_offset: float` (default: 0.0, min: -1.0, max: 1.0) - Offset depth values
-- `light_direction: list[float]` (default: [0.0, 0.0, 1.0]) - Direction of light for directional fog
-- `light_color: list[float]` (default: [1.0, 1.0, 1.0]) - Color of light for light-based fog
-- `enable_lighting: bool` (default: False) - Enable light-based fog variation
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-
-### Outputs
-- `video: Frame` (same format as input) - Fogged video frame
-
 ## What It Does NOT Do
-- Does NOT perform volumetric ray marching (simple depth-based blending)
-- Does NOT support multiple fog layers or volumes
-- Does NOT include light scattering simulation (simple lighting only)
-- Does NOT handle HDR metadata preservation
-- Does NOT support custom fog density maps (depth-driven only)
-- Does NOT include fog animation or dynamics
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform volumetric fog with light scattering (surface fog only)
+- Does not handle multiple fog layers (single fog layer only)
+- Does not support animated fog parameters (static parameters only)
 
 ## Test Plan
-1. Unit tests for fog factor calculation
-2. Verify fog density and color produce expected results
-3. Test all falloff curves
-4. Performance: ≥ 60 FPS at 1080p
-5. Memory: < 50MB additional RAM
-6. Visual: verify fog creates natural atmospheric perspective
+
+1. **Fog Density Tests:**
+   - Test with zero fog (clear scene)
+   - Test with maximum fog (fully obscured)
+   - Test with different fog densities
+
+2. **Fog Start/End Tests:**
+   - Test with fog starting at near distance
+   - Test with fog starting at far distance
+   - Test with narrow fog band (start ≈ end)
+   - Test with wide fog band (start << end)
+
+3. **Falloff Curve Tests:**
+   - Test linear falloff (straight transition)
+   - Test exponential falloff (smooth transition)
+   - Test exponential squared falloff (very smooth)
+   - Test custom falloff (user-defined)
+
+4. **Noise Tests:**
+   - Test with noise disabled (smooth fog)
+   - Test with noise enabled (varied fog)
+   - Test different noise scales
+   - Test different noise speeds
+   - Test different noise strengths
+
+5. **Lighting Tests:**
+   - Test with no directional light
+   - Test with different light angles
+   - Test with different light intensities
+   - Test with different light colors
+
+6. **Performance Tests:**
+   - Measure FPS with different fog densities
+   - Test with various resolutions
+   - Verify GPU memory usage
+
+7. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth fog transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Compute fog factor f based on depth d:
-  - linear: f = clamp((d - fog_start) / (fog_end - fog_start), 0, 1) * fog_density
-  - exponential: f = (1 - exp(-(d * depth_scale + depth_offset) * fog_density)) * fog_factor
-  - exponential_squared: f = (1 - exp(-((d * depth_scale + depth_offset) * fog_density)^2))
-- If enable_lighting: modulate fog by dot product of depth gradient and light_direction
-- Output = lerp(video, fog_color, f)
-- If enable_lighting: add light_color contribution based on lighting
-- Optimize with vectorized operations
-- Follow SAFETY_RAILS: clamp all values, handle edge cases
+
+- Use GPU shader for real-time fog calculation
+- Implement efficient depth-based fog blending
+- Support real-time parameter adjustment
+- Provide depth visualization for debugging
+- Include noise generation for varied fog
 
 ## Deliverables
-- `src/vjlive3/effects/depth_fog.py`
-- `tests/effects/test_depth_fog.py`
-- `docs/plugins/depth_fog.md`
+
+- `src/vjlive3/plugins/depth_fog.py` - Main plugin implementation
+- `tests/plugins/test_depth_fog.py` - Comprehensive test suite
+- `docs/plugins/depth_fog.md` - User documentation
+- `shaders/depth_fog.glsl` - GPU shader for fog rendering
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Fog effect works correctly
-- [x] All parameters functional
-- [x] 60 FPS at 1080p
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Realistic depth-based atmospheric fog with configurable parameters
+- ✅ Multiple falloff curves and noise options
+- ✅ Directional lighting support for fog
+- ✅ Real-time performance with minimal FPS impact
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

@@ -1,81 +1,179 @@
-# P3-EXT050: Depth Field Effect
+# P3-EXT050 Depth Field Effect
 
 ## What This Module Does
-Simulates camera depth-of-field by blurring regions based on depth values. Creates realistic focus effects where objects at specific depth ranges are sharp while others are blurred. Supports smooth transitions between focused and blurred regions and multiple blur types.
+
+Depth Field Effect simulates depth-of-field (DOF) effects where objects at different depths are blurred to different degrees, creating a realistic camera-like focus effect. The effect uses depth information to determine which parts of the image should be in focus and which should be blurred, with configurable focus distance, aperture size, and blur quality.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthFieldEffect",
-    "version": "3.0.0",
-    "description": "Realistic depth-of-field simulation",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "blur",
-    "tags": ["depth", "dof", "field", "focus", "blur"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Field Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Simulates depth-of-field effects using depth information",
+    "category": "Depth Effects",
+    "tags": ["depth", "dof", "blur", "focus"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "focus_distance": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Distance at which objects are in perfect focus"
+        },
+        "aperture_size": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Size of simulated camera aperture"
+        },
+        "blur_quality": {
+            "type": "enum",
+            "options": ["low", "medium", "high", "ultra"],
+            "default": "medium",
+            "description": "Quality of blur calculation"
+        },
+        "blur_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Overall strength of blur effect"
+        },
+        "bokeh_shape": {
+            "type": "enum",
+            "options": ["circle", "hexagon", "pentagon", "triangle", "custom"],
+            "default": "circle",
+            "description": "Shape of bokeh highlights"
+        },
+        "bokeh_brightness": {
+            "type": "float",
+            "min": 0.0,
+            "max": 2.0,
+            "default": 1.0,
+            "description": "Brightness of bokeh highlights"
+        },
+        "focus_transition": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Smoothness of focus transition"
+        },
+        "vignette_strength": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Strength of vignette effect"
+        },
+        "chromatic_aberration": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.1,
+            "description": "Amount of chromatic aberration"
+        },
+        "motion_blur": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.0,
+            "description": "Motion blur amount for moving objects"
+        }
+    }
 }
 ```
 
-### Parameters
-- `focus_distance: float` (default: 0.5, min: 0.0, max: 1.0) - Distance at which objects are in focus
-- `focal_range: float` (default: 0.2, min: 0.01, max: 1.0) - Range around focus_distance that is acceptably sharp
-- `max_blur_radius: int` (default: 10, min: 1, max: 50) - Maximum blur radius for out-of-focus areas
-- `blur_type: str` (default: "gaussian", options: ["gaussian", "bokeh", "hexagonal", "octagonal"]) - Blur kernel shape
-- `bokeh_ratio: float` (default: 0.8, min: 0.5, max: 1.5) - Bokeh aspect ratio (for elliptical bokeh)
-- `bokeh_rotation: float` (default: 0.0, min: 0.0, max: 360.0) - Bokeh rotation in degrees
-- `highlight_boost: float` (default: 0.0, min: 0.0, max: 1.0) - Additional brightness for bright out-of-focus areas
-- `chromatic_aberration: float` (default: 0.0, min: 0.0, max: 0.01) - Color fringing amount
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-
-### Outputs
-- `video: Frame` (same format as input) - Video with depth-of-field effect
-
 ## What It Does NOT Do
-- Does NOT perform lens simulation beyond basic DOF (no vignette, distortion)
-- Does NOT support moving focal plane animation (static focus only)
-- Does NOT include auto-focus algorithms (manual focus_distance)
-- Does NOT handle HDR metadata preservation
-- Does NOT support multi-plane occlusion (single depth layer)
-- Does NOT include bokeh texture mapping (geometric shapes only)
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform object detection or segmentation
+- Does not handle 3D scene reconstruction
+- Does not support animated focus distance (static focus only)
 
 ## Test Plan
-1. Unit tests for depth-to-blur mapping
-2. Verify focus_distance and focal_range produce correct blur zones
-3. Test all blur_type options
-4. Performance: ≥ 60 FPS at 1080p with max_blur_radius=20
-5. Memory: < 100MB additional RAM
-6. Visual: verify DOF creates natural-looking focus transitions
+
+1. **Focus Distance Tests:**
+   - Test with focus at near distance (foreground in focus)
+   - Test with focus at far distance (background in focus)
+   - Test with focus at mid-distance
+   - Test with focus at extreme distances
+
+2. **Aperture Size Tests:**
+   - Test with small aperture (deep focus)
+   - Test with large aperture (shallow focus)
+   - Test with maximum aperture
+   - Test with zero aperture (no blur)
+
+3. **Blur Quality Tests:**
+   - Test low quality (fast, less accurate)
+   - Test medium quality (balanced)
+   - Test high quality (accurate, slower)
+   - Test ultra quality (maximum accuracy)
+
+4. **Bokeh Shape Tests:**
+   - Test circular bokeh
+   - Test hexagonal bokeh
+   - Test pentagonal bokeh
+   - Test triangular bokeh
+   - Test custom bokeh shapes
+
+5. **Transition Tests:**
+   - Test with sharp focus transition
+   - Test with smooth focus transition
+   - Test with maximum transition smoothness
+
+6. **Vignette Tests:**
+   - Test with no vignette
+   - Test with subtle vignette
+   - Test with strong vignette
+   - Test with maximum vignette
+
+7. **Chromatic Aberration Tests:**
+   - Test with no chromatic aberration
+   - Test with subtle chromatic aberration
+   - Test with strong chromatic aberration
+   - Test with maximum chromatic aberration
+
+8. **Performance Tests:**
+   - Measure FPS with different blur qualities
+   - Test with various resolutions
+   - Verify GPU memory usage
+
+9. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth focus transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Compute blur weight: w = clamp((abs(depth - focus_distance) - focal_range/2) / focal_range, 0, 1)
-- Blur radius = w * max_blur_radius
-- For gaussian: use separable Gaussian kernel with computed radius
-- For bokeh shapes: use disc, hexagon, or octagon kernels
-- Apply chromatic_aberration by offsetting RGB channels slightly
-- Apply highlight_boost to bright areas in blur regions
-- Optimize with pyramid-based blur for large radii
-- Consider using GPU shader for real-time performance
-- Follow SAFETY_RAILS: validate parameters, handle edge cases
+
+- Use GPU-based depth-aware blur calculation
+- Implement multiple blur quality algorithms
+- Support real-time parameter adjustment
+- Provide depth visualization for debugging
+- Include bokeh highlight rendering
 
 ## Deliverables
-- `src/vjlive3/effects/depth_field.py`
-- `tests/effects/test_depth_field.py`
-- `docs/plugins/depth_field.md`
-- Optional: `shaders/depth_field.frag`
+
+- `src/vjlive3/plugins/depth_field.py` - Main plugin implementation
+- `tests/plugins/test_depth_field.py` - Comprehensive test suite
+- `docs/plugins/depth_field.md` - User documentation
+- `shaders/depth_field.glsl` - GPU shader for depth-of-field
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] DOF simulation works correctly
-- [x] All parameters functional
-- [x] 60 FPS at 1080p with max_blur_radius=20
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Realistic depth-of-field simulation using depth information
+- ✅ Multiple blur quality levels with configurable performance
+- ✅ Various bokeh shapes and highlight rendering
+- ✅ Smooth focus transitions and vignette effects
+- ✅ Real-time performance with minimal FPS impact
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails

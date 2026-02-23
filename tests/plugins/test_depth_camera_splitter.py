@@ -1,144 +1,161 @@
-import pytest
 import os
-import sys
-from unittest.mock import patch, MagicMock
+import pytest
+import numpy as np
+from typing import Dict, Any
 
-sys.modules['OpenGL'] = MagicMock()
-sys.modules['OpenGL.GL'] = MagicMock()
-
-import vjlive3.plugins.depth_camera_splitter as dcs
 from vjlive3.plugins.depth_camera_splitter import DepthCameraSplitterPlugin, METADATA
 from vjlive3.plugins.api import PluginContext
 
-@pytest.fixture(autouse=True)
-def force_mock_no_gl(monkeypatch):
-    monkeypatch.setattr('vjlive3.plugins.depth_camera_splitter.HAS_GL', False)
+@pytest.fixture
+def plugin():
+    return DepthCameraSplitterPlugin()
 
-class MockContext:
-    def __init__(self, inputs=None, parameters=None):
-        self.inputs = inputs or {}
-        self.parameters = parameters or {}
-        self.outputs = {}
+@pytest.fixture
+def context():
+    ctx = PluginContext(engine=None)
+    ctx.inputs = {}
+    ctx.outputs = {}
+    ctx.inputs["depth_in"] = 123  # Mock texture ID
+    ctx.width = 1920
+    ctx.height = 1080
+    return ctx
 
-def test_manifest():
-    assert METADATA["name"] == "Depth Camera Splitter"
-    assert "depthMin" in [p["name"] for p in METADATA["parameters"]]
+def test_plugin_metadata():
+    """Verify metadata follows VJLive3 standards"""
+    assert METADATA["name"] == "DepthCameraSplitter"
+    assert "version" in METADATA
+    assert "camera" in METADATA["tags"]
     assert "video_in" in METADATA["inputs"]
     assert "depth_in" in METADATA["inputs"]
-    assert "ir_in" in METADATA["inputs"]
     assert "video_out" in METADATA["outputs"]
-
-def test_mock_processing_passthrough():
-    plugin = DepthCameraSplitterPlugin()
-    ctx = MockContext(inputs={"depth_in": 200, "ir_in": 300})
-    plugin.initialize(ctx)
     
+    # Check parameters
+    params = METADATA["parameters"]
+    names = [p["name"] for p in params]
+    assert "num_splits" in names
+    assert "split_method" in names
+    assert "custom_depths" in names
+    assert "camera_offsets" in names
+    assert "blend_edges" in names
+
+def test_plugin_initialization_mock_mode(plugin, context):
+    """Test plugin initializes safely without OpenGL context"""
+    plugin._mock_mode = True
+    plugin.initialize(context)
     assert plugin._mock_mode is True
-    
-    res = plugin.process_frame(100, {}, ctx)
-    assert res == 100
-    assert ctx.outputs["video_out"] == 100
-    
-    # Missing input
-    assert plugin.process_frame(0, {}, ctx) == 0
+    assert plugin.prog is None
 
-def setup_mock_gl(monkeypatch):
-    mock_gl = MagicMock()
-    mock_gl.glGenTextures.return_value = [1, 2]
-    mock_gl.glGenFramebuffers.return_value = [10, 20]
-    mock_gl.GL_TRUE = 1
-    mock_gl.glGetShaderiv.return_value = 1
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    monkeypatch.setattr(dcs, 'gl', mock_gl, raising=False)
-    monkeypatch.setattr(dcs, 'HAS_GL', True)
-    return mock_gl
+def test_process_frame_empty_input(plugin, context):
+    """Test handling of 0/None input texture"""
+    res = plugin.process_frame(0, {}, context)
+    assert res == 0
+    res2 = plugin.process_frame(None, {}, context)
+    assert res2 == 0
+
+def test_process_frame_mock_mode(plugin, context):
+    """Test process_frame falls back to passthrough correctly in mock mode"""
+    plugin._mock_mode = True
+    input_tex = 404
     
-def test_gl_initialization(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthCameraSplitterPlugin()
+    result = plugin.process_frame(input_tex, {"num_splits": 3}, context)
+    assert result == input_tex
+    assert context.outputs["video_out"] == input_tex
+
+def test_plugin_cleanup(plugin):
+    """Test cleanup runs without errors regardless of state"""
+    try:
+        plugin.cleanup()
+    except Exception as e:
+        pytest.fail(f"Cleanup raised exception: {e}")
+
+from unittest.mock import MagicMock, patch
+
+@patch('vjlive3.plugins.depth_camera_splitter.gl')
+@patch('vjlive3.plugins.depth_camera_splitter.HAS_GL', True)
+def test_full_gl_execution_uniform(mock_gl, plugin, context):
+    """Test full initialization and rendering path using uniform splits"""
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
+    
     plugin._mock_mode = False
-    
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
+    plugin.initialize(context)
     assert plugin.prog is not None
-    assert plugin.textures["feedback_0"] == 1
-    assert plugin.textures["feedback_1"] == 2
-    assert plugin.fbos["feedback_0"] == 10
+    assert plugin._mock_mode is False
     
-def test_gl_fbo_cleanup(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthCameraSplitterPlugin()
+    params = {
+        "num_splits": 4,
+        "split_method": "uniform",
+        "blend_edges": True
+    }
+    res = plugin.process_frame(123, params, context)
+    assert res is not None
+    
+    mock_gl.glUniform1fv.assert_called()
+    mock_gl.glUniform4fv.assert_called()
+
+@patch('vjlive3.plugins.depth_camera_splitter.gl')
+@patch('vjlive3.plugins.depth_camera_splitter.HAS_GL', True)
+def test_full_gl_execution_custom_splits_and_offsets(mock_gl, plugin, context):
+    """Test execution with custom split boundaries and specific transform dictionaries"""
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
     plugin._mock_mode = False
-    ctx = MockContext()
+    plugin.initialize(context)
     
-    plugin.initialize(ctx)
+    params = {
+        "num_splits": 3,
+        "split_method": "custom",
+        "custom_depths": [0.2, 0.4, 0.9],
+        "camera_offsets": [
+            {"offset_x": 0.1, "zoom": 1.5},
+            {"offset_y": -0.2, "rotation": 3.14},
+            {} # Empty dict fallback
+        ],
+        "blend_edges": False
+    }
+    res = plugin.process_frame(123, params, context)
+    assert res is not None
+
+@patch('vjlive3.plugins.depth_camera_splitter.gl')
+@patch('vjlive3.plugins.depth_camera_splitter.HAS_GL', True)
+def test_full_gl_execution_malformed_arrays(mock_gl, plugin, context):
+    """Test graceful handling of bad offsets and out of bounds custom lengths"""
+    mock_gl.glGetShaderiv.return_value = mock_gl.GL_TRUE
+    plugin._mock_mode = False
+    plugin.initialize(context)
+    
+    params = {
+        "num_splits": 10,  # over max bound 8
+        "split_method": "custom",
+        "custom_depths": [0.1], # under provided limits
+        "camera_offsets": "NotAList" # String instead of list
+    }
+    # Should not crash Python or raise out of bounds
+    res = plugin.process_frame(123, params, context)
+    assert res is not None
+
+@patch('vjlive3.plugins.depth_camera_splitter.gl')
+@patch('vjlive3.plugins.depth_camera_splitter.HAS_GL', True)
+def test_gl_compile_failure(mock_gl, plugin, context):
+    """Test shader compilation failure fallback to mock mode"""
+    mock_gl.glGetShaderiv.return_value = False
+    
+    plugin._mock_mode = False
+    plugin.initialize(context)
+    assert plugin._mock_mode is True
+
+@patch('vjlive3.plugins.depth_camera_splitter.gl')
+@patch('vjlive3.plugins.depth_camera_splitter.HAS_GL', True)
+def test_gl_cleanup(mock_gl, plugin, context):
+    """Test cleanup of GL resources"""
+    plugin._mock_mode = False
+    plugin.out_tex = 1
+    plugin.fbo = 1
+    plugin.prog = 1
+    plugin.vao = 1
+    plugin.vbo = 1
+    
     plugin.cleanup()
     
-    mock_gl.glDeleteTextures.assert_called_once_with(2, [1, 2])
-    mock_gl.glDeleteFramebuffers.assert_called_once_with(2, [10, 20])
-    
-def test_gl_exception_fallback(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.side_effect = Exception("Out of Memory")
-    
-    plugin = DepthCameraSplitterPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    
-    plugin.initialize(ctx)
-    assert plugin._mock_mode is True
-    
-def test_gl_render_ping_pong(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthCameraSplitterPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext(inputs={"depth_in": 300, "ir_in": 400})
-    
-    plugin.initialize(ctx)
-    
-    assert plugin.ping_pong == 0
-    res1 = plugin.process_frame(100, {"outputSelect": 2.0, "depthMin": 1.0, "depthGamma": 3.0, "depthSmooth": 5.0}, ctx)
-    assert res1 == 2
-    assert plugin.ping_pong == 1
-    
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    res2 = plugin.process_frame(100, {}, ctx)
-    assert res2 == 1
-    
-    # Trigger texture size change reallocation branch
-    mock_gl.glGetTexLevelParameteriv.return_value = 800
-    res3 = plugin.process_frame(100, {}, ctx)
-    assert res3 == 2
-
-def test_gl_render_exception(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthCameraSplitterPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
-    mock_gl.glBindTexture.side_effect = Exception("Driver Crash")
-    res = plugin.process_frame(100, {}, ctx)
-    assert res == 100 # Return raw input unharmed
-    
-def test_shader_compile_fail(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGetShaderiv.return_value = 0 # Fail flag
-    
-    plugin = DepthCameraSplitterPlugin()
-    res = plugin._compile_shader()
-    assert res is None
-
-def test_single_int_generation(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.return_value = 99
-    mock_gl.glGenFramebuffers.return_value = 100
-    
-    plugin = DepthCameraSplitterPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
-    assert plugin.textures["feedback_0"] == 99
-    assert plugin.textures["feedback_1"] == 100
+    mock_gl.glDeleteTextures.assert_called()
+    mock_gl.glDeleteFramebuffers.assert_called()
+    mock_gl.glDeleteProgram.assert_called()
+    assert plugin.out_tex is None

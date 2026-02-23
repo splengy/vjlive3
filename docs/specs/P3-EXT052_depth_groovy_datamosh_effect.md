@@ -1,86 +1,194 @@
-# P3-EXT052: Depth Groovy Datamosh Effect
+# P3-EXT052 Depth Groovy Datamosh Effect
 
 ## What This Module Does
-Creates a groovy, psychedelic datamosh effect that uses depth information to control the datamosh pattern and intensity. The effect produces colorful, flowing distortions that follow depth contours, creating a trippy, retro-futuristic visual style.
+
+Depth Groovy Datamosh Effect creates psychedelic, groovy datamosh effects that respond to depth information, producing colorful, trippy visual distortions with depth-aware characteristics. The effect combines traditional datamosh techniques with depth-based modulation to create unique, evolving visual patterns that feel both chaotic and controlled.
 
 ## Public Interface
 
-### METADATA Constants
 ```python
 METADATA = {
-    "name": "DepthGroovyDatamosh",
-    "version": "3.0.0",
-    "description": "Psychedelic datamosh with depth control",
-    "author": "VJLive3 Team",
-    "license": "GPLv3",
-    "plugin_type": "depth_effect",
-    "category": "datamosh",
-    "tags": ["depth", "datamosh", "groovy", "psychedelic", "colorful"],
-    "priority": 1,
-    "dependencies": ["DepthBuffer"],
-    "incompatible": ["NoDepthSupport"]
+    "name": "Depth Groovy Datamosh Effect",
+    "version": "1.0.0",
+    "author": "VJLive3",
+    "description": "Creates psychedelic datamosh effects with depth modulation",
+    "category": "Depth Effects",
+    "tags": ["depth", "datamosh", "psychedelic", "groovy", "colorful"],
+    "inputs": ["video", "depth"],
+    "outputs": ["video"],
+    "parameters": {
+        "groove_intensity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Overall intensity of groovy effect"
+        },
+        "groove_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Speed of groovy animation"
+        },
+        "color_shift_speed": {
+            "type": "float",
+            "min": 0.0,
+            "max": 10.0,
+            "default": 2.0,
+            "description": "Speed of color shifting"
+        },
+        "color_shift_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Amount of color shifting"
+        },
+        "pattern_variation": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Variation in groovy patterns"
+        },
+        "pattern_scale": {
+            "type": "float",
+            "min": 0.1,
+            "max": 10.0,
+            "default": 1.0,
+            "description": "Scale of groovy patterns"
+        },
+        "depth_response": {
+            "type": "enum",
+            "options": ["linear", "exponential", "logarithmic", "squared", "cubic"],
+            "default": "linear",
+            "description": "How depth affects groovy intensity"
+        },
+        "depth_exponent": {
+            "type": "float",
+            "min": 0.1,
+            "max": 5.0,
+            "default": 1.0,
+            "description": "Exponent for depth response curve"
+        },
+        "motion_sensitivity": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.5,
+            "description": "Sensitivity to motion in groovy effect"
+        },
+        "glitch_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.3,
+            "description": "Amount of glitch corruption"
+        },
+        "glitch_pattern": {
+            "type": "enum",
+            "options": ["random", "scanline", "block", "pixel_sort", "compression"],
+            "default": "random",
+            "description": "Type of glitch pattern"
+        },
+        "feedback_amount": {
+            "type": "float",
+            "min": 0.0,
+            "max": 1.0,
+            "default": 0.2,
+            "description": "Amount of feedback in groovy effect"
+        },
+        "feedback_mode": {
+            "type": "enum",
+            "options": ["additive", "multiply", "screen", "difference", "xor"],
+            "default": "additive",
+            "description": "Blending mode for feedback"
+        },
+        "seed": {
+            "type": "integer",
+            "min": 0,
+            "max": 1000000,
+            "default": 42,
+            "description": "Random seed for groovy patterns"
+        }
+    }
 }
 ```
 
-### Parameters
-- `datamosh_intensity: float` (default: 0.5, min: 0.0, max: 1.0) - Overall strength of datamosh
-- `color_shift_amount: float` (default: 0.3, min: 0.0, max: 1.0) - Color aberration intensity
-- `depth_contrast: float` (default: 1.0, min: 0.1, max: 3.0) - Contrast of depth-based modulation
-- `flow_speed: float` (default: 1.0, min: 0.1, max: 5.0) - Speed of datamosh evolution
-- `pattern_scale: int` (default: 8, min: 2, max: 32) - Size of datamosh blocks/macroblocks
-- `preserve_luminance: bool` (default: True) - Keep original brightness levels
-- `saturation_boost: float` (default: 0.2, min: 0.0, max: 1.0) - Increase color saturation
-- `glow_intensity: float` (default: 0.1, min: 0.0, max: 0.5) - Additive glow effect
-
-### Inputs
-- `video: Frame` (RGB or RGBA, 8/16-bit) - Input video frame
-- `depth: Frame` (single channel, float32) - Depth buffer (0.0-1.0 normalized)
-- `timestamp: float` (optional) - Current time for animation
-
-### Outputs
-- `video: Frame` (same format as input) - Groovy datamoshed video
-
 ## What It Does NOT Do
-- Does NOT perform full frame interpolation (only macroblock copying)
-- Does NOT support audio-reactive modulation (depth-only)
-- Does NOT include 3D mesh extraction (2D depth mapping)
-- Does NOT handle HDR metadata preservation
-- Does NOT support custom color palettes (automatic color shifting)
-- Does NOT include temporal smoothing (per-frame processing)
+
+- Does not generate depth from 2D video (requires depth input)
+- Does not perform audio-reactive groovy timing
+- Does not support external groovy sources
+- Does not handle infinite recursion (limited by feedback)
 
 ## Test Plan
-1. Unit tests for depth-based datamosh pattern generation
-2. Verify color shift produces psychedelic effects
-3. Test all parameter combinations
-4. Performance: ≥ 60 FPS at 1080p with datamosh_intensity=0.5
-5. Memory: < 100MB additional RAM
-6. Visual: verify groovy aesthetic matches expectations
+
+1. **Groove Intensity Tests:**
+   - Test with zero groove (no effect)
+   - Test with maximum groove (extreme psychedelic)
+   - Test with different groove intensities
+
+2. **Speed Tests:**
+   - Test with slow groove speed
+   - Test with fast groove speed
+   - Test with maximum speed
+
+3. **Color Shift Tests:**
+   - Test with no color shifting
+   - Test with maximum color shifting
+   - Test with different color shift speeds
+
+4. **Pattern Tests:**
+   - Test with different pattern variations
+   - Test with different pattern scales
+   - Test with different glitch patterns
+
+5. **Depth Response Tests:**
+   - Test linear depth response
+   - Test exponential depth response
+   - Test logarithmic depth response
+   - Test different exponent values
+
+6. **Feedback Tests:**
+   - Test with no feedback
+   - Test with different feedback amounts
+   - Test with different feedback modes
+
+7. **Performance Tests:**
+   - Measure FPS with different groove intensities
+   - Test with various resolutions
+   - Verify GPU memory usage
+
+8. **Quality Tests:**
+   - Check for visual artifacts
+   - Verify smooth groovy transitions
+   - Test with moving objects
+   - Test with static scenes
 
 ## Implementation Notes
-- Use depth to control which macroblocks get datamoshed and by how much
-- Apply color_shift_amount to create chromatic aberration by offsetting RGB channels differently
-- Use depth_contrast to enhance depth differences before applying datamosh
-- Animate datamosh pattern using timestamp and flow_speed
-- For each macroblock of size pattern_scale:
-  - If depth value > threshold (modulated by depth_contrast), apply datamosh
-  - Copy macroblock from previous frame or random location
-  - Apply color shift based on depth
-- If preserve_luminance: maintain original Y channel in YUV or use luminance-preserving blend
-- Apply saturation_boost to enhance colors
-- Add glow_intensity as additive brightening
-- Optimize with block-based processing and SIMD
-- Follow SAFETY_RAILS: handle edge cases, no silent failures
+
+- Use GPU shader for real-time groovy calculation
+- Implement efficient depth-based groovy modulation
+- Support real-time parameter adjustment
+- Provide groovy preview mode
+- Include depth visualization for debugging
 
 ## Deliverables
-- `src/vjlive3/effects/depth_groovy_datamosh.py`
-- `tests/effects/test_depth_groovy_datamosh.py`
-- `docs/plugins/depth_groovy_datamosh.md`
-- Optional: `shaders/depth_groovy_datamosh.frag`
+
+- `src/vjlive3/plugins/depth_groovy_datamosh.py` - Main plugin implementation
+- `tests/plugins/test_depth_groovy_datamosh.py` - Comprehensive test suite
+- `docs/plugins/depth_groovy_datamosh.md` - User documentation
+- `shaders/depth_groovy_datamosh.glsl` - GPU shader for groovy processing
 
 ## Success Criteria
-- [x] Plugin loads via METADATA
-- [x] Groovy datamosh effect works with depth
-- [x] Color shifting creates psychedelic look
-- [x] 60 FPS at 1080p
-- [x] Test coverage ≥ 80%
-- [x] No safety rail violations
+
+- ✅ Psychedelic groovy datamosh effects with depth modulation
+- ✅ Multiple groove patterns and color shifting options
+- ✅ Real-time performance with minimal FPS impact
+- ✅ Configurable feedback and glitch parameters
+- ✅ No visual artifacts or glitches
+- ✅ Comprehensive test coverage (≥80%)
+- ✅ Complete documentation with examples
+- ✅ Passes all safety rails
