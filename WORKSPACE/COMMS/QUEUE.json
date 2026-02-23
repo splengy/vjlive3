@@ -218,19 +218,19 @@
   {
     "task_id": "P3-VD14",
     "spec_path": "docs/specs/P3-VD14_depth_fracture_datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:24:46.900555+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-23T06:00:42.288495+00:00",
+    "completed_at": "2026-02-23T06:04:32.017714+00:00"
   },
   {
     "task_id": "P3-VD15",
     "spec_path": "docs/specs/P3-VD15_depth_aware_compression.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "Beta",
     "created_at": "2026-02-22T10:26:36.606915+00:00",
-    "started_at": null,
+    "started_at": "2026-02-23T06:04:48.142006+00:00",
     "completed_at": null
   },
   {

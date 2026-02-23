@@ -1,89 +1,114 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
-from vjlive3.plugins.depth_fracture_datamosh import DepthFractureDatamoshPlugin, METADATA
+from vjlive3.plugins.api import PluginContext
+from vjlive3.plugins.depth_fracture_datamosh import DepthFractureDatamoshPlugin
 
 def test_fracture_datamosh_manifest():
-    """Verifies Pydantic/Dict manifest structure."""
-    assert METADATA["name"] == "Depth Fracture Datamosh"
-    assert "video_in" in METADATA["inputs"]
-    assert "video_b_in" in METADATA["inputs"]
-    assert "fracture_sensitivity" in [p["name"] for p in METADATA["parameters"]]
-    assert "fracture_decay" in [p["name"] for p in METADATA["parameters"]]
-    
     plugin = DepthFractureDatamoshPlugin()
-    assert plugin.name == "Depth Fracture Datamosh"
+    meta = plugin.get_metadata()
+    
+    assert meta["name"] == "Depth Fracture Datamosh"
+    assert "video_in" in meta["inputs"]
+    assert "video_b_in" in meta["inputs"]
+    assert "depth_in" in meta["inputs"]
+    assert "video_out" in meta["outputs"]
+    
+    param_names = [p["name"] for p in meta["parameters"]]
+    assert "fracture_sensitivity" in param_names
+    assert "fracture_width" in param_names
+    assert "fracture_decay" in param_names
+    assert "bleed_amount" in param_names
+    assert "displacement_strength" in param_names
 
 def test_fracture_datamosh_fbo_lifecycle():
-    """Validates that dual ping-pong FBOs are created and destroyed cleanly without VRAM leaks."""
+    # Validating SAFETY RAIL #8 (Datamosh Explicit FBO Cleanup)
     plugin = DepthFractureDatamoshPlugin()
-    context = MagicMock()
     
-    plugin.initialize(context)
-    assert plugin._fbo_cracks_a is True
-    assert plugin._fbo_mosh_b is True
+    with patch("vjlive3.plugins.depth_fracture_datamosh.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo1 = 100
+        plugin.fbo2 = 101
+        plugin.tex1 = 200
+        plugin.tex2 = 201
+        plugin.vao = 22
+        plugin.vbo = 33
+        plugin.prog = 44
+        
+        plugin.cleanup()
+        
+        mock_gl.glDeleteTextures.assert_any_call(1, [200])
+        mock_gl.glDeleteTextures.assert_any_call(1, [201])
+        mock_gl.glDeleteFramebuffers.assert_any_call(1, [100])
+        mock_gl.glDeleteFramebuffers.assert_any_call(1, [101])
+        
+        assert plugin.tex1 is None
+        assert plugin.tex2 is None
+        assert plugin.fbo1 is None
+        assert plugin.fbo2 is None
+
+def test_fracture_datamosh_mock_bypass():
+    plugin = DepthFractureDatamoshPlugin()
+    plugin._mock_mode = True
     
-    plugin.cleanup()
-    assert plugin._fbo_cracks_a is False
-    assert plugin._fbo_cracks_b is False
-    assert plugin._fbo_mosh_a is False
-    assert plugin._fbo_mosh_b is False
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 123, "depth_in": 321}
+    ctx.outputs = {}
+    
+    res = plugin.process_frame(123, {}, ctx)
+    assert res == 123
+    assert ctx.outputs["video_out"] == 123
 
 def test_fracture_datamosh_missing_inputs():
-    """Verifies missing depth and video_b bypass rules."""
+    # Assuring missing video_b or missing depth intercepts safely (SAFETY RAIL #7)
     plugin = DepthFractureDatamoshPlugin()
-    context = MagicMock()
     
-    # Missing Depth: Pass video_in -> 100
-    context.get_texture.side_effect = lambda n: 100 if n == "video_in" else None
-    plugin.initialize(context)
-    plugin.process()
-    context.set_texture.assert_called_with("video_out", 100)
-    
-    # Missing video_b: Self-Moshes video_in (100) -> 100 + 9999
-    context.get_texture.side_effect = lambda n: 100 if n == "video_in" else (200 if n == "depth_in" else None)
-    plugin.process()
-    context.set_texture.assert_called_with("video_out", 10099)
-
-def test_fracture_datamosh_processing_ping_pong():
-    """Test ping pong simulation and clamping on valid dual input."""
-    plugin = DepthFractureDatamoshPlugin()
-    context = MagicMock()
-    
-    context.get_texture.side_effect = lambda n: 100 if n == "video_in" else (150 if n == "video_b_in" else 200)
-    
-    def get_param_mock(name):
-        if name == "fracture.fracture_decay": return 5.0 # Overshoot
-        if name == "fracture.displacement_strength": return -0.5 # Undershoot
-        return None
+    with patch("vjlive3.plugins.depth_fracture_datamosh.gl") as mock_gl:
+        plugin._mock_mode = False
+        plugin.fbo1 = 1
+        plugin.fbo2 = 2
+        plugin.prog = 3
+        plugin.tex1 = 9
+        plugin.tex2 = 8
+        plugin.vao = 1
+        plugin._width = 1920
+        plugin._height = 1080
         
-    context.get_parameter.side_effect = get_param_mock
-    
-    plugin.initialize(context)
-    
-    plugin.process()
-    assert plugin._ping_pong_state == 1
-    context.set_texture.assert_called_with("video_out", 10149) # 150 + 9999
-    
-    # Verify bounds control
-    assert plugin.params["fracture_decay"] == 1.0
-    assert plugin.params["displacement_strength"] == 0.0
-    
-    plugin.process()
-    assert plugin._ping_pong_state == 0
-    context.set_texture.assert_called_with("video_out", 9150) # 150 + 9000
+        ctx = PluginContext(MagicMock())
+        ctx.inputs = {"video_in": 5}  # missing depth and video_b
+        ctx.outputs = {}
+        
+        mock_gl.glGetUniformLocation.side_effect = lambda prog, name: name
+        
+        plugin.process_frame(5, {}, ctx)
+        
+        mock_gl.glUniform1i.assert_any_call("has_depth", 0)
+        mock_gl.glUniform1i.assert_any_call("has_video_b", 0)
 
-def test_fracture_datamosh_missing_video():
+def test_fracture_datamosh_empty_input():
     plugin = DepthFractureDatamoshPlugin()
-    context = MagicMock()
-    context.get_texture.return_value = None
-    
-    plugin.initialize(context)
-    plugin.process()
-    
-    context.set_texture.assert_not_called()
-    
-def test_fracture_datamosh_no_context():
+    ctx = PluginContext(MagicMock())
+    res = plugin.process_frame(0, {}, ctx)
+    assert res == 0
+
+def test_fracture_datamosh_full_pipeline():
     plugin = DepthFractureDatamoshPlugin()
-    plugin.process() # should not crash
-    plugin._read_params_from_context() # should not crash
+    ctx = PluginContext(MagicMock())
+    ctx.inputs = {"video_in": 1, "video_b_in": 4, "depth_in": 2}
+    ctx.outputs = {}
+    
+    with patch("vjlive3.plugins.depth_fracture_datamosh.gl") as mock_gl:
+        mock_gl.glGetShaderiv.return_value = 1 
+        mock_gl.glGetProgramiv.return_value = 1 
+        mock_gl.glGenFramebuffers.side_effect = [5, 6]
+        mock_gl.glGenTextures.side_effect = [15, 16] 
+        
+        plugin._mock_mode = False
+        plugin.initialize(ctx)
+        
+        res = plugin.process_frame(1, {"displacement_strength": 1.0}, ctx)
+        
+        assert plugin._mock_mode is False
+        assert mock_gl.glDrawArrays.called
+        assert res in [15, 16]
+        assert ctx.outputs["video_out"] in [15, 16]
