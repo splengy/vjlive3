@@ -1,0 +1,536 @@
+# P3-EXT004: AgentAvatarEffect
+
+## Overview
+Agent Avatar effect that renders a reactive geometric entity visualizing agent state. The avatar appears as a floating geometric core that responds to agent emotional states and integrates with IR camera for shadow mode and eye tracking.
+
+## Implementation Details
+
+### Core Architecture
+- **Base Class**: `Effect` (from VJLive3 render engine)
+- **Language**: Python 3.11+ with OpenGL 3.3+ (GLSL 330)
+- **Rendering**: 2D fragment shader with geometric primitives
+- **Optional Integration**: Surface IR camera for advanced features
+- **Face Detection**: OpenCV Haar cascade for eye tracking
+
+### Key Components
+
+#### Avatar Visual Design
+The avatar consists of:
+- **Central hexagon**: Rotating geometric core
+- **Surrounding triangles**: 6 orbiting elements that drift apart during fragmentation
+- **Inner spinning elements**: 3 small orbiting dots
+- **Glow effect**: Radial falloff with configurable intensity
+- **Color**: White glow mixed with confidence-based tint
+
+#### Agent State Visualization
+- **Thinking**: Rapid spinning (high `spin_speed`)
+- **Confident**: Stable bright white glow (high `glow_intensity`, high `confidence`)
+- **Overwhelmed**: Fragmentation effect (high `fragmentation`) - triangles drift apart
+
+#### Shadow Mode (IR Camera Integration)
+- Avatar only appears where warm bodies are detected via IR camera
+- Uses SurfaceIRSource for thermal imaging
+- Creates dynamic shadow mask from IR thresholding
+- Morphological operations to clean up mask
+- Gaussian blur for smooth edges
+
+#### Eye Tracking (IR Camera Integration)
+- Detects face position in IR frame using OpenCV Haar cascade
+- Avatar gaze direction follows detected face
+- Smooth interpolation for natural movement
+- Timeout for face loss (resets to center)
+
+### Shader Architecture
+
+#### Fragment Shader (GLSL 330)
+```glsl
+#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform float time;
+uniform vec2 resolution;
+uniform float u_mix;
+
+// Agent state parameters
+uniform float spin_speed;
+uniform float glow_intensity;
+uniform float confidence;
+uniform float fragmentation;
+uniform vec3 glow_color;
+uniform float avatar_alpha;
+
+// Avatar positioning and scaling
+uniform float avatar_scale;
+uniform vec2 avatar_position;  // Position in screen space (0-1)
+
+// Shadow Mode parameters
+uniform float shadow_mode_enabled;
+uniform float has_shadow_mask;
+
+// Eye Tracking parameters
+uniform float eye_tracking_enabled;
+uniform vec2 gaze_direction;
+
+#define PI 3.14159265359
+
+// Distance to a triangle (SDF)
+float triangle_distance(vec2 p, vec2 a, vec2 b, vec2 c) {
+    vec2 ab = b - a;
+    vec2 ac = c - a;
+    vec2 ap = p - a;
+    
+    float d1 = dot(ap, ab) / dot(ab, ab);
+    float d2 = dot(ap, ac) / dot(ac, ac);
+    
+    vec2 closest;
+    if (d1 >= 0.0 && d2 >= 0.0 && d1 + d2 <= 1.0) {
+        closest = a + d1 * ab + d2 * ac;
+    } else if (d1 < 0.0) {
+        closest = a;
+    } else if (d2 < 0.0) {
+        closest = a;
+    } else {
+        closest = c;
+    }
+    
+    return distance(p, closest);
+}
+
+// Create a spinning geometric core
+float agent_core(vec2 p, float time, float spin_speed, float fragmentation) {
+    // Transform to avatar space
+    p = (p - avatar_position) / avatar_scale;
+    
+    // Apply rotation
+    float angle = time * spin_speed;
+    float cos_a = cos(angle);
+    float sin_a = sin(angle);
+    p = vec2(p.x * cos_a - p.y * sin_a, p.x * sin_a + p.y * cos_a);
+    
+    // Create multiple geometric elements
+    float d = 1.0;
+    
+    // Central hexagon
+    float hex_angle = atan(p.y, p.x) / (2.0 * PI) * 6.0;
+    hex_angle = fract(hex_angle);
+    float hex_radius = length(p);
+    float hex_dist = abs(hex_radius - 0.3) - 0.05;
+    d = min(d, hex_dist);
+    
+    // Surrounding triangles (6 total)
+    for (int i = 0; i < 6; i++) {
+        float a = float(i) * PI / 3.0 + time * spin_speed * 0.5;
+        vec2 center = vec2(cos(a), sin(a)) * 0.6;
+        
+        // Apply fragmentation - triangles drift apart
+        center += normalize(center) * fragmentation * sin(time * 3.0 + float(i));
+        
+        vec2 v1 = center + vec2(0.1, 0.0);
+        vec2 v2 = center + vec2(-0.05, 0.08);
+        vec2 v3 = center + vec2(-0.05, -0.08);
+        
+        float tri_dist = triangle_distance(p, v1, v2, v3);
+        d = min(d, tri_dist - 0.02);
+    }
+    
+    // Inner spinning elements (3 total)
+    for (int i = 0; i < 3; i++) {
+        float a = float(i) * 2.0 * PI / 3.0 + time * spin_speed * 2.0;
+        vec2 pos = vec2(cos(a), sin(a)) * 0.15;
+        
+        // Fragmentation makes inner elements scatter
+        pos += normalize(pos) * fragmentation * 0.5;
+        
+        float inner_dist = distance(p, pos) - 0.03;
+        d = min(d, inner_dist);
+    }
+    
+    return d;
+}
+
+void main() {
+    // Shadow Mode: Only render avatar where bodies are detected
+    if (shadow_mode_enabled > 0.5) {
+        vec2 dist_from_avatar = abs(uv - avatar_position);
+        if (dist_from_avatar.x > avatar_scale * 2.0 || dist_from_avatar.y > avatar_scale * 2.0) {
+            fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+            return;
+        }
+    }
+    
+    // Use the geometric core for traveling avatar
+    float d = agent_core(uv, time, spin_speed, fragmentation);
+    
+    // Eye Tracking: Adjust gaze direction
+    if (eye_tracking_enabled > 0.5) {
+        vec2 gaze_offset = gaze_direction * 0.1;
+        vec2 adjusted_uv = uv + gaze_offset;
+        d = agent_core(adjusted_uv, time, spin_speed, fragmentation);
+    }
+    
+    // Create glow effect
+    float glow = 1.0 - smoothstep(0.0, 0.1, d);
+    glow = pow(glow, 2.0) * glow_intensity;
+    
+    // Core shape
+    float core = 1.0 - smoothstep(0.0, 0.02, d);
+    
+    // Combine core and glow
+    float alpha = (core + glow) * avatar_alpha;
+    
+    // Color based on confidence and glow
+    vec3 color = glow_color * confidence + vec3(1.0, 1.0, 1.0) * (1.0 - confidence);
+    color *= (0.5 + 0.5 * glow);
+    
+    fragColor = vec4(color, alpha);
+}
+```
+
+## Parameters (0.0-10.0 range)
+
+### Basic Avatar Parameters
+- **avatar_scale**: Size of avatar in screen space (0.0-1.0, mapped to 0.0-10.0)
+- **avatar_x**: Horizontal position (0.0-1.0, mapped to 0.0-10.0)
+- **avatar_y**: Vertical position (0.0-1.0, mapped to 0.0-10.0)
+- **avatar_alpha**: Opacity (0.0-1.0, mapped to 0.0-10.0)
+- **spin_speed**: Rotation speed (0.0-10.0)
+- **glow_intensity**: Glow brightness (0.0-10.0)
+- **confidence**: Confidence level (0.0-1.0, mapped to 0.0-10.0)
+- **fragmentation**: Particle scatter effect (0.0-1.0, mapped to 0.0-10.0)
+- **glow_color_r**: Red component (0.0-1.0, mapped to 0.0-10.0)
+- **glow_color_g**: Green component (0.0-1.0, mapped to 0.0-10.0)
+- **glow_color_b**: Blue component (0.0-1.0, mapped to 0.0-10.0)
+
+### Shadow Mode Parameters
+- **shadow_mode_enabled**: Enable/disable shadow mode (0.0 or 1.0)
+- **shadow_threshold**: IR threshold for body detection (0.0-1.0, mapped to 0.0-10.0)
+- **shadow_smooth**: Mask smoothing factor (0.0-1.0, mapped to 0.0-10.0)
+
+### Eye Tracking Parameters
+- **eye_tracking_enabled**: Enable/disable eye tracking (0.0 or 1.0)
+- **gaze_smooth**: Gaze smoothing factor (0.0-1.0, mapped to 0.0-10.0)
+- **face_timeout**: Seconds before resetting gaze (0.0-10.0)
+- **gaze_x**: Gaze direction X (-1.0 to 1.0, mapped to 0.0-10.0)
+- **gaze_y**: Gaze direction Y (-1.0 to 1.0, mapped to 0.0-10.0)
+
+## Presets
+
+### 1. Default Indicator
+```json
+{
+  "name": "default_indicator",
+  "params": {
+    "avatar_scale": 2.0,
+    "avatar_x": 9.0,
+    "avatar_y": 1.0,
+    "avatar_alpha": 7.0,
+    "spin_speed": 2.0,
+    "glow_intensity": 5.0,
+    "confidence": 8.0,
+    "fragmentation": 0.0,
+    "glow_color_r": 1.0,
+    "glow_color_g": 1.0,
+    "glow_color_b": 1.0,
+    "shadow_mode_enabled": 0.0,
+    "shadow_threshold": 3.0,
+    "shadow_smooth": 1.0,
+    "eye_tracking_enabled": 0.0,
+    "gaze_smooth": 0.5,
+    "face_timeout": 2.0,
+    "gaze_x": 5.0,
+    "gaze_y": 5.0
+  }
+}
+```
+
+### 2. Thinking State
+```json
+{
+  "name": "thinking_state",
+  "params": {
+    "avatar_scale": 2.0,
+    "avatar_x": 9.0,
+    "avatar_y": 1.0,
+    "avatar_alpha": 7.0,
+    "spin_speed": 8.0,
+    "glow_intensity": 4.0,
+    "confidence": 3.0,
+    "fragmentation": 0.0,
+    "glow_color_r": 0.5,
+    "glow_color_g": 0.7,
+    "glow_color_b": 1.0,
+    "shadow_mode_enabled": 0.0,
+    "shadow_threshold": 3.0,
+    "shadow_smooth": 1.0,
+    "eye_tracking_enabled": 0.0,
+    "gaze_smooth": 0.5,
+    "face_timeout": 2.0,
+    "gaze_x": 5.0,
+    "gaze_y": 5.0
+  }
+}
+```
+
+### 3. Confident State
+```json
+{
+  "name": "confident_state",
+  "params": {
+    "avatar_scale": 2.0,
+    "avatar_x": 9.0,
+    "avatar_y": 1.0,
+    "avatar_alpha": 8.0,
+    "spin_speed": 1.0,
+    "glow_intensity": 9.0,
+    "confidence": 9.0,
+    "fragmentation": 0.0,
+    "glow_color_r": 1.0,
+    "glow_color_g": 1.0,
+    "glow_color_b": 1.0,
+    "shadow_mode_enabled": 0.0,
+    "shadow_threshold": 3.0,
+    "shadow_smooth": 1.0,
+    "eye_tracking_enabled": 0.0,
+    "gaze_smooth": 0.5,
+    "face_timeout": 2.0,
+    "gaze_x": 5.0,
+    "gaze_y": 5.0
+  }
+}
+```
+
+### 4. Overwhelmed State
+```json
+{
+  "name": "overwhelmed_state",
+  "params": {
+    "avatar_scale": 2.0,
+    "avatar_x": 9.0,
+    "avatar_y": 1.0,
+    "avatar_alpha": 6.0,
+    "spin_speed": 5.0,
+    "glow_intensity": 3.0,
+    "confidence": 2.0,
+    "fragmentation": 8.0,
+    "glow_color_r": 1.0,
+    "glow_color_g": 0.3,
+    "glow_color_b": 0.3,
+    "shadow_mode_enabled": 0.0,
+    "shadow_threshold": 3.0,
+    "shadow_smooth": 1.0,
+    "eye_tracking_enabled": 0.0,
+    "gaze_smooth": 0.5,
+    "face_timeout": 2.0,
+    "gaze_x": 5.0,
+    "gaze_y": 5.0
+  }
+}
+```
+
+### 5. Shadow Mode Active
+```json
+{
+  "name": "shadow_mode_active",
+  "params": {
+    "avatar_scale": 2.5,
+    "avatar_x": 5.0,
+    "avatar_y": 5.0,
+    "avatar_alpha": 9.0,
+    "spin_speed": 3.0,
+    "glow_intensity": 7.0,
+    "confidence": 6.0,
+    "fragmentation": 0.0,
+    "glow_color_r": 1.0,
+    "glow_color_g": 0.8,
+    "glow_color_b": 0.6,
+    "shadow_mode_enabled": 1.0,
+    "shadow_threshold": 4.0,
+    "shadow_smooth": 2.0,
+    "eye_tracking_enabled": 0.0,
+    "gaze_smooth": 0.5,
+    "face_timeout": 2.0,
+    "gaze_x": 5.0,
+    "gaze_y": 5.0
+  }
+}
+```
+
+### 6. Eye Tracking Active
+```json
+{
+  "name": "eye_tracking_active",
+  "params": {
+    "avatar_scale": 1.5,
+    "avatar_x": 9.0,
+    "avatar_y": 1.0,
+    "avatar_alpha": 8.0,
+    "spin_speed": 2.0,
+    "glow_intensity": 6.0,
+    "confidence": 7.0,
+    "fragmentation": 0.0,
+    "glow_color_r": 0.8,
+    "glow_color_g": 1.0,
+    "glow_color_b": 0.8,
+    "shadow_mode_enabled": 0.0,
+    "shadow_threshold": 3.0,
+    "shadow_smooth": 1.0,
+    "eye_tracking_enabled": 1.0,
+    "gaze_smooth": 3.0,
+    "face_timeout": 1.5,
+    "gaze_x": 5.0,
+    "gaze_y": 5.0
+  }
+}
+```
+
+## Test Plan
+
+### Unit Tests
+1. **Parameter Range Tests**: Verify all parameters accept 0.0-10.0 range
+2. **Shader Compilation**: Test fragment shader compilation success
+3. **Parameter Setting**: Test set_parameter and get_parameter methods
+4. **Face Detection Initialization**: Test OpenCV cascade loading
+5. **IR Source Connection**: Test set_ir_source method
+6. **Agent Bridge Connection**: Test set_agent_bridge method
+
+### Rendering Tests
+1. **Basic Rendering**: Verify avatar renders with default parameters
+2. **State Visualization**: Test thinking (fast spin), confident (bright), overwhelmed (fragmented)
+3. **Positioning**: Test avatar_x and avatar_y positioning
+4. **Scaling**: Test avatar_scale affects size correctly
+5. **Opacity**: Test avatar_alpha transparency
+6. **Color**: Test glow_color RGB mixing
+
+### Feature Integration Tests
+1. **Shadow Mode**: Test IR-based shadow mask generation
+2. **Eye Tracking**: Test face detection and gaze following
+3. **Combined Modes**: Test shadow mode + eye tracking simultaneously
+4. **IR Source Handling**: Test with mock SurfaceIRSource
+5. **Face Detection**: Test with sample IR frames (if available)
+
+### Performance Tests
+- **Rendering Performance**: 60 FPS with all effects enabled
+- **Face Detection**: Process IR frame in <16ms (60 FPS budget)
+- **Memory Usage**: <50MB for avatar effect with shadow mask
+
+### Edge Cases
+1. **No IR Source**: Effect should work without IR camera
+2. **IR Source Failure**: Graceful degradation when IR fails
+3. **Face Not Detected**: Avatar continues rendering, gaze resets to center after timeout
+4. **Invalid Parameters**: Clamp values to valid ranges
+5. **Shader Compilation Failure**: Proper error handling
+
+## Safety Rails Compliance
+
+### 60 FPS Sacred
+- **Implementation**: Simple 2D fragment shader, minimal CPU overhead
+- **Optimization**: Face detection runs at reduced frequency if needed
+- **Monitoring**: Profile with IR processing enabled/disabled
+
+### 750-Line Limit
+- **Current**: ~476 lines (including shader)
+- **Buffer**: Well under limit with room for enhancements
+
+### Test Coverage Gate
+- **Target**: 80%+ coverage
+- **Strategy**: Unit tests for all methods, integration tests for rendering pipeline
+
+### No Silent Failures
+- **Error Handling**: OpenCV cascade loading failures logged
+- **IR Source**: Graceful handling when IR source unavailable
+- **Face Detection**: Exceptions caught and logged, no crashes
+
+### Resource Leak Prevention
+- **OpenCV Resources**: Cascade classifier reused, no leaks
+- **Shadow Mask**: Proper cleanup when IR frames invalid
+- **Memory**: IR frame buffers managed carefully
+
+## File Structure
+
+### Source File
+```
+src/vjlive3/plugins/agent_avatar.py
+```
+
+### Test File
+```
+tests/plugins/test_agent_avatar.py
+```
+
+### Shader (embedded)
+- Fragment shader: `AVATAR_FRAGMENT_SHADER` constant
+
+## Implementation Notes
+
+### IR Camera Integration (Optional)
+- **SurfaceIRSource**: Windows-only thermal camera support
+- **Fallback**: Effect works without IR camera (shadow/eye tracking disabled)
+- **Performance**: IR processing can be disabled via parameters
+
+### Face Detection
+- **Algorithm**: OpenCV Haar cascade (haarcascade_frontalface_default.xml)
+- **Performance**: Optimized for IR imagery
+- **Smoothing**: Gaze position smoothed for natural movement
+- **Timeout**: Resets to center after configurable period
+
+### Shadow Mask Generation
+- **Thresholding**: IR intensity threshold for body detection
+- **Morphology**: Opening and closing to remove noise
+- **Smoothing**: Gaussian blur for soft edges
+- **Resizing**: Matches screen resolution dynamically
+
+### Agent State Mapping
+- **spin_speed**: Maps to agent "thinking" level
+- **glow_intensity**: Maps to agent "confidence" level
+- **fragmentation**: Maps to agent "overwhelmed" level
+- **glow_color**: Customizable for different agent personalities
+
+### Multi-Node Support
+- **TravelingAvatarEffect**: Variant for distributed multi-node displays
+- **Sync Manager**: Coordinates avatar position across nodes
+- **Viewport Awareness**: Avatar only visible on nodes where present
+
+## Migration Notes
+
+### From Legacy VJLive-2
+- **Source**: `core/effects/agent_avatar.py`
+- **Key Differences**: Simplified for VJLive3, optional IR integration
+- **Preserved Features**: Core avatar rendering, state visualization
+- **Enhancements**: Better parameter organization, clearer presets
+
+### From VJLive
+- **Source**: `plugins/vagent/agent_avatar.py`
+- **Compatibility**: Maintains same shader and basic interface
+- **Modernization**: Python 3.11+ type hints, better error handling
+
+## Dependencies
+
+### Required
+- **OpenGL 3.3+**: For shader rendering
+- **NumPy**: For array operations (IR mask processing)
+- **OpenCV**: For face detection (optional but recommended)
+
+### Optional
+- **SurfaceIRSource**: Windows thermal camera driver
+- **Agent Bridge**: For state-driven parameter updates
+
+## Future Enhancements (Post-MVP)
+
+### Advanced Features
+1. **Particle System**: Full particle fragmentation with physics
+2. **Audio Reactivity**: Beat-synchronized pulse effects
+3. **Multiple Avatars**: Support for multiple simultaneous avatars
+4. **3D Avatar**: Full 3D model rendering instead of 2D shader
+5. **Machine Learning**: Better face detection with DNN models
+
+### Integration Features
+1. **Agent State API**: Automatic parameter updates from agent system
+2. **Network Sync**: Multi-node avatar coordination
+3. **Recording**: Avatar state recording and playback
+4. **Custom Shaders**: User-editable avatar shaders
+5. **Plugin Hooks**: Allow plugins to modify avatar appearance
+
+---
+
+**Specification Complete**: This specification provides a comprehensive implementation plan for the AgentAvatarEffect, including the full GLSL shader, parameters, presets, test plan, and safety rails compliance.
