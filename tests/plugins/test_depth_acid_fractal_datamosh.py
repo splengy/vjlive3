@@ -1,142 +1,83 @@
 import pytest
-import os
-import sys
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
+import numpy as np
 
-sys.modules['OpenGL'] = MagicMock()
-sys.modules['OpenGL.GL'] = MagicMock()
-
-import vjlive3.plugins.depth_acid_fractal_datamosh as daf
-from vjlive3.plugins.depth_acid_fractal_datamosh import DepthAcidFractalDatamoshPlugin, METADATA
+from vjlive3.plugins.depth_acid_fractal_datamosh import DepthAcidFractalDatamoshEffectPlugin
 from vjlive3.plugins.api import PluginContext
 
-@pytest.fixture(autouse=True)
-def force_mock_no_gl(monkeypatch):
-    monkeypatch.setattr('vjlive3.plugins.depth_acid_fractal_datamosh.HAS_GL', False)
+@pytest.fixture
+def mock_gl():
+    with patch("vjlive3.plugins.depth_acid_fractal_datamosh.gl") as mock_gl:
+        mock_gl.glGetShaderiv.return_value = 1
+        mock_gl.glGetProgramiv.return_value = 1
+        mock_gl.glGenFramebuffers.return_value = 100
+        mock_gl.glGenTextures.side_effect = [200, 201]  # tex, prev_tex
+        mock_gl.glGenVertexArrays.return_value = 300
+        mock_gl.glGenBuffers.return_value = 400
+        mock_gl.glCheckFramebufferStatus.return_value = 36053 # GL_FRAMEBUFFER_COMPLETE
+        yield mock_gl
 
-class MockContext:
-    def __init__(self, inputs=None, parameters=None):
-        self.inputs = inputs or {}
-        self.parameters = parameters or {}
+class MutableContext(PluginContext):
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
         self.outputs = {}
 
-def test_manifest():
-    assert METADATA["name"] == "Depth Acid Fractal Datamosh"
-    assert "filmBurn" in [p["name"] for p in METADATA["parameters"]]
-    assert "video_in" in METADATA["inputs"]
-    assert "video_out" in METADATA["outputs"]
+def test_acid_fractal_manifest():
+    plugin = DepthAcidFractalDatamoshEffectPlugin()
+    meta = plugin.get_metadata()
+    assert meta["name"] == "DepthAcidFractalDatamoshEffect"
+    assert "datamosh_intensity" in [p["name"] for p in meta["parameters"]]
 
-def test_mock_processing_passthrough():
-    plugin = DepthAcidFractalDatamoshPlugin()
-    ctx = MockContext(inputs={"depth_in": 200})
-    plugin.initialize(ctx)
-    
-    assert plugin._mock_mode is True
-    
-    res = plugin.process_frame(100, {}, ctx)
-    assert res == 100
-    assert ctx.outputs["video_out"] == 100
-    
-    # Missing input
-    assert plugin.process_frame(0, {}, ctx) == 0
+def test_acid_fractal_mock_mode():
+    with patch("vjlive3.plugins.depth_acid_fractal_datamosh.HAS_GL", False):
+        plugin = DepthAcidFractalDatamoshEffectPlugin()
+        ctx = MutableContext(inputs={"video_in": 5}, width=1920, height=1080)
+        
+        plugin.initialize(ctx)
+        out = plugin.process_frame(5, {}, ctx)
+        
+        assert out == 5
+        assert ctx.outputs["video_out"] == 5
 
-def setup_mock_gl(monkeypatch):
-    mock_gl = MagicMock()
-    mock_gl.glGenTextures.return_value = [1, 2]
-    mock_gl.glGenFramebuffers.return_value = [10, 20]
-    mock_gl.GL_TRUE = 1
-    mock_gl.glGetShaderiv.return_value = 1
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    monkeypatch.setattr(daf, 'gl', mock_gl, raising=False)
-    monkeypatch.setattr(daf, 'HAS_GL', True)
-    return mock_gl
-    
-def test_gl_initialization(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthAcidFractalDatamoshPlugin()
+def test_acid_fractal_missing_depth(mock_gl):
+    # Safety Rail #7 validation
+    plugin = DepthAcidFractalDatamoshEffectPlugin()
     plugin._mock_mode = False
     
-    ctx = MockContext()
+    ctx = MutableContext(inputs={"video_in": 5}, width=1920, height=1080, time=1.0)
     plugin.initialize(ctx)
+    plugin.process_frame(5, {"fractal_scale": 3.0}, ctx)
     
-    assert plugin.prog is not None
-    assert plugin.textures["feedback_0"] == 1
-    assert plugin.textures["feedback_1"] == 2
-    assert plugin.fbos["feedback_0"] == 10
-    
-def test_gl_fbo_cleanup(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthAcidFractalDatamoshPlugin()
+    mock_gl.glUniform1i.assert_any_call(mock_gl.glGetUniformLocation(plugin.prog, "has_depth"), 0)
+    mock_gl.glUniform1f.assert_any_call(mock_gl.glGetUniformLocation(plugin.prog, "fractal_scale"), 3.0)
+
+def test_acid_fractal_with_depth(mock_gl):
+    plugin = DepthAcidFractalDatamoshEffectPlugin()
     plugin._mock_mode = False
-    ctx = MockContext()
     
+    ctx = MutableContext(inputs={"depth_in": 10}, width=1920, height=1080, time=1.0)
     plugin.initialize(ctx)
+    plugin.process_frame(5, {}, ctx)
+    
+    # Verify depth mapping correctly activated
+    mock_gl.glUniform1i.assert_any_call(mock_gl.glGetUniformLocation(plugin.prog, "has_depth"), 1)
+    # prev_tex is bound to texture unit 2
+    mock_gl.glUniform1i.assert_any_call(mock_gl.glGetUniformLocation(plugin.prog, "prevTex"), 2)
+
+def test_acid_fractal_cleanup(mock_gl):
+    # Safety Rail #8 validation
+    plugin = DepthAcidFractalDatamoshEffectPlugin()
+    plugin._mock_mode = False
+    
+    ctx = MutableContext(inputs={}, width=1920, height=1080)
+    plugin.initialize(ctx)
+    plugin.process_frame(5, {}, ctx)
+    
     plugin.cleanup()
     
-    mock_gl.glDeleteTextures.assert_called_once_with(2, [1, 2])
-    mock_gl.glDeleteFramebuffers.assert_called_once_with(2, [10, 20])
-    
-def test_gl_exception_fallback(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.side_effect = Exception("Out of Memory")
-    
-    plugin = DepthAcidFractalDatamoshPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    
-    plugin.initialize(ctx)
-    assert plugin._mock_mode is True
-    
-def test_gl_render_ping_pong(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthAcidFractalDatamoshPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext(inputs={"depth_in": 300})
-    
-    plugin.initialize(ctx)
-    
-    assert plugin.ping_pong == 0
-    res1 = plugin.process_frame(100, {"u_mix": 1.0, "filmBurn": 5.0, "fractalIntensity": 5.0}, ctx)
-    assert res1 == 2
-    assert plugin.ping_pong == 1
-    
-    mock_gl.glGetTexLevelParameteriv.return_value = 1920
-    res2 = plugin.process_frame(100, {}, ctx)
-    assert res2 == 1
-    
-    # Trigger texture size change reallocation branch
-    mock_gl.glGetTexLevelParameteriv.return_value = 800
-    res3 = plugin.process_frame(100, {}, ctx)
-    assert res3 == 2
-
-def test_gl_render_exception(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    plugin = DepthAcidFractalDatamoshPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
-    mock_gl.glBindTexture.side_effect = Exception("Driver Crash")
-    res = plugin.process_frame(100, {}, ctx)
-    assert res == 100 # Return raw input unharmed
-    
-def test_shader_compile_fail(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGetShaderiv.return_value = 0 # Fail flag
-    
-    plugin = DepthAcidFractalDatamoshPlugin()
-    res = plugin._compile_shader()
-    assert res is None
-
-def test_single_int_generation(monkeypatch):
-    mock_gl = setup_mock_gl(monkeypatch)
-    mock_gl.glGenTextures.return_value = 99
-    mock_gl.glGenFramebuffers.return_value = 100
-    
-    plugin = DepthAcidFractalDatamoshPlugin()
-    plugin._mock_mode = False
-    ctx = MockContext()
-    plugin.initialize(ctx)
-    
-    assert plugin.textures["feedback_0"] == 99
-    assert plugin.textures["feedback_1"] == 100
+    assert mock_gl.glDeleteTextures.call_count >= 2
+    mock_gl.glDeleteTextures.assert_any_call(1, [200]) # tex
+    mock_gl.glDeleteTextures.assert_any_call(1, [201]) # prev_tex
+    mock_gl.glDeleteFramebuffers.assert_any_call(1, [100])
+    mock_gl.glDeleteBuffers.assert_any_call(1, [400])
+    mock_gl.glDeleteVertexArrays.assert_any_call(1, [300])

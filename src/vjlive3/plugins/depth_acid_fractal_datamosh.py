@@ -1,505 +1,368 @@
-import os
-import logging
-from typing import Dict, Any, Optional
 import numpy as np
+import logging
 
-from vjlive3.plugins.api import EffectPlugin, PluginContext
-
-logger = logging.getLogger(__name__)
-
-# Mock GL for headless pytests via environment flag injection
 try:
-    if os.environ.get("PYTEST_MOCK_GL"):
-        raise ImportError("Forced MOCK GL for pytest")
     import OpenGL.GL as gl
     HAS_GL = True
 except ImportError:
     HAS_GL = False
-    gl = None
 
-DEPTH_ACID_FRACTAL_FRAGMENT = """
-#version 330 core
-in vec2 v_uv;
-out vec4 fragColor;
+from typing import Dict, Any
+from vjlive3.plugins.api import EffectPlugin, PluginContext
 
-uniform sampler2D tex0;
-uniform sampler2D texPrev;
-uniform sampler2D depth_tex;
-uniform float time;
-uniform vec2 resolution;
-uniform float u_mix;
-
-// Fractals
-uniform float fractal_intensity;
-uniform float fractal_zoom;
-uniform float fractal_iterations;
-uniform float fractal_morph;
-
-// Prism
-uniform float prism_split;
-uniform float prism_rotate;
-uniform float prism_faces;
-
-// Film Alchemy
-uniform float solarize;
-uniform float cross_process;
-uniform float film_burn;
-uniform float posterize;
-
-// Motion
-uniform float zoom_blur;
-uniform float bass_throb;
-
-// Intensity
-uniform float neon_boost;
-uniform float feedback;
-
-float hash(vec2 p) {
-    p = fract(p * vec2(443.897, 441.423));
-    p += dot(p, p.yx + 19.19);
-    return fract((p.x + p.y) * p.x);
-}
-
-vec3 hsv2rgb(vec3 c) {
-    vec3 p = abs(fract(c.xxx + vec3(1.0, 2.0/3.0, 1.0/3.0)) * 6.0 - 3.0);
-    return c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);
-}
-
-float depth_edge(vec2 p) {
-    float t = 2.0 / resolution.x;
-    float tl = texture(depth_tex, p + vec2(-t, -t)).r;
-    float tc = texture(depth_tex, p + vec2( 0, -t)).r;
-    float tr = texture(depth_tex, p + vec2( t, -t)).r;
-    float ml = texture(depth_tex, p + vec2(-t,  0)).r;
-    float mr = texture(depth_tex, p + vec2( t,  0)).r;
-    float bl = texture(depth_tex, p + vec2(-t,  t)).r;
-    float bc = texture(depth_tex, p + vec2( 0,  t)).r;
-    float br = texture(depth_tex, p + vec2( t,  t)).r;
-    float gx = -tl - 2.0*ml - bl + tr + 2.0*mr + br;
-    float gy = -tl - 2.0*tc - tr + bl + 2.0*bc + br;
-    return sqrt(gx*gx + gy*gy);
-}
-
-vec3 julia_fractal(vec2 p, float depth_val, float adjusted_time) {
-    vec2 z = (p - 0.5) * 3.0 / max(0.1, fractal_zoom);
-    float angle = adjusted_time * fractal_morph * 0.3 + depth_val * 6.283;
-    float radius = 0.7885 + depth_val * 0.1;
-    vec2 c = vec2(cos(angle), sin(angle)) * radius;
-
-    int max_iter = int(fractal_iterations * 20.0) + 4;
-    float iter = 0.0;
-    
-    // SAFETY RAIL 1: Protect 60FPS by hard-capping max loop iteration regardless of uniform
-    max_iter = min(max_iter, 16);
-
-    for (int i = 0; i < 16; i++) {
-        if (i >= max_iter) break;
-        if (dot(z, z) > 4.0) break;
-        z = vec2(z.x*z.x - z.y*z.y, 2.0*z.x*z.y) + c;
-        iter += 1.0;
-    }
-
-    float t_val = iter / float(max_iter);
-    vec3 col;
-    col.r = 0.5 + 0.5 * sin(t_val * 6.283 * 3.0 + adjusted_time * 0.5);
-    col.g = 0.5 + 0.5 * sin(t_val * 6.283 * 3.0 + 2.094 + adjusted_time * 0.7);
-    col.b = 0.5 + 0.5 * sin(t_val * 6.283 * 3.0 + 4.189 + adjusted_time * 0.3);
-
-    col = pow(col, vec3(0.6));
-
-    if (dot(z, z) <= 4.0) {
-        col = vec3(0.05, 0.0, 0.15);
-    }
-    return col;
-}
-
-void main() {
-    float depth = texture(depth_tex, v_uv).r;
-    vec2 coord = v_uv;
-
-    // We can't use Python's time easily in the shader without passing it down correctly per-frame.
-    // However, time comes via uniform time.
-    float adjusted_time = time;
-    
-    float bass = pow(abs(sin(adjusted_time * 2.5)), 4.0);
-
-    // ====== STAGE 1: BASS THROB ======
-    if (bass_throb > 0.0) {
-        vec2 center = coord - 0.5;
-        float zoom = 1.0 - bass_throb * 0.04 * bass;
-        coord = center * zoom + 0.5;
-    }
-
-    // ====== STAGE 2: PRISM SPLITTING ======
-    vec4 result;
-    if (prism_split > 0.0) {
-        float angle = prism_rotate * 6.283 + adjusted_time * 0.3;
-        float spread = prism_split * 0.03;
-
-        vec2 r_offset = vec2(cos(angle), sin(angle)) * spread;
-        vec2 g_offset = vec2(cos(angle + 2.094), sin(angle + 2.094)) * spread * 0.6;
-        vec2 b_offset = vec2(cos(angle + 4.189), sin(angle + 4.189)) * spread;
-
-        float depth_mod = 1.0 + (1.0 - depth) * 1.5;
-        r_offset *= depth_mod;
-        g_offset *= depth_mod;
-        b_offset *= depth_mod;
-
-        result.r = texture(tex0, coord + r_offset).r;
-        result.g = texture(tex0, coord + g_offset).g;
-        result.b = texture(tex0, coord + b_offset).b;
-
-        if (prism_faces > 0.0) {
-            int faces = int(prism_faces * 4.0) + 1;
-            for (int i = 1; i < 5; i++) {
-                if (i >= faces) break;
-                float face_angle = float(i) * 6.283 / float(faces) + adjusted_time * 0.1;
-                vec2 face_offset = vec2(cos(face_angle), sin(face_angle)) * spread * 2.0 * depth_mod;
-                vec4 ghost = texture(tex0, coord + face_offset);
-                result.rgb += ghost.rgb * 0.15;
-            }
-        }
-        result.a = 1.0;
-    } else {
-        result = texture(tex0, coord);
-    }
-
-    // ====== STAGE 3: ZOOM BLUR ======
-    if (zoom_blur > 0.0) {
-        float blur_amount = zoom_blur * depth * 0.015;
-        vec2 center = coord - 0.5;
-
-        vec4 blurred = result;
-        int samples = 8;
-        for (int i = 1; i < 8; i++) {
-            float t_val = float(i) / float(samples);
-            vec2 sample_uv = coord - center * blur_amount * t_val;
-            blurred += texture(tex0, sample_uv);
-        }
-        blurred /= float(samples);
-        result = mix(result, blurred, depth * zoom_blur);
-    }
-
-    // ====== STAGE 4: FRACTAL OVERLAY ======
-    if (fractal_intensity > 0.0) {
-        vec3 fractal = julia_fractal(coord, depth, adjusted_time);
-        float edge = depth_edge(coord) * 4.0;
-        float fractal_mask = mix(0.2, 1.0, smoothstep(0.1, 0.5, edge));
-
-        vec3 screened = 1.0 - (1.0 - result.rgb) * (1.0 - fractal * fractal_mask);
-        result.rgb = mix(result.rgb, screened, fractal_intensity * 0.7);
-        result.rgb += fractal * edge * fractal_intensity * 0.3;
-    }
-
-    // ====== STAGE 5: SOLARIZATION ======
-    if (solarize > 0.0) {
-        vec3 solar = result.rgb;
-        for (int ch = 0; ch < 3; ch++) {
-            float v = result.rgb[ch];
-            float curves = solarize * 2.0;
-            solar[ch] = abs(sin(v * 3.14159 * curves));
-        }
-
-        float depth_band = 0.5 + 0.5 * sin(depth * 6.283 * 2.0 + adjusted_time * 0.5);
-        float solar_mask = depth_band * solarize;
-        result.rgb = mix(result.rgb, solar, solar_mask * 0.6);
-    }
-
-    // ====== STAGE 6: CROSS-PROCESSING ======
-    if (cross_process > 0.0) {
-        vec3 xpro = result.rgb;
-        float band = fract(depth * 3.0 + adjusted_time * 0.1);
-
-        if (band < 0.33) {
-            xpro.r = pow(xpro.r, 0.8);
-            xpro.g = pow(xpro.g, 0.6) * 1.2;
-            xpro.b = pow(xpro.b, 1.5) * 0.7;
-        } else if (band < 0.66) {
-            xpro.r = pow(xpro.r, 1.3) * 0.9;
-            xpro.g = pow(xpro.g, 0.7) * 1.1;
-            xpro.b = pow(xpro.b, 0.6) * 1.3;
-        } else {
-            float ir = dot(xpro, vec3(0.1, 0.9, 0.0));
-            xpro = vec3(xpro.r * 0.5 + ir * 0.5, ir * 0.3, xpro.b * 1.4);
-        }
-
-        result.rgb = mix(result.rgb, clamp(xpro, 0.0, 1.0), cross_process);
-    }
-
-    // ====== STAGE 7: FILM BURN ======
-    if (film_burn > 0.0) {
-        float edge = depth_edge(coord);
-        float burn_noise = hash(floor(coord * 8.0) + vec2(floor(adjusted_time * 0.5)));
-        float burn_spot = smoothstep(0.6, 0.9, burn_noise) * film_burn;
-
-        burn_spot += edge * 4.0 * film_burn * 0.3;
-        burn_spot *= 0.7 + 0.3 * bass;
-
-        float burn_hue = fract(adjusted_time * 0.15 + depth * 0.5);
-        vec3 burn_color = hsv2rgb(vec3(burn_hue, 0.8, 1.0));
-
-        result.rgb += burn_color * burn_spot * 0.8;
-
-        float streak = exp(-abs(coord.y - 0.5 - sin(adjusted_time * 0.3) * 0.2) * 20.0);
-        streak *= burn_spot * 0.3;
-        result.rgb += burn_color * streak;
-    }
-
-    // ====== STAGE 8: POSTERIZATION ======
-    if (posterize > 0.0) {
-        float bands = mix(16.0, 3.0, depth) / (1.0 + posterize);
-        bands = max(2.0, bands);
-
-        vec3 poster = floor(result.rgb * bands + 0.5) / bands;
-        result.rgb = mix(result.rgb, poster, posterize * 0.7);
-    }
-
-    // ====== STAGE 9: NEON BOOST ======
-    if (neon_boost > 0.0) {
-        float luma = dot(result.rgb, vec3(0.299, 0.587, 0.114));
-        vec3 chroma = result.rgb - luma;
-        result.rgb = luma + chroma * (1.0 + neon_boost * 4.0);
-        result.r *= 1.0 + neon_boost * 0.1;
-        result.rgb = clamp(result.rgb, 0.0, 1.5);
-    }
-
-    // ====== STAGE 10: FEEDBACK ======
-    vec4 previous = texture(texPrev, coord);
-    if (feedback > 0.0) {
-        float fb = feedback * (0.3 + depth * 0.5);
-        result = mix(result, previous, clamp(fb, 0.0, 0.9));
-    }
-
-    fragColor = mix(texture(tex0, v_uv), result, u_mix);
-}
-"""
+logger = logging.getLogger(__name__)
 
 METADATA = {
-    "name": "Depth Acid Fractal Datamosh",
-    "description": "Neon fractal mayhem! Julia sets meet Sabattier solarization on depth contours.",
-    "version": "1.0.0",
-    "author": "Antigravity",
-    "category": "Visual Depth",
-    "tags": ["fractal", "acid", "neon", "solarize", "datamosh"],
-    "status": "active",
+    "name": "DepthAcidFractalDatamoshEffect",
+    "version": "3.0.0",
+    "description": "Acid fractal datamosh effect with depth buffer integration",
+    "author": "VJLive3 Team",
+    "license": "GPLv3",
+    "plugin_type": "depth_effect",
+    "category": "datamosh",
+    "tags": ["depth", "datamosh", "fractal", "acid", "glitch"],
+    "priority": 1,
+    "dependencies": ["DepthBuffer", "FractalGenerator"],
+    "incompatible": ["NoDepthSupport"],
     "parameters": [
-        {"name": "fractalIntensity", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "fractalZoom", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "fractalIterations", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "fractalMorph", "type": "float", "min": 0.0, "max": 10.0, "default": 4.0},
-        {"name": "prismSplit", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "prismRotate", "type": "float", "min": 0.0, "max": 10.0, "default": 3.0},
-        {"name": "prismFaces", "type": "float", "min": 0.0, "max": 10.0, "default": 3.0},
-        {"name": "solarize", "type": "float", "min": 0.0, "max": 10.0, "default": 4.0},
-        {"name": "crossProcess", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "filmBurn", "type": "float", "min": 0.0, "max": 10.0, "default": 4.0},
-        {"name": "posterize", "type": "float", "min": 0.0, "max": 10.0, "default": 3.0},
-        {"name": "zoomBlur", "type": "float", "min": 0.0, "max": 10.0, "default": 3.0},
-        {"name": "bassThrob", "type": "float", "min": 0.0, "max": 10.0, "default": 5.0},
-        {"name": "neonBoost", "type": "float", "min": 0.0, "max": 10.0, "default": 6.0},
-        {"name": "feedback", "type": "float", "min": 0.0, "max": 10.0, "default": 4.0},
-        {"name": "u_mix", "type": "float", "min": 0.0, "max": 1.0, "default": 1.0}
+        {"name": "fractal_scale", "type": "float", "min": 0.1, "max": 10.0, "default": 2.0},
+        {"name": "datamosh_intensity", "type": "float", "min": 0.0, "max": 1.0, "default": 0.5},
+        {"name": "depth_influence", "type": "float", "min": 0.0, "max": 1.0, "default": 0.7},
+        {"name": "color_shift", "type": "float", "min": 0.0, "max": 1.0, "default": 0.3},
+        {"name": "glitch_probability", "type": "float", "min": 0.0, "max": 1.0, "default": 0.1},
+        {"name": "preserve_luminance", "type": "bool", "default": True}
     ],
     "inputs": ["video_in", "depth_in"],
     "outputs": ["video_out"]
 }
 
-class DepthAcidFractalDatamoshPlugin(EffectPlugin):
-    """P3-VD26: Depth Acid Fractal effect port mapping 1:1 visually matching parameters mapped to shaders."""
+VERTEX_SHADER = """
+#version 330 core
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec2 texcoord;
+out vec2 uv;
+void main() {
+    uv = texcoord;
+    gl_Position = vec4(position, 0.0, 1.0);
+}
+"""
+
+FRAGMENT_SHADER = """
+#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform sampler2D tex0;
+uniform sampler2D depthTex;
+uniform sampler2D prevTex;
+
+uniform int has_depth;
+uniform vec2 resolution;
+uniform float time;
+uniform float beat_phase;
+
+uniform float fractal_scale;
+uniform float datamosh_intensity;
+uniform float depth_influence;
+uniform float color_shift;
+uniform float glitch_probability;
+uniform int preserve_luminance;
+
+// Bounded fractals protecting GPU timeout (safety rail #1)
+vec2 julia(vec2 z, vec2 c) {
+    return vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
+}
+
+// Pseudo-random generator
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+void main() {
+    float depth = 0.5;
+    if (has_depth == 1) {
+        depth = texture(depthTex, uv).r;
+    }
+
+    // Datamosh Disruption Coordinate mapping
+    float prob = hash(uv * time);
+    vec2 smosh_uv = uv;
+    bool is_glitch = prob < glitch_probability * datamosh_intensity;
+
+    if (is_glitch) {
+        float bSize = max(5.0, 50.0 * (1.0 - datamosh_intensity)); // block size
+        vec2 block = floor(uv * resolution / bSize) * bSize / resolution;
+        
+        // Motion vectors approximated from texture gradient
+        float dx = texture(prevTex, block + vec2(1.0/resolution.x, 0)).r - texture(prevTex, block).r;
+        float dy = texture(prevTex, block + vec2(0, 1.0/resolution.y)).r - texture(prevTex, block).r;
+        
+        vec2 m_vec = vec2(dx, dy) * 10.0 * datamosh_intensity;
+        smosh_uv = block - m_vec;
+        
+        // Use prev frame pixel block to smear out motion
+        if (hash(block * time) < 0.8) {
+             fragColor = texture(prevTex, smosh_uv);
+             return;
+        }
+    }
+
+    // Fractal evaluation
+    vec2 z = (uv - 0.5) * fractal_scale;
+    float depthMod = depth * depth_influence * 2.0;
+    vec2 c = vec2(sin(time * 0.3 + depthMod), cos(time * 0.4 + beat_phase));
     
-    def __init__(self) -> None:
+    int iterations = 0;
+    int maxIter = 15; // Strictly bounded iterations (SAFETY RAIL #1)
+    for (int i = 0; i < 15; i++) {
+        z = julia(z, c);
+        if (length(z) > 4.0) break;
+        iterations++;
+    }
+
+    float frac = float(iterations) / float(maxIter);
+
+    // Color mappings
+    vec4 current_src = texture(tex0, uv);
+    vec3 hsv = rgb2hsv(current_src.rgb);
+    
+    // Applying acid color warp to fractal map
+    hsv.x = fract(hsv.x + frac * color_shift + time * 0.1);
+    hsv.y = clamp(hsv.y + frac * 0.5, 0.0, 1.0);
+    
+    vec3 out_col = hsv2rgb(hsv);
+    
+    if (preserve_luminance == 1) {
+        float src_luma = dot(current_src.rgb, vec3(0.299, 0.587, 0.114));
+        float new_luma = dot(out_col, vec3(0.299, 0.587, 0.114));
+        out_col *= (src_luma / (new_luma + 0.0001));
+    }
+    
+    fragColor = vec4(clamp(out_col, 0.0, 1.0), current_src.a);
+}
+"""
+
+class DepthAcidFractalDatamoshEffectPlugin(EffectPlugin):
+    """
+    Implements a datamosh effect that combines acid fractal patterns with depth buffer manipulation. 
+    Maintains 60 FPS safety bounds and strictly enforces memory management.
+    """
+
+    def __init__(self):
         super().__init__()
         self._mock_mode = not HAS_GL
         self.prog = None
-        self.ping_pong = 0
-        self.time = 0.0
+        self.vao = None
+        self.vbo = None
         
-        self.textures: Dict[str, Optional[int]] = {"feedback_0": None, "feedback_1": None}
-        self.fbos: Dict[str, Optional[int]] = {"feedback_0": None, "feedback_1": None}
+        self.fbo = None
+        self.tex = None
+        self.prev_tex = None  # Buffer for temporal datamoshing
+        
+        self._width = 0
+        self._height = 0
 
-    def _compile_shader(self):
-        if not HAS_GL: return None
-        try:
-            vertex = gl.glCreateShader(gl.GL_VERTEX_SHADER)
-            gl.glShaderSource(vertex, "#version 330 core\\nlayout(location=0) in vec2 pos; layout(location=1) in vec2 uv; out vec2 v_uv; void main() { gl_Position = vec4(pos, 0.0, 1.0); v_uv = uv; }")
-            gl.glCompileShader(vertex)
-            
-            fragment = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
-            gl.glShaderSource(fragment, DEPTH_ACID_FRACTAL_FRAGMENT)
-            gl.glCompileShader(fragment)
-            
-            if gl.glGetShaderiv(fragment, gl.GL_COMPILE_STATUS) != gl.GL_TRUE:
-                logger.error(f"Fragment compile failed: {gl.glGetShaderInfoLog(fragment)}")
-                return None
-                
-            prog = gl.glCreateProgram()
-            gl.glAttachShader(prog, vertex)
-            gl.glAttachShader(prog, fragment)
-            gl.glLinkProgram(prog)
-            return prog
-        except Exception as e:
-            logger.error(f"Failed to compile shader locally: {e}")
-            return None
+    def get_metadata(self) -> Dict[str, Any]:
+        return METADATA
 
     def initialize(self, context: PluginContext) -> None:
-        super().initialize(context)
+        if self._mock_mode:
+            logger.warning("Initializing DepthAcidFractalDatamoshEffect in Mock Mode")
+            return
+
+        try:
+            self._compile_shader()
+            self._setup_quad()
+            # Explicitly set width to 0 to trigger allocation on first frame.
+            self._width = 0 
+        except Exception as e:
+            logger.error(f"Failed to config OpenGL in DepthAcidFractalDatamoshEffect: {e}")
+            self._mock_mode = True
+
+    def _compile_shader(self):
+        vs = gl.glCreateShader(gl.GL_VERTEX_SHADER)
+        gl.glShaderSource(vs, VERTEX_SHADER)
+        gl.glCompileShader(vs)
+        if not gl.glGetShaderiv(vs, gl.GL_COMPILE_STATUS):
+            raise RuntimeError(gl.glGetShaderInfoLog(vs))
+
+        fs = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
+        gl.glShaderSource(fs, FRAGMENT_SHADER)
+        gl.glCompileShader(fs)
+        if not gl.glGetShaderiv(fs, gl.GL_COMPILE_STATUS):
+            raise RuntimeError(gl.glGetShaderInfoLog(fs))
+
+        self.prog = gl.glCreateProgram()
+        gl.glAttachShader(self.prog, vs)
+        gl.glAttachShader(self.prog, fs)
+        gl.glLinkProgram(self.prog)
+        if not gl.glGetProgramiv(self.prog, gl.GL_LINK_STATUS):
+            raise RuntimeError(gl.glGetProgramInfoLog(self.prog))
+            
+        gl.glDeleteShader(vs)
+        gl.glDeleteShader(fs)
+
+    def _setup_quad(self):
+        vertices = np.array([
+            -1.0, -1.0,  0.0, 0.0,
+             1.0, -1.0,  1.0, 0.0,
+            -1.0,  1.0,  0.0, 1.0,
+             1.0,  1.0,  1.0, 1.0,
+        ], dtype=np.float32)
+        
+        self.vao = gl.glGenVertexArrays(1)
+        self.vbo = gl.glGenBuffers(1)
+        gl.glBindVertexArray(self.vao)
+        gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vbo)
+        gl.glBufferData(gl.GL_ARRAY_BUFFER, vertices.nbytes, vertices, gl.GL_STATIC_DRAW)
+        gl.glEnableVertexAttribArray(0)
+        gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(0))
+        gl.glEnableVertexAttribArray(1)
+        gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(8))
+        gl.glBindVertexArray(0)
+
+    def _free_fbo(self):
+        try:
+            if self.tex is not None:
+                gl.glDeleteTextures(1, [self.tex])
+            if self.prev_tex is not None:
+                gl.glDeleteTextures(1, [self.prev_tex])
+            if self.fbo is not None:
+                gl.glDeleteFramebuffers(1, [self.fbo])
+        except Exception:
+            pass
+        self.tex = None
+        self.prev_tex = None
+        self.fbo = None
+
+    def _allocate_buffer(self, w: int, h: int):
+        self._free_fbo()
+        self._width = w
+        self._height = h
+        
+        self.fbo = gl.glGenFramebuffers(1)
+        
+        # Primary working texture
+        self.tex = gl.glGenTextures(1)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.tex)
+        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
+        
+        # Datamoshing temporal state memory
+        self.prev_tex = gl.glGenTextures(1)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.prev_tex)
+        gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_S, gl.GL_CLAMP_TO_EDGE)
+        gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_WRAP_T, gl.GL_CLAMP_TO_EDGE)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.tex, 0)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+
+    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
+        if not input_texture or input_texture <= 0:
+             return 0
+             
+        if self._mock_mode:
+            if hasattr(context, "outputs"):
+                context.outputs["video_out"] = input_texture
+            return input_texture
+            
+        inputs = getattr(context, "inputs", {})
+        depth_in = inputs.get("depth_in", 0)
+        
+        w, h = getattr(context, 'width', 1920), getattr(context, 'height', 1080)
+        if w != self._width or h != self._height or self.fbo is None:
+            self._allocate_buffer(w, h)
+            
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, self.fbo)
+        gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, self.tex, 0)
+        
+        gl.glViewport(0, 0, w, h)
+        gl.glClearColor(0.0, 0.0, 0.0, 1.0)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT)
+        gl.glUseProgram(self.prog)
+        
+        gl.glActiveTexture(gl.GL_TEXTURE0)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex0"), 0)
+        
+        if depth_in > 0:
+            gl.glActiveTexture(gl.GL_TEXTURE1)
+            gl.glBindTexture(gl.GL_TEXTURE_2D, depth_in)
+            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depthTex"), 1)
+            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "has_depth"), 1)
+        else:
+            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "has_depth"), 0)
+            
+        gl.glActiveTexture(gl.GL_TEXTURE2)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.prev_tex)
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "prevTex"), 2)     
+            
+        gl.glUniform2f(gl.glGetUniformLocation(self.prog, "resolution"), float(w), float(h))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "time"), float(getattr(context, 'time', 0.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "beat_phase"), float(getattr(context, 'beat_phase', 0.0)))
+        
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "fractal_scale"), float(params.get("fractal_scale", 2.0)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "datamosh_intensity"), float(params.get("datamosh_intensity", 0.5)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "depth_influence"), float(params.get("depth_influence", 0.7)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "color_shift"), float(params.get("color_shift", 0.3)))
+        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "glitch_probability"), float(params.get("glitch_probability", 0.1)))
+        
+        preserve = 1 if params.get("preserve_luminance", True) else 0
+        gl.glUniform1i(gl.glGetUniformLocation(self.prog, "preserve_luminance"), preserve)
+        
+        gl.glBindVertexArray(self.vao)
+        gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
+        gl.glBindVertexArray(0)
+        
+        # Ping-Pong Temporal state for active datamoshing accumulation
+        gl.glBindTexture(gl.GL_TEXTURE_2D, self.prev_tex)
+        gl.glCopyTexSubImage2D(gl.GL_TEXTURE_2D, 0, 0, 0, 0, 0, w, h)
+        gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
+        
+        gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
+        
+        if hasattr(context, "outputs"):
+            context.outputs["video_out"] = self.tex
+            
+        return self.tex
+
+    def cleanup(self) -> None:
         if self._mock_mode:
             return
             
         try:
-            self.prog = self._compile_shader()
-            if not self.prog:
-                self._mock_mode = True
-                return
-
-            tex_ids = gl.glGenTextures(2)
-            fbo_ids = gl.glGenFramebuffers(2)
-            if isinstance(tex_ids, int): tex_ids = [tex_ids, tex_ids+1]
-            if isinstance(fbo_ids, int): fbo_ids = [fbo_ids, fbo_ids+1]
-                
-            for i, key in enumerate(self.textures.keys()):
-                self.textures[key] = tex_ids[i]
-                self.fbos[key] = fbo_ids[i]
-                
-            self.vao = gl.glGenVertexArrays(1)
-            self.vbo = gl.glGenBuffers(1)
-            gl.glBindVertexArray(self.vao)
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, self.vbo)
-            
-            quad_data = np.array([
-                -1.0, -1.0,  0.0, 0.0,
-                 1.0, -1.0,  1.0, 0.0,
-                -1.0,  1.0,  0.0, 1.0,
-                 1.0,  1.0,  1.0, 1.0
-            ], dtype=np.float32)
-            
-            gl.glBufferData(gl.GL_ARRAY_BUFFER, quad_data.nbytes, quad_data, gl.GL_STATIC_DRAW)
-            gl.glVertexAttribPointer(0, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(0))
-            gl.glEnableVertexAttribArray(0)
-            gl.glVertexAttribPointer(1, 2, gl.GL_FLOAT, gl.GL_FALSE, 16, gl.ctypes.c_void_p(8))
-            gl.glEnableVertexAttribArray(1)
-            gl.glBindVertexArray(0)
-            
+            self._free_fbo()
+            if self.vbo is not None:
+                gl.glDeleteBuffers(1, [self.vbo])
+                self.vbo = None
+            if self.vao is not None:
+                gl.glDeleteVertexArrays(1, [self.vao])
+                self.vao = None
+            if self.prog is not None:
+                gl.glDeleteProgram(self.prog)
+                self.prog = None
         except Exception as e:
-            logger.warning(f"Failed to initialize GL FBOs inside DepthAcidFractal: {e}")
-            self._mock_mode = True
-
-    def process_frame(self, input_texture: int, params: Dict[str, Any], context: PluginContext) -> int:
-        if input_texture is None or input_texture == 0:
-            return 0
-            
-        self.time += 0.016 # simulate advancing time if not passed
-            
-        if self._mock_mode:
-            context.outputs["video_out"] = input_texture
-            return input_texture
-
-        try:
-            depth_in = context.inputs.get("depth_in", input_texture) # Fallback to input if missing depth
-
-            gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
-            w = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_WIDTH)
-            h = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_HEIGHT)
-            
-            current_fbo = self.fbos[f"feedback_{1 - self.ping_pong}"]
-            current_tex = self.textures[f"feedback_{1 - self.ping_pong}"]
-            
-            gl.glBindTexture(gl.GL_TEXTURE_2D, current_tex)
-            tex_w = gl.glGetTexLevelParameteriv(gl.GL_TEXTURE_2D, 0, gl.GL_TEXTURE_WIDTH)
-            if tex_w != w:
-                gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
-                gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-                gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, current_fbo)
-                gl.glFramebufferTexture2D(gl.GL_FRAMEBUFFER, gl.GL_COLOR_ATTACHMENT0, gl.GL_TEXTURE_2D, current_tex, 0)
-                
-                prev_tex = self.textures[f"feedback_{self.ping_pong}"]
-                gl.glBindTexture(gl.GL_TEXTURE_2D, prev_tex)
-                gl.glTexImage2D(gl.GL_TEXTURE_2D, 0, gl.GL_RGBA8, w, h, 0, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, None)
-                gl.glTexParameteri(gl.GL_TEXTURE_2D, gl.GL_TEXTURE_MIN_FILTER, gl.GL_LINEAR)
-                
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, current_fbo)
-            gl.glViewport(0, 0, w, h)
-            gl.glClear(gl.GL_COLOR_BUFFER_BIT)
-            
-            gl.glUseProgram(self.prog)
-            self._bind_uniforms(params, w, h, context)
-            
-            # Bind textures
-            gl.glActiveTexture(gl.GL_TEXTURE0)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, input_texture)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "tex0"), 0)
-            
-            gl.glActiveTexture(gl.GL_TEXTURE1)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, self.textures[f"feedback_{self.ping_pong}"])
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "texPrev"), 1)
-            
-            gl.glActiveTexture(gl.GL_TEXTURE2)
-            gl.glBindTexture(gl.GL_TEXTURE_2D, depth_in)
-            gl.glUniform1i(gl.glGetUniformLocation(self.prog, "depth_tex"), 2)
-            
-            # Draw
-            gl.glBindVertexArray(self.vao)
-            gl.glDrawArrays(gl.GL_TRIANGLE_STRIP, 0, 4)
-            gl.glBindVertexArray(0)
-            gl.glBindFramebuffer(gl.GL_FRAMEBUFFER, 0)
-            
-            self.ping_pong = 1 - self.ping_pong
-            context.outputs["video_out"] = current_tex
-            return current_tex
-            
-        except Exception as e:
-            logger.error(f"Render failed: {e}")
-            return input_texture
-
-    def _map_param(self, params, name, out_min, out_max, default_val):
-        val = params.get(name, default_val)
-        return out_min + (val / 10.0) * (out_max - out_min)
-
-    def _bind_uniforms(self, params, w, h, context):
-        gl.glUniform2f(gl.glGetUniformLocation(self.prog, "resolution"), float(w), float(h))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "time"), float(self.time))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "u_mix"), params.get("u_mix", 1.0))
-        
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "fractal_intensity"), self._map_param(params, 'fractalIntensity', 0.0, 1.0, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "fractal_zoom"), self._map_param(params, 'fractalZoom', 0.5, 4.0, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "fractal_iterations"), self._map_param(params, 'fractalIterations', 0.0, 1.0, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "fractal_morph"), self._map_param(params, 'fractalMorph', 0.0, 1.0, 4.0))
-
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "prism_split"), self._map_param(params, 'prismSplit', 0.0, 1.0, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "prism_rotate"), self._map_param(params, 'prismRotate', 0.0, 1.0, 3.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "prism_faces"), self._map_param(params, 'prismFaces', 0.0, 1.0, 3.0))
-
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "solarize"), self._map_param(params, 'solarize', 0.0, 1.0, 4.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "cross_process"), self._map_param(params, 'crossProcess', 0.0, 1.0, 5.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "film_burn"), self._map_param(params, 'filmBurn', 0.0, 1.0, 4.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "posterize"), self._map_param(params, 'posterize', 0.0, 1.0, 3.0))
-
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "zoom_blur"), self._map_param(params, 'zoomBlur', 0.0, 1.0, 3.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "bass_throb"), self._map_param(params, 'bassThrob', 0.0, 1.0, 5.0))
-
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "neon_boost"), self._map_param(params, 'neonBoost', 0.0, 1.0, 6.0))
-        gl.glUniform1f(gl.glGetUniformLocation(self.prog, "feedback"), self._map_param(params, 'feedback', 0.0, 1.0, 4.0))
-
-
-    def cleanup(self) -> None:
-        if not self._mock_mode:
-            try:
-                textures_to_delete = [t for t in self.textures.values() if t is not None]
-                if textures_to_delete:
-                    gl.glDeleteTextures(len(textures_to_delete), textures_to_delete)
-                fbos_to_delete = [f for f in self.fbos.values() if f is not None]
-                if fbos_to_delete:
-                    gl.glDeleteFramebuffers(len(fbos_to_delete), fbos_to_delete)
-                if self.prog:
-                    gl.glDeleteProgram(self.prog)
-                if hasattr(self, 'vao') and self.vao:
-                    gl.glDeleteVertexArrays(1, [self.vao])
-                if hasattr(self, 'vbo') and self.vbo:
-                    gl.glDeleteBuffers(1, [self.vbo])
-            except Exception as e:
-                logger.error(f"Error cleaning up FBOs/Textures during DepthAcidFractal unload: {e}")
-                
-        for k in self.textures:
-            self.textures[k] = None
-            self.fbos[k] = None
-
+            logger.error(f"Cleanup Error in DepthAcidFractalDatamoshEffect: {e}")

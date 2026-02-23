@@ -943,7 +943,7 @@
 | P3-VD14 | Depth Fracture Datamosh (DepthFractureDatamoshPlugin) | P0 | ✅ Done | `src/vjlive3/plugins/depth_fracture_datamosh.py` — DepthFractureDatamoshPlugin, 5/5 tests ✅ 2026-02-22 |
 | P3-VD50 | Depth Fx Loop (DepthFXLoopEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT050_depth_fx_loop_effect.md` |
 | P3-VD51 | Depth Groovy Datamosh (DepthGroovyDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT051_depth_groovy_datamosh_effect.md` |
-| P3-VD52 | Depth Holographic (DepthHolographicIridescenceEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT052_depth_holographic_iridescence_effect.md` |
+| P3-VD52 | Depth Holographic (DepthHolographicIridescenceEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT052_depth_holographic_iridescence_effect.md` |
 | P3-VD53 | Depth Liquid Refraction (DepthLiquidRefractionEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT053_depth_liquid_refraction_effect.md` |
 | P3-VD54 | Depth Loop Injection Datamosh (DepthLoopInjectionDatamoshEffect) | P0 | ✅ Done | Spec ready: `docs/specs/P3-EXT054_depth_loop_injection_datamosh_effect.md` |
 | P3-VD55 | Depth Modular Datamosh (DepthModularDatamoshEffect) | P0 | 🔄 In Progress | Spec ready: `docs/specs/P3-EXT055_depth_modular_datamosh_effect.md` |
