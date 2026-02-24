@@ -188,21 +188,21 @@
 | P3-EXT106 | geometry (MandalascopeEffect) | P0 | ✅ Done | *(duplicate — MandalascopeEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT107 | geometry (MirrorEffect) | P0 | ✅ Done | *(duplicate — MirrorEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT108 | blend (MixerEffect) | P0 | ✅ Done | *(duplicate — MixerEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT109 | vtempi (ModBehavior) | P0 | ⬜ Todo | vjlive |
+| P3-EXT109 | vtempi (ModBehavior) | P0 | ✅ Done | `docs/specs/P3-EXT109_ModBehavior.md` — spec approved |
 | P3-EXT110 | morphology (MorphologyEffect) | P0 | ✅ Done | *(duplicate — MorphologyEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT111 | mosh_pit_datamosh (MoshPitDatamoshEffect) | P0 | ✅ Done | *(duplicate — MoshPitDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT112 | vcv_video_effects (MultibandColorEffect) | P0 | ✅ Done | *(duplicate — MultibandColorEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT113 | shadertoy_particles (NebulaParticles) | P0 | ⬜ Todo | vjlive |
+| P3-EXT113 | shadertoy_particles (NebulaParticles) | P0 | ✅ Done | `docs/specs/P3-EXT113_NebulaParticles.md` — spec approved |
 | P3-EXT114 | neural_rave_nexus (NeuralRaveNexus) | P0 | ✅ Done | *(duplicate — NeuralRaveNexus already shipped in P4/P5/P6/P7)* |
 | P3-EXT115 | neural_splice_datamosh (NeuralSpliceDatamoshEffect) | P0 | ✅ Done | *(duplicate — NeuralSpliceDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT116 | tunnel_vision_2 (NeuralTunnelNet) | P0 | ⬜ Todo | vjlive |
+| P3-EXT116 | tunnel_vision_2 (NeuralTunnelNet) | P0 | ✅ Done | `docs/specs/P3-EXT116_NeuralTunnelNet.md` — spec approved |
 | P3-EXT117 | optical_flow (OpticalFlowEffect) | P0 | ✅ Done | *(duplicate — OpticalFlowEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT118 | depth_effects (OpticalFlowEffect) | P0 | ✅ Done | *(duplicate — OpticalFlowEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT119 | oscilloscope (OscilloscopeEffect) | P0 | ✅ Done | *(duplicate — OscilloscopeEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT120 | visualizer (OscilloscopeEffect) | P0 | ✅ Done | *(duplicate — OscilloscopeEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT121 | particles_3d (Particle3DSystem) | P0 | ✅ Done | *(duplicate — Particle3DSystem already shipped in P4/P5/P6/P7)* |
 | P3-EXT122 | particle_datamosh_trails (ParticleDatamoshTrailsEffect) | P0 | ✅ Done | *(duplicate — ParticleDatamoshTrailsEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT123 | particles_3d (ParticleState) | P0 | ⬜ Todo | vjlive |
+| P3-EXT123 | particles_3d (ParticleState) | P0 | ✅ Done | `docs/specs/P3-EXT123_ParticleState.md` — spec approved |
 | P3-EXT124 | distortion (PatternDistortionEffect) | P0 | ✅ Done | *(duplicate — PatternDistortionEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT125 | generators (PerlinEffect) | P0 | ✅ Done | *(duplicate — PerlinEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT126 | datamosh (PixelBloomEffect) | P0 | ✅ Done | *(duplicate — PixelBloomEffect already shipped in P4/P5/P6/P7)* |
@@ -211,11 +211,11 @@
 | P3-EXT129 | plasma_melt_datamosh (PlasmaMeltDatamoshEffect) | P0 | ✅ Done | *(duplicate — PlasmaMeltDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT130 | color (PosterizeEffect) | P0 | ✅ Done | *(duplicate — PosterizeEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT131 | prism_realm_datamosh (PrismRealmDatamoshEffect) | P0 | ✅ Done | *(duplicate — PrismRealmDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT132 | vtempi (ProgramPage) | P0 | ⬜ Todo | vjlive |
-| P3-EXT133 | quantum_consciousness_datamosh (QuantumConsciousnessDatamosh) | P0 | ⬜ Todo | vjlive |
+| P3-EXT132 | vtempi (ProgramPage) | P0 | ✅ Done | `docs/specs/P3-EXT132_ProgramPage.md` — spec approved |
+| P3-EXT133 | quantum_consciousness_datamosh (QuantumConsciousnessDatamosh) | P0 | ✅ Done | `docs/specs/P3-EXT133_QuantumConsciousnessDatamosh.md` — spec approved |
 | P3-EXT134 | tunnel_vision_3 (QuantumConsciousnessSingularityEffect) | P0 | ✅ Done | *(duplicate — QuantumConsciousnessSingularityEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT135 | quantum_depth_nexus (QuantumDepthNexus) | P0 | ✅ Done | *(duplicate — QuantumDepthNexus already shipped in P4/P5/P6/P7)* |
-| P3-EXT136 | quantum_entanglement_point_cloud (QuantumEntanglementPointCloud) | P0 | ⬜ Todo | vjlive |
+| P3-EXT136 | quantum_entanglement_point_cloud (QuantumEntanglementPointCloud) | P0 | ✅ Done | `docs/specs/P3-EXT136_QuantumEntanglementPointCloud.md` — spec approved |
 | P3-EXT137 | quantum_consciousness_explorer (QuantumState) | P0 | ⬜ Todo | vjlive |
 | P3-EXT138 | quantum_consciousness_explorer (QuantumState) | P0 | ⬜ Todo | vjlive |
 | P3-EXT139 | r16_deep_mosh_studio (R16DeepMoshStudio) | P0 | ✅ Done | *(duplicate — R16DeepMoshStudio already shipped in P4/P5/P6/P7)* |
@@ -557,145 +557,146 @@
 | P4-COR045 | depth_calibration (CameraIntrinsics) | P0 | ⬜ Todo | Legacy |
 | P4-COR046 | creative_hive (CompositeAgent) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR047 | neural_engine_enhanced (CreativeNeuralEngine) | P0 | ⬜ Todo | Legacy |
-| P4-COR048 | crowd_ai (CrowdAI) | P0 | ⬜ Todo | Legacy |
+| P4-COR048 | crowd_ai (CrowdAI) | P0 | ✅ Done | [link](docs/specs/P4-COR048_CrowdAI.md) |
 | P4-COR049 | llm_service (CrowdAnalysis) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR050 | crowd_analysis_aggregator (CrowdAnalysisAggregator) | P0 | ⬜ Todo | Legacy |
+| P4-COR050 | crowd_analysis_aggregator (CrowdAnalysisAggregator) | P0 | ✅ Done | [link](docs/specs/P4-COR050_CrowdAnalysisAggregator.md) |
 | P4-COR051 | llm_service (CrowdEmotion) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR052 | multi_camera_manager (CrowdEnergyAggregator) | P0 | ⬜ Todo | Legacy |
-| P4-COR053 | crowd_listener (CrowdListener) | P0 | ⬜ Todo | Legacy |
-| P4-COR054 | crowd_pulse_engine (CrowdPulseEngine) | P0 | ⬜ Todo | Legacy |
-| P4-COR055 | crowd_listener (CrowdSource) | P0 | ⬜ Todo | Legacy |
-| P4-COR056 | data_rain (DataRain) | P0 | ⬜ Todo | Legacy |
+| P4-COR052 | multi_camera_manager (CrowdEnergyAggregator) | P0 | ✅ Done | [link](docs/specs/P4-COR052_CrowdEnergyAggregator.md) |
+| P4-COR053 | crowd_listener (CrowdListener) | P0 | ✅ Done | [link](docs/specs/P4-COR053_CrowdListener.md) |
+| P4-COR054 | crowd_pulse_engine (CrowdPulseEngine) | P0 | ✅ Done | [link](docs/specs/P4-COR054_CrowdPulseEngine.md) |
+| P4-COR055 | crowd_listener (CrowdSource) | P0 | ✅ Done | [link](docs/specs/P4-COR055_CrowdSource.md) |
+| P4-COR056 | data_rain (DataRain) | P0 | ✅ Done | [link](docs/specs/P4-COR056_DataRain.md) |
 | P4-COR057 | living_debug_overlay (DebugAgentPersona) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR058 | dreamer_agent (DreamerAgentManager) | P0 | ⬜ Todo | Legacy |
+| P4-COR058 | dreamer_agent (DreamerAgentManager) | P0 | ✅ Done | [link](docs/specs/P4-COR058_DreamerAgentManager.md) |
 | P4-COR059 | collaborative_canvas (EchoTrailEffect) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR060 | enhanced_llm_service (EnhancedLLMService) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR061 | predictive_failure_detection (FailurePredictor) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR062 | predictive_failure_detection (FailureType) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR063 | shader_base (FramebufferRAII) | P0 | ⬜ Todo | Legacy |
-| P4-COR064 | brush_engines (FrequencyPainterBrush) | P0 | ⬜ Todo | Legacy |
-| P4-COR065 | ghost_agent (GhostAgent) | P0 | ⬜ Todo | Legacy |
+| P4-COR063 | shader_base (FramebufferRAII) | P0 | ✅ Done | [link](docs/specs/P4-COR063_FramebufferRAII.md) |
+| P4-COR064 | brush_engines (FrequencyPainterBrush) | P0 | ✅ Done | [link](docs/specs/P4-COR064_FrequencyPainterBrush.md) |
+| P4-COR065 | ghost_agent (GhostAgent) | P0 | ✅ Done | [link](docs/specs/P4-COR065_GhostAgent.md) |
 | P4-COR066 | creative_hive (GlitchAgent) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR067 | harmonaig_color_harmonizer (HarmonaigColorHarmonizer) | P0 | ⬜ Todo | Legacy |
-| P4-COR068 | base (IAgent) | P0 | ⬜ Todo | Legacy |
-| P4-COR069 | isf_effect (ISFEffectChain) | P0 | ⬜ Todo | Legacy |
+| P4-COR067 | harmonaig_color_harmonizer (HarmonaigColorHarmonizer) | P0 | ✅ Done | [link](docs/specs/P4-COR067_HarmonaigColorHarmonizer.md) |
+| P4-COR068 | base (IAgent) | P0 | ✅ Done | [link](docs/specs/P4-COR068_IAgent.md) |
+| P4-COR069 | isf_effect (ISFEffectChain) | P0 | ✅ Done | [link](docs/specs/P4-COR069_ISFEffectChain.md) |
 | P4-COR070 | llm_integration (LLMModelIntegration) | P0 | ⬜ Todo | Legacy |
 | P4-COR071 | llm_service (LLMPrompt) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR072 | llm_service (LLMProvider) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR073 | routes (LLMProviderCreate) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR074 | routes (LLMProviderResponse) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR075 | llm_service (LLMService) | P0 | ✅ Done | Legacy |
-| P4-COR076 | main_node_graph_integration (MainNodeGraphIntegration) | P0 | ⬜ Todo | Legacy |
-| P4-COR077 | media_scanner (MediaItem) | P0 | ⬜ Todo | Legacy |
-| P4-COR078 | modifier_nodes (ModifierChain) | P0 | ⬜ Todo | Legacy |
-| P4-COR079 | movements (NeuralAwakening) | P0 | ⬜ Todo | Legacy |
-| P4-COR080 | neural_creative (NeuralCreativeEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR081 | neural_effects (NeuralEffectsEngine) | P0 | ⬜ Todo | Legacy |
-| P4-COR082 | neural_engine (NeuralEngine) | P0 | ⬜ Todo | Legacy |
-| P4-COR083 | neural_link (NeuralLink) | P0 | ⬜ Todo | Legacy |
-| P4-COR084 | neural_engine_enhanced (NeuralMode) | P0 | ⬜ Todo | Legacy |
-| P4-COR085 | automation_timeline (NeuralNetworkConfig) | P0 | ⬜ Todo | Legacy |
-| P4-COR086 | neural_engine_enhanced (NeuralPreset) | P0 | ⬜ Todo | Legacy |
-| P4-COR087 | node_datamosh (NeuralSpliceNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR088 | new_effects (NeuralStructure) | P0 | ⬜ Todo | Legacy |
-| P4-COR089 | neural_style_transfer (NeuralStyleTransferNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR090 | neural_synthesizer (NeuralVisualSynthesizer) | P0 | ⬜ Todo | Legacy |
+| P4-COR076 | main_node_graph_integration (MainNodeGraphIntegration) | P0 | ✅ Done | [link](docs/specs/P4-COR076_MainNodeGraphIntegration.md) |
+| P4-COR077 | media_scanner (MediaItem) | P0 | ✅ Done | [link](docs/specs/P4-COR077_MediaItem.md) |
+| P4-COR078 | modifier_nodes (ModifierChain) | P0 | ✅ Done | [link](docs/specs/P4-COR078_ModifierChain.md) |
+| P4-COR079 | movements (NeuralAwakening) | P0 | ✅ Done | [link](docs/specs/P4-COR079_NeuralAwakening.md) |
+| P4-COR080 | neural_creative (NeuralCreativeEffect) | P0 | ✅ Done | [link](docs/specs/P4-COR080_NeuralCreativeEffect.md) |
+| P4-COR081 | neural_effects (NeuralEffectsEngine) | P0 | 🚫 Out of Scope | *(Duplicate)* |
+| P4-COR082 | neural_engine (NeuralEngine) | P0 | 🚫 Out of Scope | *(Duplicate)* |
+| P4-COR083 | neural_link (NeuralLink) | P0 | 🚫 Out of Scope | *(Duplicate)* |
+| P4-COR084 | neural_engine_enhanced (NeuralMode) | P0 | ✅ Done | [link](docs/specs/P4-COR084_NeuralMode.md) |
+| P4-COR085 | automation_timeline (NeuralNetworkConfig) | P0 | ✅ Done | [link](docs/specs/P4-COR085_NeuralNetworkConfig.md) |
+| P4-COR086 | neural_engine_enhanced (NeuralPreset) | P0 | ✅ Done | [link](docs/specs/P4-COR086_NeuralPreset.md) |
+| P4-COR087 | node_datamosh (NeuralSpliceNode) | P0 | ✅ Done | [link](docs/specs/P4-COR087_NeuralSpliceNode.md) |
+| P4-COR088 | node_graph_bridge (NodeGraphBridge) | P0 | ✅ Done | [link](docs/specs/P4-COR088_NodeGraphBridge.md) |
+| P4-COR089 | patch_manager (PatchManager) | P0 | ✅ Done | [link](docs/specs/P4-COR089_PatchManager.md) |
+| P4-COR090 | node_datamosh (ParticleTrailsNode) | P0 | ✅ Done | [link](docs/specs/P4-COR090_ParticleDatamoshTrailsEffect.md) |
 | P4-COR091 | openai_provider (OpenAIModelProvider) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR092 | llm_service (OpenAIProvider) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR093 | oracle (OracleBrain) | P0 | ⬜ Todo | Legacy |
-| P4-COR094 | particle_datamosh_trails (ParticleDatamoshTrailsEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR095 | node_datamosh (ParticleTrailsNode) | P0 | ⬜ Todo | Legacy |
+| P4-COR093 | oracle (OracleBrain) | P0 | ✅ Done | [link](docs/specs/P4-COR093_OracleBrain.md) |
+| P4-COR094 | particle_datamosh_trails (ParticleDatamoshTrailsEffect) | P0 | 🚫 Out of Scope | *(Duplicate)* |
+| P4-COR095 | node_datamosh (ParticleTrailsNode) | P0 | 🚫 Out of Scope | *(Duplicate)* |
 | P4-COR096 | creative_hive (PatternAgent) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR097 | performance (PerformanceAgent) | P0 | ⬜ Todo | Legacy |
-| P4-COR098 | brush_engines (PersonalityTraits) | P0 | ⬜ Todo | Legacy |
-| P4-COR099 | mutable_generators (PlaitsGenerator) | P0 | ⬜ Todo | Legacy |
-| P4-COR100 | node_modulation_mutable_generators (PlaitsNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR101 | quantum_pattern_recognition (QuantumNeuralNetwork) | P0 | ⬜ Todo | Legacy |
-| P4-COR102 | error_handling (SafeNeuralAwakening) | P0 | ⬜ Todo | Legacy |
+| P4-COR097 | performance (PerformanceAgent) | P0 | ✅ Done | [link](docs/specs/P4-COR097_PerformanceAgent.md) |
+| P4-COR098 | brush_engines (PersonalityTraits) | P0 | 🚫 Out of Scope | *(Missing)* |
+| P4-COR099 | mutable_generators (PlaitsGenerator) | P0 | ✅ Done | [link](docs/specs/P4-COR099_PlaitsGenerator.md) |
+| P4-COR100 | node_modulation_mutable_generators (PlaitsNode) | P0 | ✅ Done | [link](docs/specs/P4-COR100_PlaitsNode.md) |
+| P4-COR101 | quantum_pattern_recognition (QuantumNeuralNetwork) | P0 | ✅ Done | [link](docs/specs/P4-COR101_QuantumNeuralNetwork.md) |
+| P4-COR102 | error_handling (SafeNeuralAwakening) | P0 | ✅ Done | [link](docs/specs/P4-COR102_SafeNeuralAwakening.md) |
 | P4-COR103 | creative_hive (SentienceAgent) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR104 | agent_example (StrobeAgent) | P0 | ⬜ Todo | Legacy |
+| P4-COR104 | agent_example (StrobeAgent) | P0 | ✅ Done | [link](docs/specs/P4-COR104_StrobeAgent.md) |
 | P4-COR105 | creative_hive (StyleAgent) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR106 | tain_instant_cut_switcher (TainInstantCutSwitcher) | P0 | ⬜ Todo | Legacy |
-| P4-COR107 | agent_visualizer (TrailPoint) | P0 | ⬜ Todo | Legacy |
-| P4-COR108 | v_harmonaig (VHarmonaig) | P0 | ⬜ Todo | Legacy |
-| P4-COR109 | intelligent_locking (WaitGraph) | P0 | ⬜ Todo | Legacy |
-| P4-COR110 | worker_agent (WorkerAgent) | P0 | ⬜ Todo | Legacy |
+| P4-CORXXX_A | node_modulation_mutable_generators (ShadesNode) | P0 | ✅ Done | [link](docs/specs/P4-COR104_ShadesNode.md) |
+| P4-COR106 | tain_instant_cut_switcher (TainInstantCutSwitcher) | P0 | ✅ Done | [link](docs/specs/P4-COR106_TainInstantCutSwitcher.md) |
+| P4-COR107 | agent_visualizer (TrailPoint) | P0 | ✅ Done | [link](docs/specs/P4-COR107_TrailPoint.md) |
+| P4-COR108 | v_harmonaig (VHarmonaig) | P0 | ✅ Done | [link](docs/specs/P4-COR108_VHarmonaig.md) |
+| P4-COR109 | intelligent_locking (WaitGraph) | P0 | ✅ Done | [link](docs/specs/P4-COR109_WaitGraph.md) |
+| P4-COR110 | worker_agent (WorkerAgent) | P0 | ✅ Done | [link](docs/specs/P4-COR110_WorkerAgent.md) |
 | P4-COR111 | collaborative_canvas (AdvancedAudioReactor) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR112 | creative_hive (AudioAgent) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR113 | analyzer (AudioAnalyzer) | P0 | ⬜ Todo | Legacy |
-| P4-COR114 | legacy_compat (AudioAnalyzerAdapter) | P0 | ⬜ Todo | Legacy |
-| P4-COR115 | config_types (AudioConfig) | P0 | ⬜ Todo | Legacy |
+| P4-COR113 | analyzer (AudioAnalyzer) | P0 | ✅ Done | [link](docs/specs/P4-COR113_AudioAnalyzer.md) |
+| P4-COR114 | legacy_compat (AudioAnalyzerAdapter) | P0 | ✅ Done | [link](docs/specs/P4-COR114_AudioAnalyzerAdapter.md) |
+| P4-COR115 | config_types (AudioConfig) | P0 | ✅ Done | [link](docs/specs/P4-COR115_AudioConfig.md) |
 | P4-COR116 | models (AudioControlPayload) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR117 | node_effect_audio (AudioDistortionNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR118 | engine (AudioEngine) | P0 | ⬜ Todo | Legacy |
-| P4-COR119 | audio_features (AudioFeature) | P0 | ⬜ Todo | Legacy |
-| P4-COR120 | audio_features (AudioFeatureExtractor) | P0 | ⬜ Todo | Legacy |
-| P4-COR121 | audio_features (AudioFeatureType) | P0 | ⬜ Todo | Legacy |
-| P4-COR122 | audio_kaleidoscope (AudioKaleidoscope) | P0 | ⬜ Todo | Legacy |
-| P4-COR123 | node_effect_audio (AudioKaleidoscopeNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR124 | node_effect_audio (AudioParticleNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR125 | audio_particle_system (AudioParticleSystem) | P0 | ⬜ Todo | Legacy |
-| P4-COR126 | audio_player (AudioPlayer) | P0 | ⬜ Todo | Legacy |
-| P4-COR127 | audio_reactive_3d_effect (AudioReactive3DEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR128 | audio_reactive_3d_scene (AudioReactive3DScene) | P0 | ⬜ Todo | Legacy |
-| P4-COR129 | audio_reactive_3d_scene_ultimate (AudioReactive3DSceneUltimate) | P0 | ⬜ Todo | Legacy |
+| P4-COR117 | node_effect_audio (AudioDistortionNode) | P0 | ✅ Done | [link](docs/specs/P4-COR117_AudioDistortionNode.md) |
+| P4-COR118 | engine (AudioEngine) | P0 | ✅ Done | [link](docs/specs/P4-COR118_AudioEngine.md) |
+| P4-COR119 | audio_features (AudioFeature) | P0 | ✅ Done | [link](docs/specs/P4-COR119_AudioFeature.md) |
+| P4-COR120 | audio_features (AudioFeatureExtractor) | P0 | ✅ Done | [link](docs/specs/P4-COR120_AudioFeatureExtractor.md) |
+| P4-COR121 | audio_features (AudioFeatureType) | P0 | ✅ Done | [link](docs/specs/P4-COR121_AudioFeatureType.md) |
+| P4-COR122 | audio_kaleidoscope (AudioKaleidoscope) | P0 | ✅ Done | [link](docs/specs/P4-COR122_AudioKaleidoscope.md) |
+| P4-COR123 | node_effect_audio (AudioKaleidoscopeNode) | P0 | ✅ Done | [link](docs/specs/P4-COR123_AudioKaleidoscopeNode.md) |
+| P4-COR124 | node_effect_audio (AudioParticleNode) | P0 | ✅ Done | [link](docs/specs/P4-COR124_AudioParticleNode.md) |
+| P4-COR125 | audio_particle_system (AudioParticleSystem) | P0 | ✅ Done | [link](docs/specs/P4-COR125_AudioParticleSystem.md) |
+| P4-COR126 | audio_player (AudioPlayer) | P0 | ✅ Done | [link](docs/specs/P4-COR126_AudioPlayer.md) |
+| P4-COR127 | audio_reactive_3d_effect (AudioReactive3DEffect) | P0 | ✅ Done | [link](docs/specs/P4-COR127_AudioReactive3DEffect.md) |
+| P4-COR128 | audio_reactive_3d_scene (AudioReactive3DScene) | P0 | ✅ Done | [link](docs/specs/P4-COR128_AudioReactive3DScene.md) |
+| P4-COR129 | audio_reactive_3d_scene_ultimate (AudioReactive3DSceneUltimate) | P0 | ✅ Done | [link](docs/specs/P4-COR129_AudioReactive3DSceneUltimate.md) |
 | P4-COR130 | brush_engines (AudioReactiveBrush) | P0 | ⬜ Todo | Legacy |
 | P4-COR131 | audio_reactive_effects (AudioReactiveEffect) | P0 | ⬜ Todo | Legacy |
 | P4-COR132 | audio_reactive (AudioReactiveEngine) | P0 | ⬜ Todo | Legacy |
-| P4-COR133 | unified_hydra_extensions (AudioReactiveHydraExtension) | P0 | ⬜ Todo | Legacy |
-| P4-COR134 | unified_base (AudioReactiveMixin) | P0 | ⬜ Todo | Legacy |
+| P4-COR133 | unified_hydra_extensions (AudioReactiveHydraExtension) | P0 | ✅ Done | [link](docs/specs/P4-COR133_AudioReactiveHydraExtension.md) |
+| P4-COR134 | unified_base (AudioReactiveMixin) | P0 | ✅ Done | [link](docs/specs/P4-COR134_AudioReactiveMixin.md) |
 | P4-COR135 | living_debug_overlay (AudioReactiveParticle) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
 | P4-COR136 | living_debug_overlay (AudioReactiveParticleSystem) | P0 | 🚫 Out of Scope | *(out of scope for Alpha)* |
-| P4-COR137 | mood_temporal_patterns (AudioReactivePatternGenerator) | P0 | ⬜ Todo | Legacy |
-| P4-COR138 | audio_reactive (AudioReactivePreset) | P0 | ⬜ Todo | Legacy |
-| P4-COR139 | audio_reactivity (AudioReactivity) | P0 | ⬜ Todo | Legacy |
-| P4-COR140 | unified_matrix_integration (AudioReactivityIntegrator) | P0 | ⬜ Todo | Legacy |
-| P4-COR141 | audio_reactor (AudioReactor) | P0 | ⬜ Todo | Legacy |
-| P4-COR142 | audio_reactor (AudioReactorManager) | P0 | ⬜ Todo | Legacy |
-| P4-COR143 | engine (AudioSource) | P0 | ⬜ Todo | Legacy |
-| P4-COR144 | engine (AudioSourceType) | P0 | ⬜ Todo | Legacy |
-| P4-COR145 | depth_audio (AudioSpectrum) | P0 | ⬜ Todo | Legacy |
-| P4-COR146 | audio_spectrum_trails (AudioSpectrumTrails) | P0 | ⬜ Todo | Legacy |
-| P4-COR147 | new_effects (AudioStrobe) | P0 | ⬜ Todo | Legacy |
-| P4-COR148 | __init__ (AudioSystem) | P0 | ⬜ Todo | Legacy |
-| P4-COR149 | node_effect_audio (AudioTrailsNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR150 | audio_waveform_distortion (AudioWaveformDistortion) | P0 | ⬜ Todo | Legacy |
-| P4-COR151 | websocket_handler (AudioWebSocketHandler) | P0 | ⬜ Todo | Legacy |
-| P4-COR152 | depth_audio (DepthAudioMapping) | P0 | ⬜ Todo | Legacy |
-| P4-COR153 | depth_audio (DepthAudioReactor) | P0 | ⬜ Todo | Legacy |
-| P4-COR154 | audio_reactive_effects (DreamModeEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR155 | audio_reactive_effects (EnergyCascadeEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR156 | audio_reactive (EnvelopeFollower) | P0 | ⬜ Todo | Legacy |
-| P4-COR157 | audio_reactive_effects (KaleidoscopeEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR158 | pll_sync (MIDIClockSync) | P0 | ⬜ Todo | Legacy |
-| P4-COR159 | config_types (MIDIConfig) | P0 | ⬜ Todo | Legacy |
-| P4-COR160 | unified_hydra_extensions (MIDIHydraExtension) | P0 | ⬜ Todo | Legacy |
-| P4-COR161 | midi_controller (MIDIMapping) | P0 | ⬜ Todo | Legacy |
-| P4-COR162 | midi (MIDIMessage) | P0 | ⬜ Todo | Legacy |
-| P4-COR163 | midi (MIDIMessageType) | P0 | ⬜ Todo | Legacy |
-| P4-COR164 | midi_controller (MIDIMode) | P0 | ⬜ Todo | Legacy |
-| P4-COR165 | midi_presets (MIDIPresetManager) | P0 | ⬜ Todo | Legacy |
-| P4-COR166 | midi_mapper (MidiMapper) | P0 | ⬜ Todo | Legacy |
-| P4-COR167 | midi_mapper (MidiMapping) | P0 | ⬜ Todo | Legacy |
-| P4-COR168 | matrix_nodes (MidiToParamNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR169 | config_types (OSCConfig) | P0 | ⬜ Todo | Legacy |
-| P4-COR170 | osc_controller (OSCController) | P0 | ⬜ Todo | Legacy |
-| P4-COR171 | osc_dispatcher (OSCDispatcher) | P0 | ⬜ Todo | Legacy |
-| P4-COR172 | osc_query_server (OSCQueryHTTPRequestHandler) | P0 | ⬜ Todo | Legacy |
-| P4-COR173 | osc_query_server (OSCQueryParameter) | P0 | ⬜ Todo | Legacy |
-| P4-COR174 | osc_query_server (OSCQueryServer) | P0 | ⬜ Todo | Legacy |
-| P4-COR175 | audio_reactive (OnsetDetector) | P0 | ⬜ Todo | Legacy |
-| P4-COR176 | generators (OscEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR177 | oscilloscope (OscilloscopeEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR178 | node_effect_lost_artifacts (OscilloscopeNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR179 | matrix_nodes (ParamToMidiNode) | P0 | ⬜ Todo | Legacy |
-| P4-COR180 | quantum_analyzer (QuantumAudioAnalyzer) | P0 | ⬜ Todo | Legacy |
-| P4-COR181 | quantum_reactor (QuantumAudioReactor) | P0 | ⬜ Todo | Legacy |
-| P4-COR182 | audio_reactive (SpectralColorMapper) | P0 | ⬜ Todo | Legacy |
-| P4-COR183 | audio_reactive_3d_scene_ultimate (TimeTravelSession) | P0 | ⬜ Todo | Legacy |
-| P4-COR184 | audio_reactive_effects (VHSScanlinesEffect) | P0 | ⬜ Todo | Legacy |
-| P4-COR185 | av_mixer (VideoAudioMixerModule) | P0 | ⬜ Todo | Legacy |
-| P4-COR186 | audio_reactive_3d_scene_ultimate (WorldMemory) | P0 | ⬜ Todo | Legacy |
+| P4-COR137 | mood_temporal_patterns (AudioReactivePatternGenerator) | P0 | ✅ Done | [link](docs/specs/P4-COR137_AudioReactivePatternGenerator.md) |
+| P4-COR138 | audio_reactive (AudioReactivePreset) | P0 | ✅ Done | [link](docs/specs/P4-COR138_AudioReactivePreset.md) |
+| P4-COR139 | audio_reactivity (AudioReactivity) | P0 | ✅ Done | [link](docs/specs/P4-COR139_AudioReactivity.md) |
+| P4-COR140 | unified_matrix_integration (AudioReactivityIntegrator) | P0 | 🚫 Out of Scope | [link](docs/specs/P4-COR140_AudioReactivityIntegrator.md) |
+| P4-COR141 | audio_reactor (AudioReactor) | P0 | ✅ Done | [link](docs/specs/P4-COR141_AudioReactor.md) |
+| P4-COR142 | audio_reactor (AudioReactorManager) | P0 | ✅ Done | [link](docs/specs/P4-COR142_AudioReactorManager.md) |
+| P4-COR143 | engine (AudioSource) | P0 | ✅ Done | [link](docs/specs/P4-COR143_AudioSource.md) |
+| P4-COR144 | engine (AudioSourceType) | P0 | ✅ Done | [link](docs/specs/P4-COR144_AudioSourceType.md) |
+| P4-COR145 | depth_audio (AudioSpectrum) | P0 | ✅ Done | [link](docs/specs/P4-COR145_AudioSpectrum.md) |
+| P4-COR146 | audio_spectrum_trails (AudioSpectrumTrails) | P0 | ✅ Done | [link](docs/specs/P4-COR146_AudioSpectrumTrails.md) |
+| P4-COR147 | new_effects (AudioStrobe) | P0 | ✅ Done | [link](docs/specs/P4-COR147_AudioStrobe.md) |
+| P4-COR148 | __init__ (AudioSystem) | P0 | ✅ Done | [link](docs/specs/P4-COR148_AudioSystem.md) |
+| P4-COR149 | node_effect_audio (AudioTrailsNode) | P0 | ✅ Done | [link](docs/specs/P4-COR149_AudioTrailsNode.md) |
+| P4-COR150 | audio_waveform_distortion (AudioWaveformDistortion) | P0 | ✅ Done | [link](docs/specs/P4-COR150_AudioWaveformDistortion.md) |
+| P4-COR151 | websocket_handler (AudioWebSocketHandler) | P0 | ✅ Done | [link](docs/specs/P4-COR151_AudioWebSocketHandler.md) |
+| P4-COR152 | depth_audio (DepthAudioMapping) | P0 | 🚫 Out of Scope | [link](docs/specs/P4-COR152_DepthAudioMapping.md) |
+| P4-COR153 | depth_audio (DepthAudioReactor) | P0 | 🚫 Out of Scope | [link](docs/specs/P4-COR153_DepthAudioReactor.md) |
+| P4-COR154 | audio_reactive_effects (DreamModeEffect) | P0 | ✅ Done | [link](docs/specs/P4-COR154_DreamModeEffect.md) |
+| P4-COR155 | audio_reactive_effects (EnergyCascadeEffect) | P0 | ✅ Done | [link](docs/specs/P4-COR155_EnergyCascadeEffect.md) |
+| P4-COR156 | audio_reactive (EnvelopeFollower) | P0 | ✅ Done | [link](docs/specs/P4-COR156_EnvelopeFollower.md) |
+| P4-COR157 | audio_reactive_effects (KaleidoscopeEffect) | P0 | ✅ Done | [link](docs/specs/P4-COR157_KaleidoscopeEffect.md) |
+| P4-COR158 | pll_sync (MIDIClockSync) | P0 | ✅ Done | [link](docs/specs/P4-COR158_MIDIClockSync.md) |
+| P4-COR159 | config_types (MIDIConfig) | P0 | ✅ Done | [link](docs/specs/P4-COR159_MIDIConfig.md) |
+| P4-COR160 | unified_hydra_extensions (MIDIHydraExtension) | P0 | ✅ Done | [link](docs/specs/P4-COR160_MIDIHydraExtension.md) |
+| P4-COR161 | midi_controller (MIDIMapping) | P0 | ✅ Done | [link](docs/specs/P4-COR161_MIDIMapping.md) |
+| P4-COR162 | midi (MIDIMessage) | P0 | ✅ Done | [link](docs/specs/P4-COR162_MIDIMessage.md) |
+| P4-COR163 | midi (MIDIMessageType) | P0 | ✅ Done | [link](docs/specs/P4-COR163_MIDIMessageType.md) |
+| P4-COR164 | midi_controller (MIDIMode) | P0 | ✅ Done | [link](docs/specs/P4-COR164_MIDIMode.md) |
+| P4-COR165 | midi_presets (MIDIPresetManager) | P0 | ✅ Done | [link](docs/specs/P4-COR165_MIDIPresetManager.md) |
+| P4-COR166 | midi_mapper (MidiMapper) | P0 | ✅ Done | [link](docs/specs/P4-COR166_MidiMapper.md) |
+| P4-COR167 | midi_mapper (MidiMapping) | P0 | ✅ Done | [link](docs/specs/P4-COR167_MidiMapping.md) |
+| P4-COR168 | matrix_nodes (MidiToParamNode) | P0 | ✅ Done | [link](docs/specs/P4-COR168_MidiToParamNode.md) |
+| P4-COR169 | config_types (OSCConfig) | P0 | ✅ Done | [link](docs/specs/P4-COR169_OSCConfig.md) |
+| P4-COR170 | osc_controller (OSCController) | P0 | ✅ Done | [link](docs/specs/P4-COR170_OSCController.md) |
+| P4-COR171 | osc_dispatcher (OSCDispatcher) | P0 | ✅ Done | [link](docs/specs/P4-COR171_OSCDispatcher.md) |
+| P4-COR172 | osc_query_server (OSCQueryHTTPRequestHandler) | P0 | ✅ Done | [link](docs/specs/P4-COR172_OSCQueryHTTPRequestHandler.md) |
+| P4-COR173 | osc_query_server (OSCQueryParameter) | P0 | ✅ Done | [link](docs/specs/P4-COR173_OSCQueryParameter.md) |
+| P4-COR174 | osc_query_server (OSCQueryServer) | P0 | ✅ Done | [link](docs/specs/P4-COR174_OSCQueryServer.md) |
+| P4-COR175 | audio_reactive (OnsetDetector) | P0 | ✅ Done | [link](docs/specs/P4-COR175_OnsetDetector.md) |
+| P4-COR176 | generators (OscEffect) | P0 | ✅ Done | [link](docs/specs/P4-COR176_OscEffect.md) |
+| P4-COR177 | oscilloscope (OscilloscopeEffect) | P0 | ✅ Done | [link](docs/specs/P4-COR177_OscilloscopeEffect.md) |
+| P4-COR178 | node_effect_lost_artifacts (OscilloscopeNode) | P0 | ✅ Done | [link](docs/specs/P4-COR178_OscilloscopeNode.md) |
+| P4-COR179 | matrix_nodes (ParamToMidiNode) | P0 | ✅ Done | [link](docs/specs/P4-COR179_ParamToMidiNode.md) |
+| P4-COR180 | quantum_analyzer (QuantumAudioAnalyzer) | P0 | ✅ Done | [link](docs/specs/P4-COR180_QuantumAudioAnalyzer.md) |
+| P4-COR181 | quantum_reactor (QuantumAudioReactor) | P0 | ✅ Done | [link](docs/specs/P4-COR181_QuantumAudioReactor.md) |
+| P4-COR182 | audio_reactive (SpectralColorMapper) | P0 | ✅ Done | [link](docs/specs/P4-COR182_SpectralColorMapper.md) |
+| P4-COR183 | audio_reactive_3d_scene_ultimate (TimeTravelSession) | P0 | ✅ Done | [link](docs/specs/P4-COR183_TimeTravelSession.md) |
+| P4-COR184 | audio_reactive_effects (VHSScanlinesEffect) | P0 | ✅ Done | [link](docs/specs/P4-COR184_VHSScanlinesEffect.md) |
+| P4-COR185 | av_mixer (VideoAudioMixerModule) | P0 | ✅ Done | [link](docs/specs/P4-COR185_VideoAudioMixerModule.md) |
+| P4-COR186 | audio_reactive_3d_scene_ultimate (WorldMemory) | P0 | ✅ Done | [link](docs/specs/P4-COR186_WorldMemory.md) |
 | P4-COR187 | video_sources (AstraDepthSource) | P0 | ⬜ Todo | Legacy |
 | P4-COR188 | astra_linux (AstraLinuxSource) | P0 | ⬜ Todo | Legacy |
 | P4-COR189 | astra_native (AstraNativeSource) | P0 | ⬜ Todo | Legacy |

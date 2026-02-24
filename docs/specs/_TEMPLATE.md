@@ -1,4 +1,4 @@
-# Spec Template — Copy this file for every new task
+# Spec Template — Focus on Technical Accuracy
 
 **File naming:** `docs/specs/<task-id>_<module-name>.md`
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
@@ -7,22 +7,9 @@
 
 ## Task: [TASK-ID] — [Module Name]
 
-**Phase:** [e.g. Phase 2 / P2-H3]
-**Assigned To:** [Agent name]
-**Spec Written By:** [Agent name]
-**Date:** [YYYY-MM-DD]
-
----
-
-## What This Module Does
+**What This Module Does**
 
 *2–3 sentences. What problem does it solve? What does it produce?*
-
----
-
-## What It Does NOT Do
-
-*Scope boundary. What is explicitly out of scope?*
 
 ---
 
@@ -32,8 +19,8 @@
 # Paste planned class/function signatures here before coding
 
 class MyModule:
-    def __init__(self, param: Type) -> None: ...
-    def method(self, arg: Type) -> ReturnType: ...
+    def __init__(self, param: Type) -> None:...
+    def method(self, arg: Type) -> ReturnType:...
 ```
 
 ---
@@ -43,14 +30,6 @@ class MyModule:
 | Name | Type | Description | Constraints |
 |------|------|-------------|-------------|
 | `param` | `type` | What it is | Range / valid values |
-
----
-
-## Edge Cases and Error Handling
-
-- What happens if hardware is missing? → (NullDevice pattern / graceful fallback)
-- What happens on bad input? → (raise ValueError with message)
-- What is the cleanup path? → (close(), __exit__, resource release)
 
 ---
 

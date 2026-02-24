@@ -1,0 +1,77 @@
+# AHOS Configuration
+# Agent Heartbeat Orchestration System
+#
+# "Single serving. Wash the plate."
+
+# --- LLM API Configuration ---
+llm:
+  # Which provider to use for code generation
+  # Options: anthropic, google, ollama, litellm
+  provider: "anthropic"
+  model: "claude-sonnet-4-20250514"
+  api_key_env: "ANTHROPIC_API_KEY"  # Read from environment variable
+  max_output_tokens: 4000
+  temperature: 0.0  # Deterministic output
+
+# --- Project Paths ---
+project:
+  root: "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
+  legacy_root: "/home/happy/Desktop/claude projects/VJlive-2"
+  specs_dir: "docs/specs"
+  template_path: "docs/specs/_TEMPLATE.md"
+  source_dir: "src/vjlive3"
+  tests_dir: "tests"
+
+# --- Orange Pi NPU (Local LLM Validator) ---
+orange_pi:
+  enabled: true
+  host: "192.168.1.60"
+  port: 8080
+  # The Orange Pi 5 runs rkllm on the RK3588 NPU
+  # It does YES/NO classification only — never generates code
+  runtime: "rkllm"
+  timeout_seconds: 30
+  critical: false  # Tasks proceed without it, deterministic checks are primary
+
+# --- Validation Thresholds ---
+validation:
+  word_salad:
+    max_hits: 2           # Max individual adverb occurrences
+    max_density: 1.0      # Max hits per 100 lines
+  stubs:
+    max_suspicious: 1     # Max suspicious patterns before rejection
+    min_code_ratio: 0.3   # Minimum ratio of code lines to total
+  tests:
+    min_coverage: 99      # The whole horse crosses the line
+    min_assertions_per_test: 3
+    ban_bare_asserts: true
+  token_budget: 8000      # Max input tokens per task plate
+
+# --- Task Queue ---
+queue:
+  db_path: "agent-heartbeat/task_queue.db"
+  max_retries: 2          # Retry failed tasks up to 2 times
+  retry_delay_seconds: 30
+
+# --- MCP Servers ---
+mcp:
+  health_check_interval_seconds: 30
+  servers:
+    vjlive3brain:
+      type: "stdio"
+      critical: true
+    vjlive-switchboard:
+      type: "stdio"
+      critical: true
+
+# --- Alerts ---
+alerts:
+  terminal: true          # Always print to terminal
+  webhook_url: ""         # Optional: Discord/Slack webhook
+  log_dir: "agent-heartbeat/logs"
+
+# --- Daemon ---
+daemon:
+  poll_interval_seconds: 5
+  max_concurrent_tasks: 1  # ONE task at a time. Always.
+  auto_commit: false       # Require human approval before git commit
