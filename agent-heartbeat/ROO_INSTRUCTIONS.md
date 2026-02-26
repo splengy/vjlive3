@@ -1,18 +1,16 @@
-# VJLive3 Pass 3 — Spec Refinement & Validation (Worker Mode)
+# VJLive3 Phase 2 — Spec Fleshing Out (Worker Mode)
 
 ## Your Role
-You are a Spec Refinement agent (e.g., `julie-roo`, `maxx-roo`). Your job is to pull enriched specifications from the queue and meticulously refine them.
+You are a Spec Fleshing Out agent (e.g., `julie-roo`, `maxx-roo`). Your job is to pull Phase 1 skeleton specifications from the queue and expand them into deep, narrative technical blueprints.
 
 **ABSOLUTELY NO CODE GENERATION IS ALLOWED.** Do not write `.py` files. 
 
 ## The Mission
-The first two passes generated and fleshed out the specs. Pass 3 is the architectural perfection pass. You must:
-- Unify and standardize variable names across the spec.
-- Unify callback schemes.
-- Eliminate duplicated sections or redundant prose.
-- Optimize the architecture (mentally) by identifying better library usage or flow.
-- Visualize the flow by adding **Mermaid diagrams** directly into the spec.
-- Ensure the spec acts as an immaculate, production-ready blueprint.
+Phase 1 provided the basic markdown skeleton. Phase 2 (Your Job) is to provide the muscle and organs. You must:
+- Read the skeleton spec.
+- Look up the original module's implementation in the Qdrant DB.
+- Explain the architecture, variable implementations, and specific edge cases natively, organically, and accurately based on the legacy source code.
+- If you cannot find a specific implementation detail, DO NOT guess. Tag it with `[NEEDS RESEARCH]`.
 
 ## Workflow
 
@@ -22,17 +20,15 @@ Call the `mcp_vjlive-switchboard_request_work(worker_name="<your-name>")` tool.
 - If it returns a task (e.g., `P3-EXT001`), proceed to Step 2.
 
 ### Step 2: Read the Spec & Qdrant
-Read the spec file provided in the `spec_path` argument. 
-If there are any remaining `[NEEDS RESEARCH]` tags, or if the architecture feels incomplete, use `legacy_lookup.py` to fetch original context from the Qdrant DB.
+Read the skeleton spec file provided in the `spec_path` argument. 
+Use `legacy_lookup.py` to fetch original context from the Qdrant DB for that specific module name.
 
-### Step 3: Refine the Spec (In Place)
+### Step 3: Flesh Out the Spec (In Place)
 Edit the markdown spec file directly.
-1. **Standardize:** Ensure parameter schemas, types, and callbacks match VJLive3 global standards.
-2. **Mermaid Flow:** Add a ````mermaid ... ```` block detailing the lifecycle or node graph logic of the module.
-3. **Consolidate:** Remove duplicate sections (e.g., if there are two "Integration" sections, merge them).
+Add deep, narrative technical prose detailing exactly how the legacy module functioned so that Phase 3 and Phase 4 agents can act on your blueprint perfectly.
 
 ### Step 4: Complete Task
-Once the spec is meticulously refined and the Mermaid diagram is added, you must mark the task as done to get it out of the queue.
+Once the spec is thoroughly fleshed out, mark the task as done.
 Call the `mcp_vjlive-switchboard_complete_task(task_id="<the_id>")` tool.
 
 ### Step 5: Repeat
@@ -40,7 +36,6 @@ Loop back to Step 1 and request the next piece of work.
 
 ## Rules
 - **No Python Files:** Do not run `pytest` or write `src/` modules. 
-- **Mermaid Syntax:** Ensure your Mermaid syntax is valid.
 - **NEVER DELETE FILES:** You are strictly forbidden from deleting files or using `rm` commands.
 - **STRICT WRITING SCOPE:** You may only edit the Markdown file assigned to you in `docs/specs/` and append to `WORKSPACE/EASTEREGG_COUNCIL.md`. Do not touch any other files.
 - If you are hopelessly stuck: Post a message to the `blockers` channel using `mcp_vjlive-switchboard_post_message`.
