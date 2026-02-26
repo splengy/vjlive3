@@ -1,6 +1,6 @@
 # Spec Template — Focus on Technical Accuracy
 
-**File naming:** `docs/specs/P3-EXT213_audio_spectrum_trails.md`
+**File naming:** `docs/specs/P3-EXT213_audio_spectrum_trails.md`  
 **Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
 
 ---
@@ -46,8 +46,9 @@ The effect uses a hybrid CPU/GPU approach:
    - Each frame, `update(delta_time)` is called:
      - For each particle, compute audio influence from its assigned frequency band
      - Update velocity: add a small force in the direction of `(cos(angle), sin(angle))` where `angle = time * speed + particle_index * offset`
-     - Update position: `pos += vel`
-     - Optionally apply damping to velocity (not in legacy; velocity may accumulate)
+     - Update position: `pos += vel * dt`
+     - Apply damping: `vel *= 0.99` to prevent unbounded growth
+     - Wrap positions to [0,1] (toroidal space) to keep particles on screen
    - Upload particle data to shader uniforms: `particle_positions[100]`, `particle_energies[100]`
    - Set audio level uniforms: `bass_level`, `mid_level`, `treble_level`, `volume_level`
 
@@ -55,7 +56,7 @@ The effect uses a hybrid CPU/GPU approach:
    - For each pixel, loop over all particles (up to `num_particles`)
    - For each particle, compute distance from pixel to particle position
    - If within `particle_size`, draw a bright spot with color derived from audio bands: `(bass, mid, treble) * color_sensitivity`
-   - Also draw a trail along the velocity direction: if pixel is within `trail_length` distance along the velocity vector, add a dimmer contribution
+   - Also draw a radial halo: if pixel is within `size * trail_length` distance from particle, add a dimmer contribution
    - Composite over background using `u_mix` (effect blend factor)
 
 ### Parameters
@@ -64,10 +65,10 @@ The effect exposes the following parameters (0-10 range, mapped to internal valu
 
 | Parameter (UI) | Internal | Default | Description |
 |----------------|----------|---------|-------------|
-| `num_particles` | int (10-100) | 5.0 → 100? | Number of particles to render (mapped from 0-10 to 10-100) |
+| `num_particles` | int (10-100) | 5.0 → 100 | Number of particles to render (mapped from 0-10 to 10-100) |
 | `particle_size` | float (0.001-0.1) | 5.0 → 0.051 | Base particle radius in normalized screen space |
 | `particle_speed` | float (0.1-2.0) | 5.0 → 1.0 | Angular speed of particle orbit (radians per second) |
-| `trail_length` | float (0.1-2.0) | 8.0 → 1.9 | Length of trail effect as a factor of particle size |
+| `trail_length` | float (0.1-2.0) | 8.0 → 1.9 | Halo size multiplier (larger = bigger glow) |
 | `color_sensitivity` | float (0.1-5.0) | 5.0 → 2.5 | Multiplier for audio-driven color intensity |
 
 The mapping from UI value (0-10) to internal is linear:
@@ -86,17 +87,25 @@ The effect uses an `AudioAnalyzer` to obtain:
 
 These are used in two ways:
 
-1. **CPU update**: Each particle is assigned a frequency band (0-7, since `frequency_bands = 8`). The particle's energy is multiplied by the band's energy and volume. The velocity is then perturbed in a direction based on time and particle index, scaled by `audio_influence = band_energy * volume * 2.0`.
+1. **CPU update**: Each particle is assigned a frequency band (0-7, since `frequency_bands = 8`). The particle's energy is computed as `band_energy * volume`, where `band_energy` is the average of the spectrum in that band. The velocity is then perturbed in a direction based on time and particle index, scaled by `audio_influence = band_energy * volume * 2.0`.
 
 2. **GPU rendering**: Particle color is set to `(bass_level, mid_level, treble_level) * color_sensitivity`. Particle size is scaled by `(1.0 + energy * volume_level * 2.0)`. This makes particles larger and brighter on loud beats.
 
-### Trail Effect
+### Particle Motion Details
 
-The fragment shader draws two contributions per particle:
-- **Core**: a circular spot at the particle position with smooth alpha falloff.
-- **Trail**: along the line from the pixel to the particle position (or along velocity direction?), the legacy code uses `trail_dir = normalize(uv - particle_pos)` and checks if `trail_dist < size * trail_length`. This draws a line from the particle outward, creating a motion blur effect.
+The `update(delta_time)` method implements stable particle motion:
+- For each particle `i`:
+  - `freq_band = i % 8` (assign to one of 8 frequency bands)
+  - `band_energy = get_frequency_band_energy(freq_band, analyzer)`
+  - `energy = band_energy * volume` (fresh value each frame, not cumulative)
+  - `angle = time * particle_speed + i * 0.1`
+  - `audio_influence = band_energy * volume * 2.0`
+  - `velocity[i] += (cos(angle), sin(angle)) * audio_influence * 0.01`
+  - `velocity[i] *= 0.99` (damping to prevent explosion)
+  - `position[i] += velocity[i] * delta_time`
+  - If `position[i]` outside [0,1], wrap to [0,1] (toroidal space)
 
-The trail alpha is `(1.0 - trail_dist/(size*trail_length)) * energy * 0.3 * u_mix`, making it dimmer than the core.
+This ensures particles stay on screen and move smoothly without accumulating excessive velocity.
 
 ### Shader Uniforms
 
@@ -180,198 +189,10 @@ The effect can be provided an `AudioAnalyzer` via `set_audio_analyzer`, or the c
 | `test_update_with_valid_spectrum` | update() processes spectrum and updates particle positions/energies without error |
 | `test_update_with_empty_spectrum` | update() handles empty spectrum gracefully (particles remain stable) |
 | `test_shader_uniforms_correctly_bound` | All uniforms (arrays, floats) are set before rendering |
-| `test_particle_energy_modulation_by_bass_treble` | Particle energies increase with corresponding frequency band energy |
-| `test_parameter_mapping` | UI parameters (0-10) correctly map to internal values |
-| `test_particle_count_clamping` | num_particles is clamped to max 100 |
-| `test_cleanup` | No OpenGL resource leaks on destruction |
-
-**Minimum coverage**: 80% before task is marked done.
-
----
-
-## Open Questions and Research Findings
-
-### [NEEDS RESEARCH]: How exactly are frequency bands assigned to particles?
-
-**Finding**: The legacy code uses `freq_band = i % self.frequency_bands` (8 bands). So particles 0-7 map to band 0-7, particles 8-15 map to bands 0-7 again, etc. This means multiple particles share the same band energy, creating a distribution.
-
-**Resolution**: Use the same modulo mapping. Each particle's energy is influenced by its assigned band's energy and the overall volume.
-
-### [NEEDS RESEARCH]: How are particle velocities updated? Do they accumulate indefinitely?
-
-**Finding**: The legacy snippet shows:
-```python
-self.particle_velocities[i] += np.array([
-    np.cos(angle) * audio_influence * 0.01,
-    np.sin(angle) * audio_influence * 0.01
-])
-```
-There is no damping or velocity clamping. Velocities could grow without bound, causing particles to fly off-screen quickly. However, the shader uses particle positions directly; if they go outside [0,1], they won't be visible. But then they never come back. This seems like a bug or incomplete code.
-
-Maybe there is also a position update: `self.particle_positions[i] += self.particle_velocities[i]` not shown? And maybe velocities are reset or wrapped? The snippet is incomplete.
-
-**Resolution**: We need to design a stable particle motion:
-- Update position: `pos += vel * dt` (with dt scaling)
-- Apply a small damping: `vel *= 0.99` to prevent explosion
-- Wrap positions to [0,1] (toroidal space) so particles stay on screen
-- Or reset particles that go out of bounds to random positions.
-
-Given the effect is "trails", particles should move continuously. We'll implement a stable motion: velocities are perturbed by audio, but also have a small random walk or circular motion. We'll follow the legacy as closely as possible but add damping and wrapping to keep particles on screen.
-
-### [NEEDS RESEARCH]: What is the purpose of `trail_length`? The shader uses it to extend the trail along the velocity direction? Actually the code uses `trail_dir = normalize(uv - particle_pos)` which points from particle to pixel, not velocity. That's a radial trail, not a motion trail. That seems odd.
-
-**Finding**: The legacy shader:
-```glsl
-vec2 trail_dir = normalize(uv - particle_pos);
-float trail_dist = distance(uv, particle_pos);
-if (trail_dist < size * trail_length) {
-    float trail_alpha = (1.0 - trail_dist/(size*trail_length)) * energy * 0.3 * u_mix;
-    color = mix(color, particle_color * 0.5, trail_alpha);
-}
-```
-This draws a radial gradient around the particle, not a trail in the direction of motion. It's essentially a larger, dimmer halo. That's more like a glow than a trail. The parameter name `trail_length` is misleading; it's actually a halo size multiplier.
-
-**Resolution**: We'll implement as legacy: a radial halo around each particle, with size = `particle_size * trail_length`. This creates a soft, glowing effect. For actual motion trails, we'd need to store previous positions, but that's more complex. We'll stick to the legacy behavior.
-
-### [NEEDS RESEARCH]: How are particle energies initialized and updated?
-
-**Finding**: Initially `particle_energies = np.ones(...)`. In `apply_uniforms`, the CPU updates:
-```python
-band_energy = self._get_frequency_band_energy(freq_band, analyzer)
-energy *= band_energy;
-particle_energies[i] = energy
-```
-But this multiplies the previous energy by band_energy every frame, causing exponential decay to zero unless band_energy is >1. Typically band_energy is <1, so energy will quickly go to zero. That seems wrong. Maybe they reset energy each frame to 1.0 before multiplying? Or they set energy = band_energy directly? The snippet is incomplete.
-
-**Resolution**: We'll define that particle energy is set each frame to `1.0 * band_energy * volume` (or something similar). The shader uses energy to modulate size and alpha. So energy should be a value in [0,1] representing current audio-driven intensity. We'll compute: `energy = band_energy * volume` and maybe add a small base. This gives a fresh value each frame, not cumulative.
-
-### [NEEDS RESEARCH]: The shader uses `particle_positions[i]` as a uniform array. How is this array updated? The CPU must set these uniforms every frame. That's a lot of uniform calls (100 vec2). Is there a better way? Could use a texture. But legacy uses uniforms, so we'll do the same.
-
-**Resolution**: Use `glUniform2fv` to set an array of 100 vec2. This is acceptable; 100 uniforms is within limits. However, some GPUs have limits on uniform array size. 100 vec2 = 200 floats, should be fine.
-
----
-
-## Configuration Schema
-
-```python
-METADATA = {
-  "params": [
-    {"id": "num_particles", "name": "Particle Count", "default": 5.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to actual particle count (10-100)"},
-    {"id": "particle_size", "name": "Particle Size", "default": 5.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to size (0.001-0.1)"},
-    {"id": "particle_speed", "name": "Particle Speed", "default": 5.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to angular speed (0.1-2.0 rad/s)"},
-    {"id": "trail_length", "name": "Trail Length", "default": 8.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to halo size multiplier (0.1-2.0)"},
-    {"id": "color_sensitivity", "name": "Color Sensitivity", "default": 5.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to color intensity (0.1-5.0)"}
-  ]
-}
-```
-
----
-
-## State Management
-
-- **Per-frame state**: `particle_positions`, `particle_velocities`, `particle_energies` are updated each `update(dt)`.
-- **Persistent state**: Parameters (`num_particles`, `particle_size`, `particle_speed`, `trail_length`, `color_sensitivity`) and `audio_analyzer` reference.
-- **Init-once state**: Shader program, uniform locations.
-- **Thread safety**: Not thread-safe; must be called from rendering thread with OpenGL context.
-
----
-
-## GPU Resources
-
-- **Fragment shader**: The main effect shader.
-- **Uniform arrays**: `particle_positions[100]` (vec2), `particle_energies[100]` (float), plus several floats.
-- **No textures** required (unless using a background `tex0`).
-- **No VBO/VAO** needed (full-screen quad handled by base Effect).
-
----
-
-## Public Interface
-
-```python
-class AudioSpectrumTrails(Effect):
-    def __init__(self) -> None:
-        """Initialize the effect with default parameters."""
-    
-    def set_audio_analyzer(self, analyzer: AudioAnalyzer) -> None:
-        """
-        Set the audio analyzer to use for frequency data.
-        
-        Args:
-            analyzer: An AudioAnalyzer instance that provides get_spectrum_data() and get_feature_value().
-        """
-    
-    def update(self, delta_time: float) -> None:
-        """
-        Update particle positions and energies based on current audio spectrum.
-        
-        Args:
-            delta_time: Time since last frame in seconds.
-        """
-    
-    def apply_uniforms(self, time: float, resolution: Tuple[int, int],
-                       audio_reactor: Optional[AudioReactor] = None,
-                       semantic_layer: Optional[SemanticLayer] = None) -> None:
-        """
-        Apply shader uniforms and render the effect.
-        
-        Args:
-            time: Current time in seconds.
-            resolution: Screen resolution (width, height).
-            audio_reactor: Optional audio context; if provided, overrides internal analyzer.
-            semantic_layer: Unused.
-        """
-    
-    # Inherited from Effect:
-    # - render() (calls apply_uniforms)
-    # - set_parameter(name, value)
-    # - get_parameter(name)
-```
-
----
-
-## Inputs and Outputs
-
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `analyzer` | `AudioAnalyzer` | Audio source providing spectrum and features | Must implement `get_spectrum_data()` and `get_feature_value()` |
-| `delta_time` | `float` | Time delta for animation | ≥ 0.0 |
-| `time` | `float` | Current playback time | ≥ 0.0 |
-| `resolution` | `Tuple[int, int]` | Screen dimensions | width, height > 0 |
-| `audio_reactor` | `Optional[AudioReactor]` | Alternative audio source | May be None |
-| `num_particles` | `int` | Actual particle count (derived from UI param) | 10 ≤ N ≤ 100 |
-| `particle_size` | `float` | Base particle radius in normalized coords | 0.001 - 0.1 |
-| `particle_speed` | `float` | Angular speed for velocity perturbation | 0.1 - 2.0 rad/s |
-| `trail_length` | `float` | Halo size multiplier | 0.1 - 2.0 |
-| `color_sensitivity` | `float` | Color intensity multiplier | 0.1 - 5.0 |
-| `bass_level`, `mid_level`, `treble_level`, `volume_level` | `float` | Audio features (0.0-1.0) | - |
-
----
-
-## Dependencies
-
-- External libraries:
-  - `numpy` — required for particle arrays and audio spectrum processing
-  - `OpenGL.GL` — required for shader rendering and uniform setting
-- Internal modules:
-  - `vjlive3.core.effects.shader_base.Effect` — base class
-  - `vjlive3.core.audio_analyzer.AudioAnalyzer` — for audio features
-  - `vjlive3.core.audio.AudioReactor` — optional alternative audio source
-
----
-
-## Test Plan
-
-| Test Name | What It Verifies |
-|-----------|------------------|
-| `test_init_no_audio_analyzer` | Effect initializes without analyzer |
-| `test_set_audio_analyzer` | Analyzer is stored and used in update |
-| `test_update_with_valid_spectrum` | update() processes spectrum and updates particle arrays without error |
-| `test_update_with_empty_spectrum` | update() handles empty spectrum (particles remain stable) |
-| `test_shader_uniforms_correctly_bound` | All uniforms (including arrays) are set before rendering |
 | `test_particle_energy_modulation_by_bass_treble` | Particle energies reflect frequency band energy |
 | `test_parameter_mapping` | UI parameters (0-10) correctly map to internal values |
 | `test_particle_count_clamping` | num_particles is clamped to max 100 |
-| `test_cleanup` | No OpenGL resource leaks |
+| `test_cleanup` | No OpenGL resource leaks on destruction |
 
 **Minimum coverage**: 80% before task is marked done.
 
@@ -622,12 +443,110 @@ class AudioParticleSystem(Effect):
                 ])
 ```
 
-[NEEDS RESEARCH]: The CPU update loop in `apply_uniforms` modifies velocities but does not update positions. The positions are likely updated elsewhere (maybe in a separate `update` method not shown). The skeleton spec includes an `update(delta_time)` method. We'll assume that `update` is responsible for:
-- Updating positions: `pos += vel`
-- Applying damping to velocities (e.g., `vel *= 0.99`) to prevent unbounded growth
-- Wrapping positions to [0,1] to keep particles on screen
-- Resetting velocities that become too large
+---
 
-The spec should define a stable physics update. Also, the energy assignment: the legacy code sets `particle_energies[i] = energy` after multiplying by band_energy, but it's not clear if `energy` starts at 1.0 each frame or accumulates. We'll define that each frame, `energy` is set to `1.0 * band_energy * volume` (or maybe `1.0` as base times audio boost). This gives a fresh value each frame.
+## Public Interface
 
-The shader uses `energy` to scale size and alpha, so it should be a per-particle, per-frame value reflecting current audio intensity.
+```python
+class AudioSpectrumTrails(Effect):
+    def __init__(self) -> None:
+        """Initialize the effect with default parameters."""
+    
+    def set_audio_analyzer(self, analyzer: AudioAnalyzer) -> None:
+        """
+        Set the audio analyzer to use for frequency data.
+        
+        Args:
+            analyzer: An AudioAnalyzer instance that provides get_spectrum_data() and get_feature_value().
+        """
+    
+    def update(self, delta_time: float) -> None:
+        """
+        Update particle positions and energies based on current audio spectrum.
+        
+        Args:
+            delta_time: Time since last frame in seconds.
+        """
+    
+    def apply_uniforms(self, time: float, resolution: Tuple[int, int],
+                       audio_reactor: Optional[AudioReactor] = None,
+                       semantic_layer: Optional[SemanticLayer] = None) -> None:
+        """
+        Apply shader uniforms and render the effect.
+        
+        Args:
+            time: Current time in seconds.
+            resolution: Screen resolution (width, height).
+            audio_reactor: Optional audio context; if provided, overrides internal analyzer.
+            semantic_layer: Unused.
+        """
+    
+    # Inherited from Effect:
+    # - render() (calls apply_uniforms)
+    # - set_parameter(name, value)
+    # - get_parameter(name)
+```
+
+---
+
+## Inputs and Outputs
+
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `analyzer` | `AudioAnalyzer` | Audio source providing spectrum and features | Must implement `get_spectrum_data()` and `get_feature_value()` |
+| `delta_time` | `float` | Time delta for animation | ≥ 0.0 |
+| `time` | `float` | Current playback time | ≥ 0.0 |
+| `resolution` | `Tuple[int, int]` | Screen dimensions | width, height > 0 |
+| `audio_reactor` | `Optional[AudioReactor]` | Alternative audio source | May be None |
+| `num_particles` | `int` | Actual particle count (derived from UI param) | 10 ≤ N ≤ 100 |
+| `particle_size` | `float` | Base particle radius in normalized coords | 0.001 - 0.1 |
+| `particle_speed` | `float` | Angular speed for velocity perturbation | 0.1 - 2.0 rad/s |
+| `trail_length` | `float` | Halo size multiplier | 0.1 - 2.0 |
+| `color_sensitivity` | `float` | Color intensity multiplier | 0.1 - 5.0 |
+| `bass_level`, `mid_level`, `treble_level`, `volume_level` | `float` | Audio features (0.0-1.0) | - |
+
+---
+
+## Dependencies
+
+- External libraries:
+  - `numpy` — required for particle arrays and audio spectrum processing
+  - `OpenGL.GL` — required for shader rendering and uniform setting
+- Internal modules:
+  - `vjlive3.core.effects.shader_base.Effect` — base class
+  - `vjlive3.core.audio_analyzer.AudioAnalyzer` — for audio features
+  - `vjlive3.core.audio.AudioReactor` — optional alternative audio source
+
+---
+
+## Configuration Schema
+
+```python
+METADATA = {
+  "params": [
+    {"id": "num_particles", "name": "Particle Count", "default": 5.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to actual particle count (10-100)"},
+    {"id": "particle_size", "name": "Particle Size", "default": 5.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to size (0.001-0.1)"},
+    {"id": "particle_speed", "name": "Particle Speed", "default": 5.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to angular speed (0.1-2.0 rad/s)"},
+    {"id": "trail_length", "name": "Trail Length", "default": 8.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to halo size multiplier (0.1-2.0)"},
+    {"id": "color_sensitivity", "name": "Color Sensitivity", "default": 5.0, "min": 0.0, "max": 10.0, "type": "float", "description": "UI parameter (0-10) mapped to color intensity (0.1-5.0)"}
+  ]
+}
+```
+
+---
+
+## State Management
+
+- **Per-frame state**: `particle_positions`, `particle_velocities`, `particle_energies` are updated each `update(dt)`.
+- **Persistent state**: Parameters (`num_particles`, `particle_size`, `particle_speed`, `trail_length`, `color_sensitivity`) and `audio_analyzer` reference.
+- **Init-once state**: Shader program, uniform locations.
+- **Thread safety**: Not thread-safe; must be called from rendering thread with OpenGL context.
+
+---
+
+## GPU Resources
+
+- **Fragment shader**: The main effect shader.
+- **Uniform arrays**: `particle_positions[100]` (vec2), `particle_energies[100]` (float), plus several floats.
+- **No textures** required (unless using a background `tex0`).
+- **No VBO/VAO** needed (full-screen quad handled by base Effect).

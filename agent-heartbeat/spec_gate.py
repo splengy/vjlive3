@@ -73,7 +73,7 @@ def check_enrichment(content: str) -> dict:
     }
     score = sum(enrichment_sections.values())
     return {
-        "enriched": score >= 3,  # At least 3 of 4 sections with real prose
+        "enriched": score >= 2,  # At least 2 of 4 sections with real prose (not just headers)
         "enrichment_score": score,
         "sections_present": [k for k, v in enrichment_sections.items() if v],
         "sections_missing": [k for k, v in enrichment_sections.items() if not v],

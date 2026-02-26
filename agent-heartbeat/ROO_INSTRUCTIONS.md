@@ -21,14 +21,19 @@ You are a spec enrichment agent. The first pass (4B NPU model) generated skeleto
 ## Workflow
 
 ### Step 1: Pick a task
+**CRITICAL**: You MUST use the assignment script to get your task.
 ```bash
 cd ~/VJLive3
 python3 agent-heartbeat/pick_task.py $(cat ~/agent_id.txt)
 ```
 Your agent ID is in `~/agent_id.txt` (julie-roo or maxx-roo). This finds the next spec that hasn't been enriched yet and locks it for you.
 
-### Step 2: Read the skeleton spec
-Open `docs/specs/{TASK_ID}_spec.md`. Study the structure.
+**DO NOT** browse `docs/specs/` to find a task yourself.
+**DO NOT** continue working on a hardcoded list of tasks from your previous conversation history (e.g. EXT001, EXT006).
+**ONLY** work on the single task ID that `pick_task.py` returns to you.
+
+### Step 2: Read the assigned skeleton spec
+Open `docs/specs/{TASK_ID}_spec.md` (using the ID you just got from pick_task.py). Study the structure.
 
 ### Step 3: Research legacy code
 Use the lookup script to find the original implementation:

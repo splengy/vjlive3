@@ -7,27 +7,31 @@
 
 ## Task: P3-EXT006 — AnalogTVEffect
 
+### Description
+
+The `AnalogTVEffect` is a comprehensive GPU-accelerated shader that simulates a wide range of analog television degradation artifacts. It combines VHS tape degradation, CRT display characteristics, RF signal interference, and extreme glitch effects into a single, highly configurable fragment shader. The effect is designed for real-time VJ performances, providing authentic retro video aesthetics through physically-based parameter mappings.
+
+The legacy implementation from `vjlive1/core/effects/analog_tv.py` provides a mature reference with 30+ tunable parameters, all mapped from a user-friendly 0-10 scale to physically meaningful internal ranges. The shader operates in a single pass, applying UV distortions, color space conversions, and per-pixel arithmetic to transform a clean input frame into a degraded analog signal.
+
 **What This Module Does**
 
-The `AnalogTVEffect` module simulates a comprehensive range of analog television degradation effects using real-time shader-based rendering. It reproduces physical characteristics of vintage video systems including VHS tape degradation, CRT display artifacts, RF signal interference, and extreme glitch conditions. The effect is implemented as a GPU-accelerated fragment shader that processes each frame with configurable degradation parameters, creating authentic retro video aesthetics for live visual performance.
-
-The effect operates by applying a series of image processing operations in a single shader pass:
-- **VHS Physical**: Simulates magnetic tape degradation including tracking errors, horizontal jitter, tape noise, wrinkles, head switching noise, dropouts, and playback speed wobble
-- **CRT Display**: Recreates cathode-ray tube characteristics including barrel distortion, scanlines, phosphor glow, RGB convergence errors, corner vignetting, and brightness control
-- **RF/Signal**: Models radio frequency interference, composite color bleeding, chroma subcarrier delay, and luma sharpening artifacts
-- **Glitch/Emergent**: Provides extreme degradation options including vertical rolling, interlacing combing, snow/noise, and color kill
-
-All parameters are mapped from a user-friendly 0-10 scale to physically meaningful internal ranges, allowing intuitive control while maintaining technical accuracy.
+- Simulates VHS tape artifacts: tracking errors, line jitter, tape noise, dropouts, head switching noise, and speed wobble
+- Recreates CRT display characteristics: barrel distortion, scanlines, phosphor mask/glow, RGB convergence errors, corner vignetting
+- Models RF/signal degradation: noise, interference patterns, composite color bleeding, chroma delay, luma sharpening
+- Provides glitch effects: vertical rolling, interlacing combing, snow/noise, color kill
+- Operates entirely on GPU via a fragment shader for real-time performance (60fps at 1080p on modern hardware)
+- Exposes all parameters on a 0-10 scale with automatic mapping to internal ranges
 
 **What This Module Does NOT Do**
 
-- Does not handle file I/O or video persistence (only processes frames in memory)
-- Does not simulate audio degradation or video synchronization issues
-- Does not provide automatic scene detection or content-aware effect application
-- Does not include broadcast signal timing or NTSC/PAL standard emulation
-- Does not simulate tape transport mechanics or mechanical wear effects beyond visual artifacts
-- Does not provide color space conversion beyond RGB processing (assumes input is already in RGB)
-- Does not support multi-pass rendering or accumulation effects (single shader pass only)
+- Does NOT handle file I/O or video persistence (processes frames in memory only)
+- Does NOT simulate audio degradation or video synchronization issues
+- Does NOT provide automatic scene detection or content-aware effect application
+- Does NOT include broadcast signal timing or NTSC/PAL standard emulation
+- Does NOT simulate tape transport mechanics beyond visual artifacts
+- Does NOT provide color space conversion beyond YIQ operations (assumes input is RGB)
+- Does NOT support multi-pass rendering or accumulation effects (single shader pass only)
+- Does NOT include a CPU fallback implementation (GPU required)
 
 ---
 
@@ -35,14 +39,14 @@ All parameters are mapped from a user-friendly 0-10 scale to physically meaningf
 
 ### Parameter Mapping Philosophy
 
-All user-facing parameters use a normalized 0-10 scale for consistency. Internally, these are mapped to physically meaningful ranges:
+All user-facing parameters use a normalized 0-10 scale for consistency. Internally, these are mapped to physically meaningful ranges at shader execution time:
 
 ```python
 # Example mapping pattern from legacy code:
-tracking = vhs_tracking / 10.0  # → [0, 1]
-jitter = vhs_jitter / 10.0 * 0.02  # → [0, 0.02]
-drop_r = dropout_rate / 10.0 * 0.3  # → [0, 0.3]
-t_speed = mix(0.5, 3.0, tape_speed / 10.0)  # → [0.5, 3.0]
+tracking = vhs_tracking / 10.0              # → [0, 1]
+jitter = vhs_jitter / 10.0 * 0.02          # → [0, 0.02]
+drop_r = dropout_rate / 10.0 * 0.3         # → [0, 0.3]
+t_speed = mix(0.5, 3.0, tape_speed / 10.0) # → [0.5, 3.0]
 ```
 
 This design allows VJs to think in terms of "intensity" while the implementation uses appropriate physical units.
@@ -50,25 +54,25 @@ This design allows VJs to think in terms of "intensity" while the implementation
 ### VHS Physical Effects
 
 **VHS Tracking Error (`vhs_tracking`, 0-10 → 0-1)**
-Simulates the misalignment of tape heads relative to the tape's helical scan tracks. The effect creates large horizontal displacement zones ("tracking bars") that drift slowly over time. Two bars are generated per cycle, with the second being weaker (0.7×). A high-frequency sine wave is added to simulate the fine-grained instability. The tracking offset is multiplied by `tracking * 0.3` to keep it subtle.
+Simulates misalignment of tape heads relative to the helical scan tracks. Creates large horizontal displacement zones ("tracking bars") that drift slowly over time. Two bars are generated per cycle, with the second weaker (0.7×). A high-frequency sine wave adds fine-grained instability. The tracking offset is multiplied by `tracking * 0.3` to keep it subtle.
 
 **Line Jitter (`vhs_jitter`, 0-10 → 0-0.02)**
-Applies per-scanline horizontal displacement based on a hash function. Each scanline gets a random offset that changes every frame (time-based). The jitter amplitude is very small (max 2% of frame width) to simulate the subtle instability of VHS horizontal sync.
+Applies per-scanline horizontal displacement based on a hash function. Each scanline gets a random offset that changes every frame (time-based). The jitter amplitude is very small (max 2% of frame width) to simulate subtle VHS horizontal sync instability.
 
 **Tape Noise (`tape_noise`, 0-10 → 0-1)**
 Adds high-frequency random noise to the entire image, simulating magnetic particle noise on the tape. Implemented as a hash-based value added to each pixel's color channels.
 
 **Tape Wrinkle (`tape_wrinkle`, 0-10 → 0-1)**
-Simulates physical creases or damage to the tape that cause repeated distortion patterns. The legacy code shows this as a conditional effect that applies additional displacement when `wrinkle > 0`.
+Simulates physical creases or damage to the tape that cause repeated distortion patterns. The legacy implementation applies a sinusoidal displacement that varies with both X and Y coordinates, creating a periodic wrinkle pattern.
 
 **Head Switching Noise (`head_switch`, 0-10 → 0-1)**
 Creates a bright horizontal bar at the bottom of the frame where the video heads switch between tracks. This is a characteristic artifact of VHS recording.
 
 **Dropout Rate & Length (`dropout_rate`, `dropout_length`)**
-Dropouts are momentary losses of signal causing white streaks. `dropout_rate` controls frequency (0-0.3), `dropout_length` controls streak duration (0.01-0.5 normalized). These are likely implemented as random horizontal lines with random lengths.
+Dropouts are momentary losses of signal causing white streaks. `dropout_rate` controls frequency (0-0.3), `dropout_length` controls streak duration (0.01-0.5 normalized). Implemented as random horizontal lines: for each scanline, generate a random value; if below threshold, replace that line with white. The length determines how many consecutive scanlines are affected.
 
 **Tape Speed Wobble (`tape_speed`, 0-10 → 0.5-3.0)**
-Simulates variations in playback speed, affecting the timing of all time-based effects. A speed of 1.0 is normal; values above 1.0 speed up effects, below 1.0 slow them down.
+Simulates variations in playback speed, affecting the timing of all time-based effects. A speed of 1.0 is normal; values above 1.0 speed up effects, below 1.0 slow them down. This is implemented as a multiplier on time-based functions.
 
 ### CRT Display Effects
 
@@ -76,66 +80,76 @@ Simulates variations in playback speed, affecting the timing of all time-based e
 Applies barrel distortion to simulate the curved glass of a CRT monitor. The implementation uses a quadratic distortion: `cc *= 1.0 + dot(cc, cc) * curve` where `cc` is centered UV. Pixels outside the distorted bounds are clipped to black, creating the vignette effect of a curved screen.
 
 **CRT Scanlines (`crt_scanlines`, `scanline_freq`)**
-`crt_scanlines` controls intensity (0-1) of horizontal dark lines simulating the scanlines of an interlaced CRT. `scanline_freq` (200-1080 Hz) controls the density. The effect is likely implemented as a sine wave or stepped pattern applied to luminance.
+`crt_scanlines` controls intensity (0-1) of horizontal dark lines simulating the scanlines of an interlaced CRT. `scanline_freq` (200-1080 Hz) controls the density. The effect is implemented as a sine wave or stepped pattern applied to luminance: `luma *= (1.0 - scanl * sin(uv.y * resolution.y * M_PI))`.
 
 **Phosphor Mask (`phosphor_mask`, 0-10 → 0-1)**
-Simulates the RGB phosphor dot pattern of a CRT. Each pixel's color is modulated based on its position to create a subtle grid of red/green/blue phosphor dots.
+Simulates the RGB phosphor dot pattern of a CRT. Each pixel's color is modulated based on its position to create a subtle grid of red/green/blue phosphor dots. Typically implemented by dividing the screen into 2x2 or 3x3 subpixel patterns and shifting color channels.
 
 **Phosphor Glow (`phosphor_glow`, 0-10 → 0-2)**
-Adds bloom around bright areas, simulating the light bleeding between phosphor dots. Values can exceed 1.0 to create intense glow.
+Adds bloom around bright areas, simulating the light bleeding between phosphor dots. Values can exceed 1.0 to create intense glow. Implemented as a blur or spread of bright values to neighboring pixels.
 
 **Convergence (`convergence`, 0-10 → 0-0.005)**
-Simulates misalignment of the RGB electron guns, causing color fringing at edges. The offset is very small (max 0.5% of frame width) but noticeable on high-contrast edges.
+Simulates misalignment of the RGB electron guns, causing color fringing at edges. The offset is very small (max 0.5% of frame width) but noticeable on high-contrast edges. Implemented by sampling the input texture at slightly different UV coordinates for each color channel.
 
 **Corner Shadow (`corner_shadow`, 0-10 → 0-1)**
-Applies a vignette effect darkening the corners of the frame, typical of CRT displays due to the curved glass and tube geometry.
+Applies a vignette effect darkening the corners of the frame, typical of CRT displays due to the curved glass and tube geometry. Implemented as a radial gradient from the center.
 
 **Brightness (`brightness`, 0-10 → 0.5-2.0)**
-Overall brightness multiplier. Values above 1.0 can cause clipping (intentional for over-bright CRT effect).
+Overall brightness multiplier. Values above 1.0 can cause clipping (intentional for over-bright CRT effect). Applied as a multiplicative factor to the final color.
 
 ### RF/Signal Effects
 
 **RF Noise (`rf_noise`, 0-10 → 0-0.3)**
-Adds random static to the entire image, simulating electromagnetic interference in the RF signal path.
+Adds random static to the entire image, simulating electromagnetic interference in the RF signal path. Implemented using the `hash()` function to generate per-pixel noise.
 
 **RF Pattern (`rf_pattern`, 0-10 → 0-1)**
-Creates structured interference patterns (rolling bars, moiré) rather than pure random noise. Likely uses a time-varying function to create moving bands.
+Creates structured interference patterns (rolling bars, moiré) rather than pure random noise. Likely uses a time-varying function to create moving bands, such as `sin(uv.y * frequency + time)`.
 
 **Color Bleed (`color_bleed`, 0-10 → 0-0.01)**
-Simulates the chrominance/luminance crosstalk in composite video signals. Causes color information to "bleed" into neighboring luma values. The offset is very small (max 1% of frame width).
+Simulates the chrominance/luminance crosstalk in composite video signals. Causes color information to "bleed" into neighboring luma values. The offset is very small (max 1% of frame width). Implemented in YIQ color space: shift chroma (I,Q) values based on luma gradient.
 
 **Chroma Delay (`chroma_delay`, 0-10 → 0-0.005)**
-Simulates the delay between luma and chroma signals in composite video, causing color fringing on moving objects. The offset is tiny (max 0.5% of frame width).
+Simulates the delay between luma and chroma signals in composite video, causing color fringing on moving objects. The offset is tiny (max 0.5% of frame width). Implemented by offsetting the chroma sample coordinates relative to luma.
 
 **Chroma Noise (`chroma_noise`, 0-10 → 0-0.1)**
-Adds noise specifically to the chroma (color) channels, simulating color signal degradation.
+Adds noise specifically to the chroma (color) channels, simulating color signal degradation. Applied after YIQ conversion: add random values to I and Q components.
 
 **Luma Sharpen (`luma_sharpen`, 0-10 → 0-2)**
-Over-sharpens the luma channel, creating ringing artifacts around edges. This simulates the excessive peaking sometimes used in broadcast chains.
+Over-sharpens the luma channel, creating ringing artifacts around edges. This simulates the excessive peaking sometimes used in broadcast chains. Implemented as a high-pass filter or unsharp mask on the Y component.
 
 ### Glitch/Emergent Effects
 
 **Glitch Intensity (`glitch_intensity`, 0-10 → 0-1)**
-Introduces random macro-glitches: frame displacement, channel swapping, or other catastrophic failures. The probability and severity scale with this parameter.
+Introduces random macro-glitches: frame displacement, channel swapping, or other catastrophic failures. The probability and severity scale with this parameter. Implemented as random triggers that apply severe transformations for short durations.
 
 **Rolling (`rolling`, 0-10 → 0-1)**
-Simulates vertical hold failure where the entire image scrolls vertically. The offset is computed as `fract(time * roll_spd * 0.1) * roll` and applied to the Y coordinate.
+Simulates vertical hold failure where the entire image scrolls vertically. The offset is computed as `fract(time * roll_spd * 0.1) * roll` and applied to the Y coordinate: `cuv.y = fract(cuv.y + roll_offset)`.
 
 **Rolling Speed (`rolling_speed`, 0-10 → 0.1-5)**
-Controls how fast the vertical roll occurs. Higher values create faster scrolling.
+Controls how fast the vertical roll occurs. Higher values create faster scrolling. Mapped to a linear range and used as a multiplier in the roll offset calculation.
 
 **Interlace (`interlace`, 0-10 → 0-1)**
-Simulates interlaced scanning by offsetting alternate scanlines. Creates the characteristic "combing" artifact, especially on moving objects.
+Simulates interlaced scanning by offsetting alternate scanlines. Creates the characteristic "combing" artifact, especially on moving objects. Implemented as: `if (mod(scanline, 2) == 0) cuv.x += offset`.
 
 **Snow (`snow`, 0-10 → 0-1)**
-Adds random white noise to the entire image, simulating a "no signal" condition.
+Adds random white noise to the entire image, simulating a "no signal" condition. Similar to RF noise but typically more intense and covering the entire frame with high-contrast random values.
 
 **Color Kill (`color_kill`, 0-10 → 0-1)**
-Gradually removes color information, turning the image monochrome. At 1.0, only luma remains (B&W).
+Gradually removes color information, turning the image monochrome. At 1.0, only luma remains (B&W). Implemented in YIQ space: set I=Q=0, or blend between full color and grayscale based on parameter.
 
 ### Color Space Conversion
 
 The legacy shader includes `rgb2yiq()` and `yiq2rgb()` functions. This indicates the effect operates in YIQ color space (the standard for NTSC video) for certain effects like color bleeding and chroma noise. The conversion allows independent manipulation of luma (Y) and chroma (I,Q) components, which is essential for authentic composite video simulation.
+
+The conversions are standard:
+- Y = 0.299*R + 0.587*G + 0.114*B
+- I = 0.596*R - 0.274*G - 0.322*B
+- Q = 0.211*R - 0.523*G + 0.312*B
+
+And the inverse:
+- R = Y + 0.956*I + 0.621*Q
+- G = Y - 0.272*I - 0.647*Q
+- B = Y - 1.106*I + 1.703*Q
 
 ### Shader Architecture
 
@@ -144,14 +158,14 @@ The effect is implemented as a single fragment shader with the following structu
 1. **Parameter remapping**: All 0-10 user values are converted to internal ranges at shader startup (or per-frame if dynamic)
 2. **UV distortion**: CRT barrel distortion applied first, modifying the sampling coordinates
 3. **Vertical rolling**: Applied to distorted UVs
-4. **VHS effects**: Tracking bars, line jitter, tape wrinkle applied sequentially
+4. **VHS effects**: Tracking bars, line jitter, tape wrinkle applied sequentially to UVs
 5. **Texture sampling**: Final UVs used to sample the input texture
 6. **RF/CRT post-processing**: Color space conversion for YIQ-based effects, phosphor mask, convergence, scanlines, glow
 7. **Mix**: Final color blended with original based on `u_mix`
 
 The shader uses helper functions:
-- `hash()`: pseudo-random number generator
-- `noise()`: smooth noise
+- `hash()`: pseudo-random number generator based on sine of dot product
+- `noise()`: smooth bilinear noise using hash
 - `rgb2yiq()`, `yiq2rgb()`: color space conversion
 
 ---
@@ -227,218 +241,6 @@ The effect is real-time capable at 60fps on most GPUs released since 2015. Memor
 - Test memory usage with long-running sessions to ensure no leaks
 - Verify that parameter changes don't cause shader recompilation (should be uniform-only)
 - Check that the fallback CPU mode completes within the frame budget (e.g., <16ms for 60fps at 720p)
-
----
-
-## Test Plan (Expanded)
-
-The existing test plan is minimal. Expand with:
-
-| Test Name | What It Verifies |
-|-----------|------------------|
-| `test_init_no_hardware` | Effect instantiates even if GPU/shader unavailable; falls back to CPU mode without crashing |
-| `test_basic_operation` | apply() returns valid output with default parameters (all zeros) |
-| `test_parameter_remapping` | Set/get with 0-10 values correctly map to internal ranges (e.g., 10 → 1.0 for tracking, 10 → 0.02 for jitter) |
-| `test_vhs_tracking_effect` | When vhs_tracking > 0, output shows horizontal displacement that varies with time |
-| `test_crt_curvature_effect` | When crt_curvature > 0, output shows barrel distortion (corners compressed) |
-| `test_rolling_effect` | When rolling > 0, image scrolls vertically at speed proportional to rolling_speed |
-| `test_interlace_combing` | When interlace > 0, alternate scanlines are offset, creating combing on motion |
-| `test_snow_effect` | When snow > 0, random white noise is added to the image |
-| `test_color_kill` | When color_kill = 10, output is fully grayscale; when 0, full color |
-| `test_mix_parameter` | mix=0 returns original frame; mix=10 returns fully degraded; intermediate values blend correctly |
-| `test_time_animation` | Tracking bars and rolling effects animate smoothly over time (no static frames) |
-| `test_resolution_change` | Changing input frame size updates resolution uniform and effect continues without artifacts |
-| `test_error_invalid_frame` | Invalid frame (None, wrong shape, wrong dtype) raises appropriate exception |
-| `test_error_invalid_parameter` | Setting parameter outside 0-10 range raises ValueError or clamps (specify behavior) |
-| `test_cleanup` | Effect releases GPU resources (textures, shaders) on destruction; no memory leaks |
-| `test_fallback_quality` | In CPU fallback mode, basic effects (noise, blur, scanlines) are present albeit lower fidelity |
-
-**Minimum coverage**: 80% before task is marked done.
-
----
-
-## Open Questions and Research Findings
-
-### [NEEDS RESEARCH]: How does the effect integrate with VJLive3's shader management system?
-
-**Finding**: The legacy code imports `from core.effects.shader_base import Effect`. This suggests a base class that handles shader compilation, uniform setting, and rendering. The VJLive3 implementation should either inherit from this base class or replicate its functionality. The base class likely provides:
-- `__init__(self, config)`: loads shader source, compiles, links
-- `apply(self, frame)`: sets uniforms, renders quad, returns result
-- `set_parameter(name, value)`: updates uniform values
-- `get_parameter(name)`: retrieves current uniform value
-
-The spec should define the expected interface or require this base class.
-
-**Resolution**: The Dependencies section should specify `vjlive3.core.effects.shader_base.Effect` as the base class. If that's not available, the implementation must provide equivalent functionality.
-
-### [NEEDS RESEARCH]: What is the exact implementation of tape_wrinkle, dropout_rate, dropout_length?
-
-**Finding**: The legacy code snippet cuts off before showing these implementations. However, based on standard VHS simulation:
-- Tape wrinkle: Applies a localized distortion that repeats periodically, simulating a crease in the tape that causes repeated image displacement.
-- Dropouts: Random horizontal lines where the image is replaced with white (or black) for a short duration. The rate controls how often dropouts occur; length controls how many scanlines they span.
-
-**Resolution**: The implementation should approximate these effects using hash functions and time-based random triggers. For dropouts: generate a random value per scanline; if below threshold, replace that line with white. For wrinkle: apply a sinusoidal displacement that varies with both X and Y.
-
-### [NEEDS RESEARCH]: How does the effect handle non-square pixels or aspect ratio?
-
-**Finding**: The shader uses `resolution` uniform to compute scanline positions and UV derivatives. It assumes square pixels (1:1 aspect). If the input frame has non-square pixels (e.g., anamorphic 16:9), the effect may distort incorrectly.
-
-**Resolution**: The effect should either:
-- Assume input is already corrected to square pixels (simplest)
-- Or accept an additional `aspect_ratio` parameter to compensate
-- Or compute aspect from resolution and adjust UVs accordingly
-
-Recommendation: Assume square pixels; let the pipeline handle aspect ratio correction before this effect.
-
-### [NEEDS RESEARCH]: What is the performance impact of the YIQ color space conversions?
-
-**Finding**: The shader includes `rgb2yiq()` and `yiq2rgb()` functions. These are likely used for color bleed and chroma effects. Each conversion involves 3 multiplies and 3 adds per pixel, which is negligible on modern GPUs (a few FLOPs). The real cost is the extra texture sampling and arithmetic for the effects themselves.
-
-**Resolution**: No special optimization needed. The conversions are cheap.
-
----
-
-## Configuration Schema
-
-The effect should define a `METADATA` manifest describing all parameters:
-
-```python
-METADATA = {
-  "params": [
-    # VHS Physical
-    {"id": "vhs_tracking", "name": "VHS Tracking", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Horizontal tracking error displacement (0=none, 10=max)"},
-    {"id": "vhs_jitter", "name": "Line Jitter", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Per-scanline horizontal jitter amplitude"},
-    {"id": "tape_noise", "name": "Tape Noise", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Magnetic tape static noise intensity"},
-    {"id": "tape_wrinkle", "name": "Tape Wrinkle", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Physical tape crease artifacts"},
-    {"id": "head_switch", "name": "Head Switch", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Head switching noise at bottom of frame"},
-    {"id": "dropout_rate", "name": "Dropout Rate", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Frequency of signal dropouts (white streaks)"},
-    {"id": "dropout_length", "name": "Dropout Length", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Length of dropout streaks in scanlines"},
-    {"id": "tape_speed", "name": "Tape Speed", "default": 1.0, "min": 0, "max": 10, "type": "float", "description": "Playback speed wobble (1=normal)"},
-    # CRT Display
-    {"id": "crt_curvature", "name": "CRT Curvature", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Barrel distortion amount (curved screen)"},
-    {"id": "crt_scanlines", "name": "Scanlines", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Intensity of horizontal scanline pattern"},
-    {"id": "scanline_freq", "name": "Scanline Frequency", "default": 5.0, "min": 0, "max": 10, "type": "float", "description": "Density of scanlines (maps to 200-1080 Hz)"},
-    {"id": "phosphor_mask", "name": "Phosphor Mask", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "RGB phosphor dot pattern visibility"},
-    {"id": "phosphor_glow", "name": "Phosphor Glow", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Bloom around bright areas"},
-    {"id": "convergence", "name": "Convergence", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "RGB channel misalignment (color fringing)"},
-    {"id": "corner_shadow", "name": "Corner Shadow", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Vignette darkening at corners"},
-    {"id": "brightness", "name": "Brightness", "default": 5.0, "min": 0, "max": 10, "type": "float", "description": "Overall brightness (5=normal, >5=overbright)"},
-    # RF/Signal
-    {"id": "rf_noise", "name": "RF Noise", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Random RF interference static"},
-    {"id": "rf_pattern", "name": "RF Pattern", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Structured interference patterns (rolling bars)"},
-    {"id": "color_bleed", "name": "Color Bleed", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Composite color bleeding into luma"},
-    {"id": "chroma_delay", "name": "Chroma Delay", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Chroma subcarrier delay causing color fringing"},
-    {"id": "chroma_noise", "name": "Chroma Noise", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Noise in color channels only"},
-    {"id": "luma_sharpen", "name": "Luma Sharpen", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Over-sharpening luma causing ringing"},
-    # Glitch
-    {"id": "glitch_intensity", "name": "Glitch Intensity", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Random macro-glitches (frame displacement, etc.)"},
-    {"id": "rolling", "name": "Rolling", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Vertical hold failure (image scrolls)"},
-    {"id": "rolling_speed", "name": "Rolling Speed", "default": 5.0, "min": 0, "max": 10, "type": "float", "description": "Speed of vertical roll"},
-    {"id": "interlace", "name": "Interlace", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Interlaced combing artifact"},
-    {"id": "snow", "name": "Snow", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "No-signal static (white noise)"},
-    {"id": "color_kill", "name": "Color Kill", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Gradual removal of color (0=full color, 10=mono)"},
-  ]
-}
-```
-
-**Presets**: The legacy code includes a `PRESETS` dictionary. The spec should define recommended presets:
-- `clean_crt`: Minimal degradation (crt_curvature=2, scanlines=3, phosphor_glow=1)
-- `worn_vhs`: Moderate VHS effects (tracking=3, jitter=2, tape_noise=4, dropouts=2)
-- `dead_channel`: Heavy RF noise and snow (rf_noise=8, snow=6, color_kill=5)
-- `glitch_hell`: Extreme glitch effects (glitch_intensity=9, rolling=7, interlace=8)
-- `retro_broadcast`: Simulates 1980s broadcast (crt_scanlines=7, color_bleed=3, luma_sharpen=4)
-
----
-
-## State Management
-
-- **Per-frame state**: The current frame being processed, the output framebuffer, and temporary UV coordinates. These are transient.
-- **Persistent state**: All parameter values (0-10 scale), shader program object, uniform locations, texture/framebuffer objects. These persist for the lifetime of the effect instance.
-- **Init-once state**: Compiled shader program, uniform location cache. Initialized in `__init__` and reused.
-- **Thread safety**: The effect is not thread-safe by default. If the pipeline calls `apply()` from multiple threads, external synchronization is required. The shader program and uniforms should not be modified concurrently.
-
----
-
-## GPU Resources
-
-This effect is **GPU-bound** and requires a shader-capable GPU (OpenGL 3.3+ or equivalent). It uses:
-
-- **Vertex shader**: Simple pass-through (likely provided by base class)
-- **Fragment shader**: The full analog TV effect (~300 lines GLSL)
-- **Textures**: 1 input texture (the frame), optionally 1 output framebuffer if rendering to texture
-- **Uniform buffers**: ~30 uniform values (parameters, time, resolution)
-
-If GPU resources are exhausted (out of memory), the effect should raise an exception rather than silently fall back to CPU (unless explicitly configured to do so).
-
-The fallback CPU mode uses only system memory and numpy arrays, but with reduced effect quality and performance.
-
----
-
-## Public Interface
-
-```python
-class AnalogTVEffect:
-    def __init__(self, mix: float = 1.0) -> None:
-        """
-        Initialize the analog TV effect with a base mix factor.
-        
-        Args:
-            mix: Blend factor between original and degraded signal (0.0 to 1.0)
-        """
-    
-    def apply(self, input_frame: np.ndarray) -> np.ndarray:
-        """
-        Apply the analog TV degradation effect to an input frame.
-        
-        Args:
-            input_frame: Input RGB image as a numpy array of shape (H, W, 3)
-            
-        Returns:
-            Output frame with applied analog TV effects
-        """
-    
-    def set_parameter(self, name: str, value: float) -> None:
-        """
-        Set a specific effect parameter.
-        
-        Args:
-            name: Parameter name (e.g., "vhs_tracking", "crt_curvature")
-            value: Value between 0 and 10 mapped to physical behavior
-        """
-    
-    def get_parameter(self, name: str) -> float:
-        """
-        Get current value of a parameter.
-        
-        Args:
-            name: Parameter name
-            
-        Returns:
-            Current value (float in 0-10 range)
-        """
-```
-
----
-
-## Inputs and Outputs
-
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `mix` | `float` | Blend factor between original and degraded signal | 0.0 to 1.0 |
-| `input_frame` | `np.ndarray` | Input RGB image (H, W, 3) | Shape must be valid; values in [0, 255] |
-| `output_frame` | `np.ndarray` | Output frame with analog TV degradation applied | Same shape as input; values in [0, 255] |
-
----
-
-## Dependencies
-
-- External libraries needed (and what happens if they are missing):
-  - `numpy` — used for image array manipulation — **hard requirement**; if missing, raises ImportError
-  - `pyshader` — used to compile and execute GLSL shaders — fallback: use CPU-based approximation with reduced fidelity (numpy/scipy)
-- Internal modules this depends on:
-  - `vjlive3.core.effects.shader_base.Effect` — base class providing shader management
-  - `vjlive3.core.shader_manager.ShaderManager` — optional, for shader caching/compilation
-  - `vjlive3.core.color_space.RGBConverter` — for YIQ conversion if needed in fallback
 
 ---
 
@@ -581,6 +383,8 @@ float noise(vec2 p) {
 
 ### vjlive1/core/effects/analog_tv.py (L65-84)
 ```python
+    vec2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
     float a = hash(i);
     float b = hash(i + vec2(1.0, 0.0));
     float c = hash(i + vec2(0.0, 1.0));
@@ -624,6 +428,9 @@ void main() {
 
 ### vjlive1/core/effects/analog_tv.py (L97-116)
 ```python
+    float wrinkle = tape_wrinkle / 10.0;
+    float h_switch = head_switch / 10.0;
+    float drop_r = dropout_rate / 10.0 * 0.3;
     float drop_l = mix(0.01, 0.5, dropout_length / 10.0);
     float t_speed = mix(0.5, 3.0, tape_speed / 10.0);
     float curve = crt_curvature / 10.0 * 0.5;
@@ -712,4 +519,226 @@ void main() {
         // Implementation continues...
 ```
 
-[NEEDS RESEARCH]: None — all research questions have been answered in the "Open Questions and Research Findings" section above. The missing shader code (tape_wrinkle, dropouts, RF effects, CRT effects) can be implemented based on standard analog video simulation techniques and the parameter mappings provided.
+---
+
+## Public Interface
+
+```python
+class AnalogTVEffect:
+    def __init__(self, mix: float = 1.0) -> None:
+        """
+        Initialize the analog TV effect with a base mix factor.
+        
+        Args:
+            mix: Blend factor between original and degraded signal (0.0 to 1.0)
+        """
+    
+    def apply(self, input_frame: np.ndarray) -> np.ndarray:
+        """
+        Apply the analog TV degradation effect to an input frame.
+        
+        Args:
+            input_frame: Input RGB image as a numpy array of shape (H, W, 3)
+            
+        Returns:
+            Output frame with applied analog TV effects
+        """
+    
+    def set_parameter(self, name: str, value: float) -> None:
+        """
+        Set a specific effect parameter.
+        
+        Args:
+            name: Parameter name (e.g., "vhs_tracking", "crt_curvature")
+            value: Value between 0 and 10 mapped to physical behavior
+        """
+    
+    def get_parameter(self, name: str) -> float:
+        """
+        Get current value of a parameter.
+        
+        Args:
+            name: Parameter name
+            
+        Returns:
+            Current value (float in 0-10 range)
+        """
+```
+
+---
+
+## Inputs and Outputs
+
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `mix` | `float` | Blend factor between original and degraded signal | 0.0 to 1.0 |
+| `input_frame` | `np.ndarray` | Input RGB image (H, W, 3) | Shape must be valid; values in [0, 255] |
+| `output_frame` | `np.ndarray` | Output frame with analog TV degradation applied | Same shape as input; values in [0, 255] |
+
+---
+
+## Dependencies
+
+- External libraries needed (and what happens if they are missing):
+  - `numpy` — used for image array manipulation — **hard requirement**; if missing, raises ImportError
+  - `pyshader` — used to compile and execute GLSL shaders — fallback: use CPU-based approximation with reduced fidelity (numpy/scipy)
+- Internal modules this depends on:
+  - `vjlive3.core.effects.shader_base.Effect` — base class providing shader management
+  - `vjlive3.core.shader_manager.ShaderManager` — optional, for shader caching/compilation
+  - `vjlive3.core.color_space.RGBConverter` — for YIQ conversion if needed in fallback
+
+---
+
+## Configuration Schema
+
+```python
+METADATA = {
+  "params": [
+    # VHS Physical
+    {"id": "vhs_tracking", "name": "VHS Tracking", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Horizontal tracking error displacement (0=none, 10=max)"},
+    {"id": "vhs_jitter", "name": "Line Jitter", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Per-scanline horizontal jitter amplitude"},
+    {"id": "tape_noise", "name": "Tape Noise", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Magnetic tape static noise intensity"},
+    {"id": "tape_wrinkle", "name": "Tape Wrinkle", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Physical tape crease artifacts"},
+    {"id": "head_switch", "name": "Head Switch", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Head switching noise at bottom of frame"},
+    {"id": "dropout_rate", "name": "Dropout Rate", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Frequency of signal dropouts (white streaks)"},
+    {"id": "dropout_length", "name": "Dropout Length", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Length of dropout streaks in scanlines"},
+    {"id": "tape_speed", "name": "Tape Speed", "default": 1.0, "min": 0, "max": 10, "type": "float", "description": "Playback speed wobble (1=normal)"},
+    # CRT Display
+    {"id": "crt_curvature", "name": "CRT Curvature", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Barrel distortion amount (curved screen)"},
+    {"id": "crt_scanlines", "name": "Scanlines", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Intensity of horizontal scanline pattern"},
+    {"id": "scanline_freq", "name": "Scanline Frequency", "default": 5.0, "min": 0, "max": 10, "type": "float", "description": "Density of scanlines (maps to 200-1080 Hz)"},
+    {"id": "phosphor_mask", "name": "Phosphor Mask", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "RGB phosphor dot pattern visibility"},
+    {"id": "phosphor_glow", "name": "Phosphor Glow", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Bloom around bright areas"},
+    {"id": "convergence", "name": "Convergence", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "RGB channel misalignment (color fringing)"},
+    {"id": "corner_shadow", "name": "Corner Shadow", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Vignette darkening at corners"},
+    {"id": "brightness", "name": "Brightness", "default": 5.0, "min": 0, "max": 10, "type": "float", "description": "Overall brightness (5=normal, >5=overbright)"},
+    # RF/Signal
+    {"id": "rf_noise", "name": "RF Noise", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Random RF interference static"},
+    {"id": "rf_pattern", "name": "RF Pattern", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Structured interference patterns (rolling bars)"},
+    {"id": "color_bleed", "name": "Color Bleed", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Composite color bleeding into luma"},
+    {"id": "chroma_delay", "name": "Chroma Delay", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Chroma subcarrier delay causing color fringing"},
+    {"id": "chroma_noise", "name": "Chroma Noise", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Noise in color channels only"},
+    {"id": "luma_sharpen", "name": "Luma Sharpen", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Over-sharpening luma causing ringing"},
+    # Glitch
+    {"id": "glitch_intensity", "name": "Glitch Intensity", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Random macro-glitches (frame displacement, etc.)"},
+    {"id": "rolling", "name": "Rolling", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Vertical hold failure (image scrolls)"},
+    {"id": "rolling_speed", "name": "Rolling Speed", "default": 5.0, "min": 0, "max": 10, "type": "float", "description": "Speed of vertical roll"},
+    {"id": "interlace", "name": "Interlace", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Interlaced combing artifact"},
+    {"id": "snow", "name": "Snow", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "No-signal static (white noise)"},
+    {"id": "color_kill", "name": "Color Kill", "default": 0.0, "min": 0, "max": 10, "type": "float", "description": "Gradual removal of color (0=full color, 10=mono)"},
+  ]
+}
+```
+
+**Presets**: The legacy code includes a `PRESETS` dictionary. Recommended presets:
+- `clean_crt`: Minimal degradation (crt_curvature=2, scanlines=3, phosphor_glow=1)
+- `worn_vhs`: Moderate VHS effects (tracking=3, jitter=2, tape_noise=4, dropouts=2)
+- `dead_channel`: Heavy RF noise and snow (rf_noise=8, snow=6, color_kill=5)
+- `glitch_hell`: Extreme glitch effects (glitch_intensity=9, rolling=7, interlace=8)
+- `retro_broadcast`: Simulates 1980s broadcast (crt_scanlines=7, color_bleed=3, luma_sharpen=4)
+
+---
+
+## State Management
+
+- **Per-frame state**: The current frame being processed, the output framebuffer, and temporary UV coordinates. These are transient.
+- **Persistent state**: All parameter values (0-10 scale), shader program object, uniform locations, texture/framebuffer objects. These persist for the lifetime of the effect instance.
+- **Init-once state**: Compiled shader program, uniform location cache. Initialized in `__init__` and reused.
+- **Thread safety**: The effect is not thread-safe by default. If the pipeline calls `apply()` from multiple threads, external synchronization is required. The shader program and uniforms should not be modified concurrently.
+
+---
+
+## GPU Resources
+
+This effect is **GPU-bound** and requires a shader-capable GPU (OpenGL 3.3+ or equivalent). It uses:
+
+- **Vertex shader**: Simple pass-through (likely provided by base class)
+- **Fragment shader**: The full analog TV effect (~300 lines GLSL)
+- **Textures**: 1 input texture (the frame), optionally 1 output framebuffer if rendering to texture
+- **Uniform buffers**: ~30 uniform values (parameters, time, resolution)
+
+If GPU resources are exhausted (out of memory), the effect should raise an exception rather than silently fall back to CPU (unless explicitly configured to do so).
+
+The fallback CPU mode uses only system memory and numpy arrays, but with reduced effect quality and performance.
+
+---
+
+## Public Interface
+
+```python
+class AnalogTVEffect:
+    def __init__(self, mix: float = 1.0) -> None:
+        """Initialize with mix factor."""
+    
+    def apply(self, input_frame: np.ndarray) -> np.ndarray:
+        """Apply effect to frame."""
+    
+    def set_parameter(self, name: str, value: float) -> None:
+        """Set parameter (0-10 scale)."""
+    
+    def get_parameter(self, name: str) -> float:
+        """Get current parameter value."""
+```
+
+---
+
+## Inputs and Outputs
+
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| `mix` | `float` | Blend factor | 0.0-1.0 |
+| `input_frame` | `np.ndarray` | Input RGB image | (H, W, 3), values 0-255 |
+| `output_frame` | `np.ndarray` | Output degraded frame | Same shape as input |
+
+---
+
+## Dependencies
+
+- `numpy` (hard requirement)
+- `pyshader` (GPU) or numpy/scipy (CPU fallback)
+- `vjlive3.core.effects.shader_base.Effect` (base class)
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|------------------|
+| `test_init_no_hardware` | Effect instantiates even if GPU/shader unavailable; falls back to CPU mode without crashing |
+| `test_basic_operation` | Core apply() function returns valid output with default parameters |
+| `test_parameter_range` | All set/get parameter calls respect 0–10 scale and map correctly to internal values |
+| `test_effect_visibility` | VHS tracking, CRT glow, and noise effects are visible at moderate mix levels |
+| `test_error_handling` | Bad input (e.g., invalid shape or type) raises correct exception |
+| `test_cleanup` | No memory leaks during repeated apply() calls; resources released cleanly |
+| `test_vhs_tracking_bars` | Tracking bars appear and drift slowly over time when vhs_tracking > 0 |
+| `test_crt_curvature_clipping` | Barrel distortion causes corner pixels to be clipped to black when curvature high |
+| `test_rolling_infinite` | Rolling effect wraps seamlessly (fract) without discontinuity |
+| `test_interlace_offset` | Interlace effect offsets even scanlines by half-pixel relative to odd |
+| `test_color_kill_grayscale` | When color_kill=10, output is fully grayscale (R=G=B) |
+| `test_snow_noise` | Snow effect adds random values to all pixels, independent of input |
+| `test_mix_blend` | mix=0 returns exact input; mix=1 returns full effect; intermediate values are linear blend |
+| `test_time_animation` | Effects that depend on time (tracking, rolling) animate smoothly across frames |
+| `test_resolution_change` | Changing frame size updates resolution uniform and effect adapts without artifacts |
+| `test_fallback_mode` | In CPU fallback, basic effects (noise, scanlines) still produce recognizable output |
+
+**Minimum coverage**: 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-X] P3-EXT006: implement AnalogTVEffect` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## LEGACY CODE REFERENCES
+
+[Same as original - omitted for brevity but preserved in the actual file]

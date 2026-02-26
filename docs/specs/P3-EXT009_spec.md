@@ -7,13 +7,25 @@
 
 ## Task: P3-EXT009 — raymarched_scenes (AudioReactiveRaymarchedScenes) - Port from VJlive legacy to VJLive3
 
+## Description
+
+The AudioReactiveRaymarchedScenes module represents a sophisticated GPU-accelerated visual effect that bridges the gap between mathematical artistry and audio-reactive performance. Born from the VJLive legacy, this effect leverages ray-marching techniques—a rendering method that traces rays through mathematical space rather than relying on traditional polygon meshes—to create infinite-resolution 3D scenes that respond dynamically to music.
+
+At its core, this effect embodies the philosophy of generative art: simple mathematical rules produce complex, evolving visuals. The ray-marching algorithm uses signed distance functions (SDFs) to define implicit geometry, allowing for perfectly smooth surfaces and infinite detail regardless of screen resolution. This approach was particularly valuable in VJ contexts where visual quality couldn't be compromised by performance constraints.
+
+The audio reintegration system represents a sophisticated approach to audio-visual synchronization. Rather than simple amplitude triggering, the effect analyzes five distinct frequency bands—volume, bass, mid, treble, and beat—and maps each to specific visual parameters. Bass frequencies control the fundamental scale and presence of the geometry, mid frequencies drive horizontal movement, treble frequencies influence vertical displacement, and beat detection creates rhythmic pulses. This multi-band approach creates a nuanced audio-visual conversation where the music doesn't just "trigger" effects but actively "sculpts" the 3D space in real-time.
+
+The effect's three scene variants—spheres, tunnels, and Mandelbulb fractals—each showcase different aspects of ray-marching artistry. The spheres demonstrate the technique's ability to create organic, multi-body systems with audio-reactive positioning. The tunnel effect showcases infinite procedural generation with forward motion. The Mandelbulb fractal represents the pinnacle of mathematical complexity, where simple iterative equations produce breathtakingly intricate 3D forms that evolve with the music's energy.
+
 **What This Module Does**
 
-This module implements a GPU-accelerated, audio-reactive 3D ray-marched scene effect that renders procedurally generated geometry directly in the fragment shader. Unlike traditional mesh-based 3D, ray-marching uses signed distance functions (SDFs) to define implicit geometry, allowing for infinite resolution and smooth mathematical transformations. The effect supports three distinct scene variants—spheres, tunnels, and Mandelbulb fractals—each with unique visual characteristics and performance profiles.
-
-The audio reactivity system integrates five independent frequency bands (volume, bass, mid, treble, beat) to modulate geometric and color parameters in real-time. Bass frequencies primarily affect scene radius and scale, mid frequencies influence horizontal position offsets, treble frequencies control vertical displacement, and beat detection triggers pulse effects. This creates a tight audio-visual synchronization where the 3D scene "dances" with the music.
-
-The effect is designed as a shader-based plugin that renders a fullscreen quad, with all heavy lifting performed in the fragment shader using GLSL 330 core. The vertex shader is minimal, simply passing through quad vertices and texture coordinates. The fragment shader implements a configurable raymarching loop with early-exit optimization, signed distance functions for primitive shapes, and a Mandelbulb fractal distance estimator with configurable iteration counts.
+- **Real-time 3D ray-marching**: Implements GPU-accelerated ray-marching using signed distance functions (SDFs) to render infinite-resolution 3D geometry without traditional polygon meshes
+- **Multi-scene variants**: Provides three distinct rendering modes—spheres (organic multi-body systems), tunnels (infinite procedural generation), and Mandelbulb fractals (mathematical complexity)
+- **Sophisticated audio reactivity**: Analyzes five frequency bands (volume, bass, mid, treble, beat) and maps each to specific visual parameters for nuanced audio-visual synchronization
+- **Dynamic parameter modulation**: Audio features modulate geometric properties (radius, position), color parameters (HSV), and fractal properties in real-time
+- **GLSL 330 core implementation**: Heavy computation performed in fragment shader with minimal vertex shader overhead
+- **Early-exit optimization**: Ray-marching loop includes convergence testing for performance optimization
+- **Configurable quality/performance tradeoffs**: Ultra-boost parameters allow fine-tuning of fractal detail vs frame rate
 
 **What This Module Does NOT Do**
 
@@ -25,6 +37,8 @@ The effect is designed as a shader-based plugin that renders a fullscreen quad, 
 - Does NOT perform depth peeling or multi-pass rendering—it's a single-pass effect
 - Does NOT handle HDR tone mapping or color management beyond basic HSV adjustment
 - Does NOT include built-in post-processing like bloom, vignette, or grain (these should be separate effects in the pipeline)
+- Does NOT support animated textures or video input as background—renders pure mathematical geometry
+- Does NOT implement particle systems or mesh-based effects—focuses exclusively on ray-marched implicit surfaces
 
 ---
 
@@ -167,6 +181,56 @@ Total GPU memory footprint: < 10 MB excluding the framebuffer.
 - Verify that parameter changes (e.g., `base_radius`) don't cause shader recompilation—they should be uniforms only
 
 ---
+
+## Error Cases
+
+### Shader Compilation Failures
+
+**Symptom**: Fragment shader fails to compile during initialization
+**Recovery**: Base `Effect` class should catch compilation errors, log detailed error messages, and fall back to a simple passthrough shader. The effect should continue operating with basic functionality rather than crashing.
+**Prevention**: Validate GLSL syntax and uniform declarations during development; use shader version detection for compatibility.
+
+### Audio Analyzer Disconnection
+
+**Symptom**: Audio analyzer becomes unavailable or stops providing features
+**Recovery**: Effect should detect missing audio features and use default values (volume=0.5, bass=0.0, mid=0.0, treble=0.0, beat=0.0) to maintain visual continuity. Log warnings but don't interrupt rendering.
+**Prevention**: Implement heartbeat monitoring for audio analyzer connection; provide manual override for audio mix parameters.
+
+### Parameter Validation Errors
+
+**Symptom**: Invalid parameter values (out of range, wrong type) are set
+**Recovery**: Base class should clamp numeric values to valid ranges and log warnings. Invalid types should be logged and ignored. Real-time rendering should never be interrupted by parameter validation failures.
+**Prevention**: Comprehensive parameter schema validation in METADATA; type checking in `set_parameter()`.
+
+### OpenGL Context Loss
+
+**Symptom**: OpenGL context is lost (e.g., display reconfiguration, GPU reset)
+**Recovery**: Effect should detect context loss via `glGetError()` or context loss callbacks. Recreate shaders, VAOs, and VBOs when context is restored. Handle gracefully by falling back to disabled state if recreation fails.
+**Prevention**: Monitor context state; implement proper resource lifecycle management.
+
+### Memory Allocation Failures
+
+**Symptom**: GPU memory allocation fails during shader compilation or buffer creation
+**Recovery**: Reduce shader complexity or resolution; fall back to simpler rendering mode. Log memory usage and available resources.
+**Prevention**: Monitor available GPU memory; implement progressive quality reduction.
+
+### Thread Safety Issues
+
+**Symptom**: Race conditions between UI thread (parameter updates) and render thread (uniform access)
+**Recovery**: Use mutex protection or double-buffered parameter access. Log synchronization errors but maintain rendering continuity.
+**Prevention**: Implement thread-safe parameter access patterns; avoid shared state between threads.
+
+### Ultra Parameter Edge Cases
+
+**Symptom**: `ultra_max_iterations` set to extreme values (0, >100) or `ultra_fractal_power` set to invalid values
+**Recovery**: Clamp iterations to [5,100] range; clamp fractal power to [2.0,12.0]. Log warnings about parameter correction.
+**Prevention**: Parameter validation in METADATA; user interface constraints.
+
+### Zero Radius Artifacts
+
+**Symptom**: `base_radius` set to 0 or near-zero values causing visual artifacts
+**Recovery**: Enforce minimum radius of 0.01; log warning about parameter correction. Fractal scenes may become unstable with very small radii.
+**Prevention**: Parameter validation with sensible minimums; user interface constraints.
 
 ## Test Plan (Expanded)
 
@@ -311,6 +375,16 @@ This schema enables automatic UI generation, validation, and serialization.
 
 - **Resource lifetime**: All GPU resources allocated in `__init__` or `initialize_gl()`, freed in `dispose()` or `__del__()`. Must handle OpenGL context loss (e.g., on display reconfiguration) by recompiling shaders and recreating buffers.
 
+## State Management
+
+- **Per-frame state**: Audio feature values (volume, bass, mid, treble, beat) are fetched each frame from the AudioAnalyzer. These are transient and not stored in the effect's parameter dict.
+
+- **Persistent state**: All user-adjustable parameters (`scene_type`, `base_radius`, `position_offset`, color HSV, audio mix levels, ultra parameters) are stored in `self.parameters` dict and persist across frames. They should be serializable to/from YAML/JSON for preset saving.
+
+- **Init-once state**: Shader program ID, uniform locations cache, VAO/VBO for fullscreen quad, AudioAnalyzer reference. These are initialized in `__init__` and cleaned up in `dispose()` or `__del__`.
+
+- **Thread safety**: The effect must protect `self.parameters` with a mutex if `set_parameter` can be called from a UI thread while `apply_uniforms` reads from the render thread. Alternatively, use a double-buffered parameter copy: UI thread writes to `self.parameters_next`, render thread swaps at frame boundary.
+
 ---
 
 ## Public Interface
@@ -323,6 +397,24 @@ class AudioReactiveRaymarchedScenes:
     def _get_vertex_shader(self) -> str: ...
     def _get_fragment_shader(self) -> str: ...
 ```
+
+## GPU Resources
+
+- **Shaders**:
+  - Vertex shader: Simple pass-through (6 vertices, 2 triangles)
+  - Fragment shader: Full ray-marching implementation with SDFs and DE
+  - Both compiled and linked into a single program
+
+- **Buffers**:
+  - VBO: Fullscreen quad vertices (positions and texcoords)
+  - VAO: Vertex attribute configuration
+  - Optional UBO: For uniform batches (time, resolution, audio features)
+
+- **Textures**: None required unless using `tex0` as input background
+
+- **Framebuffers**: None required for single-pass; if used for multi-pass, would need FBO + color attachment
+
+- **Resource lifetime**: All GPU resources allocated in `__init__` or `initialize_gl()`, freed in `dispose()` or `__del__()`. Must handle OpenGL context loss (e.g., on display reconfiguration) by recompiling shaders and recreating buffers.
 
 ---
 

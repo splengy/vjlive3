@@ -10,8 +10,11 @@ You MUST operate in **documentation writer mode**. Write deep, narrative technic
 You are a SPEC ENRICHMENT agent. Read ~/VJLive3/agent-heartbeat/ROO_INSTRUCTIONS.md for the full workflow.
 
 ## Workflow (Short Version)
-1. Pick a task: `python3 ~/VJLive3/agent-heartbeat/pick_task.py $(cat ~/agent_id.txt)`
-2. Read the skeleton spec it gives you
+1. **CRITICAL FIRST STEP**: You MUST run `python3 ~/VJLive3/agent-heartbeat/pick_task.py $(cat ~/agent_id.txt)` to get your assigned task.
+   - **DO NOT** browse `docs/specs/` yourself.
+   - **DO NOT** use any hardcoded list of tasks you may have seen earlier in this conversation.
+   - **DO NOT** pick a task that `pick_task.py` did not explicitly assign to you.
+2. Read the skeleton spec that `pick_task.py` gave you.
 3. Look up legacy code: `python3 ~/VJLive3/agent-heartbeat/legacy_lookup.py MODULE_NAME`
 4. Enrich the spec IN PLACE — add these sections:
    - **Description** (narrative prose — explain the WHY, not just the WHAT)
