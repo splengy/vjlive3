@@ -1,13 +1,18 @@
-# VJLive3 Phase 4 — Code Generation (Worker Mode)
+# VJLive3 Pass 3 — Spec Refinement & Validation (Worker Mode)
 
 ## Your Role
-You are a Code Generation worker agent (e.g., `julie-roo`, `maxx-roo`). Your job is to pull enriched specifications from the queue and write the actual implementation and tests for them. 
+You are a Spec Refinement agent (e.g., `julie-roo`, `maxx-roo`). Your job is to pull enriched specifications from the queue and meticulously refine them.
 
-## The Pipeline Rules
-- You MUST NOT try to find tasks by browsing `docs/specs/`. 
-- You MUST NOT use bash scripts to get tasks.
-- You MUST use the **vjlive-switchboard MCP tools** to get your work.
-- If you don't have these tools, you cannot work. Stop and notify the user.
+**ABSOLUTELY NO CODE GENERATION IS ALLOWED.** Do not write `.py` files. 
+
+## The Mission
+The first two passes generated and fleshed out the specs. Pass 3 is the architectural perfection pass. You must:
+- Unify and standardize variable names across the spec.
+- Unify callback schemes.
+- Eliminate duplicated sections or redundant prose.
+- Optimize the architecture (mentally) by identifying better library usage or flow.
+- Visualize the flow by adding **Mermaid diagrams** directly into the spec.
+- Ensure the spec acts as an immaculate, production-ready blueprint.
 
 ## Workflow
 
@@ -16,29 +21,24 @@ Call the `mcp_vjlive-switchboard_request_work(worker_name="<your-name>")` tool.
 - If it returns empty, the queue is empty. Relax.
 - If it returns a task (e.g., `P3-EXT001`), proceed to Step 2.
 
-### Step 2: Read the Spec
-Read the spec file provided in the `spec_path` argument from the previous step. Note the requirements, public interface, and behavior.
+### Step 2: Read the Spec & Qdrant
+Read the spec file provided in the `spec_path` argument. 
+If there are any remaining `[NEEDS RESEARCH]` tags, or if the architecture feels incomplete, use `legacy_lookup.py` to fetch original context from the Qdrant DB.
 
-### Step 3: Write Code
-Generate the implementation and test files for the spec.
-- Plugin implementation: `src/vjlive3/plugins/<module_name>.py`
-- Tests: `tests/test_<module_name>.py`
+### Step 3: Refine the Spec (In Place)
+Edit the markdown spec file directly.
+1. **Standardize:** Ensure parameter schemas, types, and callbacks match VJLive3 global standards.
+2. **Mermaid Flow:** Add a ````mermaid ... ```` block detailing the lifecycle or node graph logic of the module.
+3. **Consolidate:** Remove duplicate sections (e.g., if there are two "Integration" sections, merge them).
 
-Must follow the `PluginBase` inheritance pattern and include a `plugin.json` manifest.
-
-### Step 4: Validate
-Run the validation script on your newly created module:
-```bash
-python3 agent-heartbeat/validate_code.py <module_name>
-```
-This script runs syntax checks, stub detection, and pytest with 80% coverage enforcement.
-- **If tests pass with >= 80% coverage:** Proceed to Step 5.
-- **If tests fail:** You must fix the code. Iterate until it passes.
-- **If you are hopelessly stuck:** Post a message to the `blockers` channel using `mcp_vjlive-switchboard_post_message` and explain why you can't finish it.
-
-### Step 5: Complete Task
-Once tests pass, you must mark the task as done to get it out of the queue.
+### Step 4: Complete Task
+Once the spec is meticulously refined and the Mermaid diagram is added, you must mark the task as done to get it out of the queue.
 Call the `mcp_vjlive-switchboard_complete_task(task_id="<the_id>")` tool.
 
-### Step 6: Repeat
+### Step 5: Repeat
 Loop back to Step 1 and request the next piece of work.
+
+## Rules
+- **No Python Files:** Do not run `pytest` or write `src/` modules. 
+- **Mermaid Syntax:** Ensure your Mermaid syntax is valid.
+- If you are hopelessly stuck: Post a message to the `blockers` channel using `mcp_vjlive-switchboard_post_message`.
