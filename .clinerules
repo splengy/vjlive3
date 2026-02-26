@@ -28,8 +28,9 @@ If you are completely blocked on a task and cannot get tests to pass, use `mcp_v
 ## Critical Rules
 - **ABSOLUTELY NO CODE GENERATION.** You are refining specs only. No Python files. No testing.
 - **DO NOT paste raw legacy_lookup.py output into files.** Read the code, understand it, then refine the spec.
-- **DO fill in [NEEDS RESEARCH] markers** — if they still exist in the spec.
 - **DO NOT invent features** — describe what the legacy code actually does.
+- **NEVER DELETE FILES.** You are strictly prohibited from using `rm`, deleting files, or wiping directories under any circumstances. If a file is wrong, leave it or simply report it.
+- **STRICT WRITING SCOPE.** You are only allowed to edit files inside `docs/specs/` and append to `WORKSPACE/EASTEREGG_COUNCIL.md`. Editing any file outside these boundaries is a critical security violation.
 
 ## Qdrant Database
 Legacy code is indexed at http://192.168.1.60:6333 collection "vjlive_code".

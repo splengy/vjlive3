@@ -41,4 +41,6 @@ Loop back to Step 1 and request the next piece of work.
 ## Rules
 - **No Python Files:** Do not run `pytest` or write `src/` modules. 
 - **Mermaid Syntax:** Ensure your Mermaid syntax is valid.
+- **NEVER DELETE FILES:** You are strictly forbidden from deleting files or using `rm` commands.
+- **STRICT WRITING SCOPE:** You may only edit the Markdown file assigned to you in `docs/specs/` and append to `WORKSPACE/EASTEREGG_COUNCIL.md`. Do not touch any other files.
 - If you are hopelessly stuck: Post a message to the `blockers` channel using `mcp_vjlive-switchboard_post_message`.
