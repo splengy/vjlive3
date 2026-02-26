@@ -127,6 +127,14 @@ def pick_next_task(agent_id: str) -> dict | None:
     Find the next spec that hasn't been enriched yet.
     Every spec gets the second pass — no filtering.
     """
+    # Self-healing: An agent asking for a new task has abandoned their old ones.
+    # Auto-release all existing locks held by this agent to prevent hoarding.
+    locks = load_locks()
+    for task_id, lock_info in list(locks.items()):
+        if lock_info["agent"] == agent_id:
+            logger.info(f"Agent {agent_id} requested new task; auto-releasing abandoned lock on {task_id}")
+            release_lock(task_id, agent_id)
+
     results = scan_all_specs()
 
     for result in results:

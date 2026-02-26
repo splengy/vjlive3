@@ -151,7 +151,7 @@ class ProcessMonitor:
         try:
             log_file = LOG_DIR / f"{self.name}_{datetime.now().strftime('%Y-%m-%d')}.log"
             self.process = subprocess.Popen(
-                [sys.executable, self.script_path],
+                [sys.executable, self.script_path, "--daemon", "heartbeat-daemon"],
                 stdout=open(str(log_file), "a"),
                 stderr=subprocess.STDOUT,
                 cwd=os.path.dirname(self.script_path),

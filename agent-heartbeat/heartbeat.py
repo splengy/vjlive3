@@ -496,7 +496,91 @@ def main():
         sys.exit(1)
 
     # For now: process tasks from command line args or interactive mode
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 1 and sys.argv[1] == "--daemon":
+        # Daemon mode: poll pick_task.py continuously for work
+        # This is how the watchdog should launch heartbeat.
+        agent_id = sys.argv[2] if len(sys.argv) > 2 else "heartbeat-daemon"
+        pick_task_script = os.path.join(os.path.dirname(__file__), "pick_task.py")
+        poll_interval = 30  # seconds between polls when no work found
+
+        logger.info(f"\n🫀 Daemon mode started. Agent: {agent_id}. Polling every {poll_interval}s.")
+        try:
+            while True:
+                try:
+                    result = subprocess.run(
+                        [sys.executable, pick_task_script, agent_id],
+                        capture_output=True,
+                        text=True,
+                        timeout=60,
+                    )
+                    output = result.stdout.strip()
+
+                    if result.returncode != 0 or output.startswith("NO_TASKS_AVAILABLE"):
+                        logger.info(f"  No tasks available. Sleeping {poll_interval}s...")
+                        time.sleep(poll_interval)
+                        continue
+
+                    # Parse task output
+                    lines = output.split("\n")
+                    task_id = None
+                    spec_path = None
+                    spec_lines = []
+                    in_spec = False
+                    for line in lines:
+                        if line.startswith("TASK_ID="):
+                            task_id = line[len("TASK_ID="):]
+                        elif line.startswith("SPEC_PATH="):
+                            spec_path = line[len("SPEC_PATH="):]
+                        elif line == "---SPEC---":
+                            in_spec = True
+                        elif in_spec:
+                            spec_lines.append(line)
+
+                    if not task_id:
+                        logger.warning("  pick_task.py returned unexpected output — skipping")
+                        time.sleep(poll_interval)
+                        continue
+
+                    spec_content = "\n".join(spec_lines)
+                    task = {
+                        "task_id": task_id,
+                        "description": f"Enrich spec for {task_id}",
+                        "output_path": spec_path or "",
+                        "spec_content": spec_content,
+                    }
+                    logger.info(f"  📋 Got task: {task_id}")
+                    try:
+                        success = process_task(task, config, plate_builder)
+                    except Exception as e:
+                        logger.error(f"FATAL: process_task crashed on {task_id}: {e}")
+                        success = False
+
+                    # Release lock regardless of success
+                    try:
+                        subprocess.run(
+                            [sys.executable, pick_task_script, agent_id, "--release", task_id],
+                            capture_output=True, timeout=10,
+                        )
+                    except Exception:
+                        pass
+
+                    if not success:
+                        logger.warning(f"  Task {task_id} FAILED. Sleeping {poll_interval}s before retry...")
+                        time.sleep(poll_interval)
+
+                except subprocess.TimeoutExpired:
+                    logger.warning("  pick_task.py timed out — sleeping 60s")
+                    time.sleep(60)
+                except Exception as e:
+                    logger.error(f"  Daemon loop error: {e} — sleeping 30s")
+                    time.sleep(30)
+
+        except KeyboardInterrupt:
+            pass
+
+        logger.info(f"\n🫀 Heartbeat daemon stopped at {datetime.now().isoformat()}. Goodbye.")
+
+    elif len(sys.argv) > 2:
         # Direct task: python3 heartbeat.py <task_id> "<description>" [output_path]
         task = {
             "task_id": sys.argv[1],
@@ -510,7 +594,12 @@ def main():
             success = False
         sys.exit(0 if success else 1)
     else:
-        # Interactive mode
+        # Interactive mode — only for manual testing at a terminal
+        if not sys.stdin.isatty():
+            logger.error("heartbeat.py requires --daemon flag when run non-interactively.")
+            logger.error("Usage: python3 heartbeat.py --daemon <agent-id>")
+            sys.exit(1)
+
         logger.info("\n🎯 Interactive mode. Enter tasks as JSON:")
         logger.info('   {"task_id": "P3-VD26", "description": "...", "output_path": "..."}')
         logger.info("   Ctrl+C to exit.\n")
@@ -529,7 +618,6 @@ def main():
                 except KeyboardInterrupt:
                     break
                 except Exception as e:
-                    # The daemon must NEVER crash. Log and continue.
                     logger.error(f"Unexpected error processing task: {e}")
                     logger.error("Continuing to next task...")
         except KeyboardInterrupt:
