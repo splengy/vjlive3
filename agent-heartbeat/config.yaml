@@ -5,13 +5,14 @@
 
 # --- LLM API Configuration ---
 llm:
-  # Which provider to use for code generation
-  # Options: anthropic, google, ollama, litellm
-  provider: "anthropic"
-  model: "claude-sonnet-4-20250514"
-  api_key_env: "ANTHROPIC_API_KEY"  # Read from environment variable
-  max_output_tokens: 4000
-  temperature: 0.0  # Deterministic output
+  # Julie-Winters: Qwen3-4B-Instruct on RK3588 NPU
+  # Runs via spec_server.py on the Orange Pi 5
+  provider: "julie"
+  model: "Qwen3-4B-Instruct"
+  julie_host: "192.168.1.60"
+  julie_port: 5050
+  max_output_tokens: 2048
+  temperature: 0.7
 
 # --- Project Paths ---
 project:
@@ -24,20 +25,18 @@ project:
 
 # --- Orange Pi NPU (Local LLM Validator) ---
 orange_pi:
-  enabled: true
+  enabled: false  # DISABLED for spec pass — NPU busy generating, not validating
   host: "192.168.1.60"
-  port: 8080
-  # The Orange Pi 5 runs rkllm on the RK3588 NPU
-  # It does YES/NO classification only — never generates code
+  port: 5050
   runtime: "rkllm"
-  timeout_seconds: 30
-  critical: false  # Tasks proceed without it, deterministic checks are primary
+  timeout_seconds: 60
+  critical: false
 
 # --- Validation Thresholds ---
 validation:
   word_salad:
-    max_hits: 2           # Max individual adverb occurrences
-    max_density: 1.0      # Max hits per 100 lines
+    max_hits: 5           # Specs use descriptive language — relaxed from 2
+    max_density: 3.0      # Max hits per 100 lines — relaxed from 1.0
   stubs:
     max_suspicious: 1     # Max suspicious patterns before rejection
     min_code_ratio: 0.3   # Minimum ratio of code lines to total

@@ -1,0 +1,1471 @@
+{
+  "timestamp": 1772086515.8022187,
+  "mtimes": {
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT001_spec.md": 1772062584.0267673,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT002_spec.md": 1772061930.5173292,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT003_spec.md": 1772065015.7403004,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT004_spec.md": 1772066168.4665182,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT005_spec.md": 1772063784.780197,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT006_spec.md": 1772076931.471945,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT007_spec.md": 1772066803.8587914,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT008_spec.md": 1772068196.8450232,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT009_spec.md": 1772068379.3130472,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT010_spec.md": 1772067051.307702,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT011_spec.md": 1772069745.1327927,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT014_spec.md": 1772080363.2193222,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT017_spec.md": 1772068011.549032,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT018_spec.md": 1772077773.396402,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT054_spec.md": 1772079881.3477046,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT109_spec.md": 1772078249.2261038,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT113_spec.md": 1772081092.5608184,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT123_spec.md": 1772078884.5361362,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT132_spec.md": 1772078997.6585953,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT136_spec.md": 1772077780.107022,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT185_spec.md": 1772079629.7729802,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT186_spec.md": 1772079987.4568758,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT191_spec.md": 1772080064.911717,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT204_spec.md": 1772082185.1682024,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT206_spec.md": 1772080333.368052,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT207_spec.md": 1772080429.1096888,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT209_spec.md": 1772081171.5352507,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT211_spec.md": 1772082997.2391515,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT213_spec.md": 1772084011.4039898,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT215_spec.md": 1772081796.348043,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-VD26_spec.md": 1772085525.8063004,
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/depth_parallel_universe_spec.md": 1772081963.3365684,
+    "/home/happy/VJLive3/docs/specs/P3-EXT001_spec.md": 1772085853.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT002_spec.md": 1772061930.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT003_spec.md": 1772065015.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT004_spec.md": 1772086504.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT005_spec.md": 1772063784.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT006_spec.md": 1772076931.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT007_spec.md": 1772066803.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT008_spec.md": 1772068196.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT009_spec.md": 1772068379.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT010_spec.md": 1772067051.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT011_spec.md": 1772069745.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT014_spec.md": 1772080363.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT017_spec.md": 1772068011.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT018_spec.md": 1772077773.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT054_spec.md": 1772079881.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT109_spec.md": 1772078249.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT113_spec.md": 1772081092.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT123_spec.md": 1772078884.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT132_spec.md": 1772078997.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT136_spec.md": 1772077780.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT185_spec.md": 1772079629.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT186_spec.md": 1772079987.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT191_spec.md": 1772080064.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT204_spec.md": 1772082185.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT206_spec.md": 1772080333.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT207_spec.md": 1772080429.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT209_spec.md": 1772081171.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT211_spec.md": 1772082997.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT213_spec.md": 1772084011.0,
+    "/home/happy/VJLive3/docs/specs/P3-EXT215_spec.md": 1772081796.0,
+    "/home/happy/VJLive3/docs/specs/P3-VD26_spec.md": 1772086145.0,
+    "/home/happy/VJLive3/docs/specs/depth_parallel_universe_spec.md": 1772081963.0
+  },
+  "results": {
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT001_spec.md": {
+      "task_id": "P3-EXT001",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT001_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 1 [NEEDS RESEARCH] marker(s)",
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 1,
+        "sections_present": [
+          "description"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "integration",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT002_spec.md": {
+      "task_id": "P3-EXT002",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT002_spec.md",
+      "status": "ready",
+      "pass_status": "enriched",
+      "issues": [],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT003_spec.md": {
+      "task_id": "P3-EXT003",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT003_spec.md",
+      "status": "ready",
+      "pass_status": "enriched",
+      "issues": [],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT004_spec.md": {
+      "task_id": "P3-EXT004",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT004_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)",
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "description",
+          "integration"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT005_spec.md": {
+      "task_id": "P3-EXT005",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT005_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT006_spec.md": {
+      "task_id": "P3-EXT006",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT006_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT007_spec.md": {
+      "task_id": "P3-EXT007",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT007_spec.md",
+      "status": "ready",
+      "pass_status": "enriched",
+      "issues": [],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT008_spec.md": {
+      "task_id": "P3-EXT008",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT008_spec.md",
+      "status": "ready",
+      "pass_status": "skeleton",
+      "issues": [],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 1,
+        "sections_present": [
+          "description"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "integration",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT009_spec.md": {
+      "task_id": "P3-EXT009",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT009_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT010_spec.md": {
+      "task_id": "P3-EXT010",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT010_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Has 1 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT011_spec.md": {
+      "task_id": "P3-EXT011",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT011_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT014_spec.md": {
+      "task_id": "P3-EXT014",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT014_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT017_spec.md": {
+      "task_id": "P3-EXT017",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT017_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT018_spec.md": {
+      "task_id": "P3-EXT018",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT018_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT054_spec.md": {
+      "task_id": "P3-EXT054",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT054_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT109_spec.md": {
+      "task_id": "P3-EXT109",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT109_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT113_spec.md": {
+      "task_id": "P3-EXT113",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT113_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT123_spec.md": {
+      "task_id": "P3-EXT123",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT123_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT132_spec.md": {
+      "task_id": "P3-EXT132",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT132_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT136_spec.md": {
+      "task_id": "P3-EXT136",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT136_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 1 [NEEDS RESEARCH] marker(s)",
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 1,
+        "sections_present": [
+          "description"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "integration",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT185_spec.md": {
+      "task_id": "P3-EXT185",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT185_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT186_spec.md": {
+      "task_id": "P3-EXT186",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT186_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT191_spec.md": {
+      "task_id": "P3-EXT191",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT191_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT204_spec.md": {
+      "task_id": "P3-EXT204",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT204_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT206_spec.md": {
+      "task_id": "P3-EXT206",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT206_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT207_spec.md": {
+      "task_id": "P3-EXT207",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT207_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT209_spec.md": {
+      "task_id": "P3-EXT209",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT209_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT211_spec.md": {
+      "task_id": "P3-EXT211",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT211_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "description",
+          "integration"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT213_spec.md": {
+      "task_id": "P3-EXT213",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT213_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT215_spec.md": {
+      "task_id": "P3-EXT215",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT215_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 8 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-VD26_spec.md": {
+      "task_id": "P3-VD26",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-VD26_spec.md",
+      "status": "incomplete",
+      "pass_status": "skeleton",
+      "issues": [
+        "Too short: 1 lines (min 40)",
+        "Too small: 0 bytes (min 1500)",
+        "Missing section: 'Public Interface'",
+        "Missing section: 'What This Module Does'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 0,
+        "sections_present": [],
+        "sections_missing": [
+          "description",
+          "does_not_do",
+          "integration",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/depth_parallel_universe_spec.md": {
+      "task_id": "depth_parallel_universe",
+      "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/depth_parallel_universe_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT001_spec.md": {
+      "task_id": "P3-EXT001",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT001_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 1 [NEEDS RESEARCH] marker(s)",
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 1,
+        "sections_present": [
+          "description"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "integration",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT002_spec.md": {
+      "task_id": "P3-EXT002",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT002_spec.md",
+      "status": "ready",
+      "pass_status": "enriched",
+      "issues": [],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT003_spec.md": {
+      "task_id": "P3-EXT003",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT003_spec.md",
+      "status": "ready",
+      "pass_status": "enriched",
+      "issues": [],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT004_spec.md": {
+      "task_id": "P3-EXT004",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT004_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT005_spec.md": {
+      "task_id": "P3-EXT005",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT005_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT006_spec.md": {
+      "task_id": "P3-EXT006",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT006_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT007_spec.md": {
+      "task_id": "P3-EXT007",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT007_spec.md",
+      "status": "ready",
+      "pass_status": "enriched",
+      "issues": [],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT008_spec.md": {
+      "task_id": "P3-EXT008",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT008_spec.md",
+      "status": "ready",
+      "pass_status": "skeleton",
+      "issues": [],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 1,
+        "sections_present": [
+          "description"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "integration",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT009_spec.md": {
+      "task_id": "P3-EXT009",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT009_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT010_spec.md": {
+      "task_id": "P3-EXT010",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT010_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Has 1 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT011_spec.md": {
+      "task_id": "P3-EXT011",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT011_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT014_spec.md": {
+      "task_id": "P3-EXT014",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT014_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT017_spec.md": {
+      "task_id": "P3-EXT017",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT017_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT018_spec.md": {
+      "task_id": "P3-EXT018",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT018_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT054_spec.md": {
+      "task_id": "P3-EXT054",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT054_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT109_spec.md": {
+      "task_id": "P3-EXT109",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT109_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT113_spec.md": {
+      "task_id": "P3-EXT113",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT113_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT123_spec.md": {
+      "task_id": "P3-EXT123",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT123_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT132_spec.md": {
+      "task_id": "P3-EXT132",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT132_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT136_spec.md": {
+      "task_id": "P3-EXT136",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT136_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 1 [NEEDS RESEARCH] marker(s)",
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 1,
+        "sections_present": [
+          "description"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "integration",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT185_spec.md": {
+      "task_id": "P3-EXT185",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT185_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT186_spec.md": {
+      "task_id": "P3-EXT186",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT186_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT191_spec.md": {
+      "task_id": "P3-EXT191",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT191_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 4 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT204_spec.md": {
+      "task_id": "P3-EXT204",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT204_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT206_spec.md": {
+      "task_id": "P3-EXT206",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT206_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT207_spec.md": {
+      "task_id": "P3-EXT207",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT207_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT209_spec.md": {
+      "task_id": "P3-EXT209",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT209_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 5 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT211_spec.md": {
+      "task_id": "P3-EXT211",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT211_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "description",
+          "integration"
+        ],
+        "sections_missing": [
+          "does_not_do",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT213_spec.md": {
+      "task_id": "P3-EXT213",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT213_spec.md",
+      "status": "needs_review",
+      "pass_status": "enriched",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": true,
+        "enrichment_score": 3,
+        "sections_present": [
+          "description",
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-EXT215_spec.md": {
+      "task_id": "P3-EXT215",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-EXT215_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 8 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/P3-VD26_spec.md": {
+      "task_id": "P3-VD26",
+      "spec_path": "/home/happy/VJLive3/docs/specs/P3-VD26_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 3929 [NEEDS RESEARCH] marker(s)",
+        "Missing section: 'Public Interface'"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 1,
+        "sections_present": [
+          "integration"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do",
+          "performance"
+        ]
+      }
+    },
+    "/home/happy/VJLive3/docs/specs/depth_parallel_universe_spec.md": {
+      "task_id": "depth_parallel_universe",
+      "spec_path": "/home/happy/VJLive3/docs/specs/depth_parallel_universe_spec.md",
+      "status": "needs_review",
+      "pass_status": "skeleton",
+      "issues": [
+        "Has 6 [NEEDS RESEARCH] marker(s)"
+      ],
+      "has_code": false,
+      "enrichment": {
+        "enriched": false,
+        "enrichment_score": 2,
+        "sections_present": [
+          "integration",
+          "performance"
+        ],
+        "sections_missing": [
+          "description",
+          "does_not_do"
+        ]
+      }
+    }
+  }
+}

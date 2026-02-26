@@ -42,6 +42,8 @@ STATUS_FILE = LOG_DIR / "watchdog_status.json"
 
 JULIE_HOST = "192.168.1.60"
 JULIE_RAG_PORT = 8080
+QDRANT_URL = f"http://{JULIE_HOST}:6333"
+QDRANT_COLLECTION = "vjlive_code"
 
 # How often to check (seconds)
 CHECK_INTERVAL = 30
@@ -279,6 +281,39 @@ def check_julie(host: str = JULIE_HOST, port: int = JULIE_RAG_PORT) -> dict:
     return result
 
 
+def check_qdrant(url: str = QDRANT_URL, collection: str = QDRANT_COLLECTION) -> dict:
+    """Check Qdrant is up and the legacy code collection has data.
+    
+    This is a HARD requirement. If Qdrant is down, the pipeline STOPS.
+    No graceful fallbacks. The whole horse crosses the line.
+    """
+    result = {"url": url, "collection": collection, "reachable": False, "points": 0, "healthy": False}
+    
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            f"{url}/collections/{collection}",
+            method="GET",
+        )
+        with urllib.request.urlopen(req, timeout=5) as resp:
+            import json as _json
+            data = _json.loads(resp.read().decode('utf-8'))
+            r = data.get('result', {})
+            result['reachable'] = True
+            result['points'] = r.get('points_count', 0)
+            result['status'] = r.get('status', 'unknown')
+            # Healthy = reachable AND has data AND status is green
+            result['healthy'] = (
+                result['reachable'] 
+                and result['points'] > 0 
+                and result['status'] == 'green'
+            )
+    except Exception as e:
+        result['error'] = str(e)
+    
+    return result
+
+
 def check_disk_space(path: str = ".") -> dict:
     """Check available disk space."""
     try:
@@ -458,7 +493,28 @@ def main():
                     urgency="critical",
                 )
 
-            # 2. Check Julie (every 5th check to avoid spam)
+            # 2. Check Qdrant (EVERY check — this is a hard requirement)
+            qdrant_status = check_qdrant()
+            if qdrant_status.get("healthy"):
+                logger.info(f"  Qdrant: \u2705 {qdrant_status.get('points')} points")
+            else:
+                logger.error(f"  Qdrant: \u274c DOWN — halting pipeline")
+                alert(
+                    "Qdrant DOWN — Pipeline HALTED",
+                    f"Qdrant at {QDRANT_URL} is unreachable or empty. "
+                    f"Error: {qdrant_status.get('error', 'no data')}. "
+                    f"Heartbeat STOPPED until Qdrant recovers.",
+                    urgency="critical",
+                )
+                # HARD STOP — kill heartbeat until Qdrant comes back
+                if heartbeat.is_running():
+                    logger.warning("  Stopping heartbeat — no specs without legacy code")
+                    heartbeat.stop()
+                # Skip rest of checks, wait for next cycle
+                time.sleep(CHECK_INTERVAL)
+                continue
+
+            # 3. Check Julie (every 5th check to avoid spam)
             julie_status = {}
             if check_count % 5 == 1:
                 julie_status = check_julie()

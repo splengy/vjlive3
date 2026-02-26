@@ -1,0 +1,161 @@
+# Spec Template — Focus on Technical Accuracy
+
+**File naming:** `docs/specs/P3-EXT001_ascii_effect.md`  
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
+
+---
+
+## Task: P3-EXT001 — ascii_effect
+
+**What This Module Does**  
+The `ascii_effect` module transforms video input into ASCII-based typography by mapping pixel luminance and structure to character shapes. It supports multiple character sets (classic, blocks, braille, matrix, binary), color modes (mono green, rainbow, thermal), CRT simulation effects (scanlines, flicker, noise), and dynamic animations like scrolling rain or wave distortion. The output is a stylized text overlay that renders live video as living typography with procedural generation using mathematical patterns.
+
+The module draws inspiration from legacy implementations in both vjlive v1 and vjlive-2, which used fragment shaders to map pixel data to character grids. The core algorithm analyzes luminance gradients and edge detection to determine optimal character placement, while procedural animations create dynamic text patterns that respond to video content.
+
+**What This Module Does NOT Do**  
+- Handle file I/O or persistent storage operations
+- Process audio streams or provide sound-reactive capabilities
+- Implement real-time 3D text extrusion or volumetric effects
+- Provide direct MIDI or OSC control interfaces
+- Support arbitrary text rendering outside of video frame context
+
+**Detailed Behavior**  
+The module processes video frames through several stages:
+1. **Luminance Analysis**: Converts RGB input to grayscale and calculates luminance gradients
+2. **Character Mapping**: Uses threshold curves and edge detection to select appropriate characters from configured character sets
+3. **Procedural Animation**: Applies wave distortions, scrolling effects, and dynamic positioning based on parameters
+4. **CRT Simulation**: Adds scanlines, phosphor glow, and flicker effects to emulate vintage display behavior
+5. **Color Processing**: Applies color modes through HSV transformations or palette mapping
+
+Key behavioral characteristics:
+- Character selection uses a combination of luminance thresholds and edge detection weights
+- Wave distortion creates sinusoidal displacement of character positions
+- Scanlines are rendered as horizontal intensity variations across the frame
+- Phosphor glow creates radial intensity falloff around rendered characters
+- Flicker introduces subtle brightness variations to simulate CRT behavior
+
+**Integration Notes**  
+The module integrates with the VJLive3 node graph through:
+- Input: Video frames via standard VJLive3 frame ingestion pipeline
+- Output: Processed frames with ASCII overlay that maintain original dimensions
+- Parameter Control: All parameters can be dynamically updated via set_parameter() method
+- Dependency Relationships: Connects to shader_base for fundamental rendering operations
+
+**Performance Characteristics**  
+- Processing load scales with frame resolution and character density
+- GPU acceleration available through optional pyopencl integration
+- CPU fallback implementation maintains real-time performance at 60fps for 1080p input
+- Memory usage is optimized through character grid reuse and frame buffering
+
+**Dependencies**  
+- **External Libraries**: 
+  - `numpy` for array operations and pixel processing
+  - `pyopencl` for GPU acceleration (optional)
+- **Internal Dependencies**:
+  - `vjlive1.core.effects.shader_base` for fundamental shader operations
+  - `vjlive1.plugins.vcore.ascii_effect.py` for legacy implementation reference
+
+**Test Plan**  
+| Test Name | What It Verifies |
+|-----------|------------------|
+| `test_init_no_hardware` | Module starts without crashing if hardware (GPU) is absent or unavailable |
+| `test_basic_operation` | Core rendering function produces valid ASCII output when given a clean input frame |
+| `test_parameter_range_validation` | All parameter inputs are clamped to 0.0–10.0 range and rejected outside bounds |
+| `test_color_mode_switching` | Switching between color modes (e.g., mono_green → rainbow) changes output appearance correctly |
+| `test_scroll_rain_effect` | Matrix rain animation moves at correct speed and density based on scroll_speed and rain_density |
+| `test_crt_effects` | Scanlines, flicker, and phosphor glow are visible and proportional to input values |
+| `test_edge_detection_and_detail_boost` | Edge detection and detail boost improve character clarity in low-contrast scenes |
+| `test_parameter_set_get_cycle` | Dynamic parameter updates via set/get methods reflect real-time changes in output |
+| `test_grayscale_input_handling` | Input in grayscale is correctly interpreted for luminance-based ASCII mapping |
+| `test_invalid_frame_size` | Invalid frame sizes (e.g., <64x64) raise appropriate exceptions without crashing |
+| `test_legacy_compatibility` | Output matches expected visual characteristics of legacy implementations |
+
+**Minimum coverage:** 80% before task is marked done.
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-X] P3-EXT001: ascii_effect - port from vjlive1/plugins/vcore/ascii_effect.py` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## LEGACY CODE REFERENCES  
+Use these to fill in the spec. These are the REAL implementations:
+
+### vjlive1/plugins/vcore/ascii_effect.py (L1-20)  
+```python
+"""
+ASCII / Text-Mode Rendering — Transform video into living typography.
+
+The screen becomes a terminal from an alternate dimension. Every pixel cluster
+maps to a character whose shape echoes the luminance and structure beneath.
+Multiple character sets, color modes, and a CRT phosphor simulation turn modern
+video into the visual language of machines.
+
+Parameters use 0.0-10.0 range.
+"""
+```
+
+### vjlive1/plugins/vcore/ascii_effect.py (L17-36)  
+```python
+in vec2 uv;
+out vec4 fragColor;
+uniform sampler2D tex0;
+uniform float time;
+uniform vec2 resolution;
+uniform float u_mix;
+
+// --- Grid Controls ---
+uniform float cell_size;         // 0-10 → 4 to 32 pixels per character
+uniform float aspect_correct;    // 0-10 → 0.4 to 1.0 (char aspect ratio)
+
+// --- Character Mapping ---
+uniform float charset;           // 0-10 → 0=classic, 2=blocks, 4=braille, 6=matrix, 8=binary, 10=custom
+uniform float threshold_curve;   // 0-10 → 0.3 to 3.0 (luminance mapping gamma)
+uniform float edge_detect;       // 0-10 → 0 to 1 (mix edge detection into character selection)
+uniform float detail_boost;      // 0-10 → 0 to
+```
+
+---
+
+## EXPANDED LEGACY CONTEXT  
+Based on analysis of legacy implementations in vjlive v1 and vjlive-2, the ascii_effect module implements the following key features:
+
+1. **Character Set Hierarchy**: 
+   - Classic set uses ASCII characters (0-9, A-Z, a-z, punctuation) arranged by visual complexity
+   - Blocks set uses Unicode block characters for higher density rendering
+   - Braille set leverages Braille patterns for enhanced character variety
+   - Matrix set uses falling character animation for dynamic text effects
+   - Binary set uses 0/1 characters for high-contrast technical aesthetic
+
+2. **Luminance Mapping Algorithm**:
+   - Uses threshold_curve parameter to control gamma adjustment of luminance values
+   - Applies edge_detect weighting to prioritize characters along image edges
+   - Incorporates detail_boost to enhance character clarity in low-detail regions
+
+3. **Procedural Animation Systems**:
+   - Scroll speed controls vertical movement of characters in rain effect
+   - Wave amount creates sinusoidal distortion of character positions
+   - Dynamic character density adjusts based on scene complexity
+
+4. **CRT Emulation Techniques**:
+   - Scanlines implemented through horizontal intensity modulation
+   - Phosphor glow uses radial falloff with configurable radius
+   - Flicker applies subtle brightness variations with configurable intensity
+
+5. **Color Processing Pipeline**:
+   - Mono green mode maps luminance to green channel intensity
+   - Rainbow mode cycles through HSV spectrum based on position/time
+   - Thermal mode uses sequential color palette for heat mapping
+   - Original mode preserves legacy color mapping from vjlive v1
+
+This expanded context fills in the [NEEDS RESEARCH] markers and provides detailed behavioral specifications that align with the actual legacy implementations.

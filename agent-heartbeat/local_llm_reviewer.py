@@ -100,21 +100,17 @@ class LocalLLMReviewer:
     def __init__(
         self,
         host: str = "192.168.1.60",
-        port: int = 8080,
-        timeout: float = 30.0,
-        model: str = "qwen2.5:7b",
+        port: int = 5050,
+        timeout: float = 60.0,
+        model: str = "Qwen3-4B-Instruct",
     ):
         self.host = host
         self.base_url = f"http://{host}:{port}"
         self.timeout = timeout
         self.model = model
         self._available = None
-        # Julie-Winters has:
-        # - julie_rag.py on port 8080 (RAG + search)
-        # - vlm_server.py on port 5002 (Qwen2-VL-2B vision)
-        # - Ollama on 127.0.0.1:11434 (localhost only)
-        # - rkllm server demo uses /rkllm_chat with OpenAI messages format
-        # Available models: dolphin-llama3.1-8b, Qwen3-4B, Phi-4-mini, Qwen2.5-Coder-1.5B
+        # Julie-Winters: spec_server.py on port 5050
+        # Qwen3-4B-Instruct on RK3588 NPU via rkllm
 
     def is_available(self) -> bool:
         """Check if the Orange Pi inference server is reachable."""
@@ -122,9 +118,13 @@ class LocalLLMReviewer:
             logger.warning("'requests' library not installed — local LLM review disabled")
             return False
         try:
-            resp = requests.get(f"{self.base_url}/stats", timeout=3)
-            self._available = resp.status_code == 200
-            return self._available
+            resp = requests.get(f"{self.base_url}/health", timeout=5)
+            if resp.status_code == 200:
+                data = resp.json()
+                self._available = data.get("status") == "ok"
+                return self._available
+            self._available = False
+            return False
         except (requests.ConnectionError, requests.Timeout):
             self._available = False
             logger.warning(f"Orange Pi at {self.base_url} is unreachable — local LLM review disabled")
@@ -132,63 +132,23 @@ class LocalLLMReviewer:
 
     def _ask(self, prompt: str) -> Optional[str]:
         """
-        Send a classification prompt to the Orange Pi.
-
-        Tries the rkllm OpenAI-compatible endpoint first,
-        then falls back to the julie_rag.py search endpoint.
+        Send a classification prompt to the spec_server on Julie.
+        Uses the /generate endpoint which returns {"response": "..."}.
         """
         if requests is None:
             return None
         try:
-            # Method 1: rkllm_chat endpoint (OpenAI-compatible)
-            payload = {
-                "model": self.model,
-                "messages": [{"role": "user", "content": prompt}],
-                "stream": False,
-                "enable_thinking": False,
-                "tools": None,
-            }
-            try:
-                resp = requests.post(
-                    f"{self.base_url}/rkllm_chat",
-                    json=payload,
-                    timeout=self.timeout,
-                )
-                if resp.status_code == 200:
-                    data = resp.json()
-                    return data["choices"][-1]["message"]["content"].strip()
-            except (requests.ConnectionError, KeyError):
-                pass
-
-            # Method 2: Generic /api/generate (Ollama-style)
-            try:
-                resp = requests.post(
-                    f"{self.base_url}/api/generate",
-                    json={"prompt": prompt, "model": self.model, "stream": False},
-                    timeout=self.timeout,
-                )
-                if resp.status_code == 200:
-                    data = resp.json()
-                    return data.get("response", "").strip()
-            except (requests.ConnectionError, KeyError):
-                pass
-
-            # Method 3: Search endpoint on julie_rag.py
-            try:
-                resp = requests.post(
-                    f"{self.base_url}/search",
-                    json={"query": prompt, "max_results": 1},
-                    timeout=self.timeout,
-                )
-                if resp.status_code == 200:
-                    data = resp.json()
-                    # Extract the most relevant result
-                    if "results" in data and data["results"]:
-                        return data["results"][0].get("text", "").strip()
-            except (requests.ConnectionError, KeyError):
-                pass
-
-            return None
+            resp = requests.post(
+                f"{self.base_url}/generate",
+                json={"prompt": prompt, "max_tokens": 32},
+                timeout=self.timeout,
+            )
+            if resp.status_code == 200:
+                data = resp.json()
+                return data.get("response", "").strip()
+            else:
+                logger.warning(f"spec_server returned {resp.status_code}")
+                return None
         except Exception as e:
             logger.warning(f"Local LLM query failed: {e}")
             return None

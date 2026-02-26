@@ -68,14 +68,19 @@ def load_config(config_path: str = None) -> dict:
 def _default_config() -> dict:
     """Fallback config if config.yaml is missing or broken."""
     return {
-        "llm": {"provider": "anthropic", "model": "claude-sonnet-4-20250514", "api_key_env": "ANTHROPIC_API_KEY"},
+        "llm": {
+            "provider": "julie",
+            "model": "Qwen3-4B-Instruct",
+            "julie_host": "192.168.1.60",
+            "julie_port": 5050,
+        },
         "project": {
             "root": os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             "legacy_root": "",
             "specs_dir": "docs/specs",
             "template_path": "docs/specs/_TEMPLATE.md",
         },
-        "orange_pi": {"enabled": False, "host": "192.168.1.60", "port": 8080},
+        "orange_pi": {"enabled": True, "host": "192.168.1.60", "port": 5050},
         "validation": {"token_budget": 8000, "min_coverage": 99},
         "daemon": {"max_retries": 3, "retry_delay_seconds": 5},
         "alerts": {"log_dir": "agent-heartbeat/logs"},
@@ -90,16 +95,47 @@ def call_llm_api(prompt: str, config: dict) -> str:
     The output from here goes straight to the validator pipeline —
     it never touches disk until validated.
 
-    Supports: anthropic, google, ollama, litellm
+    Supports: julie, anthropic, google, ollama, litellm
     """
     provider = config["llm"]["provider"]
     model = config["llm"]["model"]
-    max_tokens = config["llm"].get("max_output_tokens", 4000)
-    temperature = config["llm"].get("temperature", 0.0)
+    max_tokens = config["llm"].get("max_output_tokens", 2048)
+    temperature = config["llm"].get("temperature", 0.7)
 
     logger.info(f"Calling {provider}/{model} ({estimate_tokens(prompt)} input tokens)...")
 
-    if provider == "anthropic":
+    if provider == "julie":
+        # Julie-Winters: Qwen3-4B on RK3588 NPU via spec_server.py
+        # NO FALLBACK. If Julie is down, the task fails.
+        import urllib.request
+        host = os.environ.get("JULIE_HOST", config["llm"].get("julie_host", "192.168.1.60"))
+        port = int(os.environ.get("JULIE_PORT", config["llm"].get("julie_port", 5050)))
+        url = f"http://{host}:{port}/generate"
+
+        payload = json.dumps({"prompt": prompt, "max_tokens": max_tokens}).encode('utf-8')
+        req = urllib.request.Request(
+            url,
+            data=payload,
+            headers={'Content-Type': 'application/json'},
+            method='POST',
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=600) as resp:
+                data = json.loads(resp.read().decode('utf-8'))
+                response = data.get('response', '')
+                if not response:
+                    logger.error(f"Julie returned empty response: {data}")
+                    return ""
+                return response
+        except urllib.error.URLError as e:
+            logger.error(f"Julie UNREACHABLE at {url}: {e}")
+            raise RuntimeError(f"Julie spec server down at {url}: {e}")
+        except TimeoutError:
+            logger.error(f"Julie TIMED OUT after 600s")
+            raise RuntimeError(f"Julie spec server timed out after 600s")
+
+
+    elif provider == "anthropic":
         try:
             import anthropic
             api_key = os.environ.get(config["llm"]["api_key_env"], "")
@@ -317,10 +353,17 @@ def process_task(task: dict, config: dict, plate_builder: TaskPlateBuilder) -> b
         # Step 3: Validate output (THE GATE)
         try:
             orange_pi = config.get("orange_pi", {})
+            val_config = config.get("validation", {})
+            ws_config = val_config.get("word_salad", {})
+            stub_config = val_config.get("stubs", {})
             validator = ValidatorPipeline(
                 orange_pi_host=orange_pi.get("host", "192.168.1.60"),
-                orange_pi_port=orange_pi.get("port", 8080),
-                use_local_llm=orange_pi.get("enabled", True),
+                orange_pi_port=orange_pi.get("port", 5050),
+                use_local_llm=orange_pi.get("enabled", False),
+                word_salad_max_hits=ws_config.get("max_hits", 5),
+                word_salad_max_density=ws_config.get("max_density", 3.0),
+                stub_max_suspicious=stub_config.get("max_suspicious", 1),
+                stub_min_code_ratio=stub_config.get("min_code_ratio", 0.3),
             )
             report = validator.validate(raw_output, spec=plate.spec_content)
         except Exception as e:
@@ -402,7 +445,9 @@ def main():
     # Set up logging to both console and file
     log_dir = Path("agent-heartbeat/logs")
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_file = log_dir / f"heartbeat_{datetime.now().strftime('%Y-%m-%d')}.log"
+    board_name = os.environ.get("BOARD_NAME", "")
+    log_suffix = f"_{board_name}" if board_name else ""
+    log_file = log_dir / f"heartbeat_{datetime.now().strftime('%Y-%m-%d')}{log_suffix}.log"
 
     logging.basicConfig(
         level=logging.INFO,

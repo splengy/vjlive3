@@ -1,0 +1,509 @@
+{
+  "astra_linux_source": {
+    "canonical": "AstraLinuxSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "astra_source": {
+    "canonical": "AstraSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "base_video_source": {
+    "canonical": "BaseVideoSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "camera_source": {
+    "canonical": "CameraSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "config": {
+    "canonical": "config",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "core": {
+    "canonical": "core",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "core_template": {
+    "canonical": "_CORE_TEMPLATE",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "depth": {
+    "canonical": "depth",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_param"
+    ]
+  },
+  "depth_processor": {
+    "canonical": "depth_processor",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "discover_sources": {
+    "canonical": "discover_sources",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method"
+    ]
+  },
+  "engine": {
+    "canonical": "engine",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "frame": {
+    "canonical": "frame",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "frame_data": {
+    "canonical": "FrameData",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_class",
+      "spec_reference"
+    ]
+  },
+  "frame_number": {
+    "canonical": "frame_number",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_param"
+    ]
+  },
+  "generative_source": {
+    "canonical": "GenerativeSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "get_primary_source": {
+    "canonical": "get_primary_source",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method"
+    ]
+  },
+  "get_source": {
+    "canonical": "get_source",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method"
+    ]
+  },
+  "is_available": {
+    "canonical": "is_available",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method",
+      "spec_reference"
+    ]
+  },
+  "network_source": {
+    "canonical": "NetworkSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "numpy": {
+    "canonical": "numpy",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "on_source_connected": {
+    "canonical": "on_source_connected",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_callback",
+      "spec_method",
+      "spec_reference"
+    ]
+  },
+  "on_source_disconnected": {
+    "canonical": "on_source_disconnected",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_callback",
+      "spec_method",
+      "spec_reference"
+    ]
+  },
+  "openni2": {
+    "canonical": "openni2",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "output_mapper": {
+    "canonical": "output_mapper",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "pyrealsense2": {
+    "canonical": "pyrealsense2",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "read_frame": {
+    "canonical": "read_frame",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method"
+    ]
+  },
+  "real_sense_source": {
+    "canonical": "RealSenseSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "render": {
+    "canonical": "render",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "resolution": {
+    "canonical": "resolution",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method",
+      "spec_reference"
+    ]
+  },
+  "rgb": {
+    "canonical": "rgb",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_param"
+    ]
+  },
+  "set_primary_source": {
+    "canonical": "set_primary_source",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method"
+    ]
+  },
+  "shader_compiler": {
+    "canonical": "shader_compiler",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "source_id": {
+    "canonical": "source_id",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_param"
+    ]
+  },
+  "source_type": {
+    "canonical": "SourceType",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_class",
+      "spec_method",
+      "spec_reference"
+    ]
+  },
+  "start": {
+    "canonical": "start",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method"
+    ]
+  },
+  "stop": {
+    "canonical": "stop",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_method"
+    ]
+  },
+  "surface_ir_source": {
+    "canonical": "SurfaceIRSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "test_frame_data_structure": {
+    "canonical": "test_frame_data_structure",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "test_generative_source_frames": {
+    "canonical": "test_generative_source_frames",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "test_hot_swap_callback": {
+    "canonical": "test_hot_swap_callback",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_callback",
+      "spec_reference"
+    ]
+  },
+  "test_init_no_hardware": {
+    "canonical": "test_init_no_hardware",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "test_primary_source_fallback": {
+    "canonical": "test_primary_source_fallback",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "test_read_frame_returns_none": {
+    "canonical": "test_read_frame_returns_none",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "test_source_discovery": {
+    "canonical": "test_source_discovery",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "test_source_start_stop": {
+    "canonical": "test_source_start_stop",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "test_thread_safety": {
+    "canonical": "test_thread_safety",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "thread_manager": {
+    "canonical": "thread_manager",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "timestamp": {
+    "canonical": "timestamp",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_param"
+    ]
+  },
+  "v4_l2_depth_source": {
+    "canonical": "V4L2DepthSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "video": {
+    "canonical": "video",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "video_source": {
+    "canonical": "VideoSource",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_class",
+      "spec_reference"
+    ]
+  },
+  "video_source_manager": {
+    "canonical": "VideoSourceManager",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_class",
+      "spec_reference"
+    ]
+  },
+  "vision": {
+    "canonical": "vision",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "vjlive3": {
+    "canonical": "vjlive3",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  },
+  "webcam_depth_estimator": {
+    "canonical": "WebcamDepthEstimator",
+    "files": [
+      "_GOLDEN_EXAMPLE_CORE.md"
+    ],
+    "contexts": [
+      "spec_reference"
+    ]
+  }
+}

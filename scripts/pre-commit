@@ -1,0 +1,144 @@
+#!/bin/bash
+# VJLive3 Pre-Commit Hook
+# Enforces quality gates before code can be committed.
+#
+# Install: cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -e
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+SCRIPTS="$REPO_ROOT/scripts"
+FAILED=0
+
+echo "🔍 VJLive3 Pre-Commit Checks"
+echo "=============================="
+
+# 1. Stub Detection — no pass-only methods
+echo ""
+echo "1. Checking for stubs..."
+STAGED_PY=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$' || true)
+
+if [ -n "$STAGED_PY" ]; then
+    for f in $STAGED_PY; do
+        if [ -f "$f" ]; then
+            result=$(python3 "$SCRIPTS/detect_stubs.py" "$f" --strict 2>&1) || {
+                echo "   ❌ Stubs found in $f"
+                echo "$result" | grep -E "^  [🚫⚠️🔸]" || true
+                FAILED=1
+            }
+        fi
+    done
+    if [ $FAILED -eq 0 ]; then
+        echo "   ✅ No stubs found"
+    fi
+else
+    echo "   ⏭️  No Python files staged"
+fi
+
+# 2. Spec Check — does a spec exist for staged src/ modules?
+echo ""
+echo "2. Checking for specs..."
+STAGED_SRC=$(git diff --cached --name-only --diff-filter=ACM | grep '^src/' | grep '\.py$' || true)
+
+if [ -n "$STAGED_SRC" ]; then
+    SPECS_DIR="$REPO_ROOT/docs/specs"
+    MISSING_SPEC=0
+    for f in $STAGED_SRC; do
+        # Skip __init__.py
+        basename=$(basename "$f" .py)
+        if [ "$basename" = "__init__" ]; then
+            continue
+        fi
+        # Check if any spec references this module
+        if ! grep -rl "$basename" "$SPECS_DIR" >/dev/null 2>&1; then
+            echo "   ⚠️  No spec found for: $f"
+            MISSING_SPEC=1
+        fi
+    done
+    if [ $MISSING_SPEC -eq 0 ]; then
+        echo "   ✅ All staged modules have specs"
+    else
+        echo "   ⚠️  Some modules lack specs (warning only, not blocking)"
+    fi
+else
+    echo "   ⏭️  No src/ files staged"
+fi
+
+# 3. Test file check — does a test file exist for staged src/ modules?
+echo ""
+echo "3. Checking for tests..."
+if [ -n "$STAGED_SRC" ]; then
+    MISSING_TEST=0
+    for f in $STAGED_SRC; do
+        basename=$(basename "$f" .py)
+        if [ "$basename" = "__init__" ]; then
+            continue
+        fi
+        # Look for test_<module>.py anywhere in tests/
+        if ! find "$REPO_ROOT/tests" -name "test_${basename}.py" 2>/dev/null | grep -q .; then
+            echo "   ⚠️  No test file for: $f"
+            MISSING_TEST=1
+        fi
+    done
+    if [ $MISSING_TEST -eq 0 ]; then
+        echo "   ✅ All staged modules have test files"
+    else
+        echo "   ⚠️  Some modules lack tests (warning only, not blocking)"
+    fi
+else
+    echo "   ⏭️  No src/ files staged"
+fi
+
+# 4. File size check — no files over 750 lines
+echo ""
+echo "4. Checking file sizes..."
+if [ -n "$STAGED_PY" ]; then
+    OVERSIZED=0
+    for f in $STAGED_PY; do
+        if [ -f "$f" ]; then
+            lines=$(wc -l < "$f")
+            if [ "$lines" -gt 750 ]; then
+                echo "   ❌ $f is $lines lines (max 750)"
+                OVERSIZED=1
+                FAILED=1
+            fi
+        fi
+    done
+    if [ $OVERSIZED -eq 0 ]; then
+        echo "   ✅ All files under 750 lines"
+    fi
+else
+    echo "   ⏭️  No Python files staged"
+fi
+
+# 5. No /tmp or hardcoded paths
+echo ""
+echo "5. Checking for hardcoded paths..."
+if [ -n "$STAGED_PY" ]; then
+    BAD_PATHS=0
+    for f in $STAGED_PY; do
+        if [ -f "$f" ]; then
+            if grep -n '/tmp/' "$f" 2>/dev/null | grep -v '#.*test\|#.*mock\|#.*TODO' | head -3; then
+                echo "   ❌ /tmp/ path found in $f"
+                BAD_PATHS=1
+                FAILED=1
+            fi
+        fi
+    done
+    if [ $BAD_PATHS -eq 0 ]; then
+        echo "   ✅ No hardcoded /tmp/ paths"
+    fi
+else
+    echo "   ⏭️  No Python files staged"
+fi
+
+echo ""
+echo "=============================="
+if [ $FAILED -ne 0 ]; then
+    echo "❌ Pre-commit checks FAILED. Fix issues above."
+    echo "   To bypass (emergency only): git commit --no-verify"
+    exit 1
+else
+    echo "✅ All pre-commit checks passed."
+    exit 0
+fi

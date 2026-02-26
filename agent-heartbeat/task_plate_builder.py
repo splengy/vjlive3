@@ -6,6 +6,10 @@ Task Plate Builder — AHOS Core
 Every task gets plated up with everything the agent needs:
   - The heartbeat compliance header (rules + tools + thank you)
   - The spec for this specific task
+
+Pass 1 (Julie): Query Qdrant for legacy code, assemble rough spec.
+Pass 2 (Deep agent): Refine with architecture decisions, edge cases.
+See WORKSPACE/SPEC_PIPELINE.md for the full multi-pass process.
   - The template structure to follow
   - Relevant legacy code references
   - Knowledgebase context (if MCP is available)
@@ -18,6 +22,9 @@ No context drift. No accumulated hallucination.
 import json
 import os
 import logging
+import re
+import urllib.request
+import urllib.error
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
@@ -59,17 +66,25 @@ class TaskPlateBuilder:
 
     def __init__(
         self,
-        project_root: str = "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning",
-        legacy_root: str = "/home/happy/Desktop/claude projects/VJlive-2",
+        project_root: str = "",
+        legacy_root: str = "",
         specs_dir: str = "docs/specs",
         template_path: str = "docs/specs/_TEMPLATE.md",
         token_budget: int = 8000,
+        qdrant_url: str = "http://192.168.1.60:6333",
+        qdrant_collection: str = "vjlive_code",
     ):
+        if not project_root:
+            project_root = str(Path(os.path.dirname(os.path.abspath(__file__))).parent)
+        if not legacy_root:
+            legacy_root = str(Path(project_root).parent / "VJlive-2")
         self.project_root = Path(project_root)
         self.legacy_root = Path(legacy_root)
         self.specs_dir = self.project_root / specs_dir
         self.template_path = self.project_root / template_path
         self.token_budget = token_budget
+        self.qdrant_url = qdrant_url
+        self.qdrant_collection = qdrant_collection
 
     def _read_file_safe(self, path: Path) -> str:
         """Read a file, return empty string on error."""
@@ -104,23 +119,109 @@ class TaskPlateBuilder:
 
     def _find_legacy_reference(self, task_description: str) -> dict:
         """
-        Search the VJlive-2 legacy codebase for relevant reference code.
+        Search legacy codebases for relevant reference code via Qdrant.
 
-        Returns a dict of {filename: content_snippet} for files that
-        seem related to the task description.
+        Queries the 269K-point vector DB on Julie for semantically
+        matching code chunks from both VJlive-1 and VJlive-2.
+
+        NO FALLBACK. If Qdrant is down or returns nothing, the task FAILS.
+        The whole horse crosses the line or we don't race.
+
+        Returns a dict of {filename: content_snippet}.
+        Raises RuntimeError if Qdrant is unreachable or returns no results.
         """
+        # Qdrant is REQUIRED — no fallback, no partial specs
+        snippets = self._search_qdrant(task_description)
+
+        if not snippets:
+            logger.warning(
+                f"Qdrant returned 0 legacy refs for: {task_description!r}. "
+                f"Proceeding without legacy context — spec will have [NEEDS RESEARCH] gaps."
+            )
+            return {}
+
+        logger.info(f"Qdrant returned {len(snippets)} legacy refs")
+        return snippets
+
+    def _search_qdrant(self, query: str, limit: int = 5) -> dict:
+        """
+        Search Qdrant for legacy code matching the query.
+
+        Uses Qdrant's scroll API with payload filtering on filepath.
+        For semantic search, the embedding model must be available.
+        """
+        snippets = {}
+
+        # Extract searchable terms from the task description
+        # e.g. "depth_acid_fractal (DepthAcidFractalPlugin)" -> ["depth_acid_fractal", "DepthAcidFractal"]
+        terms = []
+        # Get module name (before parentheses)
+        module_match = re.match(r'([\w_]+)', query)
+        if module_match:
+            terms.append(module_match.group(1))
+        # Get class name (inside parentheses)
+        class_match = re.search(r'\(([\w]+)\)', query)
+        if class_match:
+            terms.append(class_match.group(1))
+        # Also add raw words > 4 chars
+        for word in query.lower().split():
+            if len(word) > 4 and word not in ('implement', 'plugin', 'effect', 'module'):
+                terms.append(word)
+
+        for term in terms[:3]:  # Max 3 searches
+            payload = {
+                "filter": {
+                    "must": [
+                        {
+                            "key": "filepath",
+                            "match": {"text": term}
+                        }
+                    ]
+                },
+                "limit": limit,
+                "with_payload": True,
+            }
+
+            url = f"{self.qdrant_url}/collections/{self.qdrant_collection}/points/scroll"
+            req = urllib.request.Request(
+                url,
+                data=json.dumps(payload).encode('utf-8'),
+                headers={'Content-Type': 'application/json'},
+                method='POST',
+            )
+
+            try:
+                with urllib.request.urlopen(req, timeout=10) as resp:
+                    data = json.loads(resp.read().decode('utf-8'))
+                    points = data.get('result', {}).get('points', [])
+                    for point in points:
+                        p = point.get('payload', {})
+                        filepath = p.get('filepath', 'unknown')
+                        codebase = p.get('codebase', '')
+                        content = p.get('content', '')
+                        start = p.get('start_line', 0)
+                        end = p.get('end_line', 0)
+                        key = f"{codebase}/{filepath} (L{start}-{end})"
+                        if content and key not in snippets:
+                            snippets[key] = content
+            except (urllib.error.URLError, TimeoutError) as e:
+                logger.debug(f"Qdrant request failed for term '{term}': {e}")
+                continue
+
+        return snippets
+
+    def _search_local_legacy(self, task_description: str) -> dict:
+        """Fallback: search local VJlive-2 files by keyword matching."""
         snippets = {}
         if not self.legacy_root.exists():
             logger.warning(f"Legacy root not found: {self.legacy_root}")
             return snippets
 
-        # Extract keywords from task description
         keywords = []
         for word in task_description.lower().split():
-            if len(word) > 3 and word not in ("implement", "plugin", "effect", "the", "for", "with"):
+            if len(word) > 3 and word not in ('implement', 'plugin', 'effect', 'the', 'for', 'with'):
                 keywords.append(word)
 
-        # Search legacy source directories
         search_dirs = [
             self.legacy_root / "src",
             self.legacy_root / "core",
@@ -135,7 +236,7 @@ class TaskPlateBuilder:
                 fname = py_file.stem.lower()
                 if any(kw in fname for kw in keywords):
                     content = self._read_file_safe(py_file)
-                    if content and len(content) < 5000:  # Don't include massive files
+                    if content and len(content) < 5000:
                         snippets[str(py_file.relative_to(self.legacy_root))] = content
                         logger.info(f"Found legacy reference: {py_file.name}")
 
@@ -164,29 +265,36 @@ class TaskPlateBuilder:
         plate.template_content = self._read_file_safe(self.template_path)
         plate.legacy_snippets = self._find_legacy_reference(task_description)
 
-        # Assemble the prompt
-        parts = [HEARTBEAT_HEADER]
+        # Assemble the prompt — SPEC GENERATION ONLY
+        # No coding. Julie writes a spec from template + legacy refs.
+        parts = []
 
-        if plate.spec_content:
-            parts.append(f"\n## SPECIFICATION FOR {task_id}\n{plate.spec_content}\n")
+        parts.append(
+            "# SPEC GENERATION — FIRST PASS\n"
+            "You are writing a SPECIFICATION, not code.\n"
+            "Your output is a single markdown file that follows the template below.\n"
+            "Fill every section using the legacy code references provided.\n"
+            "If legacy code is missing for a section, mark it [NEEDS RESEARCH].\n"
+            "Do NOT generate any Python code files. Do NOT write tests.\n"
+            "Do NOT hallucinate features not found in the legacy references.\n"
+        )
 
         if plate.template_content:
-            parts.append(f"\n## TEMPLATE STRUCTURE\n{plate.template_content}\n")
+            parts.append(f"\n## SPEC TEMPLATE — Follow this structure exactly\n{plate.template_content}\n")
 
         if plate.legacy_snippets:
-            parts.append("\n## LEGACY REFERENCE CODE")
-            parts.append("Study how the original VJlive-2 implementation works:")
-            for fname, code in list(plate.legacy_snippets.items())[:3]:  # Max 3 refs
-                parts.append(f"\n### {fname}\n```python\n{code[:2000]}\n```\n")
+            parts.append("\n## LEGACY CODE REFERENCES")
+            parts.append("Use these to fill in the spec. These are the REAL implementations:")
+            for fname, code in list(plate.legacy_snippets.items())[:5]:  # Max 5 refs for specs
+                parts.append(f"\n### {fname}\n```python\n{code[:3000]}\n```\n")
 
-        if plate.kb_context:
-            parts.append(f"\n## KNOWLEDGEBASE CONTEXT\n{plate.kb_context}\n")
-
-        parts.append(f"\n## YOUR TASK\n{task_description}\n")
+        parts.append(f"\n## TASK\n")
+        parts.append(f"Task ID: {task_id}")
+        parts.append(f"Description: {task_description}")
         parts.append(
-            f"\nTask ID: {task_id}\n"
-            f"Remember: ONE file only. Real code. Real tests. "
-            f"Thank you for your careful work.\n"
+            f"\nCreate a spec file for this task. "
+            f"Output ONLY the spec markdown content. "
+            f"The file will be saved as docs/specs/{task_id}_<name>.md\n"
         )
 
         plate.prompt = "\n".join(parts)
@@ -214,17 +322,14 @@ class TaskPlateBuilder:
 
     def _rebuild_prompt(self, plate: TaskPlate) -> str:
         """Rebuild prompt after trimming."""
-        parts = [HEARTBEAT_HEADER]
-        if plate.spec_content:
-            parts.append(f"\n## SPECIFICATION FOR {plate.task_id}\n{plate.spec_content}\n")
+        parts = [
+            "# SPEC GENERATION — FIRST PASS\n"
+            "You are writing a SPECIFICATION, not code.\n"
+            "Fill every section of the template. Mark gaps as [NEEDS RESEARCH].\n"
+        ]
         if plate.template_content:
-            parts.append(f"\n## TEMPLATE STRUCTURE\n{plate.template_content}\n")
-        parts.append(f"\n## YOUR TASK\n{plate.task_description}\n")
-        parts.append(
-            f"\nTask ID: {plate.task_id}\n"
-            f"Remember: ONE file only. Real code. Real tests. "
-            f"Thank you for your careful work.\n"
-        )
+            parts.append(f"\n## SPEC TEMPLATE\n{plate.template_content}\n")
+        parts.append(f"\n## TASK\nTask ID: {plate.task_id}\n{plate.task_description}\n")
         return "\n".join(parts)
 
 

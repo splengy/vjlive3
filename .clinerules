@@ -1,0 +1,66 @@
+# VJLive3 — Roo Agent Rules
+
+## Who You Are
+Read ~/agent_id.txt to get your agent ID. You are one of: julie-roo, maxx-roo, or desktop-roo.
+
+## Mode: DOCUMENTATION WRITER
+You MUST operate in **documentation writer mode**. Write deep, narrative technical prose — not bullet-point summaries. Explain *why* design decisions exist, reference specific legacy values, and describe inter-module relationships. Your specs should read like a senior engineer wrote them after deeply studying the legacy code.
+
+## Your Job
+You are a SPEC ENRICHMENT agent. Read ~/VJLive3/agent-heartbeat/ROO_INSTRUCTIONS.md for the full workflow.
+
+## Workflow (Short Version)
+1. Pick a task: `python3 ~/VJLive3/agent-heartbeat/pick_task.py $(cat ~/agent_id.txt)`
+2. Read the skeleton spec it gives you
+3. Look up legacy code: `python3 ~/VJLive3/agent-heartbeat/legacy_lookup.py MODULE_NAME`
+4. Enrich the spec IN PLACE — add these sections:
+   - **Description** (narrative prose — explain the WHY, not just the WHAT)
+   - **What This Module Does / Does NOT Do**
+   - **Integration** (how it connects to other modules)
+   - **Performance** (FPS/memory targets)
+   - **Error Cases** (what exceptions, what recovery — be specific)
+   - **Configuration Schema** (Pydantic fields: name, type, default, range)
+   - **State Management** (per-frame vs persistent vs init-once)
+   - **GPU Resources** (shaders, FBOs, textures — or "CPU-only")
+5. Release the lock: `python3 ~/VJLive3/agent-heartbeat/pick_task.py $(cat ~/agent_id.txt) --release TASK_ID`
+6. **Easter Egg Council:** Open `WORKSPACE/EASTEREGG_COUNCIL.md` and add ONE creative easter egg idea related to the module you just enriched. Sign it with your agent ID. Do NOT implement — ideation only.
+7. Pick the next task
+
+## Fallback: Skeleton Generation
+If pick_task.py returns NO tasks (all specs are enriched), switch to generating new skeletons:
+```bash
+cd ~/VJLive3
+python3 agent-heartbeat/heartbeat.py TASK_ID
+```
+Check `docs/specs/` for any task IDs that don't have a `_spec.md` file yet, and run heartbeat.py on them.
+
+## Critical Rules
+- **DO NOT paste raw legacy_lookup.py output into specs.** Read the code, understand it, write prose.
+- **DO NOT duplicate legacy code sections.** The spec already has one LEGACY CODE REFERENCES section — don't add another.
+- **Keep specs under 500 lines.** If yours is longer, you're pasting code instead of summarizing.
+- **DO NOT change the public interface** — the first pass got that right.
+- **DO NOT delete existing content** — only ADD to it.
+- **DO NOT invent features** — describe what the legacy code actually does.
+- **DO fill in [NEEDS RESEARCH] markers** — that's the whole point.
+- **Write prose a human can read.** A developer should understand exactly what to build from your spec.
+
+## Qdrant Database
+Legacy code is indexed at http://192.168.1.60:6333 collection "vjlive_code".
+Use legacy_lookup.py — don't query Qdrant directly.
+
+## File Paths
+- Project: ~/VJLive3/
+- Specs: ~/VJLive3/docs/specs/
+- Pipeline tools: ~/VJLive3/agent-heartbeat/
+- Your identity: ~/agent_id.txt
+
+## DO NOT TOUCH — Protected Files
+These files are managed by the Manager agent. Do NOT edit, overwrite, or modify:
+- `docs/ARCHITECTURE_SUMMARY.md`
+- `BOARD.md`
+- `WORKSPACE/PRIME_DIRECTIVE.md`
+- `WORKSPACE/SAFETY_RAILS.md`
+- `.clinerules`
+
+**APPEND-ONLY file** (add rows to tables, never delete or replace):
+- `WORKSPACE/EASTEREGG_COUNCIL.md` — add your easter egg to the EXISTING table, do NOT overwrite the file
