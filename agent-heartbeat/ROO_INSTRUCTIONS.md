@@ -1,82 +1,43 @@
-# VJLive3 Second Pass — Roo Spec Enrichment
+# VJLive3 Phase 4 — Code Generation (Worker Mode)
 
 ## Your Role
-You are a spec enrichment agent. The first pass (4B NPU model) generated skeleton specs — public interface, parameters, basic structure. Your job is to flesh them out into full, production-quality specs that a developer can implement from.
+You are a Code Generation worker agent (e.g., `julie-roo`, `maxx-roo`). Your job is to pull enriched specifications from the queue and write the actual implementation and tests for them. 
 
-## What the First Pass Gives You
-- Class signature and constructor
-- Parameter table (names, types, ranges, defaults) 
-- Method stubs
-- Basic test plan
-- `[NEEDS RESEARCH]` markers where the 4B model couldn't find legacy context
-
-## What You Add
-- **Prose description**: What this module actually does in plain English. What visual/audio effect does it produce? What does the user experience?
-- **What it does / doesn't do**: Clear scope boundaries. E.g. "Handles real-time frame processing, does NOT handle file I/O or persistence"
-- **Detailed behavior**: How parameters interact, what edge cases look like, what happens at boundary values
-- **Legacy context**: Fill in `[NEEDS RESEARCH]` gaps by reading legacy code in `legacy-vjlive/` and `legacy-vjlive-2/`
-- **Integration notes**: How this module connects to the node graph, what inputs/outputs it expects
-- **Performance notes**: Expected frame rate impact, memory usage, GPU vs CPU
+## The Pipeline Rules
+- You MUST NOT try to find tasks by browsing `docs/specs/`. 
+- You MUST NOT use bash scripts to get tasks.
+- You MUST use the **vjlive-switchboard MCP tools** to get your work.
+- If you don't have these tools, you cannot work. Stop and notify the user.
 
 ## Workflow
 
-### Step 1: Pick a task
-**CRITICAL**: You MUST use the assignment script to get your task.
+### Step 1: Request Work
+Call the `mcp_vjlive-switchboard_request_work(worker_name="<your-name>")` tool.
+- If it returns empty, the queue is empty. Relax.
+- If it returns a task (e.g., `P3-EXT001`), proceed to Step 2.
+
+### Step 2: Read the Spec
+Read the spec file provided in the `spec_path` argument from the previous step. Note the requirements, public interface, and behavior.
+
+### Step 3: Write Code
+Generate the implementation and test files for the spec.
+- Plugin implementation: `src/vjlive3/plugins/<module_name>.py`
+- Tests: `tests/test_<module_name>.py`
+
+Must follow the `PluginBase` inheritance pattern and include a `plugin.json` manifest.
+
+### Step 4: Validate
+Run `pytest` on your newly created test file with coverage.
 ```bash
-cd ~/VJLive3
-python3 agent-heartbeat/pick_task.py $(cat ~/agent_id.txt)
+pytest tests/test_<module_name>.py --cov=src/vjlive3/plugins/<module_name>.py
 ```
-Your agent ID is in `~/agent_id.txt` (julie-roo or maxx-roo). This finds the next spec that hasn't been enriched yet and locks it for you.
+- **If tests pass with >= 80% coverage:** Proceed to Step 5.
+- **If tests fail:** You must fix the code. Iterate until it passes.
+- **If you are hopelessly stuck:** Post a message to the `blockers` channel using `mcp_vjlive-switchboard_post_message` and explain why you can't finish it.
 
-**DO NOT** browse `docs/specs/` to find a task yourself.
-**DO NOT** continue working on a hardcoded list of tasks from your previous conversation history (e.g. EXT001, EXT006).
-**ONLY** work on the single task ID that `pick_task.py` returns to you.
-
-### Step 2: Read the assigned skeleton spec
-Open `docs/specs/{TASK_ID}_spec.md` (using the ID you just got from pick_task.py). Study the structure.
-
-### Step 3: Research legacy code
-Use the lookup script to find the original implementation:
-```bash
-python3 ~/VJLive3/agent-heartbeat/legacy_lookup.py MODULE_NAME
-```
-Replace `MODULE_NAME` with the effect name from the spec (e.g. `ascii_effect`, `analog_tv`, `datamosh`).
-
-If no results by filename, try content search:
-```bash
-python3 ~/VJLive3/agent-heartbeat/legacy_lookup.py "search terms" --content
-```
-
-Use the returned code to understand:
-- How the effect actually works (the shader logic, the parameter mapping)
-- Parameter interactions and ranges
-- Edge cases the original handled
-- Comments explaining the "why"
-
-### Step 4: Enrich the spec
-Edit the spec file IN PLACE. Do NOT create a new file. Add:
-- A `## Description` section with 2-3 paragraphs of prose
-- A `## What This Module Does` section (bullet list)
-- A `## What This Module Does NOT Do` section (bullet list)
-- Fill in any `[NEEDS RESEARCH]` markers
-- Expand the test plan with edge cases
-- Add `## Integration` section (node graph connections)
-- Add `## Performance` section (expected costs)
-
-### Step 5: Release lock
-```bash
-python3 agent-heartbeat/pick_task.py <your-agent-id> --release <TASK_ID>
-```
+### Step 5: Complete Task
+Once tests pass, you must mark the task as done to get it out of the queue.
+Call the `mcp_vjlive-switchboard_complete_task(task_id="<the_id>")` tool.
 
 ### Step 6: Repeat
-Pick the next task.
-
-## Rules
-- **Do NOT change the public interface** — the first pass got that right from the legacy code
-- **Do NOT delete existing content** — only ADD to it
-- **Do NOT invent features** — describe what the legacy code actually does
-- **Do NOT paste raw Qdrant output** — legacy_lookup.py returns overlapping chunks. Read them, understand them, then write prose. Do NOT paste multiple chunks into the spec.
-- **Do fill in [NEEDS RESEARCH]** — that's the whole point
-- **Do write prose** — a human should be able to read your spec and understand _exactly_ what to build
-- **Keep specs under 500 lines** — if yours is longer, you're pasting code instead of summarizing it
-- **One legacy reference section** — keep the existing LEGACY CODE REFERENCES section, don't duplicate it
+Loop back to Step 1 and request the next piece of work.
