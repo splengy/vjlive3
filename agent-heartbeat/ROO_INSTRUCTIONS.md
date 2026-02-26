@@ -27,10 +27,11 @@ Generate the implementation and test files for the spec.
 Must follow the `PluginBase` inheritance pattern and include a `plugin.json` manifest.
 
 ### Step 4: Validate
-Run `pytest` on your newly created test file with coverage.
+Run the validation script on your newly created module:
 ```bash
-pytest tests/test_<module_name>.py --cov=src/vjlive3/plugins/<module_name>.py
+python3 agent-heartbeat/validate_code.py <module_name>
 ```
+This script runs syntax checks, stub detection, and pytest with 80% coverage enforcement.
 - **If tests pass with >= 80% coverage:** Proceed to Step 5.
 - **If tests fail:** You must fix the code. Iterate until it passes.
 - **If you are hopelessly stuck:** Post a message to the `blockers` channel using `mcp_vjlive-switchboard_post_message` and explain why you can't finish it.
