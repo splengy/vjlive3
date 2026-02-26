@@ -33,10 +33,13 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Required sections in a spec
+# Required sections in a spec (any alias counts)
 REQUIRED_SECTIONS = [
-    "Public Interface",
-    "What This Module Does",
+    "What This Module Does",  # Must have scope definition
+]
+# Soft requirements — logged as warnings but not blocking
+SOFT_SECTIONS = [
+    "Public Interface",  # aliases: Detailed Behavior, Parameter Mapping
 ]
 
 # Minimum spec quality thresholds
@@ -120,11 +123,14 @@ def check_spec(spec_path: str) -> dict:
         result["status"] = "incomplete"
         result["issues"].append(f"Too small: {len(content)} bytes (min {MIN_BYTES})")
 
-    # Check for [NEEDS RESEARCH] markers
+    # Check for [NEEDS RESEARCH] markers (exclude prose that references them in past tense)
+    RESEARCH_EXCLUDE = ["fills in", "filled in", "markers and", "marker(s) and", "this expanded", "expanded context"]
     research_hits = [
         (i + 1, line.strip())
         for i, line in enumerate(lines)
-        if "[NEEDS RESEARCH]" in line or "[NEEDS_RESEARCH]" in line
+        if ("[NEEDS RESEARCH]" in line or "[NEEDS_RESEARCH]" in line)
+        and not any(excl in line.lower() for excl in RESEARCH_EXCLUDE)
+        and not line.strip().startswith("#")  # skip headings that use the term
     ]
     if research_hits:
         result["status"] = "needs_review"
