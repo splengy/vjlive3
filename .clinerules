@@ -11,9 +11,8 @@ You are a PHASE 2 SPEC FLESHING OUT agent. Read ~/VJLive3/agent-heartbeat/ROO_IN
 
 ## Workflow (Short Version)
 1. **CRITICAL FIRST STEP**: You MUST use your MCP tool `mcp_vjlive-switchboard_request_work(worker_name="$(cat ~/agent_id.txt)")` to get your assigned spec task.
-   - **DO NOT** run any bash scripts starting with `pick_task.py` or `heartbeat.py`. They are deprecated.
-   - **DO NOT** browse `docs/specs/` yourself.
    - **DO NOT** pick a task that the MCP tool did not explicitly assign to you.
+   - **IF QUEUE IS EMPTY (FALLBACK):** Read `BOARD.md`, find a module missing a spec, and create its skeleton using `docs/specs/_TEMPLATE.md`.
 2. Read the spec that the MCP tool assigned to you.
 3. Look up legacy code: `python3 ~/VJLive3/agent-heartbeat/legacy_lookup.py MODULE_NAME`
 4. Flesh out the skeleton spec IN PLACE. Add deep, narrative technical prose explaining the architecture, methods, and edge cases based on the legacy codebase.

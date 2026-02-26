@@ -16,8 +16,16 @@ Phase 1 provided the basic markdown skeleton. Phase 2 (Your Job) is to provide t
 
 ### Step 1: Request Work
 Call the `mcp_vjlive-switchboard_request_work(worker_name="<your-name>")` tool.
-- If it returns empty, the queue is empty. Relax.
-- If it returns a task (e.g., `P3-EXT001`), proceed to Step 2.
+- If it returns a task (e.g., `P3-EXT001`), proceed to **Step 2 (Flesh Out)**.
+- If it returns empty (the queue is empty), proceed to **Step 1B (Phase 1 Fallback)**.
+
+### Step 1B: Phase 1 Fallback (Write a Skeleton)
+If the queue is empty, you must fall back to generating Phase 1 Skeletons to keep the pipeline moving:
+1. Read `BOARD.md` to find a module that needs a spec but does not have one yet.
+2. Check `docs/specs/` to ensure a spec doesn't already exist for it.
+3. Read `docs/specs/_TEMPLATE.md`.
+4. Create the new Markdown skeleton in `docs/specs/` (e.g., `docs/specs/P3-EXT002_spec.md`). Use the template structure exactly.
+5. Loop back to Step 1. The background manager will automatically see your newly created file and put it in the queue for fleshing out.
 
 ### Step 2: Read the Spec & Qdrant
 Read the skeleton spec file provided in the `spec_path` argument. 
