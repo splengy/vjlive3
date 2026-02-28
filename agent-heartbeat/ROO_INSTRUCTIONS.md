@@ -28,15 +28,15 @@ docs/specs/
    * If you are Maxx: `mv docs/specs/_01_todo/SPEC_NAME.md docs/specs/_03_active_maxx/`
    * If you are Desktop: `mv docs/specs/_01_todo/SPEC_NAME.md docs/specs/_05_active_desktop/`
 
-### Step 2: Flesh out the Spec
-1. Open the `.md` file in your active folder.
-2. Replace all `TODO: REPLACE WITH...` sections with comprehensive, production-ready specifications.
-3. Use the `legacy_lookup.py` tool to search the legacy repositories for context.
+### Step 2: Write the Code
+1. Open the `.md` spec in your active folder. The Overseer (Antigravity) has already provided a comprehensive, production-ready specification.
+2. Follow the spec exactly. Write the code and tests.
+3. Use the `legacy_lookup.py` tool to search the legacy repositories for context if needed.
    * Example: `python3 agent-heartbeat/legacy_lookup.py "ASCIIPlugin"`
-4. Ensure the spec covers 60 FPS performance rules from `.clinerules`.
+4. Ensure the implementation meets the 60 FPS performance rules from `.clinerules`.
 
 ### Step 3: Complete the Task
-1. Once fully fleshed out and saved, move it to the done folder.
+1. Once tests pass and performance is verified, move the spec to the done folder.
    * `mv docs/specs/_02_active_julie/SPEC_NAME.md docs/specs/_04_done/`
 2. **Done!** The background `swarm_sync.sh` daemon on the Host will instantly see it in `_04_done/` and sync it back.
 3. REPEAT from Step 1.

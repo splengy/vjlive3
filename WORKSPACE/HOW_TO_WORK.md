@@ -35,14 +35,10 @@ If it is free → add your lock entry. Format:
 
 ---
 
-## STEP 3 — WRITE THE SPEC FIRST
+## STEP 3 — READ THE SPEC
 
-Before writing one line of code, create:
-```
-docs/specs/<task-id>_<name>.md
-```
-
-The spec must contain:
+The Overseer (Antigravity) has provided a spec in your active folder.
+Read the spec carefully. It contains:
 - **What this module does** (2–3 sentences)
 - **Public interface** (class/function signatures)
 - **Inputs and outputs** (types, units, edge cases)
@@ -51,12 +47,11 @@ The spec must contain:
 
 ---
 
-## STEP 4 — GET SPEC APPROVAL
+## STEP 4 — GET CLARIFICATIONS (IF NEEDED)
 
-**You must get ROO CODE approval on your spec before writing any code.**
-- Post spec in AGENT_SYNC.md with "SPEC READY FOR REVIEW"
-- Wait for ROO CODE to approve or request changes
-- Do not proceed until explicitly approved
+**Do not deviate from the spec.**
+- If the spec is ambiguous or contradictory, post in `AGENT_SYNC.md` with "SPEC CLARIFICATION NEEDED".
+- Wait for the Antigravity Overseer to update the spec or respond.
 
 ---
 
@@ -139,9 +134,9 @@ If you believe a file should be deleted:
    - What task prompted this deletion
    - Your agent name and timestamp
 4. Post in `AGENT_SYNC.md`: "Deletion request: moved `path/to/file` to TRASH_CAN/ awaiting review"
-5. **ROO CODE will review** all TRASH_CAN items and authorize actual deletion
+5. **Antigravity (Overseer) will review** all TRASH_CAN items and authorize actual deletion
 
-**Rationale:** Trust levels are VERY LOW. Workers cannot be trusted to judge what should be deleted. All deletions go through manager review.
+**Rationale:** Trust levels are VERY LOW. Workers cannot be trusted to judge what should be deleted. All deletions go through Overseer review.
 
 ---
 
