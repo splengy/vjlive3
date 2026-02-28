@@ -452,42 +452,239 @@ These defaults should be defined in the class as class-level constants or factor
 
 ---
 
-## Public Interface
+## Complete Implementation
 
+### AgentInfluence Dataclass
+```python
+from dataclasses import dataclass, field
+from typing import Dict, List, Tuple, Optional
+
+@dataclass
+class AgentInfluence:
+    """
+    Tracks how an agent is currently influencing the fractal.
+    This is the mutable state that changes over time.
+    """
+    personality: 'AgentPersonality'  # Reference to the personality template
+    intensity: float = 0.5  # 0.0 to 1.0 (normalized)
+    parameter_weights: Dict[str, float] = field(default_factory=dict)
+    mood: str = "neutral"  # active, contemplative, ecstatic, serene, chaotic, neutral
+    energy: float = 0.5  # 0.0 to 1.0, boosted by audio peaks
+    
+    def __post_init__(self):
+        if not self.parameter_weights:
+            # Initialize with default weights (can be overridden by personality traits)
+            self.parameter_weights = {
+                "complexity": 0.5,
+                "symmetry": 0.5,
+                "color_saturation": 0.5,
+                "evolution_speed": 0.5,
+                "zoom": 0.5,
+                "rotation": 0.5,
+                "distortion": 0.5,
+                "glow": 0.5
+            }
+```
+
+### AgentPersonality Class (Complete)
 ```python
 class AgentPersonality:
-    def __init__(self, name: str, traits: Dict[str, Any], influence_level: float = 1.0) -> None:
+    """
+    Defines the behavioral and aesthetic profile of an AI agent that influences
+    fractal generation. Combines both the immutable personality template and
+    mutable state through an associated AgentInfluence object.
+    """
+    
+    # Mood intensity multipliers
+    MOOD_MULTIPLIERS = {
+        "ecstatic": 1.2,
+        "active": 0.8,
+        "chaotic": 0.85,
+        "contemplative": 0.6,
+        "serene": 0.4,
+        "neutral": 1.0
+    }
+    
+    # Predefined personality presets
+    PRESETS = {
+        "trinity": {
+            "name": "Trinity",
+            "mood": "ecstatic",
+            "intensity": 8.0,  # 0-10 scale
+            "color_scheme": [(255, 77, 127)],  # Fiery pink-orange
+            "parameter_weights": {
+                "complexity": 0.9,
+                "distortion": 0.8,
+                "evolution_speed": 0.7,
+                "glow": 0.6,
+                "symmetry": 0.3,
+                "color_saturation": 0.8
+            }
+        },
+        "cipher": {
+            "name": "Cipher",
+            "mood": "serene",
+            "intensity": 5.0,
+            "color_scheme": [(153, 102, 51)],  # Warm sepia
+            "parameter_weights": {
+                "complexity": 0.4,
+                "distortion": 0.2,
+                "evolution_speed": 0.3,
+                "glow": 0.3,
+                "symmetry": 0.7,
+                "color_saturation": 0.5
+            }
+        },
+        "neon": {
+            "name": "Neon",
+            "mood": "active",
+            "intensity": 7.0,
+            "color_scheme": [(0, 204, 255)],  # Electric cyan
+            "parameter_weights": {
+                "complexity": 0.6,
+                "distortion": 0.4,
+                "evolution_speed": 0.9,
+                "glow": 0.9,
+                "symmetry": 0.5,
+                "color_saturation": 0.9
+            }
+        },
+        "azura": {
+            "name": "Azura",
+            "mood": "contemplative",
+            "intensity": 6.0,
+            "color_scheme": [(51, 0, 153)],  # Deep cosmic purple
+            "parameter_weights": {
+                "complexity": 0.7,
+                "distortion": 0.5,
+                "evolution_speed": 0.4,
+                "glow": 0.7,
+                "symmetry": 0.6,
+                "color_saturation": 0.8,
+                "zoom": 0.8,
+                "cosmic_depth": 0.9
+            }
+        },
+        "antigravity": {
+            "name": "Antigravity",
+            "mood": "neutral",
+            "intensity": 6.5,
+            "color_scheme": [(77, 204, 128)],  # Balanced teal
+            "parameter_weights": {
+                "complexity": 0.6,
+                "distortion": 0.3,
+                "evolution_speed": 0.5,
+                "glow": 0.5,
+                "symmetry": 0.9,
+                "color_saturation": 0.6,
+                "harmony": 0.9
+            }
+        }
+    }
+    
+    def __init__(self, name: str, traits: Optional[Dict[str, Any]] = None,
+                 influence_level: float = 1.0):
         """
         Initialize an agent with a unique personality profile.
         
         Args:
-            name: Human-readable identifier for the agent (e.g., "Neon", "Cipher")
-            traits: Dictionary of behavioral and aesthetic attributes
-                - 'mood': str, e.g., "calm", "energetic", "chaotic"
-                - 'intensity': float in [0.0, 10.0], default 5.0
-                - 'color_scheme': tuple of (r,g,b) or list of tuples
-                - 'parameter_range': dict mapping parameter names to ranges
-            influence_level: Weighted contribution factor (0.0 = no effect, 1.0 = full)
+            name: Agent identifier (e.g., "Neon", "Cipher", or custom name)
+            traits: Optional dictionary overriding default traits. Keys:
+                - 'mood': str
+                - 'intensity': float (0-10)
+                - 'color_scheme': list of RGB tuples
+                - 'parameter_weights': dict of parameter name -> weight (0-1)
+                - 'parameter_range': dict of parameter name -> (min, max)
+            influence_level: Global weight of this agent's contribution (0.0-1.0)
         """
-        pass
-
+        self.name = name
+        self.influence_level = max(0.0, min(1.0, influence_level))
+        
+        # Load preset or use custom traits
+        if name.lower() in self.PRESETS:
+            preset = self.PRESETS[name.lower()].copy()
+            if traits:
+                preset.update(traits)
+            self.traits = preset
+        else:
+            # Custom agent: require essential traits
+            if not traits:
+                raise ValueError(f"Custom agent '{name}' must provide traits dict")
+            self.traits = {
+                'mood': traits.get('mood', 'neutral'),
+                'intensity': traits.get('intensity', 5.0),
+                'color_scheme': traits.get('color_scheme', [(255, 255, 255)]),
+                'parameter_weights': traits.get('parameter_weights', {}),
+                'parameter_range': traits.get('parameter_range', {})
+            }
+        
+        # Ensure required fields exist
+        self.traits.setdefault('parameter_weights', {})
+        self.traits.setdefault('parameter_range', {})
+        
+        # Create the influence tracker (mutable state)
+        self.influence = AgentInfluence(
+            personality=self,
+            intensity=self.traits['intensity'] / 10.0,  # Normalize to 0-1
+            mood=self.traits['mood'],
+            energy=0.5
+        )
+        
+        # Copy parameter weights to influence (can be modified at runtime)
+        self.influence.parameter_weights = self.traits['parameter_weights'].copy()
+    
     def get_mood_intensity(self) -> float:
-        """Return current mood intensity as a normalized value between 0 and 1."""
-        pass
-
+        """
+        Return current mood intensity as a normalized value between 0 and 1.
+        Formula: (intensity_trait / 10.0) * mood_multiplier * energy
+        """
+        base_intensity = self.traits['intensity'] / 10.0
+        mood_mult = self.MOOD_MULTIPLIERS.get(self.influence.mood, 1.0)
+        return base_intensity * mood_mult * self.influence.energy
+    
     def suggest_parameter_change(self, current_value: float, parameter_name: str) -> float:
         """
         Suggest a new value for a fractal parameter based on personality traits.
         
         Args:
             current_value: Current value of the parameter
-            parameter_name: Name of the parameter (e.g., 'fractal_depth', 'color_shift')
+            parameter_name: Name of the parameter (e.g., 'complexity', 'glow')
             
         Returns:
-            Suggested new value in same range as input
+            Suggested new value within the parameter's allowed range
+            
+        Raises:
+            ValueError: If parameter_name not defined in traits['parameter_range']
         """
-        pass
-
+        # Validate parameter exists
+        if parameter_name not in self.traits['parameter_range']:
+            raise ValueError(
+                f"Parameter '{parameter_name}' not defined for agent '{self.name}'. "
+                f"Available: {list(self.traits['parameter_range'].keys())}"
+            )
+        
+        # Get the range
+        param_min, param_max = self.traits['parameter_range'][parameter_name]
+        
+        # Get weight for this parameter (how much agent cares)
+        weight = self.influence.parameter_weights.get(parameter_name, 0.5)
+        
+        # Get mood intensity (affects magnitude of change)
+        mood_intensity = self.get_mood_intensity()
+        
+        # Determine direction based on weight and current value
+        # If weight > 0.5, tend to increase; if < 0.5, tend to decrease
+        direction = 1.0 if weight > 0.5 else -1.0
+        
+        # Calculate suggested change: 10-30% of range depending on intensity
+        change_magnitude = (param_max - param_min) * 0.1 * mood_intensity * abs(weight - 0.5) * 2.0
+        
+        # Apply change
+        suggested = current_value + direction * change_magnitude
+        
+        # Clamp to range
+        return max(param_min, min(param_max, suggested))
+    
     def react_to_audio_peak(self, amplitude: float) -> Dict[str, Any]:
         """
         Generate personality-specific response to audio peak event.
@@ -496,18 +693,186 @@ class AgentPersonality:
             amplitude: Peak amplitude from audio analyzer (0.0–1.0)
             
         Returns:
-            Dictionary of mood and visual changes triggered by the peak
+            Dictionary with keys: 'mood', 'intensity', 'color_shift', 'parameter_suggestion'
         """
-        pass
-
+        # Boost energy proportional to amplitude
+        self.influence.energy = min(1.0, self.influence.energy + amplitude * 0.5)
+        
+        # Determine mood shift based on amplitude and personality
+        old_mood = self.influence.mood
+        new_mood = self._determine_mood_from_amplitude(amplitude)
+        self.influence.mood = new_mood
+        
+        # Build response
+        response = {
+            'mood': new_mood,
+            'intensity': self.get_mood_intensity(),
+            'color_shift': None,  # Could be used for immediate color change
+            'parameter_suggestion': {}
+        }
+        
+        # If mood changed dramatically, suggest parameter adjustments
+        if old_mood != new_mood:
+            response['parameter_suggestion'] = self._get_mood_based_suggestions(old_mood, new_mood)
+        
+        return response
+    
+    def _determine_mood_from_amplitude(self, amplitude: float) -> str:
+        """Map audio amplitude to mood based on personality tendencies."""
+        # Each personality has thresholds that can be adjusted
+        thresholds = {
+            "trinity": {"high": 0.7, "mid": 0.4},
+            "neon": {"high": 0.6, "mid": 0.3},
+            "azura": {"high": 0.8, "mid": 0.5},
+            "cipher": {"high": 0.9, "mid": 0.6},
+            "antigravity": {"high": 0.75, "mid": 0.45}
+        }
+        
+        t = thresholds.get(self.name.lower(), {"high": 0.7, "mid": 0.4})
+        
+        if amplitude >= t["high"]:
+            # High energy: Trinity/Neon go ecstatic, Azura/Cipher go active, Antigravity stays balanced
+            if self.name.lower() in ["trinity", "neon"]:
+                return "ecstatic"
+            elif self.name.lower() in ["azura", "cipher"]:
+                return "active"
+            else:
+                return "active"
+        elif amplitude >= t["mid"]:
+            return "active" if self.name.lower() in ["neon", "trinity"] else "contemplative"
+        else:
+            # Low energy: return to baseline mood
+            return self.traits['mood']
+    
+    def _get_mood_based_suggestions(self, old_mood: str, new_mood: str) -> Dict[str, float]:
+        """Suggest parameter adjustments when mood changes."""
+        suggestions = {}
+        
+        # Mood transition effects
+        if new_mood == "ecstatic":
+            suggestions['complexity'] = 0.8
+            suggestions['glow'] = 0.9
+            suggestions['evolution_speed'] = 0.7
+        elif new_mood == "active":
+            suggestions['zoom'] = 0.6
+            suggestions['rotation'] = 0.7
+        elif new_mood == "contemplative":
+            suggestions['symmetry'] = 0.8
+            suggestions['color_saturation'] = 0.4
+        elif new_mood == "serene":
+            suggestions['distortion'] = 0.2
+            suggestions['glow'] = 0.3
+        
+        return suggestions
+    
     def get_color_palette(self) -> List[Tuple[int, int, int]]:
         """Return a list of RGB tuples representing the agent's preferred palette."""
-        pass
-
+        return self.traits['color_scheme']
+    
     def is_active(self) -> bool:
         """Check if this personality is currently influencing the fractal system."""
-        pass
+        # Active if influence level > 0 and intensity > threshold
+        return (self.influence_level > 0.0 and
+                self.get_mood_intensity() > 0.1)
+    
+    def get_parameter_range(self, parameter_name: str) -> Tuple[float, float]:
+        """Get the allowed range for a parameter."""
+        if parameter_name in self.traits['parameter_range']:
+            return self.traits['parameter_range'][parameter_name]
+        # Default range for unknown parameters
+        return (0.0, 1.0)
+    
+    def set_parameter_weight(self, parameter_name: str, weight: float) -> None:
+        """Dynamically adjust how much the agent cares about a parameter."""
+        self.influence.parameter_weights[parameter_name] = max(0.0, min(1.0, weight))
+    
+    def decay_energy(self, dt: float) -> None:
+        """Gradually reduce energy when not triggered by audio."""
+        self.influence.energy = max(0.1, self.influence.energy - dt * 0.1)
 ```
+
+### Integration with LivingFractalConsciousness
+```python
+class LivingFractalConsciousness(Effect):
+    """Main effect that uses multiple AgentPersonality instances"""
+    
+    def __init__(self, config: dict):
+        # Create the 5 default agents
+        self.agents = {
+            AgentPersonality("Trinity"),
+            AgentPersonality("Cipher"),
+            AgentPersonality("Neon"),
+            AgentPersonality("Azura"),
+            AgentPersonality("Antigravity")
+        }
+        
+        # Create influence trackers
+        self.agent_influences = {
+            agent: AgentInfluence(agent) for agent in self.agents
+        }
+        
+        # Shader uniforms for agent data
+        self.uniforms['u_agent_influence'] = [0.0] * 5
+        self.uniforms['u_agent_moods'] = [0.0] * 5
+    
+    def update_agents(self, audio_amplitude: float, dt: float):
+        """Update all agents each frame"""
+        for i, agent in enumerate(self.agents):
+            # Decay energy
+            agent.influence.energy = max(0.0, agent.influence.energy - dt * 0.1)
+            
+            # React to audio if significant
+            if audio_amplitude > 0.3:
+                response = agent.react_to_audio_peak(audio_amplitude)
+                # Update shader uniforms
+                self.uniforms['u_agent_influence'][i] = agent.get_mood_intensity()
+                self.uniforms['u_agent_moods'][i] = agent.get_mood_intensity()
+    
+    def apply_agent_suggestions(self) -> Dict[str, float]:
+        """Aggregate parameter suggestions from all active agents"""
+        combined = {}
+        for agent in self.agents:
+            if agent.is_active():
+                for param in agent.influence.parameter_weights:
+                    weight = agent.influence.parameter_weights[param]
+                    if weight > 0.3:  # Only consider significant weights
+                        # Get current value and get suggestion
+                        current = self.get_parameter(param)
+                        suggested = agent.suggest_parameter_change(current, param)
+                        # Weighted average (simplified)
+                        combined[param] = combined.get(param, current) * 0.7 + suggested * 0.3
+        return combined
+```
+
+### Shader Integration (GLSL)
+The agent influence is passed to the fractal shader as uniform arrays:
+
+```glsl
+uniform float u_agent_influence[5];  // Trinity, Cipher, Neon, Azura, Antigravity
+uniform float u_agent_moods[5];      // Mood intensity per agent
+
+vec3 agent_palette(float t, vec3 base_color) {
+    // Each agent contributes to color based on influence
+    vec3 trinity_color = vec3(1.0, 0.3, 0.5);   // Fiery pink-orange
+    vec3 cipher_color = vec3(0.6, 0.4, 0.2);    // Warm sepia
+    vec3 neon_color = vec3(0.0, 0.8, 1.0);      // Electric cyan
+    vec3 azura_color = vec3(0.2, 0.0, 0.6);     // Deep cosmic purple
+    vec3 antigravity_color = vec3(0.3, 0.8, 0.5); // Balanced teal
+    
+    vec3 agent_blend =
+        trinity_color * u_agent_influence[0] +
+        cipher_color * u_agent_influence[1] +
+        neon_color * u_agent_influence[2] +
+        azura_color * u_agent_influence[3] +
+        antigravity_color * u_agent_influence[4];
+    
+    // Normalize and blend with base
+    agent_blend = normalize(agent_blend + 0.001);
+    return mix(base_color, agent_blend, 0.4);
+}
+```
+
+## Public Interface
 
 ---
 

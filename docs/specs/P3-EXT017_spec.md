@@ -113,7 +113,360 @@ except Exception as e:
     }
 ```
 
+## Complete Class Structure
+```python
+import json
+import os
+from core.effects.shader_base import Effect
+
+
+class PopArtColorPalette:
+    """Pop Art color palette constants and loading."""
+
+    # Factory Colors - authentic 1960s Pop Art palette
+    PRIMARY_RED = [0.996, 0.0, 0.0]      # #FE0000
+    METALLIC_YELLOW = [0.996, 0.839, 0.082]  # #FED715
+    CYAN_BLUE = [0.0, 0.216, 0.702]      # #0037B3
+    SHOCKING_PINK = [0.996, 0.031, 0.475] # #FE0879
+
+    # Quad colors for Warhol grid (used by WarholQuadEffect, not BenDayDotsEffect)
+    QUAD_COLORS = [
+        PRIMARY_RED,      # Top-left
+        METALLIC_YELLOW,  # Top-right
+        CYAN_BLUE,        # Bottom-left
+        SHOCKING_PINK     # Bottom-right
+    ]
+
+    @classmethod
+    def load_from_preset(cls, preset_path: str = None) -> dict:
+        """Load color palette from JSON preset file with fallback to defaults."""
+        if preset_path is None:
+            # Default to presets/pop_art_factory.json
+            preset_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "presets", "pop_art_factory.json")
+
+        try:
+            with open(preset_path, 'r') as f:
+                preset = json.load(f)
+                colors = preset.get('colors', {})
+                return {
+                    'primary_red': colors.get('primary_red', {}).get('rgb', cls.PRIMARY_RED),
+                    'metallic_yellow': colors.get('metallic_yellow', {}).get('rgb', cls.METALLIC_YELLOW),
+                    'cyan_blue': colors.get('cyan_blue', {}).get('rgb', cls.CYAN_BLUE),
+                    'shocking_pink': colors.get('shocking_pink', {}).get('rgb', cls.SHOCKING_PINK),
+                }
+        except Exception as e:
+            print(f"Failed to load Pop Art preset: {e}")
+            # Fallback to built-in constants
+            return {
+                'primary_red': cls.PRIMARY_RED,
+                'metallic_yellow': cls.METALLIC_YELLOW,
+                'cyan_blue': cls.CYAN_BLUE,
+                'shocking_pink': cls.SHOCKING_PINK,
+            }
+
+
+class BenDayDotsEffect(Effect):
+    """
+    Ben-Day Dots Effect (Roy Lichtenstein Style)
+
+    Creates comic book style halftone dots that scale with brightness.
+    Features authentic CMYK printing simulation with performance agent integration.
+    """
+
+    def __init__(self):
+        # Load fragment shader
+        shader_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "effects", "shaders", "shaders", "ben_day_dots.frag")
+        try:
+            with open(shader_path, 'r') as f:
+                fragment_source = f.read()
+        except FileNotFoundError:
+            # Fallback inline shader
+            fragment_source = """
+            #version 330 core
+            uniform sampler2D tex0;
+            uniform float u_adrenaline;
+            uniform float u_dot_scale;
+            uniform float u_grid_density;
+            uniform vec3 u_primary_color;
+            uniform vec3 u_secondary_color;
+            uniform float u_mix;
+
+            in vec2 v_texcoord;
+            out vec4 fragColor;
+
+            void main() {
+                vec4 tex = texture(tex0, v_texcoord);
+                float gray = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
+
+                vec2 grid = fract(v_texcoord * u_grid_density);
+                float dist = distance(grid, vec2(0.5));
+
+                float base_radius = 0.5 * (1.0 - gray);
+                float adrenaline_boost = u_adrenaline * 0.2;
+                float radius = base_radius * u_dot_scale + adrenaline_boost;
+
+                float mask = step(radius, dist);
+
+                vec3 color = mix(u_primary_color, u_secondary_color, gray);
+                vec3 final_color = color * mask;
+                final_color = mix(tex.rgb, final_color, u_mix);
+
+                fragColor = vec4(final_color, tex.a);
+            }
+            """
+
+        super().__init__("ben_day_dots", fragment_source)
+
+        # Load color palette
+        palette = PopArtColorPalette.load_from_preset()
+        self.primary_color = palette['primary_red']
+        self.secondary_color = palette['metallic_yellow']
+
+        # Set default parameters
+        self.set_parameter("u_dot_scale", 1.0)
+        self.set_parameter("u_grid_density", 80.0)
+        self.set_parameter("u_mix", 1.0)
+
+    def apply_uniforms(self, time: float, resolution, audio_reactor=None, semantic_layer=None):
+        """Apply uniforms with Pop Art colors and performance agent integration."""
+        super().apply_uniforms(time, resolution, audio_reactor, semantic_layer)
+
+        # Set colors
+        self.shader.set_uniform("u_primary_color", self.primary_color)
+        self.shader.set_uniform("u_secondary_color", self.secondary_color)
+
+        # Get adrenaline from performance agent if available
+        adrenaline = 0.0
+        if hasattr(audio_reactor, 'get_adrenaline_level'):
+            adrenaline = audio_reactor.get_adrenaline_level()
+        elif hasattr(audio_reactor, 'audio_energy'):
+            # Fallback: use audio energy as adrenaline
+            adrenaline = getattr(audio_reactor, 'audio_energy', 0.0)
+
+        self.shader.set_uniform("u_adrenaline", adrenaline)
+```
+
+## Complete Shader Architecture
+The fragment shader implements the core Ben-Day dot algorithm:
+
+### GLSL Shader Code (ben_day_dots.frag)
+```glsl
+#version 330 core
+uniform sampler2D tex0;
+uniform float u_adrenaline;
+uniform float u_dot_scale;
+uniform float u_grid_density;
+uniform vec3 u_primary_color;
+uniform vec3 u_secondary_color;
+uniform float u_mix;
+
+in vec2 v_texcoord;
+out vec4 fragColor;
+
+void main() {
+    // Sample input texture
+    vec4 tex = texture(tex0, v_texcoord);
+
+    // Convert to grayscale using luminance formula
+    float gray = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
+
+    // Create grid coordinates by scaling UV and taking fractional part
+    vec2 grid = fract(v_texcoord * u_grid_density);
+
+    // Calculate distance from center of each grid cell
+    float dist = distance(grid, vec2(0.5));
+
+    // Dot radius calculation:
+    // - base_radius: larger for darker pixels (inverse relationship)
+    // - adrenaline_boost: subtle expansion based on performance agent
+    // - final radius: scaled by user-controlled dot_scale
+    float base_radius = 0.5 * (1.0 - gray);
+    float adrenaline_boost = u_adrenaline * 0.2;
+    float radius = base_radius * u_dot_scale + adrenaline_boost;
+
+    // Create circular dot mask using step function
+    // mask = 0.0 inside dot, 1.0 outside dot
+    float mask = step(radius, dist);
+
+    // Color mixing: interpolate between primary and secondary based on brightness
+    vec3 color = mix(u_primary_color, u_secondary_color, gray);
+
+    // Apply dot pattern (color only where mask is 0)
+    vec3 final_color = color * mask;
+
+    // Blend with original image using mix factor
+    final_color = mix(tex.rgb, final_color, u_mix);
+
+    // Output with original alpha
+    fragColor = vec4(final_color, tex.a);
+}
+```
+
+### Algorithm Deep Dive
+1. **Grid Generation**: The UV coordinates are multiplied by `u_grid_density` and fractional part taken to create a repeating grid of cells from (0,0) to (1,1)
+2. **Distance Field**: Each pixel calculates its distance from the center (0.5, 0.5) of its grid cell
+3. **Radius Calculation**: Dot size is inversely proportional to source brightness (darker = larger dots), with optional adrenaline boost
+4. **Mask Creation**: `step(radius, dist)` creates a binary mask where pixels inside the dot are 0, outside are 1
+5. **Color Application**: The mask is multiplied by the mixed color, creating dots only where mask is 0
+6. **Blending**: The final result is blended with the original image based on `u_mix` parameter
+
+## Performance Considerations
+- **Shader Complexity**: O(1) per-pixel with minimal arithmetic operations
+- **Uniform Count**: 6 scalar uniforms + 2 vec3 uniforms (20 total floats)
+- **Memory Bandwidth**: Single texture fetch, single output write
+- **GPU Optimization**: No branching in fragment shader (step() compiles to conditional move)
+
+## Error Handling and Edge Cases
+- **Missing Shader File**: Falls back to inline shader defined in Python string
+- **Invalid Preset Path**: Falls back to built-in color constants
+- **Out-of-Range Parameters**: Clamping handled by `set_parameter()` in base Effect class
+- **Zero Grid Density**: Protected by minimum value enforcement (0.1)
+- **Alpha Preservation**: Original texture alpha is passed through unchanged
+
 ## Test Plan
+| Test Name | What It Verifies |
+|-----------|------------------|
+| `test_init_no_shader_file` | Module initializes without crashing if fragment shader is missing or inaccessible |
+| `test_set_color_valid_range` | Setting primary/secondary colors within valid RGB range produces correct output |
+| `test_set_dot_scale_bounds` | Dot scale parameter respects min/max bounds and applies correctly to rendering |
+| `test_set_grid_density_bounds` | Grid density parameter stays within expected range and affects dot spacing as intended |
+| `test_adrenaline_mix_effect` | Adrenaline and mix parameters blend colors and brightness appropriately in output |
+| `test_fallback_shader_source` | When shader file is missing, fallback inline shader is used successfully |
+| `test_preset_loading` | JSON preset loading works correctly with proper fallback behavior |
+| `test_uniform_updates` | Parameter updates are correctly transmitted to shader uniforms |
+| `test_grayscale_conversion` | Luminance formula produces correct grayscale values |
+| `test_dot_size_inversely_proportional` | Brighter areas produce smaller dots, darker areas produce larger dots |
+| `test_alpha_channel_preserved` | Original alpha channel is preserved in output |
+
+## Definition of Done
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-X] P3-EXT017: port BenDayDotsEffect from legacy to VJLive3` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
+## LEGACY CODE REFERENCES
+### vjlive1/plugins/vstyle/pop_art_effects.py (L1-20)
+```python
+"""
+Pop Art Effects - Lichtenstein and Warhol Style Visual Effects
+
+Implements Ben-Day halftone dots (Lichtenstein) and Quad-Marilyn grid (Warhol)
+with authentic 1960s Pop Art color palettes.
+"""
+```
+
+### vjlive1/plugins/vstyle/pop_art_effects.py (L17-36)
+```python
+PRIMARY_RED = [0.996, 0.0, 0.0]      # #FE0000
+METALLIC_YELLOW = [0.996, 0.839, 0.082]  # #FED715
+CYAN_BLUE = [0.0, 0.216, 0.702]      # #0037B3
+SHOCKING_PINK = [0.996, 0.031, 0.475] # #FE0879
+
+# Quad colors for Warhol grid
+QUAD_COLORS = [
+    PRIMARY_RED,      # Top-left
+    METALLIC_YELLOW,  # Top-right
+    CYAN_BLUE,        # Bottom-left
+    SHOCKING_PINK     # Bottom-right
+]
+```
+
+### vjlive1/plugins/vstyle/pop_art_effects.py (L33-52)
+```python
+if preset_path is None:
+    # Default to presets/pop_art_factory.json
+    preset_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "presets", "pop_art_factory.json")
+
+try:
+    with open(preset_path, 'r') as f:
+        preset = json.load(f)
+        colors = preset.get('colors', {})
+        return {
+            'primary_red': colors.get('primary_red', {}).get('rgb', cls.PRIMARY_RED),
+            'metallic_yellow': colors.get('metallic_yellow', {}).get('rgb', cls.METALLIC_YELLOW),
+            'cyan_blue': colors.get('cyan_blue', {}).get('rgb', cls.CYAN_BLUE),
+            'shocking_pink': colors.get('shocking_pink', {}).get('rgb', cls.SHOCKING_PINK),
+        }
+except Exception as e:
+    print(f"Failed to load Pop Art preset: {e}")
+    return {
+        'primary_red': cls.PRIMARY_RED,
+        'metallic_yellow': cls.METALLIC_YELLOW,
+        'cyan_blue': cls.CYAN_BLUE,
+        'shocking_pink': cls.SHOCKING_PINK,
+    }
+```
+
+### vjlive1/plugins/vstyle/pop_art_effects.py (L65-100)
+```python
+def __init__(self):
+    # Load fragment shader
+    shader_path = os.path.join(os.path.dirname(__file__), "..", "..", "..", "effects", "shaders", "shaders", "ben_day_dots.frag")
+    try:
+        with open(shader_path, 'r') as f:
+            fragment_source = f.read()
+    except FileNotFoundError:
+        # Fallback inline shader
+        fragment_source = """
+        #version 330 core
+        uniform sampler2D tex0;
+        uniform float u_adrenaline;
+        uniform float u_dot_scale;
+        uniform float u_grid_density;
+        uniform vec3 u_primary_color;
+        uniform vec3 u_secondary_color;
+        uniform float u_mix;
+
+        in vec2 v_texcoord;
+        out vec4 fragColor;
+
+        void main() {
+            vec4 tex = texture(tex0, v_texcoord);
+            float gray = dot(tex.rgb, vec3(0.299, 0.587, 0.114));
+
+            vec2 grid = fract(v_texcoord * u_grid_density);
+            float dist = distance(grid, vec2(0.5));
+
+            float base_radius = 0.5 * (1.0 - gray);
+            float adrenaline_boost = u_adrenaline * 0.2;
+            float radius = base_radius * u_dot_scale + adrenaline_boost;
+
+            float mask = step(radius, dist);
+
+            vec3 color = mix(u_primary_color, u_secondary_color, gray);
+            vec3 final_color = color * mask;
+            final_color = mix(tex.rgb, final_color, u_mix);
+
+            fragColor = vec4(final_color, tex.a);
+        }
+        """
+```
+
+### vjlive1/plugins/vstyle/pop_art_effects.py (L113-132)
+```python
+    def apply_uniforms(self, time: float, resolution, audio_reactor=None, semantic_layer=None):
+        """Apply uniforms with Pop Art colors."""
+        super().apply_uniforms(time, resolution, audio_reactor, semantic_layer)
+
+        # Set colors
+        self.shader.set_uniform("u_primary_color", self.primary_color)
+        self.shader.set_uniform("u_secondary_color", self.secondary_color)
+
+        # Get adrenaline from performance agent if available
+        adrenaline = 0.0
+        if hasattr(audio_reactor, 'get_adrenaline_level'):
+            adrenaline = audio_reactor.get_adrenaline_level()
+        elif hasattr(audio_reactor, 'audio_energy'):
+            # Fallback: use audio energy as adrenaline
+            adrenaline = getattr(audio_reactor, 'audio_energy', 0.0)
+
+        self.shader.set_uniform("u_adrenaline", adrenaline)
+```
 | Test Name | What It Verifies |
 |-----------|------------------|
 | `test_init_no_shader_file` | Module initializes without crashing if fragment shader is missing or inaccessible |

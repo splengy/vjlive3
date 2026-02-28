@@ -1,78 +1,52 @@
 {
-	"mcpServers": {
-		"filesystem": {
-			"command": "npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-filesystem",
-				"/home/happy/Desktop/claude projects"
-			],
-			"alwaysAllow": [
-				"read_multiple_files",
-				"read_text_file",
-				"edit_file",
-				"move_file",
-				"search_files"
-			]
-		},
-		"context7": {
-			"command": "npx",
-			"args": [
-				"-y",
-				"@upstash/context7-mcp"
-			],
-			"env": {
-				"DEFAULT_MINIMUM_TOKENS": ""
-			},
-			"disabled": true,
-			"alwaysAllow": []
-		},
-		"puppeteer": {
-			"command": "npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-puppeteer"
-			],
-			"disabled": true,
-			"alwaysAllow": []
-		},
-		"time": {
-			"command": "uvx",
-			"args": [
-				"mcp-server-time"
-			]
-		},
-		"memory": {
-			"command": "npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-memory"
-			]
-		},
-		"augment-context-engine": {
-			"command": "auggie",
-			"args": [
-				"--mcp",
-				"--mcp-auto-workspace"
-			]
-		},
-		"vjlive-switchboard": {
-			"command": "python",
-			"args": [
-				"mcp_client.py"
-			],
-			"env": {
-				"SSE_URL": "http://localhost:8000/sse"
-			}
-		},
-		"playwright": {
-			"command": "npx",
-			"args": [
-				"-y",
-				"@playwright/mcp@0.0.38"
-			],
-			"disabled": true,
-			"alwaysAllow": []
-		}
-	}
+    "mcpServers": {
+        "filesystem": {
+            "command": "/usr/bin/npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
+            ]
+        },
+        "sequentialthinking": {
+            "command": "/usr/bin/npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sequential-thinking"
+            ]
+        },
+        "time": {
+            "command": "/home/happy/native_env/bin/uvx",
+            "args": [
+                "mcp-server-time"
+            ]
+        },
+        "memory": {
+            "command": "/usr/bin/npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-memory"
+            ]
+        },
+        "vjlive3brain": {
+            "command": "/home/happy/native_env/bin/python3",
+            "args": [
+                "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/run_brain.py"
+            ],
+            "env": {
+                "PYTHONPATH": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning",
+                "VJLIVE3_BRAIN_DB": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/mcp_servers/vjlive3brain/brain.db"
+            }
+        },
+        "vjlive-switchboard": {
+            "command": "/home/happy/native_env/bin/python3",
+            "args": [
+                "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/run_switchboard_stdio.py"
+            ],
+            "env": {
+                "PYTHONPATH": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning",
+                "VJLIVE3_ROOT": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
+            }
+        }
+    }
 }

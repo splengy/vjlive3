@@ -564,6 +564,426 @@ class DepthLoopInjectionDatamoshEffect(Effect):
 
 ---
 
+## Complete Class Structure
+```python
+from core.effects.shader_base import Effect
+from core.audio_reactor import AudioReactor
+from core.audio_analyzer import AudioFeature
+from OpenGL.GL import (glGenTextures, glBindTexture, glTexParameteri, glTexImage2D,
+                     GL_TEXTURE_2D, GL_LINEAR, GL_CLAMP_TO_EDGE, GL_RED,
+                     GL_UNSIGNED_BYTE, glActiveTexture, GL_TEXTURE0)
+import numpy as np
+
+
+class DepthLoopInjectionDatamoshEffect(Effect):
+    """
+    Depth Loop Injection Datamosh
+    A ROUTEABLE datamosh effect with explicit send/return loop points for inserting
+    other effects into the datamosh processing chain.
+    
+    This is fundamentally different from other effects — it's designed as a MODULAR
+    ROUTING HUB where you can inject arbitrary effects at different stages of the
+    datamosh pipeline. Think of it like eurorack send/return patching but for video.
+    
+    Loop insertion points:
+      1. PRE_LOOP: Before depth modulation (raw video → ext → depth modulated)
+      2. DEPTH_LOOP: After depth modulation, before datamosh (depth video → ext → datamos)
+      3. MOSH_LOOP: After datamosh, before feedback (datamoshed → ext → feedback)
+      4. POST_LOOP: After feedback, before final mix (feedback → ext → output)
+    
+    Each loop has:
+      - wet/dry mix control
+      - loop can be bypassed
+      - loop can be fed to other graph nodes
+      - multiple loops can be active simultaneously
+    """
+    
+    def __init__(self, config: dict):
+        # Load shader from file or use fallback
+        shader_path = self._find_shader_path("depth_loop_injection_datamosh.frag")
+        try:
+            with open(shader_path, 'r') as f:
+                fragment_source = f.read()
+        except FileNotFoundError:
+            # Fallback inline shader (complete version below)
+            fragment_source = self.DEPTH_LOOP_INJECTION_FRAGMENT
+        
+        super().__init__("depth_loop_injection_datamosh", fragment_source)
+        
+        # Initialize parameters from config with defaults
+        params = config.get('params', {})
+        
+        # Depth modulation
+        self.set_parameter("depth_modulation", params.get('depth_modulation', 1.0))
+        self.set_parameter("depth_threshold", params.get('depth_threshold', 0.5))
+        self.set_parameter("invert_depth", params.get('invert_depth', 0))
+        self.set_parameter("depth_min", params.get('depth_min', 0.3))
+        self.set_parameter("depth_max", params.get('depth_max', 4.0))
+        
+        # Datamosh
+        self.set_parameter("mosh_intensity", params.get('mosh_intensity', 1.0))
+        self.set_parameter("mosh_threshold", params.get('mosh_threshold', 0.5))
+        self.set_parameter("block_size", params.get('block_size', 0.5))
+        
+        # Feedback
+        self.set_parameter("feedback_amount", params.get('feedback_amount', 0.5))
+        
+        # Loop controls
+        self.set_parameter("enable_pre_loop", params.get('enable_pre_loop', 0))
+        self.set_parameter("pre_loop_mix", params.get('pre_loop_mix', 1.0))
+        self.set_parameter("enable_depth_loop", params.get('enable_depth_loop', 0))
+        self.set_parameter("depth_loop_mix", params.get('depth_loop_mix', 1.0))
+        self.set_parameter("enable_mosh_loop", params.get('enable_mosh_loop', 0))
+        self.set_parameter("mosh_loop_mix", params.get('mosh_loop_mix', 1.0))
+        self.set_parameter("enable_post_loop", params.get('enable_post_loop', 0))
+        self.set_parameter("post_loop_mix", params.get('post_loop_mix', 1.0))
+        
+        # Overall mix
+        self.set_parameter("u_mix", params.get('u_mix', 1.0))
+        self.set_parameter("use_dual_input", params.get('use_dual_input', 0))
+        
+        # State tracking
+        self._prev_time = 0.0
+        self._texture_cache = {}
+    
+    def process_frame(self, frame_data: dict):
+        """
+        Process a video frame through the depth+datamosh pipeline with loop injection.
+        
+        Args:
+            frame_data: Dictionary containing:
+                - 'tex0': OpenGL texture ID for Video A (primary input)
+                - 'tex1': OpenGL texture ID for Video B (secondary input, optional)
+                - 'depth_tex': OpenGL texture ID for depth map
+                - 'texPrev': OpenGL texture ID for previous frame output (feedback)
+                - 'pre_loop_return': OpenGL texture ID from PRE_LOOP effect (if enabled)
+                - 'depth_loop_return': OpenGL texture ID from DEPTH_LOOP effect (if enabled)
+                - 'mosh_loop_return': OpenGL texture ID from MOSH_LOOP effect (if enabled)
+                - 'post_loop_return': OpenGL texture ID from POST_LOOP effect (if enabled)
+                - 'resolution': (width, height) tuple
+                - 'time': current time in seconds (optional)
+        
+        Returns:
+            OpenGL texture ID of the processed frame
+        """
+        # Apply all uniforms
+        self._apply_all_uniforms(frame_data)
+        
+        # Render to output texture (or FBO managed by pipeline)
+        self._render_fullscreen_quad()
+        
+        # Return the output texture ID (managed by base class)
+        return self.output_texture
+    
+    def _apply_all_uniforms(self, frame_data: dict):
+        """Set all shader uniforms for this frame."""
+        # Basic uniforms
+        self.shader.set_uniform("time", frame_data.get('time', 0.0))
+        self.shader.set_uniform("resolution", frame_data['resolution'])
+        self.shader.set_uniform("u_mix", self.get_parameter('u_mix'))
+        
+        # Depth parameters
+        self.shader.set_uniform("depth_modulation", self.get_parameter('depth_modulation'))
+        self.shader.set_uniform("depth_threshold", self.get_parameter('depth_threshold'))
+        self.shader.set_uniform("invert_depth", self.get_parameter('invert_depth'))
+        self.shader.set_uniform("depth_min", self.get_parameter('depth_min'))
+        self.shader.set_uniform("depth_max", self.get_parameter('depth_max'))
+        
+        # Datamosh parameters
+        self.shader.set_uniform("mosh_intensity", self.get_parameter('mosh_intensity'))
+        self.shader.set_uniform("mosh_threshold", self.get_parameter('mosh_threshold'))
+        self.shader.set_uniform("block_size", self.get_parameter('block_size'))
+        
+        # Feedback
+        self.shader.set_uniform("feedback_amount", self.get_parameter('feedback_amount'))
+        
+        # Loop enables and mixes
+        self.shader.set_uniform("enable_pre_loop", self.get_parameter('enable_pre_loop'))
+        self.shader.set_uniform("pre_loop_mix", self.get_parameter('pre_loop_mix'))
+        self.shader.set_uniform("enable_depth_loop", self.get_parameter('enable_depth_loop'))
+        self.shader.set_uniform("depth_loop_mix", self.get_parameter('depth_loop_mix'))
+        self.shader.set_uniform("enable_mosh_loop", self.get_parameter('enable_mosh_loop'))
+        self.shader.set_uniform("mosh_loop_mix", self.get_parameter('mosh_loop_mix'))
+        self.shader.set_uniform("enable_post_loop", self.get_parameter('enable_post_loop'))
+        self.shader.set_uniform("post_loop_mix", self.get_parameter('post_loop_mix'))
+        
+        self.shader.set_uniform("use_dual_input", self.get_parameter('use_dual_input'))
+        
+        # Bind textures
+        self._bind_texture('tex0', frame_data['tex0'], 0)
+        self._bind_texture('tex1', frame_data.get('tex1', 0), 1)
+        self._bind_texture('texPrev', frame_data['texPrev'], 2)
+        self._bind_texture('depth_tex', frame_data['depth_tex'], 3)
+        self._bind_texture('pre_loop_return', frame_data.get('pre_loop_return', 0), 4)
+        self._bind_texture('depth_loop_return', frame_data.get('depth_loop_return', 0), 5)
+        self._bind_texture('mosh_loop_return', frame_data.get('mosh_loop_return', 0), 6)
+        self._bind_texture('post_loop_return', frame_data.get('post_loop_return', 0), 7)
+    
+    def _bind_texture(self, name: str, texture_id: int, unit: int):
+        """Bind a texture to a specific texture unit."""
+        if texture_id == 0:
+            # Bind a default 1x1 black texture for missing inputs
+            texture_id = self._get_default_texture()
+        self.shader.set_uniform(name, texture_id, texture_unit=unit)
+    
+    def _get_default_texture(self) -> int:
+        """Get or create a default 1x1 black texture."""
+        if 'default' not in self._texture_cache:
+            # Create a 1x1 black texture
+            tex_id = glGenTextures(1)
+            glBindTexture(GL_TEXTURE_2D, tex_id)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 1, 1, 0, GL_RED, GL_UNSIGNED_BYTE, np.zeros((1, 1, 1), dtype=np.uint8))
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+            self._texture_cache['default'] = tex_id
+        return self._texture_cache['default']
+    
+    def stop(self):
+        """Release GPU resources."""
+        # Delete default texture if created
+        if 'default' in self._texture_cache:
+            glDeleteTextures([self._texture_cache['default']])
+        super().stop()
+```
+
+## Complete Shader Architecture
+The fragment shader implements the full modular pipeline with 4 loop injection points:
+
+### Full GLSL Shader (depth_loop_injection_datamosh.frag)
+```glsl
+#version 330 core
+in vec2 uv;
+out vec4 fragColor;
+
+uniform sampler2D tex0;             // Original input (Video A)
+uniform sampler2D tex1;             // Video B — pixel source (what gets datamoshed)
+uniform sampler2D texPrev;          // Previous frame
+uniform sampler2D depth_tex;        // Depth map
+
+// Loop return textures
+uniform sampler2D pre_loop_return;   // Return from PRE loop
+uniform sampler2D depth_loop_return; // Return from DEPTH loop
+uniform sampler2D mosh_loop_return;  // Return from MOSH loop
+uniform sampler2D post_loop_return;  // Return from POST loop
+
+uniform float time;
+uniform vec2 resolution;
+uniform float u_mix;
+
+// Loop enables and mixes
+uniform int enable_pre_loop;        // 0/1
+uniform float pre_loop_mix;         // 0-1
+uniform int enable_depth_loop;
+uniform float depth_loop_mix;
+uniform int enable_mosh_loop;
+uniform float mosh_loop_mix;
+uniform int enable_post_loop;
+uniform float post_loop_mix;
+
+// Standard depth+datamosh parameters
+uniform float depth_modulation;
+uniform float depth_threshold;
+uniform int invert_depth;
+
+uniform float mosh_intensity;
+uniform float mosh_threshold;
+uniform float block_size;
+uniform float feedback_amount;
+
+// Optional: configurable depth range (more flexible than hardcoded 0.3, 3.7)
+uniform float depth_min;
+uniform float depth_max;
+
+// Hash for noise (currently unused but reserved for future enhancements)
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(443.897, 441.423))) * 43758.5453);
+}
+
+void main() {
+    // Detect if Video B is connected (not all black)
+    vec4 testB = texture(tex1, vec2(0.5));
+    bool hasDualInput = (testB.r + testB.g + testB.b) > 0.01;
+    
+    vec4 signal = texture(tex0, uv);
+    vec4 previous = texture(texPrev, uv);
+    float depth = texture(depth_tex, uv).r;
+    
+    // ====== LOOP STAGE 1: PRE_LOOP ======
+    // This happens before ANY depth processing
+    vec4 stage1_output = signal;
+    if (enable_pre_loop == 1) {
+        vec4 loop_return = texture(pre_loop_return, uv);
+        stage1_output = mix(stage1_output, loop_return, pre_loop_mix);
+    }
+    
+    // ====== DEPTH MODULATION ======
+    // Remap depth from [depth_min, depth_max] to [0, 1]
+    float depth_factor = (depth - depth_min) / (depth_max - depth_min);
+    if (invert_depth == 1) depth_factor = 1.0 - depth_factor;
+    depth_factor = clamp(depth_factor, 0.0, 1.0);
+    
+    // Modulated intensity affects datamosh strength
+    float modulated_intensity = mix(0.3, 1.0, depth_factor * depth_modulation);
+    
+    // ====== LOOP STAGE 2: DEPTH_LOOP ======
+    // After depth modulation, before datamosh
+    vec4 stage2_output = stage1_output;
+    if (enable_depth_loop == 1) {
+        vec4 loop_return = texture(depth_loop_return, uv);
+        stage2_output = mix(stage2_output, loop_return, depth_loop_mix);
+    }
+    
+    // ====== DATAMOSH ======
+    // Block size: map from 0-1 to 4-164 pixels
+    float block = max(4.0, block_size * 40.0 + 4.0);
+    vec2 block_uv = floor(uv * resolution / block) * block / resolution;
+    
+    // Choose source for motion detection based on dual input flag
+    vec4 block_current;
+    if (hasDualInput && use_dual_input == 1) {
+        block_current = texture(tex1, block_uv);
+    } else {
+        block_current = texture(tex0, block_uv);
+    }
+    vec4 block_prev = texture(texPrev, block_uv);
+    vec3 block_diff = block_current.rgb - block_prev.rgb;
+    float motion = length(block_diff);
+    
+    vec2 displacement = vec2(0.0);
+    if (motion > mosh_threshold * 0.1) {
+        displacement = block_diff.rg * modulated_intensity * mosh_intensity * 0.05;
+    }
+    
+    vec2 mosh_uv = uv + displacement;
+    mosh_uv = clamp(mosh_uv, 0.001, 0.999);
+    
+    // Sample displaced pixel from previous frame (or from tex1 if dual input)
+    vec4 datamoshed;
+    if (hasDualInput && use_dual_input == 1) {
+        datamoshed = texture(tex1, mosh_uv);
+    } else {
+        datamoshed = texture(texPrev, mosh_uv);
+    }
+    
+    float blend_factor = smoothstep(mosh_threshold * 0.05, mosh_threshold * 0.15, motion);
+    blend_factor *= modulated_intensity;
+    
+    vec4 mosh_result = mix(stage2_output, datamoshed, blend_factor);
+    
+    // ====== LOOP STAGE 3: MOSH_LOOP ======
+    // After datamosh, before feedback
+    vec4 stage3_output = mosh_result;
+    if (enable_mosh_loop == 1) {
+        vec4 loop_return = texture(mosh_loop_return, uv);
+        stage3_output = mix(mosh_result, loop_return, mosh_loop_mix);
+    }
+    
+    // ====== FEEDBACK ======
+    vec4 with_feedback = mix(stage3_output, previous, feedback_amount * 0.5);
+    
+    // ====== LOOP STAGE 4: POST_LOOP ======
+    // Final loop after feedback
+    vec4 stage4_output = with_feedback;
+    if (enable_post_loop == 1) {
+        vec4 loop_return = texture(post_loop_return, uv);
+        stage4_output = mix(with_feedback, loop_return, post_loop_mix);
+    }
+    
+    // ====== FINAL OUTPUT ======
+    fragColor = mix(signal, stage4_output, u_mix);
+}
+```
+
+### Algorithm Deep Dive
+1. **Dual Input Detection**: The shader samples `tex1` at the center to determine if a secondary video input is connected (non-black). This allows flexible routing.
+2. **PRE_LOOP**: The raw input signal (`tex0`) can be mixed with an external effect's output before any depth processing. This is the first opportunity to inject processing.
+3. **Depth Modulation**: The depth map is remapped from user-configurable `[depth_min, depth_max]` to [0,1], optionally inverted. The `modulated_intensity` is computed as a blend between 0.3 and 1.0 based on `depth_factor * depth_modulation`. This intensity scales the datamosh displacement.
+4. **DEPTH_LOOP**: After depth modulation, another external effect can be mixed in before datamoshing occurs.
+5. **Datamosh**:
+   - The image is divided into blocks (size: 4 to 164 pixels based on `block_size` parameter)
+   - Motion is detected by comparing current and previous frame blocks (using `tex0` or `tex1` depending on `use_dual_input`)
+   - Displacement vector = motion vector × `modulated_intensity` × `mosh_intensity` × 0.05
+   - The displaced UV samples the previous frame (or `tex1`) to create the smear
+   - `blend_factor` uses `smoothstep` to smoothly apply the datamosh based on motion magnitude
+6. **MOSH_LOOP**: The datamoshed result can be further processed by an external effect before entering the feedback stage.
+7. **Feedback**: The result is mixed with the previous frame (`texPrev`) using `feedback_amount * 0.5` to create trails/echoes.
+8. **POST_LOOP**: Final external processing before the output mix.
+9. **Final Mix**: The original signal (`signal`) is blended with the fully processed `stage4_output` using `u_mix`.
+
+### Loop Return Texture Management
+Each loop stage expects a texture that contains the output of an external effect. These textures must be provided as uniforms and bound to specific texture units:
+
+| Uniform | Texture Unit | Purpose |
+|---------|--------------|---------|
+| `pre_loop_return` | 4 | Output from effect injected at PRE_LOOP stage |
+| `depth_loop_return` | 5 | Output from effect injected at DEPTH_LOOP stage |
+| `mosh_loop_return` | 6 | Output from effect injected at MOSH_LOOP stage |
+| `post_loop_return` | 7 | Output from effect injected at POST_LOOP stage |
+
+The external effects are rendered separately into these textures (using FBOs) before this effect's `process_frame` is called. The routing system must manage this dependency and ensure proper rendering order.
+
+### Dual Video Input Handling
+The effect supports two main video inputs:
+- `tex0` (Video A): Primary input, used as the base signal throughout the pipeline
+- `tex1` (Video B): Secondary input, optional
+
+When `use_dual_input = 1` and `tex1` is connected (non-black), the datamosh step uses `tex1` as the source for motion detection and displacement sampling instead of `tex0`. This allows creative effects like:
+- Using a different video as the datamosh source
+- Creating hybrid effects where one video provides the structure and another provides the motion
+
+The `hasDualInput` flag is computed by sampling the center of `tex1` and checking if the sum of RGB channels exceeds 0.01.
+
+## Performance Considerations
+- **Texture Samples**: Base (3) + up to 4 loop returns (4) + optional tex1 (1) = 8 total
+- **Arithmetic**: Moderate (depth remap, motion calculation, multiple mixes)
+- **Block Processing**: The datamosh block calculation adds overhead but is necessary for motion detection
+- **Memory Bandwidth**: Primary bottleneck due to multiple texture reads per fragment
+- **Estimated 1080p performance**: 4-6 ms with all loops enabled, 2-3 ms with loops disabled
+
+## Error Handling and Edge Cases
+- **Missing textures**: The `_bind_texture` method provides a default 1x1 black texture for any missing loop return or secondary input
+- **Zero division**: The depth remap uses `(depth_max - depth_min)` which could be zero if misconfigured; should add epsilon protection
+- **Out-of-range depth**: Values outside [depth_min, depth_max] are clamped to [0,1] after remap
+- **Large block size**: `block_size` is clamped to ensure minimum block size of 4 pixels
+- **Feedback initialization**: On first frame, `texPrev` may be uninitialized; should provide a black texture
+
+## Test Plan
+| Test Name | What It Verifies |
+|-----------|------------------|
+| `test_init_no_shader` | Effect initializes with fallback shader if file missing |
+| `test_parameter_setting` | All parameters can be set and retrieved correctly |
+| `test_pre_loop_mix` | PRE_LOOP output correctly mixes with base signal |
+| `test_depth_loop_mix` | DEPTH_LOOP output correctly mixes after depth modulation |
+| `test_mosh_loop_mix` | MOSH_LOOP output correctly mixes after datamosh |
+| `test_post_loop_mix` | POST_LOOP output correctly mixes after feedback |
+| `test_loop_bypass` | When enable=0, loop return is ignored |
+| `test_depth_modulation_range` | Depth values correctly remapped from [depth_min, depth_max] to [0,1] |
+| `test_invert_depth` | Setting invert_depth=1 reverses depth effect |
+| `test_datamosh_motion` | High motion areas show pixel displacement |
+| `test_datamosh_threshold` | Motion below threshold produces no displacement |
+| `test_feedback_creates_trails` | feedback_amount > 0 retains previous frame |
+| `test_dual_input_detection` | hasDualInput flag correctly set based on tex1 content |
+| `test_dual_input_datamosh_source` | When use_dual_input=1, datamosh uses tex1 instead of tex0 |
+| `test_final_mix` | u_mix=0 returns original; u_mix=1 returns fully processed |
+| `test_all_loops_disabled` | Effect reduces to simple datamosh+feedback when loops bypassed |
+| `test_texture_binding` | All texture uniforms are bound to correct texture units |
+| `test_cleanup` | All OpenGL resources released on stop() |
+
+**Minimum coverage**: 80% before task is marked done.
+
+## Definition of Done
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-X] P3-EXT054: DepthLoopInjectionDatamoshEffect implementation` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+
 ## LEGACY CODE REFERENCES
 
 ### vjlive1/plugins/vdepth/depth_loop_injection_datamosh.py (L1-20)

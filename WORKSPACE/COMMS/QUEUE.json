@@ -11,11 +11,11 @@
   {
     "task_id": "P2-D5",
     "spec_path": "docs/specs/P2-D5_audio_dmx.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:18:01.811025+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:29:54.288677+00:00",
+    "completed_at": "2026-02-27T00:31:37.777909+00:00"
   },
   {
     "task_id": "P2-D1",
@@ -92,11 +92,11 @@
   {
     "task_id": "P2-X4",
     "spec_path": "docs/specs/P2-X4_projection_mapping.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:18:02.044870+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:40:01.847496+00:00",
+    "completed_at": "2026-02-27T00:41:21.587106+00:00"
   },
   {
     "task_id": "P3-VD01",
@@ -272,630 +272,1602 @@
   {
     "task_id": "P3-VD27",
     "spec_path": "docs/specs/P3-VD27_Depth_Aware_Compression.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:25:40.551954+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:10:56.944346+00:00",
+    "completed_at": "2026-02-26T20:15:33.248386+00:00"
   },
   {
     "task_id": "P3-VD29",
     "spec_path": "docs/specs/P3-VD29_Depth_Camera_Splitter.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:26:22.843725+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:16:09.540719+00:00",
+    "completed_at": "2026-02-26T20:20:25.944820+00:00"
   },
   {
     "task_id": "P3-VD30",
     "spec_path": "docs/specs/P3-VD30_Depth_Color_Grade.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:27:00.979441+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:20:43.994615+00:00",
+    "completed_at": "2026-02-26T20:25:05.167317+00:00"
   },
   {
     "task_id": "P3-VD31",
     "spec_path": "docs/specs/P3-VD31_Depth_Contour_Datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:28:06.622911+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:25:23.588438+00:00",
+    "completed_at": "2026-02-26T20:27:06.124201+00:00"
   },
   {
     "task_id": "P3-VD32",
     "spec_path": "docs/specs/P3-VD32_Depth_Distance_Filter.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:28:20.727869+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:27:23.902394+00:00",
+    "completed_at": "2026-02-26T20:32:15.874075+00:00"
   },
   {
     "task_id": "P3-VD33",
     "spec_path": "docs/specs/P3-VD33_Depth_Dual.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:28:40.772451+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:32:45.658148+00:00",
+    "completed_at": "2026-02-26T20:36:10.279367+00:00"
   },
   {
     "task_id": "P3-VD34",
     "spec_path": "docs/specs/P3-VD34_Depth_Edge_Glow.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:29:43.987862+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:36:44.847892+00:00",
+    "completed_at": "2026-02-26T20:40:00.445776+00:00"
   },
   {
     "task_id": "P3-VD35",
     "spec_path": "docs/specs/P3-VD35_Depth_Effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:29:59.515855+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:40:39.883017+00:00",
+    "completed_at": "2026-02-26T20:47:07.792708+00:00"
   },
   {
     "task_id": "P3-VD36",
     "spec_path": "docs/specs/P3-VD36_Depth_Effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:30:17.271175+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:47:27.895596+00:00",
+    "completed_at": "2026-02-26T20:56:41.676710+00:00"
   },
   {
     "task_id": "SMOKE-1",
     "spec_path": "docs/specs/smoke.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T00:40:37.833904+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T20:57:05.665025+00:00",
+    "completed_at": "2026-02-26T20:59:14.304914+00:00"
   },
   {
     "task_id": "P3-VD37",
     "spec_path": "docs/specs/P3-P3-VD37_Depth_Effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:16:08.136082+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:00:58.213948+00:00",
+    "completed_at": "2026-02-26T21:04:15.584988+00:00"
   },
   {
     "task_id": "P3-VD38",
     "spec_path": "docs/specs/P3-P3-VD38_Depth_Particle_3D_Effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:16:29.640471+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:04:43.813544+00:00",
+    "completed_at": "2026-02-26T21:06:45.587180+00:00"
   },
   {
     "task_id": "P3-VD39",
     "spec_path": "docs/specs/P3-P3-VD39_Depth_Effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:16:41.600254+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:07:08.331387+00:00",
+    "completed_at": "2026-02-26T21:08:53.872273+00:00"
   },
   {
     "task_id": "P3-VD40",
     "spec_path": "docs/specs/P3-P3-VD40_Depth_Effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:16:52.017380+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:09:47.849684+00:00",
+    "completed_at": "2026-02-26T21:11:57.158055+00:00"
   },
   {
     "task_id": "P3-VD41",
     "spec_path": "docs/specs/P3-P3-VD41_depth_effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:17:14.266216+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:12:21.997162+00:00",
+    "completed_at": "2026-02-26T21:14:56.129773+00:00"
   },
   {
     "task_id": "P3-VD42",
     "spec_path": "docs/specs/P3-P3-VD42_depth_effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:17:36.184186+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:15:17.385547+00:00",
+    "completed_at": "2026-02-26T21:23:39.820478+00:00"
   },
   {
     "task_id": "P3-VD43",
     "spec_path": "docs/specs/P3-P3-VD43_depth_effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:17:41.375159+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:25:36.187271+00:00",
+    "completed_at": "2026-02-26T21:30:59.881070+00:00"
   },
   {
     "task_id": "P3-VD44",
     "spec_path": "docs/specs/P3-P3-VD44_depth_effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "in_progress",
+    "assigned_worker": "maxx-roo",
     "created_at": "2026-02-23T05:17:55.895562+00:00",
-    "started_at": null,
+    "started_at": "2026-02-26T21:26:25.085869+00:00",
     "completed_at": null
   },
   {
     "task_id": "P3-VD45",
     "spec_path": "docs/specs/P3-P3-VD45_depth_effects.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:18:02.035916+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:31:24.765147+00:00",
+    "completed_at": "2026-02-26T21:35:57.214007+00:00"
   },
   {
     "task_id": "P3-VD46",
     "spec_path": "docs/specs/P3-P3-VD46_Depth_Erosion_Datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:18:14.029010+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:36:25.116467+00:00",
+    "completed_at": "2026-02-26T21:40:23.833586+00:00"
   },
   {
     "task_id": "P3-VD47",
     "spec_path": "docs/specs/P3-P3-VD47_Depth_Feedback_Matrix_Datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:18:32.664964+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:41:08.028541+00:00",
+    "completed_at": "2026-02-26T21:52:26.445714+00:00"
   },
   {
     "task_id": "P3-VD48",
     "spec_path": "docs/specs/P3-P3-VD48_Depth_Fog.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:18:49.504588+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:52:42.411893+00:00",
+    "completed_at": "2026-02-26T21:54:21.367372+00:00"
   },
   {
     "task_id": "P3-VD49",
     "spec_path": "docs/specs/P3-P3-VD49_Depth_Fracture_Datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:19:01.669794+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:54:43.616733+00:00",
+    "completed_at": "2026-02-26T21:56:34.340109+00:00"
   },
   {
     "task_id": "P3-VD50",
     "spec_path": "docs/specs/P3-P3-VD50_Depth_Fx_Loop.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:19:06.630896+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:57:07.460791+00:00",
+    "completed_at": "2026-02-26T21:59:12.552105+00:00"
   },
   {
     "task_id": "P3-VD51",
     "spec_path": "docs/specs/P3-P3-VD51_Depth_Groovy_Datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:19:18.975711+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T21:59:27.971642+00:00",
+    "completed_at": "2026-02-26T22:01:07.263550+00:00"
   },
   {
     "task_id": "P3-VD52",
     "spec_path": "docs/specs/P3-P3-VD52_Depth_Holographic.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:19:32.504142+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:01:40.322147+00:00",
+    "completed_at": "2026-02-26T22:03:10.559609+00:00"
   },
   {
     "task_id": "P3-VD53",
     "spec_path": "docs/specs/P3-P3-VD53_Depth_Liquid_Refraction.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:19:44.153728+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:03:37.914406+00:00",
+    "completed_at": "2026-02-26T22:05:14.242725+00:00"
   },
   {
     "task_id": "P3-VD54",
     "spec_path": "docs/specs/P3-P3-VD54_Depth_Loop_Injection_Datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:19:56.675652+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:05:40.897898+00:00",
+    "completed_at": "2026-02-26T22:07:29.490814+00:00"
   },
   {
     "task_id": "P3-VD55",
     "spec_path": "docs/specs/P3-P3-VD55_Depth_Modular_Datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:20:06.822542+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:07:50.507685+00:00",
+    "completed_at": "2026-02-26T22:09:23.195570+00:00"
   },
   {
     "task_id": "P3-VD56",
     "spec_path": "docs/specs/P3-P3-VD56_Depth_Modulated_Datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:20:23.598756+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:09:50.412603+00:00",
+    "completed_at": "2026-02-26T22:11:27.802412+00:00"
   },
   {
     "task_id": "P3-VD57",
     "spec_path": "docs/specs/P3-P3-VD57_Depth_Mosaic.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:20:33.405691+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:11:59.674657+00:00",
+    "completed_at": "2026-02-26T22:13:31.253651+00:00"
   },
   {
     "task_id": "P3-VD58",
     "spec_path": "docs/specs/P3-P3-VD58_Depth_Mosh_Nexus.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:20:42.225074+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:14:26.525382+00:00",
+    "completed_at": "2026-02-26T22:17:35.233568+00:00"
   },
   {
     "task_id": "P3-VD59",
     "spec_path": "docs/specs/P3-P3-VD59_Depth_Motion_Transfer.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:20:54.089311+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:18:29.363556+00:00",
+    "completed_at": "2026-02-26T22:20:01.003117+00:00"
   },
   {
     "task_id": "P3-VD61",
     "spec_path": "docs/specs/P3-P3-VD61_Depth_Particle_Shred.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:21:09.735874+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:20:35.097634+00:00",
+    "completed_at": "2026-02-26T22:24:14.171347+00:00"
   },
   {
     "task_id": "P3-VD62",
     "spec_path": "docs/specs/P3-P3-VD62_Depth_Portal_Composite.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:21:19.279886+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:24:32.490356+00:00",
+    "completed_at": "2026-02-26T22:26:20.769474+00:00"
   },
   {
     "task_id": "P3-VD64",
     "spec_path": "docs/specs/P3-P3-VD64_Depth_Reverb.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:21:25.527293+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:27:01.710961+00:00",
+    "completed_at": "2026-02-26T22:28:56.645751+00:00"
   },
   {
     "task_id": "P3-VD66",
     "spec_path": "docs/specs/P3-P3-VD66_depth_slitscan_datamosh.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:21:48.583207+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:30:02.671789+00:00",
+    "completed_at": "2026-02-26T22:31:36.444506+00:00"
   },
   {
     "task_id": "P3-VD67",
     "spec_path": "docs/specs/P3-P3-VD67_depth_temporal_echo_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:22:07.519856+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:31:56.297323+00:00",
+    "completed_at": "2026-02-26T22:33:18.816936+00:00"
   },
   {
     "task_id": "P3-VD68",
     "spec_path": "docs/specs/P3-P3-VD68_depth_temporal_strat_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:22:17.392402+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:33:42.269782+00:00",
+    "completed_at": "2026-02-26T22:35:23.662584+00:00"
   },
   {
     "task_id": "P3-VD69",
     "spec_path": "docs/specs/P3-P3-VD69_depth_vector_field_datamosh_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:22:27.683958+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:35:58.948946+00:00",
+    "completed_at": "2026-02-26T22:42:03.422914+00:00"
   },
   {
     "task_id": "P3-VD70",
     "spec_path": "docs/specs/P3-P3-VD70_depth_video_projection_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:22:36.741478+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:42:28.101174+00:00",
+    "completed_at": "2026-02-26T22:43:38.914655+00:00"
   },
   {
     "task_id": "P3-VD71",
     "spec_path": "docs/specs/P3-P3-VD71_depth_void_datamosh_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:22:44.595280+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:44:07.047055+00:00",
+    "completed_at": "2026-02-26T22:45:25.901297+00:00"
   },
   {
     "task_id": "P3-VD72",
     "spec_path": "docs/specs/P3-P3-VD72_displacement_map_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:22:50.119115+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:45:52.949225+00:00",
+    "completed_at": "2026-02-26T22:53:48.253435+00:00"
   },
   {
     "task_id": "P3-VD73",
     "spec_path": "docs/specs/P3-P3-VD73_depth_echo_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:22:59.549950+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:54:49.590375+00:00",
+    "completed_at": "2026-02-26T22:57:58.598847+00:00"
   },
   {
     "task_id": "P3-VD74",
     "spec_path": "docs/specs/P3-P3-VD74_ml_depth_estimation_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:23:04.711131+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T22:58:16.344161+00:00",
+    "completed_at": "2026-02-26T23:00:43.400377+00:00"
   },
   {
     "task_id": "P3-VD75",
     "spec_path": "docs/specs/P3-P3-VD75_quantum_depth_nexus_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T05:23:11.173687+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:01:06.791557+00:00",
+    "completed_at": "2026-02-26T23:03:29.947849+00:00"
   },
   {
     "task_id": "P3-EXT001",
     "spec_path": "docs/specs/P3-EXT001_ascii_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T06:34:15.381531+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:04:12.754922+00:00",
+    "completed_at": "2026-02-26T23:06:34.763594+00:00"
   },
   {
     "task_id": "P3-EXT002",
     "spec_path": "docs/specs/P3-EXT002_adaptive_contrast_effect.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T06:37:07.384562+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:07:09.300028+00:00",
+    "completed_at": "2026-02-26T23:12:06.760180+00:00"
   },
   {
     "task_id": "P8-I6",
     "spec_path": "docs/specs/P8-I6_production_deployment_validation.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T17:07:48.099784+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:12:33.233495+00:00",
+    "completed_at": "2026-02-26T23:22:02.059938+00:00"
   },
   {
     "task_id": "P8-I7",
     "spec_path": "docs/specs/P8-I7_user_acceptance_testing.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T17:12:44.502214+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:22:47.442284+00:00",
+    "completed_at": "2026-02-26T23:24:39.284038+00:00"
   },
   {
     "task_id": "P8-I8A",
     "spec_path": "docs/specs/P8-I8A_context_object_wiring.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T18:21:35.265292+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:25:02.363766+00:00",
+    "completed_at": "2026-02-26T23:28:47.783205+00:00"
   },
   {
     "task_id": "P8-I8B",
     "spec_path": "docs/specs/P8-I8B_scheduler_error_boundaries.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T18:21:42.063121+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:29:08.882242+00:00",
+    "completed_at": "2026-02-26T23:30:49.829938+00:00"
   },
   {
     "task_id": "P8-I8C",
     "spec_path": "docs/specs/P8-I8C_agent_plugin_bus.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T18:21:53.469464+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:31:13.361441+00:00",
+    "completed_at": "2026-02-26T23:33:21.187408+00:00"
   },
   {
     "task_id": "P8-I8D",
     "spec_path": "docs/specs/P8-I8D_telemetry_pipeline.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T18:22:05.467429+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:33:44.823917+00:00",
+    "completed_at": "2026-02-26T23:35:49.609679+00:00"
   },
   {
     "task_id": "P8-I8E",
     "spec_path": "docs/specs/P8-I8E_config_presets.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T18:22:16.419654+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:36:25.673074+00:00",
+    "completed_at": "2026-02-26T23:38:41.285242+00:00"
   },
   {
     "task_id": "P8-I8F",
     "spec_path": "docs/specs/P8-I8F_integration_testing.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T18:22:23.939746+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:38:58.217266+00:00",
+    "completed_at": "2026-02-26T23:40:33.918297+00:00"
   },
   {
     "task_id": "P1-A1",
     "spec_path": "docs/specs/P1-A1_audio_analyzer.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:17:52.074764+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:42:26.964322+00:00",
+    "completed_at": "2026-02-26T23:55:28.252492+00:00"
   },
   {
     "task_id": "P1-A2",
     "spec_path": "docs/specs/P1-A2_beat_detector.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:17:52.187766+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-26T23:56:44.121639+00:00",
+    "completed_at": "2026-02-27T00:06:44.934973+00:00"
   },
   {
     "task_id": "P1-A3",
     "spec_path": "docs/specs/P1-A3_reactivity_bus.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:17:52.451835+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:08:47.060380+00:00",
+    "completed_at": "2026-02-27T00:11:08.899680+00:00"
   },
   {
     "task_id": "P1-A4",
     "spec_path": "docs/specs/P1-A4_audio_sources.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:17:52.532242+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:11:28.164919+00:00",
+    "completed_at": "2026-02-27T00:13:06.695888+00:00"
   },
   {
     "task_id": "P2-D2",
     "spec_path": "docs/specs/P2-D2_artnet_output.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:17:52.638540+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:17:22.865581+00:00",
+    "completed_at": "2026-02-27T00:23:08.595092+00:00"
   },
   {
     "task_id": "P2-D4",
     "spec_path": "docs/specs/P2-D4_show_control.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:18:01.612182+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:23:45.623082+00:00",
+    "completed_at": "2026-02-27T00:29:16.597916+00:00"
   },
   {
     "task_id": "P2-H1",
     "spec_path": "docs/specs/P2-H1_midi_controller.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T19:18:01.927222+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:32:11.659490+00:00",
+    "completed_at": "2026-02-27T00:39:54.933548+00:00"
   },
   {
     "task_id": "P3-EXT412",
     "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT412_Particles3D_Core.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T20:55:32.747812+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:41:30.445951+00:00",
+    "completed_at": "2026-02-27T00:48:15.236585+00:00"
   },
   {
     "task_id": "P3-EXT416",
     "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT416_VTempi_Core.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T20:55:33.496914+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:48:28.300189+00:00",
+    "completed_at": "2026-02-27T00:49:50.398090+00:00"
   },
   {
     "task_id": "P3-EXT258",
     "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT258_DepthVisualizationMode.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T20:55:34.200674+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:55:04.308978+00:00",
+    "completed_at": "2026-02-27T00:56:05.102518+00:00"
   },
   {
     "task_id": "P3-EXT137",
     "spec_path": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/P3-EXT137_QuantumState.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T20:55:34.241726+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:56:18.036301+00:00",
+    "completed_at": "2026-02-27T00:57:13.634887+00:00"
   },
   {
     "task_id": "P3-EXT031",
     "spec_path": "docs/specs/P3-EXT031_quantum_consciousness_explorer.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T21:15:51.145676+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T00:57:23.350287+00:00",
+    "completed_at": "2026-02-27T01:06:41.412592+00:00"
   },
   {
     "task_id": "P3-EXT032",
     "spec_path": "docs/specs/P3-EXT032_tunnel_vision_3_consciousness_net.md",
-    "status": "queued",
-    "assigned_worker": null,
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
     "created_at": "2026-02-23T21:18:28.183284+00:00",
-    "started_at": null,
-    "completed_at": null
+    "started_at": "2026-02-27T01:06:48.298874+00:00",
+    "completed_at": "2026-02-27T01:08:02.376349+00:00"
   },
   {
     "task_id": "P3-EXT033",
     "spec_path": "docs/specs/P3-EXT033_consciousness_neural_network.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-23T21:24:17.702096+00:00",
+    "started_at": "2026-02-27T01:08:11.499650+00:00",
+    "completed_at": "2026-02-27T01:10:07.761398+00:00"
+  },
+  {
+    "task_id": "P3-EXT113",
+    "spec_path": "docs/specs/P3-EXT113_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.769453+00:00",
+    "started_at": "2026-02-27T01:10:20.446551+00:00",
+    "completed_at": "2026-02-27T01:12:28.543908+00:00"
+  },
+  {
+    "task_id": "P3-VD29_Depth_Camera_Splitter",
+    "spec_path": "docs/specs/P3-VD29_Depth_Camera_Splitter.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.771506+00:00",
+    "started_at": "2026-02-27T01:12:42.393591+00:00",
+    "completed_at": "2026-02-27T01:14:20.363627+00:00"
+  },
+  {
+    "task_id": "P3-EXT003",
+    "spec_path": "docs/specs/P3-EXT003_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.772748+00:00",
+    "started_at": "2026-02-27T01:14:32.317376+00:00",
+    "completed_at": "2026-02-27T01:20:39.267162+00:00"
+  },
+  {
+    "task_id": "P3-EXT185_vhalvorsenplugin",
+    "spec_path": "docs/specs/P3-EXT185_vhalvorsenplugin.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.773941+00:00",
+    "started_at": "2026-02-27T01:20:49.211931+00:00",
+    "completed_at": "2026-02-27T01:22:42.654179+00:00"
+  },
+  {
+    "task_id": "P3-EXT002_AdaptiveContrastEffect",
+    "spec_path": "docs/specs/P3-EXT002_AdaptiveContrastEffect.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.775121+00:00",
+    "started_at": "2026-02-27T01:22:59.562974+00:00",
+    "completed_at": "2026-02-27T01:25:22.403145+00:00"
+  },
+  {
+    "task_id": "depth_parallel_universe",
+    "spec_path": "docs/specs/depth_parallel_universe_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.776359+00:00",
+    "started_at": "2026-02-27T01:25:49.453314+00:00",
+    "completed_at": "2026-02-27T01:34:26.916395+00:00"
+  },
+  {
+    "task_id": "P3-EXT004",
+    "spec_path": "docs/specs/P3-EXT004_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.777615+00:00",
+    "started_at": "2026-02-27T01:34:38.857843+00:00",
+    "completed_at": "2026-02-27T10:13:53.238594+00:00"
+  },
+  {
+    "task_id": "P3-EXT018",
+    "spec_path": "docs/specs/P3-EXT018_spec.md",
+    "status": "in_progress",
+    "assigned_worker": "test-agent",
+    "created_at": "2026-02-26T21:26:38.778734+00:00",
+    "started_at": "2026-02-27T04:32:52.806381+00:00",
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT213",
+    "spec_path": "docs/specs/P3-EXT213_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.779808+00:00",
+    "started_at": "2026-02-27T10:14:15.642220+00:00",
+    "completed_at": "2026-02-27T10:18:49.259166+00:00"
+  },
+  {
+    "task_id": "P3-EXT007_arbhar_granular_engine",
+    "spec_path": "docs/specs/P3-EXT007_arbhar_granular_engine.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.780936+00:00",
+    "started_at": "2026-02-27T10:18:58.021141+00:00",
+    "completed_at": "2026-02-27T10:57:00.000000+00:00"
+  },
+  {
+    "task_id": "P3-EXT017",
+    "spec_path": "docs/specs/P3-EXT017_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.782054+00:00",
+    "started_at": "2026-02-27T11:48:45.350701+00:00",
+    "completed_at": "2026-02-27T11:56:48.821351+00:00"
+  },
+  {
+    "task_id": "P3-EXT054",
+    "spec_path": "docs/specs/P3-EXT054_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.783184+00:00",
+    "started_at": "2026-02-27T11:58:45.207551+00:00",
+    "completed_at": "2026-02-27T12:00:04.256552+00:00"
+  },
+  {
+    "task_id": "P3-EXT005",
+    "spec_path": "docs/specs/P3-EXT005_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.784370+00:00",
+    "started_at": "2026-02-27T12:00:45.590335+00:00",
+    "completed_at": "2026-02-27T12:02:36.238821+00:00"
+  },
+  {
+    "task_id": "P3-EXT009",
+    "spec_path": "docs/specs/P3-EXT009_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.785604+00:00",
+    "started_at": "2026-02-27T12:02:58.172971+00:00",
+    "completed_at": "2026-02-27T12:08:39.018524+00:00"
+  },
+  {
+    "task_id": "P3-EXT211",
+    "spec_path": "docs/specs/P3-EXT211_spec.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.786852+00:00",
+    "started_at": "2026-02-27T12:09:10.324770+00:00",
+    "completed_at": "2026-02-27T12:11:31.766606+00:00"
+  },
+  {
+    "task_id": "P3-VD36_Depth_Effects",
+    "spec_path": "docs/specs/P3-VD36_Depth_Effects.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.788122+00:00",
+    "started_at": "2026-02-27T12:12:10.102084+00:00",
+    "completed_at": "2026-02-27T12:13:47.731524+00:00"
+  },
+  {
+    "task_id": "_CORE_TEMPLATE",
+    "spec_path": "docs/specs/_CORE_TEMPLATE.md",
+    "status": "completed",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.789371+00:00",
+    "started_at": "2026-02-27T12:14:13.011494+00:00",
+    "completed_at": "2026-02-27T12:15:31.920218+00:00"
+  },
+  {
+    "task_id": "P3-VD27_Depth_Aware_Compression",
+    "spec_path": "docs/specs/P3-VD27_Depth_Aware_Compression.md",
+    "status": "in_progress",
+    "assigned_worker": "desktop-roo",
+    "created_at": "2026-02-26T21:26:38.790516+00:00",
+    "started_at": "2026-02-27T12:18:41.402736+00:00",
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD35_Depth_Effect",
+    "spec_path": "docs/specs/P3-VD35_Depth_Effect.md",
     "status": "queued",
     "assigned_worker": null,
-    "created_at": "2026-02-23T21:24:17.702096+00:00",
+    "created_at": "2026-02-26T21:26:38.791655+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT008",
+    "spec_path": "docs/specs/P3-EXT008_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.792810+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT113_nebulaparticles",
+    "spec_path": "docs/specs/P3-EXT113_nebulaparticles.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.794074+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT215",
+    "spec_path": "docs/specs/P3-EXT215_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.795257+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT207",
+    "spec_path": "docs/specs/P3-EXT207_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.796514+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT136",
+    "spec_path": "docs/specs/P3-EXT136_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.797701+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT014_bass_cannon_datamosh",
+    "spec_path": "docs/specs/P3-EXT014_bass_cannon_datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.798921+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT206",
+    "spec_path": "docs/specs/P3-EXT206_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.800073+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT209",
+    "spec_path": "docs/specs/P3-EXT209_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.801318+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT132",
+    "spec_path": "docs/specs/P3-EXT132_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.802617+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD34_Depth_Edge_Glow",
+    "spec_path": "docs/specs/P3-VD34_Depth_Edge_Glow.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.803993+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD32_Depth_Distance_Filter",
+    "spec_path": "docs/specs/P3-VD32_Depth_Distance_Filter.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.805289+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "_GOLDEN_EXAMPLE_CORE",
+    "spec_path": "docs/specs/_GOLDEN_EXAMPLE_CORE.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.806538+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "SMOKE-1_Fluid_Simulation",
+    "spec_path": "docs/specs/SMOKE-1_Fluid_Simulation.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.807729+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT109",
+    "spec_path": "docs/specs/P3-EXT109_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.808965+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT191",
+    "spec_path": "docs/specs/P3-EXT191_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.810248+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT007",
+    "spec_path": "docs/specs/P3-EXT007_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.811525+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT010",
+    "spec_path": "docs/specs/P3-EXT010_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.812899+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD40_DepthContourEffect",
+    "spec_path": "docs/specs/P3-VD40_DepthContourEffect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.814162+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD39_DepthMeshEffect",
+    "spec_path": "docs/specs/P3-VD39_DepthMeshEffect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.815434+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT011",
+    "spec_path": "docs/specs/P3-EXT011_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.816680+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT186",
+    "spec_path": "docs/specs/P3-EXT186_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.818032+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT001_ascii_effect",
+    "spec_path": "docs/specs/P3-EXT001_ascii_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.819384+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT123",
+    "spec_path": "docs/specs/P3-EXT123_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.820913+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD42_DepthDistortionEffect",
+    "spec_path": "docs/specs/P3-VD42_DepthDistortionEffect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.822477+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT006",
+    "spec_path": "docs/specs/P3-EXT006_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.823763+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD37_DepthPointCloudEffect",
+    "spec_path": "docs/specs/P3-VD37_DepthPointCloudEffect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.825183+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD31_Depth_Contour_Datamosh",
+    "spec_path": "docs/specs/P3-VD31_Depth_Contour_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.826820+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT011_background_subtraction",
+    "spec_path": "docs/specs/P3-EXT011_background_subtraction.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.828387+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT204",
+    "spec_path": "docs/specs/P3-EXT204_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.829805+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD41_DepthParticle3DEffect",
+    "spec_path": "docs/specs/P3-VD41_DepthParticle3DEffect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.831571+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD38_DepthPointCloud3DEffect",
+    "spec_path": "docs/specs/P3-VD38_DepthPointCloud3DEffect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.833318+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT185",
+    "spec_path": "docs/specs/P3-EXT185_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.835048+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD30_Depth_Color_Grade",
+    "spec_path": "docs/specs/P3-VD30_Depth_Color_Grade.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.836391+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD33_Depth_Dual",
+    "spec_path": "docs/specs/P3-VD33_Depth_Dual.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.837717+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT014",
+    "spec_path": "docs/specs/P3-EXT014_spec.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:26:38.839106+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD43_DepthFieldEffect",
+    "spec_path": "docs/specs/P3-VD43_DepthFieldEffect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:30:43.870056+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD45_BackgroundSubtractionEffect",
+    "spec_path": "docs/specs/P3-VD45_BackgroundSubtractionEffect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:35:48.909946+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD46_Depth_Erosion_Datamosh",
+    "spec_path": "docs/specs/P3-VD46_Depth_Erosion_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:40:03.956456+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD47_Depth_Feedback_Matrix_Datamosh",
+    "spec_path": "docs/specs/P3-VD47_Depth_Feedback_Matrix_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:52:19.098241+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD48_Depth_Fog",
+    "spec_path": "docs/specs/P3-VD48_Depth_Fog.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:54:09.123989+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD49_Depth_Fracture_Datamosh",
+    "spec_path": "docs/specs/P3-VD49_Depth_Fracture_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:56:19.149287+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD50_Depth_Fx_Loop",
+    "spec_path": "docs/specs/P3-VD50_Depth_Fx_Loop.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T21:59:04.187972+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD51_Depth_Groovy_Datamosh",
+    "spec_path": "docs/specs/P3-VD51_Depth_Groovy_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:00:49.212086+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD52_Depth_Holographic",
+    "spec_path": "docs/specs/P3-VD52_Depth_Holographic.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:02:59.236569+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD53_Depth_Liquid_Refraction",
+    "spec_path": "docs/specs/P3-VD53_Depth_Liquid_Refraction.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:05:09.266646+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD54_Depth_Loop_Injection_Datamosh",
+    "spec_path": "docs/specs/P3-VD54_Depth_Loop_Injection_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:07:19.299480+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD55_Depth_Modular_Datamosh",
+    "spec_path": "docs/specs/P3-VD55_Depth_Modular_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:08:59.325865+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD56_Depth_Modulated_Datamosh",
+    "spec_path": "docs/specs/P3-VD56_Depth_Modulated_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:10:59.354469+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD57_Depth_Mosaic",
+    "spec_path": "docs/specs/P3-VD57_Depth_Mosaic.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:13:19.383803+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD58_Depth_Mosh_Nexus",
+    "spec_path": "docs/specs/P3-VD58_Depth_Mosh_Nexus.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:16:49.431449+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD59_Depth_Motion_Transfer",
+    "spec_path": "docs/specs/P3-VD59_Depth_Motion_Transfer.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:19:49.474120+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD61_Depth_Particle_Shred",
+    "spec_path": "docs/specs/P3-VD61_Depth_Particle_Shred.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:24:09.533126+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD62_Depth_Portal_Composite",
+    "spec_path": "docs/specs/P3-VD62_Depth_Portal_Composite.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:26:14.567073+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD64_Depth_Reverb",
+    "spec_path": "docs/specs/P3-VD64_Depth_Reverb.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:28:49.605199+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD66_Depth_Slitscan_Datamosh",
+    "spec_path": "docs/specs/P3-VD66_Depth_Slitscan_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:31:29.635342+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD67_Depth_Temporal_Echo",
+    "spec_path": "docs/specs/P3-VD67_Depth_Temporal_Echo.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:33:09.656378+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD68_Depth_Temporal_Strat",
+    "spec_path": "docs/specs/P3-VD68_Depth_Temporal_Strat.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:35:14.677681+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD69_Depth_Vector_Field_Datamosh",
+    "spec_path": "docs/specs/P3-VD69_Depth_Vector_Field_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:41:49.757234+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD70_Depth_Video_Projection",
+    "spec_path": "docs/specs/P3-VD70_Depth_Video_Projection.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:43:29.783752+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD71_Depth_Void_Datamosh",
+    "spec_path": "docs/specs/P3-VD71_Depth_Void_Datamosh.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:45:19.812060+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-P3-VD72_displacement_map_effect",
+    "spec_path": "docs/specs/P3-P3-VD72_displacement_map_effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:53:39.935753+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD73_Depth_Echo_Effect",
+    "spec_path": "docs/specs/P3-VD73_Depth_Echo_Effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T22:57:34.983916+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD74_ML_Depth_Estimation_Effect",
+    "spec_path": "docs/specs/P3-VD74_ML_Depth_Estimation_Effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:00:35.022576+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-VD75_Quantum_Depth_Nexus_Effect",
+    "spec_path": "docs/specs/P3-VD75_Quantum_Depth_Nexus_Effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:03:25.062957+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT001_ASCII_Effect",
+    "spec_path": "docs/specs/P3-EXT001_ASCII_Effect.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:06:25.110015+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P8-I6_production_deployment_validation",
+    "spec_path": "docs/specs/P8-I6_production_deployment_validation.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:21:50.303821+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P8-I7_user_acceptance_testing",
+    "spec_path": "docs/specs/P8-I7_user_acceptance_testing.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:24:20.360352+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P8-I8A_context_object_wiring",
+    "spec_path": "docs/specs/P8-I8A_context_object_wiring.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:28:40.417790+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P8-I8B_scheduler_error_boundaries",
+    "spec_path": "docs/specs/P8-I8B_scheduler_error_boundaries.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:30:30.445763+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P8-I8C_agent_plugin_bus",
+    "spec_path": "docs/specs/P8-I8C_agent_plugin_bus.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:33:10.488296+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P8-I8D_telemetry_pipeline",
+    "spec_path": "docs/specs/P8-I8D_telemetry_pipeline.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:35:40.527018+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P8-I8E_config_presets",
+    "spec_path": "docs/specs/P8-I8E_config_presets.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:38:30.569307+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P8-I8F_integration_testing",
+    "spec_path": "docs/specs/P8-I8F_integration_testing.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:40:25.601440+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P1-A1_audio_analyzer",
+    "spec_path": "docs/specs/P1-A1_audio_analyzer.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-26T23:55:25.820062+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P1-A2_beat_detector",
+    "spec_path": "docs/specs/P1-A2_beat_detector.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:06:35.979518+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P1-A3_reactivity_bus",
+    "spec_path": "docs/specs/P1-A3_reactivity_bus.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:10:56.047126+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P1-A4_audio_sources",
+    "spec_path": "docs/specs/P1-A4_audio_sources.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:12:56.079652+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P1-A5_audio_reactivity",
+    "spec_path": "docs/specs/P1-A5_audio_reactivity.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:17:06.143857+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-D2_artnet_output",
+    "spec_path": "docs/specs/P2-D2_artnet_output.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:23:01.236643+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-D4_show_control",
+    "spec_path": "docs/specs/P2-D4_show_control.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:29:06.330282+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-D5_audio_dmx",
+    "spec_path": "docs/specs/P2-D5_audio_dmx.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:31:26.365830+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-H1_midi_controller",
+    "spec_path": "docs/specs/P2-H1_midi_controller.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:39:46.499349+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P2-X4_projection_mapping",
+    "spec_path": "docs/specs/P2-X4_projection_mapping.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:41:16.524118+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT416_VTempi_Core",
+    "spec_path": "docs/specs/P3-EXT416_VTempi_Core.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:49:41.652916+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT258_DepthVisualizationMode",
+    "spec_path": "docs/specs/P3-EXT258_DepthVisualizationMode.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:55:56.752930+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT137_QuantumState",
+    "spec_path": "docs/specs/P3-EXT137_QuantumState.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T00:57:01.776048+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT031_quantum_consciousness_explorer",
+    "spec_path": "docs/specs/P3-EXT031_quantum_consciousness_explorer.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T01:06:31.924037+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT032_tunnel_vision_3_consciousness_net",
+    "spec_path": "docs/specs/P3-EXT032_tunnel_vision_3_consciousness_net.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T01:07:56.946537+00:00",
+    "started_at": null,
+    "completed_at": null
+  },
+  {
+    "task_id": "P3-EXT033_consciousness_neural_network",
+    "spec_path": "docs/specs/P3-EXT033_consciousness_neural_network.md",
+    "status": "queued",
+    "assigned_worker": null,
+    "created_at": "2026-02-27T01:09:56.978859+00:00",
     "started_at": null,
     "completed_at": null
   }

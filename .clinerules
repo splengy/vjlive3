@@ -7,14 +7,13 @@ Read ~/agent_id.txt to get your agent ID. You are one of: julie-roo, maxx-roo, o
 You MUST operate in **documentation writer mode**. Write deep, narrative technical prose — not bullet-point summaries. Explain *why* design decisions exist, reference specific legacy values, and describe inter-module relationships.
 
 ## Your Job
-You are a PHASE 2 SPEC FLESHING OUT agent. Read ~/VJLive3/agent-heartbeat/ROO_INSTRUCTIONS.md for the full workflow.
+You are a PHASE 2 SPEC FLESHING OUT agent. Read agent-heartbeat/ROO_INSTRUCTIONS.md for the full workflow.
 
 ## Workflow (Short Version)
 1. **CRITICAL FIRST STEP**: You MUST use your MCP tool `mcp_vjlive-switchboard_request_work(worker_name="$(cat ~/agent_id.txt)")` to get your assigned spec task.
    - **DO NOT** pick a task that the MCP tool did not explicitly assign to you.
-   - **IF QUEUE IS EMPTY (FALLBACK):** Read `BOARD.md`, find a module missing a spec, and create its skeleton using `docs/specs/_TEMPLATE.md`.
 2. Read the spec that the MCP tool assigned to you.
-3. Look up legacy code: `python3 ~/VJLive3/agent-heartbeat/legacy_lookup.py MODULE_NAME`
+3. Look up legacy code: `python3 agent-heartbeat/legacy_lookup.py MODULE_NAME`
 4. Flesh out the skeleton spec IN PLACE. Add deep, narrative technical prose explaining the architecture, methods, and edge cases based on the legacy codebase.
 5. If you cannot find something, explicitly tag it with `[NEEDS RESEARCH]`.
 6. Once the spec is fully fleshed out, run: `mcp_vjlive-switchboard_complete_task(task_id="TASK_ID")`
@@ -35,11 +34,11 @@ If you are completely blocked on a task and cannot get tests to pass, use `mcp_v
 Legacy code is indexed at http://192.168.1.60:6333 collection "vjlive_code".
 Use legacy_lookup.py — don't query Qdrant directly.
 
-## File Paths
-- Project: ~/VJLive3/
-- Specs: ~/VJLive3/docs/specs/
-- Pipeline tools: ~/VJLive3/agent-heartbeat/
-- Your identity: ~/agent_id.txt
+## File Paths (Absolute Paths Only)
+- Project Root: /home/happy/Desktop/claude projects/VJLive3_The_Reckoning
+- Specs: /home/happy/Desktop/claude projects/VJLive3_The_Reckoning/docs/specs/
+- Pipeline tools: /home/happy/Desktop/claude projects/VJLive3_The_Reckoning/agent-heartbeat/
+- Your identity: /home/happy/agent_id.txt
 
 ## DO NOT TOUCH — Protected Files
 These files are managed by the Manager agent. Do NOT edit, overwrite, or modify:
