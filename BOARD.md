@@ -1067,3 +1067,89 @@
 - **Pass 1/2 Completed:** ~110 specs
 - **Pass 1/2 Queued:** ~900 specs
 - **Pass 3 Queued:** ~110 specs awaiting Frontier Analysis
+| P1-QDRANT001 | Create Panel Background | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `USEDGIT/developer_tools/inkscape_plugins/create_panel_background.py` |
+| P1-QDRANT002 | Quantum Neural Evolution | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `VJlive-2/plugins/quantum_neural_evolution.py` |
+| P1-QDRANT003 | Chromatic Aberration | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/chromatic_aberration.py` |
+| P1-QDRANT004 | Example Glitch Effect | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/example_glitch_effect.py` |
+| P1-QDRANT005 | Run Depth Demo | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/run_depth_demo.py` |
+| P1-QDRANT006 | Run Ml Demo | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/run_ml_demo.py` |
+| P1-QDRANT007 | Time Machine Demo | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/time_machine_demo.py` |
+| P1-QDRANT008 | Use Automation | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_automation.py` |
+| P1-QDRANT009 | Use Mask Manager | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_mask_manager.py` |
+| P1-QDRANT010 | Use Midi Presets | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_midi_presets.py` |
+| P1-QDRANT011 | Use Ml Effects | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_ml_effects.py` |
+| P1-QDRANT012 | Use Preset Manager | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_preset_manager.py` |
+| P1-QDRANT013 | Use Recorder | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_recorder.py` |
+| P1-QDRANT014 | Use Sequencer | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_sequencer.py` |
+| P1-QDRANT015 | Use Shader Manager | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_shader_manager.py` |
+| P1-QDRANT016 | Use Volumetric Datamosh | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/examples/use_volumetric_datamosh.py` |
+| P1-QDRANT017 | Gpu Compatibility | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/gpu_compatibility.py` |
+| P1-QDRANT018 | Marketplace Client | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/marketplace_client.py` |
+| P1-QDRANT019 | Masking | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/masking.py` |
+| P1-QDRANT020 | Mimeophon Control Bridge | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/mimeophon_control_bridge.py` |
+| P1-QDRANT021 | Mimeophon Video | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/mimeophon_video.py` |
+| P1-QDRANT022 | Planetary Lfos | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/planetary_lfos.py` |
+| P1-QDRANT023 | Plugin Api | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/plugin_api.py` |
+| P1-QDRANT024 | Plugin Isolation | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/plugin_isolation.py` |
+| P1-QDRANT025 | Plugin Loader | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/plugin_loader.py` |
+| P1-QDRANT026 | Satanonaut Plugin | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/satanonaut_plugin.py` |
+| P1-QDRANT027 | Satanonaut Video | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/satanonaut_video.py` |
+| P1-QDRANT028 | Shader Hot Reload | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/shader_hot_reload.py` |
+| P1-QDRANT029 | Simple Mimeophon Video | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/simple_mimeophon_video.py` |
+| P1-QDRANT030 | Texture 3D Integration | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/texture_3d_integration.py` |
+| P1-QDRANT031 | Texture 3D Top | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/texture_3d_top.py` |
+| P1-QDRANT032 | Texture 3D Websocket | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/texture_3d_websocket.py` |
+| P1-QDRANT033 | Time Machine Top | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/time_machine_top.py` |
+| P1-QDRANT034 | V Jumbler | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/core_plugins/v_jumbler.py` |
+| P1-QDRANT035 | Collaborative Creation Panel | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `gui/plugins/collaborative_creation_panel.py` |
+| P1-QDRANT036 | Debug Overlay Controls | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `gui/plugins/debug_overlay_controls.py` |
+| P1-QDRANT037 | Mimeophon Video Panel | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `gui/plugins/mimeophon_video_panel.py` |
+| P1-QDRANT038 | Style Transfer Ui | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `gui/plugins/style_transfer_ui.py` |
+| P1-QDRANT039 |  Add Groups | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/_add_groups.py` |
+| P1-QDRANT040 |  Refactor Befaco | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/_refactor_befaco.py` |
+| P1-QDRANT041 |  Refactor Bogaudio | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/_refactor_bogaudio.py` |
+| P1-QDRANT042 |  Refactor Bogaudio V2 | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/_refactor_bogaudio_v2.py` |
+| P1-QDRANT043 |  Refactor Remaining | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/_refactor_remaining.py` |
+| P1-QDRANT044 |  Verify | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/_verify.py` |
+| P1-QDRANT045 | Vbogaudio Extra | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vbogaudio/vbogaudio_extra.py` |
+| P1-QDRANT046 | Vcontour | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vcontour/vcontour.py` |
+| P1-QDRANT047 | Ffmpeg Filter | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vcore/ffmpeg_filter.py` |
+| P1-QDRANT048 | Milkdrop Equations | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vcore/milkdrop_equations.py` |
+| P1-QDRANT049 | Milkdrop Parser | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vcore/milkdrop_parser.py` |
+| P1-QDRANT050 | Milkdrop Shaders | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vcore/milkdrop_shaders.py` |
+| P1-QDRANT051 | Rgb Separator | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vcore/rgb_separator.py` |
+| P1-QDRANT052 | Depth Slice Effect | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/depth_slice_effect.py` |
+| P1-QDRANT053 | Hap Compatibility Layer | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/hap_compatibility_layer.py` |
+| P1-QDRANT054 | R16 Bad Trip | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_bad_trip.py` |
+| P1-QDRANT055 | R16 Block Mosh | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_block_mosh.py` |
+| P1-QDRANT056 | R16 Cosmic Tunnel | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_cosmic_tunnel.py` |
+| P1-QDRANT057 | R16 Face Melt | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_face_melt.py` |
+| P1-QDRANT058 | R16 Feedback Mosh | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_feedback_mosh.py` |
+| P1-QDRANT059 | R16 Hyper Slice | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_hyper_slice.py` |
+| P1-QDRANT060 | R16 Interlace Mosh | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_interlace_mosh.py` |
+| P1-QDRANT061 | R16 Liquid Mosh | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_liquid_mosh.py` |
+| P1-QDRANT062 | R16 Metric Scan | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_metric_scan.py` |
+| P1-QDRANT063 | R16 Point Cloud | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_point_cloud.py` |
+| P1-QDRANT064 | R16 Topography | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/r16_topography.py` |
+| P1-QDRANT065 | Showcase Demo | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vdepth/showcase_demo.py` |
+| P1-QDRANT066 | Vmi Utilities | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vmi_utilities/vmi_utilities.py` |
+| P1-QDRANT067 | Vmoddemix Core | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vmoddemix/vmoddemix_core.py` |
+| P1-QDRANT068 | Parity Test | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/vtempi/parity_test.py` |
+| P1-QDRANT069 | Plugin Validator | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `core/plugins/plugin_validator.py` |
+| P1-QDRANT070 | Datamosh Collaborative Panel | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `gui/plugins/datamosh_collaborative_panel.py` |
+| P1-QDRANT071 |   Init  .Ultimate | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/core/effect_vimana_hyperion/__init__.ultimate.py` |
+| P1-QDRANT072 | Vg Lib | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/core/maths/vg_lib.py` |
+| P1-QDRANT073 | Make Noise Function | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/core/modulation_function/make_noise_function.py` |
+| P1-QDRANT074 | Mutable Utilities | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/core/modulation_mutable_utilities/mutable_utilities.py` |
+| P1-QDRANT075 | Playground | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/core/quantum_audio/playground.py` |
+| P1-QDRANT076 | Gl Helpers | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `plugins/utils/gl_helpers.py` |
+| P1-QDRANT077 | Test Colorama | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `tests/plugins/vcore/test_colorama.py` |
+| P1-QDRANT078 | Vbefaco Core | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/plugins/vbefaco/vbefaco_core.py` |
+| P1-QDRANT079 | Enhanced Collaboration Overlay | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/gui/plugins/enhanced_collaboration_overlay.py` |
+| P1-QDRANT080 | Vbogaudio Filter Env | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/plugins/vbogaudio/vbogaudio_filter_env.py` |
+| P1-QDRANT081 | Vbogaudio Mix Util | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/plugins/vbogaudio/vbogaudio_mix_util.py` |
+| P1-QDRANT082 | Vbefaco Utils | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/plugins/vbefaco/vbefaco_utils.py` |
+| P1-QDRANT083 | Collaboration Overlay | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/gui/plugins/collaboration_overlay.py` |
+| P1-QDRANT084 | Vmi Generators | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/plugins/vmi_generators/vmi_generators.py` |
+| P1-QDRANT085 | Vbogaudio Osc | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/plugins/vbogaudio/vbogaudio_osc.py` |
+| P1-QDRANT086 | Rene Engine | P1 | ⬜ PENDING SKELETON (Pass 1) | Legacy: `/home/happy/vjlive_codebases/vjlive1/plugins/vmake_noise/rene_engine.py` |
