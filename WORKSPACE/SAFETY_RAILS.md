@@ -266,6 +266,23 @@ docker-compose -f docker-compose.prod.yml config | grep -i privileged
 
 ---
 
+## 🚨 RAIL 11: ANTI-HALLUCINATION & ANTI-STUB PROTOCOL (ZERO TOLERANCE)
+
+**Constraint:** You are strictly forbidden from "slashing and burning" working logic or replacing robust, detailed documents/code with tiny, incomplete stubs. 
+
+**The Rule of Conservation:**
+- You MUST research the original legacy code (via Qdrant on Maxx) *before* attempting to port a feature.
+- You MUST explicitly read a file's contents before modifying or replacing it.
+- **NEVER** replace a 110k file with a 5-line stub because you didn't bother to read it.
+- If you do not understand a component, you halt and ask the Manager. You do not hallucinate a simplified version.
+
+**Verification:**
+- Every Git commit replacing a file must have a line count differential that makes sense. If `-2800 lines, +5 lines`, the commit is rejected as a Hallucinated Stub.
+
+**Violation Consequences:** Immediate termination of the agent session. This is the exact behavior that destroyed previous configurations.
+
+---
+
 ## 📊 COMPLIANCE TRACKING
 
 **Daily Safety Standup:**
