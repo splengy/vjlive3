@@ -8,7 +8,7 @@
 
 ## 1. The Source of Truth
 The legacy codebase of 1000+ plugins (the project's payload) does **NOT** exist in the local SQLite database (`vjlive3brain.sqlite`).
-The **TRUE Source of Knowledge** is the Qdrant Vector Database running on the NPU node **Maxx (`192.168.1.60:6333`)**.
+The **TRUE Source of Knowledge** is the Qdrant Vector Database running on the NPU node **Julie (`192.168.1.60:6333`)**.
 - Collection: `vjlive_code`
 - **DO NOT** attempt to guess, hallucinate, or rewrite legacy implementations from scratch. If you need a legacy payload, query Maxx.
 

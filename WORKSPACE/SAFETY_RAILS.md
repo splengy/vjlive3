@@ -271,7 +271,7 @@ docker-compose -f docker-compose.prod.yml config | grep -i privileged
 **Constraint:** You are strictly forbidden from "slashing and burning" working logic or replacing robust, detailed documents/code with tiny, incomplete stubs. 
 
 **The Rule of Conservation:**
-- You MUST research the original legacy code (via Qdrant on Maxx) *before* attempting to port a feature.
+- You MUST research the original legacy code (via Qdrant on Julie) *before* attempting to port a feature.
 - You MUST explicitly read a file's contents before modifying or replacing it.
 - **NEVER** replace a 110k file with a 5-line stub because you didn't bother to read it.
 - If you do not understand a component, you halt and ask the Manager. You do not hallucinate a simplified version.

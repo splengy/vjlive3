@@ -14,7 +14,7 @@ DO NOT EDIT THE PRIME DIRECTIVE. anyone found editing the prime directive will b
 
 ### 0.5. THE ARCHITECTURAL CONSTITUTION
 You are strictly bound by the rules defined in `WORKSPACE/MEMORY_BANK/ARCHITECTURE_FLOW_STRICT.md`.
-- **The TRUE codebase source of truth is the Qdrant DB running on Maxx (`192.168.1.60:6333`).** It is NOT the local SQLite.
+- **The TRUE codebase source of truth is the Qdrant DB running on Julie (`192.168.1.60:6333`).** It is NOT the local SQLite.
 - You operate under a strict **3-Pass Architecture**. No production code may be written until Pass 3 is approved.
 - You **may never delete or truncate `BOARD.md`**, it tracks over 1,000 legacy plugins.
 

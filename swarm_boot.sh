@@ -10,8 +10,8 @@
 
 set -euo pipefail
 
-JULIE_IP="192.168.1.50"
-MAXX_IP="192.168.1.60"
+JULIE_IP="192.168.1.60"
+MAXX_IP="192.168.1.50"
 WORKSPACE="/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
 SSH_PASS="655369"
 SSH_OPTS="-o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
