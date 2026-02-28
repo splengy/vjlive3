@@ -12,7 +12,8 @@ set -euo pipefail
 
 JULIE_IP="192.168.1.60"
 MAXX_IP="192.168.1.50"
-WORKSPACE="/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
+HOST_WORKSPACE="/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
+NPU_WORKSPACE="/home/happy/vjlive_worker"
 SSH_PASS="655369"
 SSH_OPTS="-o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 SSH_CMD="sshpass -p ${SSH_PASS} ssh ${SSH_OPTS}"
@@ -31,16 +32,24 @@ for node in "$JULIE_IP:Julie" "$MAXX_IP:Maxx"; do
     else fail "$name ($ip) UNREACHABLE"; exit 1; fi
 done
 
+# ── Step 1.5: Enforce NPU Folder Structure ───────────────────────────────
+step "Step 1.5: Verify Worker Structure"
+for node in "$JULIE_IP:Julie" "$MAXX_IP:Maxx"; do
+    ip="${node%%:*}"
+    $SSH_CMD "happy@$ip" "mkdir -p ${NPU_WORKSPACE}/docs/specs/_00_raw_dump"
+done
+ok "All NPUs are strictly utilizing ${NPU_WORKSPACE}"
+
 # ── Step 2: One-Shot Sync ────────────────────────────────────────────────
 step "Step 2: Sync (Init Queue)"
-bash "${WORKSPACE}/swarm_sync.sh"
+bash "${HOST_WORKSPACE}/swarm_sync.sh"
 ok "Initial filesystem sync complete"
 
 # ── Step 3: Verify local .roo/mcp.json ────────────────────────────────────
 step "Step 3: MCP Config (No Switchboards!)"
 for node in "$JULIE_IP:Julie" "$MAXX_IP:Maxx"; do
     ip="${node%%:*}"; name="${node##*:}"
-    count=$($SSH_CMD "happy@$ip" "python3 -c \"import json; print(len(json.load(open('${WORKSPACE}/.roo/mcp.json')).get('mcpServers',{})))\"" 2>/dev/null)
+    count=$($SSH_CMD "happy@$ip" "python3 -c \"import json; print(len(json.load(open('${NPU_WORKSPACE}/.roo/mcp.json')).get('mcpServers',{})))\"" 2>/dev/null)
     if [ "$count" = "5" ]; then ok "$name: .roo/mcp.json has $count servers (Switchboard dead)"
     else fail "$name: .roo/mcp.json missing or broken (got: ${count:-empty})"; fi
 done
@@ -57,7 +66,7 @@ sleep 3
 # ── Step 5: Start sync daemon ────────────────────────────────────────────
 step "Step 5: Sync Daemon (Zero-DB Queue Router)"
 pkill -f "swarm_sync.sh" || true
-nohup bash "${WORKSPACE}/swarm_sync.sh" --loop \
+nohup bash "${HOST_WORKSPACE}/swarm_sync.sh" --loop \
     > /dev/null 2>&1 &
 sleep 1
 pgrep -f "swarm_sync.sh" &>/dev/null && ok "Daemon Started (pid $(pgrep -f swarm_sync.sh | head -1))" || fail "Failed to start daemon"
@@ -72,33 +81,32 @@ else warn "remmina not installed locally"; fi
 
 # ── Done ─────────────────────────────────────────────────────────────────
 step "ZERO-DATABASE SWARM READY"
-cat << 'EOF'
+cat << EOF
 
   Paste into Julie's Roo Code:
   ─────────────────────────────
   You are julie-roo. Your environment is fully configured.
   Read the rules at:
-  /home/happy/Desktop/claude projects/VJLive3_The_Reckoning/.clinerules
+  ${NPU_WORKSPACE}/.clinerules
   Then read your protocol at:
-  /home/happy/Desktop/claude projects/VJLive3_The_Reckoning/agent-heartbeat/ROO_INSTRUCTIONS.md
-  Your first action: check docs/specs/_01_skeletons/ for work. Use `mv` to claim it.
+  ${NPU_WORKSPACE}/agent-heartbeat/ROO_INSTRUCTIONS.md
+  Your first action: check docs/specs/_01_skeletons/ for work. Use \`mv\` to claim it.
 
   Paste into Maxx's Roo Code:
   ─────────────────────────────
   You are maxx-roo. Your environment is fully configured.
   Read the rules at:
-  /home/happy/Desktop/claude projects/VJLive3_The_Reckoning/.clinerules
+  ${NPU_WORKSPACE}/.clinerules
   Then read your protocol at:
-  /home/happy/Desktop/claude projects/VJLive3_The_Reckoning/agent-heartbeat/ROO_INSTRUCTIONS.md
-  Your first action: check docs/specs/_01_skeletons/ for work. Use `mv` to claim it.
+  ${NPU_WORKSPACE}/agent-heartbeat/ROO_INSTRUCTIONS.md
+  Your first action: check docs/specs/_01_skeletons/ for work. Use \`mv\` to claim it.
 
   Paste into Desktop's Roo Code (Host):
   ─────────────────────────────
   You are desktop-roo. Your environment is fully configured.
   Read the rules at:
-  /home/happy/Desktop/claude projects/VJLive3_The_Reckoning/.clinerules
+  ${HOST_WORKSPACE}/.clinerules
   Then read your protocol at:
-  /home/happy/Desktop/claude projects/VJLive3_The_Reckoning/agent-heartbeat/ROO_INSTRUCTIONS.md
-  Your first action: check docs/specs/_01_skeletons/ for work. Use `mv` to claim it.
+  ${HOST_WORKSPACE}/agent-heartbeat/ROO_INSTRUCTIONS.md
+  Your first action: check docs/specs/_01_skeletons/ for work. Use \`mv\` to claim it.
 
-EOF

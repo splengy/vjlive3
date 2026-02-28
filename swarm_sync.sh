@@ -9,58 +9,56 @@ set -e
 
 JULIE_IP="192.168.1.60"
 MAXX_IP="192.168.1.50"
-WORKSPACE="/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
+HOST_WORKSPACE="/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
+NPU_WORKSPACE="/home/happy/vjlive_worker"
 SSH_PASS="655369"
 SSH_OPTS="-o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 RSYNC_RSH="sshpass -p ${SSH_PASS} ssh ${SSH_OPTS}"
 
 sync_cycle() {
     # ── 1. Pull Raw NPU Dumps from Edge Devices (Maxx & Julie) ───────────
-    # The Edge RKLLMs output to /home/happy/outback/
-    # We pull them into _00_raw_dump/ (We only pull *.md files)
-    
+    # The Edge RKLLMs output to their structured local _00_raw_dump directory
     # Pull from Maxx
     rsync -aq --update \
         -e "$RSYNC_RSH" \
-        "happy@${MAXX_IP}:/home/happy/outback/*.md" \
-        "${WORKSPACE}/docs/specs/_00_raw_dump/" 2>/dev/null || true
+        "happy@${MAXX_IP}:${NPU_WORKSPACE}/docs/specs/_00_raw_dump/*.md" \
+        "${HOST_WORKSPACE}/docs/specs/_00_raw_dump/" 2>/dev/null || true
 
     # Pull from Julie
     rsync -aq --update \
         -e "$RSYNC_RSH" \
-        "happy@${JULIE_IP}:/home/happy/outback/*.md" \
-        "${WORKSPACE}/docs/specs/_00_raw_dump/" 2>/dev/null || true
+        "happy@${JULIE_IP}:${NPU_WORKSPACE}/docs/specs/_00_raw_dump/*.md" \
+        "${HOST_WORKSPACE}/docs/specs/_00_raw_dump/" 2>/dev/null || true
 
     # Move anything in _00_raw_dump/ into _01_skeletons/ on the Host to activate it
-    # We only move files that end in _spec.md
-    find "${WORKSPACE}/docs/specs/_00_raw_dump/" -maxdepth 1 -name "*_spec.md" -exec mv {} "${WORKSPACE}/docs/specs/_01_skeletons/" \; 2>/dev/null || true
+    find "${HOST_WORKSPACE}/docs/specs/_00_raw_dump/" -maxdepth 1 -name "*_spec.md" -exec mv {} "${HOST_WORKSPACE}/docs/specs/_01_skeletons/" \; 2>/dev/null || true
 
     # ── 2. Pull Active Agent Work FROM OPis to Host ──────────────────────
     rsync -aq --update \
         --exclude='.venv' --exclude='__pycache__' \
         -e "$RSYNC_RSH" \
-        "happy@${JULIE_IP}:${WORKSPACE}/docs/specs/" \
-        "${WORKSPACE}/docs/specs/" 2>/dev/null || true
+        "happy@${JULIE_IP}:${NPU_WORKSPACE}/docs/specs/" \
+        "${HOST_WORKSPACE}/docs/specs/" 2>/dev/null || true
 
     rsync -aq --update \
         --exclude='.venv' --exclude='__pycache__' \
         -e "$RSYNC_RSH" \
-        "happy@${MAXX_IP}:${WORKSPACE}/docs/specs/" \
-        "${WORKSPACE}/docs/specs/" 2>/dev/null || true
+        "happy@${MAXX_IP}:${NPU_WORKSPACE}/docs/specs/" \
+        "${HOST_WORKSPACE}/docs/specs/" 2>/dev/null || true
 
     # ── 3. Push Global State TO OPis ─────────────────────────────────────
     # This pushes the current state of _01_skeletons, _02, _03, _04 down to the workers
     rsync -aq --update --delete \
         --exclude='.venv' --exclude='__pycache__' \
         -e "$RSYNC_RSH" \
-        "${WORKSPACE}/docs/specs/" \
-        "happy@${JULIE_IP}:${WORKSPACE}/docs/specs/" 2>/dev/null || true
+        "${HOST_WORKSPACE}/docs/specs/" \
+        "happy@${JULIE_IP}:${NPU_WORKSPACE}/docs/specs/" 2>/dev/null || true
 
     rsync -aq --update --delete \
         --exclude='.venv' --exclude='__pycache__' \
         -e "$RSYNC_RSH" \
-        "${WORKSPACE}/docs/specs/" \
-        "happy@${MAXX_IP}:${WORKSPACE}/docs/specs/" 2>/dev/null || true
+        "${HOST_WORKSPACE}/docs/specs/" \
+        "happy@${MAXX_IP}:${NPU_WORKSPACE}/docs/specs/" 2>/dev/null || true
 }
 
 # Daemon mode or one-shot
