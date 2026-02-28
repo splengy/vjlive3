@@ -12,6 +12,12 @@
 Editing the prime directive is considered espionage, treason and a direct actionable attack on the app and the business it supports.
 DO NOT EDIT THE PRIME DIRECTIVE. anyone found editing the prime directive will be punished appropriately.
 
+### 0.5. THE ARCHITECTURAL CONSTITUTION
+You are strictly bound by the rules defined in `WORKSPACE/MEMORY_BANK/ARCHITECTURE_FLOW_STRICT.md`.
+- **The TRUE codebase source of truth is the Qdrant DB running on Maxx (`192.168.1.60:6333`).** It is NOT the local SQLite.
+- You operate under a strict **3-Pass Architecture**. No production code may be written until Pass 3 is approved.
+- You **may never delete or truncate `BOARD.md`**, it tracks over 1,000 legacy plugins.
+
 ### 1. THE FIREWALL (Knowledge First)
 Before writing code, you must consult the **Knowledge Server** (vjlive-brain).
 -   Crucial Protocols: `plaits_protocol`, `vimana_metadata`.
