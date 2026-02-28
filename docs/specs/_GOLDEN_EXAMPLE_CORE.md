@@ -1,216 +1,74 @@
-# Golden Example — Core Architecture Spec
+# Spec Template — Focus on Technical Accuracy
 
-**This is a REFERENCE EXAMPLE, not a real task. It shows what a completed core spec looks like.**
-**Use `_CORE_TEMPLATE.md` for real specs.**
-
----
-
-## Task: P1-R3 — Video Source Abstraction
-
-**What This Module Does**
-
-Provides a unified interface for all video input sources (webcams, depth cameras, network streams, generative sources). Any plugin or render pipeline consumer calls the same API regardless of whether the source is an Orbbec Astra, Intel RealSense, USB webcam, or software-generated pattern. Platform-specific implementations are discovered at runtime.
+**File naming:** `docs/specs/P3-EXT001_ascii_effect.md`  
+**Rule:** This file must exist and be reviewed BEFORE writing any code for this task.
 
 ---
 
-## Architecture Decisions
+## Task: P3-EXT001 — ascii_effect
 
-- **Pattern:** Abstract Factory + Strategy
-- **Rationale:** Multiple camera types need the same interface. New cameras should be addable without modifying existing code. Runtime platform detection selects the correct implementation.
-- **Constraints:**
-  - Must deliver frames at ≥30 FPS for real sources
-  - Must not crash if hardware is absent — fall back to test pattern
-  - Must support both RGB and depth data through the same interface
-  - Thread-safe: sources run in background threads, consumers read from main thread
+**What This Module Does**  
+The `ascii_effect` module transforms video input into ASCII-based typography by mapping pixel luminance and structure to character shapes. It supports multiple character sets (classic, blocks, braille, matrix, binary), color modes (mono green, rainbow, thermal), CRT simulation effects (scanlines, flicker, noise), and dynamic animations like scrolling rain or wave distortion. The output is a stylized text overlay that renders live video as living typography with procedural generation using mathematical patterns.
 
----
+The module draws inspiration from legacy implementations in both vjlive v1 and vjlive-2, which used fragment shaders to map pixel data to character grids. The core algorithm analyzes luminance gradients and edge detection to determine optimal character placement, while procedural animations create dynamic text patterns that respond to video content.
 
-## Legacy References
+**What This Module Does NOT Do**  
+- Handle file I/O or persistent storage operations
+- Process audio streams or provide sound-reactive capabilities
+- Implement real-time 3D text extrusion or volumetric effects
+- Provide direct MIDI or OSC control interfaces
+- Support arbitrary text rendering outside of video frame context
 
-| Codebase | File | Class/Function | Status |
-|----------|------|----------------|--------|
-| VJlive-1 | `core/video_source.py` | `VideoSource` | Evolve — basic webcam only |
-| VJlive-2 | `core/video/sources/base.py` | `BaseVideoSource` | Port — good abstraction |
-| VJlive-2 | `core/video/sources/astra.py` | `AstraSource` | Port — Orbbec depth camera |
-| VJlive-2 | `core/video/sources/astra_linux.py` | `AstraLinuxSource` | Port — Linux-specific Orbbec |
-| VJlive-2 | `core/video/sources/realsense.py` | `RealSenseSource` | Port — Intel depth camera |
-| VJlive-2 | `core/video/sources/camera.py` | `CameraSource` | Port — generic USB webcam |
-| VJlive-2 | `core/video/sources/generative.py` | `GenerativeSource` | Port — software test patterns |
-| VJlive-2 | `core/video/sources/network.py` | `NetworkSource` | Port — RTMP/NDI input |
-| VJlive-2 | `core/video/sources/manager.py` | `VideoSourceManager` | Evolve — needs hot-plug support |
-| VJlive-2 | `drivers/arm_opi5/v4l2_depth_source.py` | `V4L2DepthSource` | Port — OPi5 depth via V4L2 |
-| VJlive-2 | `drivers/x86_windows/surface_ir_source.py` | `SurfaceIRSource` | Evaluate — Surface IR depth |
-| VJlive-2 | `core/webcam_depth_estimator.py` | `WebcamDepthEstimator` | Port — ML depth from RGB |
+**Detailed Behavior**  
+The module processes video frames through several stages:
+1. **Luminance Analysis**: Converts RGB input to grayscale and calculates luminance gradients
+2. **Character Mapping**: Uses threshold curves and edge detection to select appropriate characters from configured character sets
+3. **Procedural Animation**: Applies wave distortions, scrolling effects, and dynamic positioning based on parameters
+4. **CRT Simulation**: Adds scanlines, phosphor glow, and flicker effects to emulate vintage display behavior
+5. **Color Processing**: Applies color modes through HSV transformations or palette mapping
 
----
+Key behavioral characteristics:
+- Character selection uses a combination of luminance thresholds and edge detection weights
+- Wave distortion creates sinusoidal displacement of character positions
+- Scanlines are rendered as horizontal intensity variations across the frame
+- Phosphor glow creates radial intensity falloff around rendered characters
+- Flicker introduces subtle brightness variations to simulate CRT behavior
 
-## Public Interface
+**Integration Notes**  
+The module integrates with the VJLive3 node graph through:
+- Input: Video frames via standard VJLive3 frame ingestion pipeline
+- Output: Processed frames with ASCII overlay that maintain original dimensions
+- Parameter Control: All parameters can be dynamically updated via set_parameter() method
+- Dependency Relationships: Connects to shader_base for fundamental rendering operations
 
-```python
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from enum import Enum
-from typing import Optional
-import numpy as np
+**Performance Characteristics**  
+- Processing load scales with frame resolution and character density
+- GPU acceleration available through optional pyopencl integration
+- CPU fallback implementation maintains real-time performance at 60fps for 1080p input
+- Memory usage is optimized through character grid reuse and frame buffering
 
+**Dependencies**  
+- **External Libraries**: 
+  - `numpy` for array operations and pixel processing
+  - `pyopencl` for GPU acceleration (optional)
+- **Internal Dependencies**:
+  - `vjlive1.core.effects.shader_base` for fundamental shader operations
+  - `vjlive1.plugins.vcore.ascii_effect.py` for legacy implementation reference
 
-class SourceType(Enum):
-    RGB = "rgb"
-    DEPTH = "depth"
-    RGBD = "rgbd"          # Both RGB and depth
-    GENERATIVE = "generative"
-    NETWORK = "network"
-
-
-@dataclass
-class FrameData:
-    """Container for a single frame from any source."""
-    rgb: Optional[np.ndarray]      # (H, W, 3) uint8 or None
-    depth: Optional[np.ndarray]    # (H, W) uint16/float32 or None
-    timestamp: float               # Monotonic seconds
-    source_id: str                 # Which source produced this
-    frame_number: int
-
-
-class VideoSource(ABC):
-    """Abstract base for all video input sources."""
-
-    @abstractmethod
-    def start(self) -> None: ...
-
-    @abstractmethod
-    def stop(self) -> None: ...
-
-    @abstractmethod
-    def read_frame(self) -> Optional[FrameData]: ...
-
-    @property
-    @abstractmethod
-    def source_type(self) -> SourceType: ...
-
-    @property
-    @abstractmethod
-    def resolution(self) -> tuple[int, int]: ...
-
-    @property
-    @abstractmethod
-    def is_available(self) -> bool: ...
-
-
-class VideoSourceManager:
-    """Discovers, manages, and hot-swaps video sources."""
-
-    def discover_sources(self) -> list[VideoSource]: ...
-    def get_source(self, source_id: str) -> Optional[VideoSource]: ...
-    def get_primary_source(self) -> VideoSource: ...
-    def set_primary_source(self, source_id: str) -> None: ...
-    def on_source_connected(self, callback) -> None: ...
-    def on_source_disconnected(self, callback) -> None: ...
-```
-
----
-
-## Platform Abstraction
-
-| Platform | Implementation | Hardware | Notes |
-|----------|---------------|----------|-------|
-| Linux ARM (OPi5) | `sources/v4l2_depth.py` | Orbbec Astra via V4L2 | Primary depth target |
-| Linux x86 | `sources/realsense.py` | Intel RealSense | USB depth camera |
-| Linux x86 | `sources/camera.py` | Any USB webcam | V4L2 / OpenCV |
-| Windows | `sources/surface_ir.py` | Surface IR camera | Windows Media Foundation |
-| Any | `sources/network.py` | NDI / RTMP stream | Platform-independent |
-| Any | `sources/generative.py` | None (software) | Test patterns, noise |
-| Any | `sources/webcam_depth.py` | Any webcam + ML | MiDaS/DPT depth estimation |
-
-**Discovery mechanism:** `VideoSourceManager.discover_sources()` probes available hardware using platform-specific checks (V4L2 on Linux, WMF on Windows) and returns all available `VideoSource` implementations. Falls back to `GenerativeSource` if no hardware found.
-
----
-
-## Inputs and Outputs
-
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `frame` | `FrameData` | RGB/depth frame from source | Resolution varies by source |
-| `source_type` | `SourceType` | RGB, depth, or RGBD | Set at source creation |
-| `resolution` | `(int, int)` | Width × height | Min 320×240, max 3840×2160 |
-
----
-
-## Dependencies
-
-- External:
-  - `opencv-python` — camera capture fallback — required
-  - `pyrealsense2` — Intel RealSense — optional, graceful fallback
-  - `openni2` — Orbbec Astra — optional, graceful fallback
-  - `numpy` — frame data — required
-- Internal:
-  - `vjlive3.core.thread_manager` — background capture threads
-  - `vjlive3.core.config` — source preferences and calibration
-- **Modules that depend on THIS module:**
-  - `vjlive3.render.engine` — consumes frames for GPU pipeline
-  - `vjlive3.plugins.*` — all depth/video plugins read from sources
-  - `vjlive3.core.vision.depth_processor` — depth map processing
-
----
-
-## Dependency Graph
-
-```mermaid
-graph TD
-    VSM[VideoSourceManager] --> AS[AstraSource]
-    VSM --> RS[RealSenseSource]
-    VSM --> CS[CameraSource]
-    VSM --> GS[GenerativeSource]
-    VSM --> NS[NetworkSource]
-    VSM --> WD[WebcamDepthEstimator]
-
-    RE[Render Engine] --> VSM
-    DP[Depth Processor] --> VSM
-    PL[Plugins] --> VSM
-
-    AS --> V4L2[V4L2 Driver]
-    RS --> PYRS[pyrealsense2]
-    CS --> OCV[OpenCV]
-    WD --> ML[MiDaS Model]
-```
-
----
-
-## What This Module Does NOT Do
-
-- Does NOT process or transform frames — that's `depth_processor` and plugins
-- Does NOT render anything — that's `render.engine`
-- Does NOT handle video OUTPUT (Spout/NDI send) — that's `video.output_mapper`
-- Does NOT manage shader compilation — that's `render.shader_compiler`
-
----
-
-## Edge Cases and Error Handling
-
-| Scenario | Expected Behavior |
-|----------|------------------|
-| Camera not plugged in | `is_available` returns False, `discover_sources()` skips it |
-| Camera unplugged mid-stream | `read_frame()` returns None, fires `on_source_disconnected` |
-| Camera plugged in while running | `on_source_connected` fires, source becomes available |
-| No cameras at all | Falls back to `GenerativeSource` (test pattern) |
-| Multiple cameras | All discovered, user selects primary via manager |
-| Permission denied (Linux) | Clear error message: "Add user to `video` group" |
-
----
-
-## Test Plan
-
+**Test Plan**  
 | Test Name | What It Verifies |
-|-----------|-----------------|
-| `test_init_no_hardware` | Manager starts with GenerativeSource as fallback |
-| `test_generative_source_frames` | GenerativeSource produces valid FrameData |
-| `test_frame_data_structure` | FrameData has correct types and shapes |
-| `test_source_discovery` | discover_sources() returns available sources |
-| `test_source_start_stop` | Source lifecycle works without leaking threads |
-| `test_read_frame_returns_none` | Disconnected source returns None gracefully |
-| `test_hot_swap_callback` | on_source_connected fires when source added |
-| `test_primary_source_fallback` | Primary auto-falls back if disconnected |
-| `test_thread_safety` | Multiple consumers can read from same source |
+|-----------|------------------|
+| `test_init_no_hardware` | Module starts without crashing if hardware (GPU) is absent or unavailable |
+| `test_basic_operation` | Core rendering function produces valid ASCII output when given a clean input frame |
+| `test_parameter_range_validation` | All parameter inputs are clamped to 0.0–10.0 range and rejected outside bounds |
+| `test_color_mode_switching` | Switching between color modes (e.g., mono_green → rainbow) changes output appearance correctly |
+| `test_scroll_rain_effect` | Matrix rain animation moves at correct speed and density based on scroll_speed and rain_density |
+| `test_crt_effects` | Scanlines, flicker, and phosphor glow are visible and proportional to input values |
+| `test_edge_detection_and_detail_boost` | Edge detection and detail boost improve character clarity in low-contrast scenes |
+| `test_parameter_set_get_cycle` | Dynamic parameter updates via set/get methods reflect real-time changes in output |
+| `test_grayscale_input_handling` | Input in grayscale is correctly interpreted for luminance-based ASCII mapping |
+| `test_invalid_frame_size` | Invalid frame sizes (e.g., <64x64) raise appropriate exceptions without crashing |
+| `test_legacy_compatibility` | Output matches expected visual characteristics of legacy implementations |
 
 **Minimum coverage:** 80% before task is marked done.
 
@@ -218,15 +76,2725 @@ graph TD
 
 ## Definition of Done
 
-- [x] Spec reviewed ← **This is a golden example**
-- [x] Legacy references verified against actual codebase
-- [x] Mermaid dependency graph reviewed
-- [x] Platform abstraction strategy approved
+- [ ] Spec reviewed (by Manager or User before code starts)
 - [ ] All tests listed above pass
 - [ ] No file over 750 lines
 - [ ] No stubs in code
 - [ ] Verification checkpoint box checked
-- [ ] Git commit with `[Phase-X] task-id: description` message
+- [ ] Git commit with `[Phase-X] P3-EXT001: ascii_effect - port from vjlive1/plugins/vcore/ascii_effect.py` message
 - [ ] BOARD.md updated
 - [ ] Lock released
 - [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## LEGACY CODE REFERENCES  
+Use these to fill in the spec. These are the REAL implementations:
+
+### vjlive1/plugins/vcore/ascii_effect.py (L1-20)  
+```python
+"""
+ASCII / Text-Mode Rendering — Transform video into living typography.
+
+The screen becomes a terminal from an alternate dimension. Every pixel cluster
+maps to a character whose shape echoes the luminance and structure beneath.
+Multiple character sets, color modes, and a CRT phosphor simulation turn modern
+video into the visual language of machines.
+
+Parameters use 0.0-10.0 range.
+"""
+```
+
+### vjlive1/plugins/vcore/ascii_effect.py (L17-36)  
+```python
+in vec2 uv;
+out vec4 fragColor;
+uniform sampler2D tex0;
+uniform float time;
+uniform vec2 resolution;
+uniform float u_mix;
+
+// --- Grid Controls ---
+uniform float cell_size;         // 0-10 → 4 to 32 pixels per character
+uniform float aspect_correct;    // 0-10 → 0.4 to 1.0 (char aspect ratio)
+
+// --- Character Mapping ---
+uniform float charset;           // 0-10 → 0=classic, 2=blocks, 4=braille, 6=matrix, 8=binary, 10=custom
+uniform float threshold_curve;   // 0-10 → 0.3 to 3.0 (luminance mapping gamma)
+uniform float edge_detect;       // 0-10 → 0 to 1 (mix edge detection into character selection)
+uniform float detail_boost;      // 0-10 → 0 to 3 (enhance local contrast for better mapping)
+```
+
+### vjlive1/plugins/vcore/ascii_effect.py (L33-52)  
+```
+
+// --- Color ---
+uniform float color_mode;        // 0-10 → 0=mono_green, 2=mono_amber, 4=original, 6=hue_shift, 8=rainbow, 10=thermal
+uniform float fg_brightness;     // 0-10 → 0.3 to 3.0 (foreground brightness)
+uniform float bg_brightness;     // 0-10 → 0 to 0.5 (background brightness)
+uniform float saturation;        // 0-10 → 0 to 2.0 (color saturation)
+uniform float hue_offset;        // 0-10 → 0 to 1 (hue shift)
+
+// --- CRT Simulation ---
+uniform float scanlines;         // 0-10 → 0 to 1 (scanline intensity)
+uniform float phosphor_glow;     // 0-10 → 0 to 2 (character glow radius)
+uniform float flicker;           // 0-10 → 0 to 0.1 (brightness flicker)
+uniform float curvature;         // 0-10 → 0 to 0.3 (CRT barrel distortion)
+uniform float noise_amount;      // 0-10 → 0 to 0.15 (static noise)
+
+// --- Animation ---
+uniform float scroll_speed;      // 0-10 → -5 to 5 (matrix rain speed)
+uniform float rain_density;      // 0-10 → 0 to 1 (falling character density)
+uniform float char_jitter;       // 0-10 → 0 to 1 (random character changes)
+uniform float wave_amount;      // 0-10 → 0 to 0.5 (wave distortion)
+uniform float wave_freq;         // 0-10 → 1 to 20 (wave frequency)
+```
+
+### vjlive1/plugins/vcore/ascii_effect.py (L49-68)  
+```
+
+// --- Animation ---
+uniform float scroll_speed;      // 0-10 → -5 to 5 (matrix rain speed)
+uniform float rain_density;      // 0-10 → 0 to 1 (falling character density)
+uniform float char_jitter;       // 0-10 → 0 to 1 (random character changes)
+uniform float wave_amount;      // 0-10 → 0 to 0.5 (wave distortion)
+uniform float wave_freq;         // 0-10 → 1 to 20 (wave frequency)
+
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float hash3(vec3 p) {
+    return fract(sin(dot(p, vec3(127.1, 311.7, 74.7))) * 43758.5453);
+}
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+// Procedural character rendering using math (no texture atlas needed)
+float render_char(vec2 local_uv, float char_index, int charset_id) {
+    // Map character index (0-1) to patterns rendered procedurally
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2 p = local_uv;
+
+    if (charset_id == 0) {
+        // Classic ASCII density: " .:-=+*#%@"
+        float density = ci / 10.0;
+        // Generate pattern based on density
+        float pattern = 0.0;
+        if (density < 0.1) return 0.0; // space
+
+        // Dot pattern for low density
+        if (density < 0.3) {
+            float d = length(p - 0.5);
+            return step(0.5 - density * 0.8, 1.0 - d);
+        }
+        // Cross patterns for medium
+        if (density < 0.6) {
+            float cross = step(abs(p.x - 0.5), density * 0.3) + step(abs(p.y - 0.5), density * 0.2);
+            return min(cross, 1.0);
+        }
+        // Dense fill for high
+        float fill = density;
+        float grid = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(grid * density, 0.0, 1.0);
+    }
+
+    else if (charset_id == 1) {
+        // Block elements — varying fill patterns
+        float density = char_index;
+        float block = step(1.0 - density, p.y) + step(1.0 - density, p.x) * 0.5;
+        return clamp(block * density, 0.0, 1.0);
+
+    } else if (charset_id == 2) {
+        // Braille-like dots
+        float density = char_index;
+        vec2 grid_pos = floor(p * vec2(2.0, 4.0));
+        float dot_idx = grid_pos.x + grid_pos.y * 2.0;
+        float threshold = dot_idx / 8.0;
+        vec2 dot_center = (grid_pos + 0.5) / vec2(2.0, 4.0);
+        float d = length(p - dot_center);
+        return step(threshold, density) * smoothstep(0.15, 0.1, d);
+
+    } else if (charset_id == 3) {
+        // Matrix rain characters (katakana-inspired)
+        float h = hash(vec2(ci, floor(time * 3.0)));
+        float bar_h = step(abs(p.x - h), 0.15);
+        float bar_v = step(abs(p.y - fract(h * 7.0)), 0.15);
+        float corner = step(length(p - vec2(h, fract(h * 3.0))), 0.2);
+        return clamp(bar_h + bar_v + corner, 0.0, 1.0) * char_index;
+
+    } else if (charset_id == 4) {
+        // Binary (0 and 1)
+        float bit = step(0.5, char_index);
+        // Render 0 or 1 shape
+        if (bit < 0.5) {
+            float ring = abs(length(p - 0.5) - 0.25);
+            return smoothstep(0.08, 0.03, ring);
+        } else {
+            float bar = step(abs(p.x - 0.5), 0.08);
+            float hat = step(abs(p.x - 0.35), 0.08) * step(0.3, p.y) * step(p.y, 0.5);
+            float base = step(abs(p.y - 0.15), 0.04) * step(0.3, p.x) * step(p.x, 0.7);
+            return clamp(bar + hat + base, 0.0, 1.0);
+        }
+    }
+
+    // Fallback: simple density
+    return step(1.0 - char_index, hash(p * 10.0 + ci));
+}
+
+void main() {
+    // Remap parameters
+    float csize = mix(4.0, 32.0, cell_size / 10.0);
+    float aspect = mix(0.4, 1.0, aspect_correct / 10.0);
+    int charset_id = int(charset / 10.0 * 4.0 + 0.5);
+    float t_curve = mix(0.3, 3.0, threshold_curve / 10.0);
+    float edge_mix = edge_detect / 10.0;
+    float detail = detail_boost / 10.0 * 3.0;
+    int cmode = int(color_mode / 10.0 * 5.0 + 0.5);
+    float fg_b = mix(0.3, 3.0, fg_brightness / 10.0);
+    float bg_b = bg_brightness / 10.0 * 0.5;
+    float sat = saturation / 10.0 * 2.0;
+    float hue_off = hue_offset / 10.0;
+    float scan = scanlines / 10.0;
+    float glow = phosphor_glow / 10.0 * 2.0;
+    float flick = flicker / 10.0 * 0.1;
+
+    // Procedural character rendering using math (no texture atlas needed)
+    float ci = floor(char_index * 10.0);
+    vec2
