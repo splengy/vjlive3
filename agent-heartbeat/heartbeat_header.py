@@ -31,9 +31,10 @@ HEARTBEAT_HEADER = """# HEARTBEAT COMPLIANCE HEADER
    maps, and implementation patterns. Query BEFORE writing anything.
 2. LEGACY CODE: The VJlive-2 source code is your reference implementation.
    Read how the original author solved the problem before you start.
-3. SWITCHBOARD (MCP: vjlive-switchboard): Check out files before editing,
-   check them back in when done. Post status messages.
-4. SPEC FILE: Read the full specification for your task. Every field.
+3. PURE FILESYSTEM QUEUE: Move files from _01_skeletons to _02_fleshed_out when done.
+    No lockfiles or MCP servers are required.
+4. BRAIN (MCP: vjlive3brain): Use 'get_concept' or 'search_concepts'
+    to get historical codebase context.
    Every requirement. If something is unclear, say so — don't guess.
 
 You will be asked to cite what you found in the knowledgebase and

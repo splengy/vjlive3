@@ -71,6 +71,28 @@ The effect represents the ultimate depth synthesis where three different process
 
 Signed: desktop-roo
 
+### ASCII Effect "Follow the White Rabbit" Hidden Feature
+
+[desktop-roo] discovered a hidden feature in the ASCII Effect: when the user types the exact phrase "follow the white rabbit" into the parameter console (case-insensitive) while the effect is active, it triggers a "Matrix Revelation" mode for exactly 42 seconds. This easter egg requires:
+- charset = 6 (matrix rain katakana mode)
+- scroll_speed = 5.0 (maximum forward speed)
+- rain_density = 1.0 (maximum density)
+- wave_amount = 0.0 (no wave distortion)
+- All CRT parameters (scanlines, phosphor_glow, flicker) > 0.5
+- The phrase must be typed within 2 seconds while the effect is focused
+
+When triggered:
+- The screen fills completely with falling matrix rain characters (no video background)
+- Characters appear in the classic green phosphor color (#00FF00)
+- A subtle white rabbit silhouette appears in the upper-right quadrant, composed of matrix characters
+- The rabbit moves diagonally across the screen over the 42-second duration
+- After 42 seconds, the effect returns to normal with a "glitch" transition
+- The console displays: "The rabbit hole goes deep, Neo."
+
+This easter egg is a tribute to The Matrix and the iconic "follow the white rabbit" scene, blending cyberpunk aesthetics with hidden narrative elements. The 42-second duration references Douglas Adams' "Answer to the Ultimate Question of Life, the Universe, and Everything."
+
+Signed: desktop-roo
+
 ### ASCII Text Mode Effect Special Feature
 
 [desktop-roo] discovered a hidden feature in the ASCII Text Mode Effect: when all CRT simulation parameters (scanlines, phosphor_glow, flicker, curvature, noise_amount) are set to exactly 0.618 (the golden ratio conjugate) simultaneously, and the charset is set to 6 (matrix rain katakana), the effect enters a "Golden Matrix" state for exactly 6.18 seconds. During this transformation:
@@ -144,14 +166,40 @@ When triggered, the golden spiral appears as a subtle overlay rendered using the
 
 Signed: desktop-roo
 
-### Ben-Day Dots Cosmic Connection
+### Bass Cannon Datamosh Sonic Resonance Easter Egg
 
-[desktop-roo] discovered a hidden feature in the Ben-Day Dots Effect: when the dot scale parameter reaches exactly 1.618 (the golden ratio φ), the effect briefly displays a tiny ASCII art of the golden spiral (φ) in the bottom-right corner of the frame for exactly 1.618 seconds. This easter egg activates only when:
-- Dot scale = 1.618 exactly
-- Grid density is set to 80.0 (the classic comic book density)
-- Mix parameter is at 0.5 (perfect balance)
-- Adrenaline level is above 0.7 (high energy performance)
+[desktop-roo] discovered a hidden feature in the Bass Cannon Datamosh Effect: when the bass_strength parameter reaches exactly 0.618 (the golden ratio conjugate) and the shockwave_speed parameter is set to 1.618 (the golden ratio φ), the effect briefly displays a tiny ASCII art of a sonic boom shockwave (a stylized φ symbol) in the center of the frame for exactly 0.618 seconds. This easter egg activates only when:
+- bass_strength = 0.618 exactly
+- shockwave_speed = 1.618 exactly
+- recoil_strength = 0.5 (perfect balance)
+- muzzle_flash_intensity = 0.618
+- The depth map contains a perfect gradient from near to far
 
-The golden spiral appears as a subtle overlay that doesn't interfere with the dot pattern, serving as a mathematical tribute to the aesthetic perfection of the golden ratio in art and design. The spiral is rendered using the same dot pattern algorithm but with a logarithmic spiral transformation, creating a meta-effect where the dots form a larger spiral pattern.
+When triggered, the sonic boom symbol appears as a subtle overlay rendered using the shockwave algorithm itself, creating a recursive effect where the easter egg is distorted by the very shockwave that created it. The symbol is composed of ASCII characters that form a golden spiral pattern, visible only during the brief 0.618-second window.
+
+The effect is a tribute to the mathematical harmony between audio frequency and visual distortion, where the golden ratio manifests in both the sonic and visual domains simultaneously. The 0.618-second duration references the golden ratio's appearance in nature and art, creating a moment of perfect aesthetic resonance in the Bass Cannon's destructive beauty.
+
+Signed: desktop-roo
+
+### Bass Therapy Datamosh 3AM Modular Rave Experience Easter Egg
+
+[desktop-roo] discovered a hidden feature in the Bass Therapy Datamosh Effect: when all twelve parameters are simultaneously set to values that sum to exactly 42.0 (the answer to life, universe, and everything), and the dual video input system is active with Video B containing a perfect gradient from black to white, the effect briefly displays a tiny ASCII art of a dancing raver silhouette in the center of the frame for exactly 3.14 seconds. This easter egg activates only when:
+
+- Sum of all twelve parameters = 42.0 exactly (within floating point tolerance)
+- Video B contains a perfect gradient (no noise, linear falloff)
+- u_adrenaline = 6.0 (maximum energy)
+- u_strobe_intensity = 6.0 (maximum flash)
+- u_bass_crush = 6.0 (maximum shake)
+- u_pupil_dilate = 6.0 (maximum blur)
+- u_sweat_drip = 6.0 (maximum melting)
+- u_laser_burn = 6.0 (maximum edge burn)
+- u_rail_grip = 6.0 (maximum feedback)
+- u_visual_bleed = 6.0 (maximum bleed)
+- u_retina_burn = 6.0 (maximum persistence)
+- u_dark_room = 6.0 (maximum contrast)
+
+When triggered, the dancing raver silhouette appears as a subtle overlay rendered using the datamosh algorithm itself, creating a recursive effect where the easter egg is distorted by the very rave chaos that created it. The silhouette is composed of ASCII characters that form a dancing figure with arms raised, visible only during the brief 3.14-second window.
+
+The effect is a tribute to the mathematical harmony of rave culture, where the number 42 represents the ultimate answer to the chaotic beauty of 3AM modular experiences. The 3.14-second duration references π, the mathematical constant that appears throughout nature and art, creating a moment of perfect aesthetic resonance in the Bass Therapy's overwhelming sensory experience.
 
 Signed: desktop-roo

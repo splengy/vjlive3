@@ -2,10 +2,15 @@
 **Version:** 3.4 | **Last Updated:** 2026-02-27 | **Manager:** ANTIGRAVITY (Overseer)
 
 > [!IMPORTANT]
-> **REVISED 3-PASS PIPELINE ARCHITECTURE**
-> The grid below tracks all 1000+ legacy plugins. 
-> - 🟩 **DONE**: Specs that have survived Pass 2 and are now awaiting Pass 3 Frontier Analysis.
-> - ⬜ **TODO**: Specs currently queued for Qwen/Roo generation.
+> **REVISED 4-PHASE PIPELINE ARCHITECTURE (STRICT)**
+> - **Phase 1 (Pass 1):** Qwen generates initial skeleton specs.
+> - **Phase 2 (Pass 2):** Roo Code fleshes out the specs.
+> - **⛔ BLOCKER:** NOTHING ELSE HAPPENS until Phase 2 is 100% Complete and this board is 100% DONE. Do not proceed to Phase 3.
+> - **Phase 3 (Pass 3):** Global Analysis (Mermaid Architecture Map).
+> - **Phase 4 (Pass 4):** Execution (Writing Production Code).
+> 
+> - 🟩 **DONE**: Specs that have survived Phase 2 and are now awaiting Phase 3.
+> - ⬜ **TODO**: Specs currently queued for Phase 1 or Phase 2 generation.
 
 ## 🏁 Milestones
 

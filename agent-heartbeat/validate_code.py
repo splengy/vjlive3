@@ -83,7 +83,8 @@ def run_validation(module_name: str) -> bool:
 
     print("✅ PASS: Pytest successful (≥80% coverage)")
     print("\n🎉 ALL CHECKS PASSED!")
-    print(f"You may now call: mcp_vjlive-switchboard_complete_task(task_id=\"...\")")
+    print(f"You may now move the spec to the fleshed_out folder.")
+    print("======================\n")
     return True
 
 if __name__ == "__main__":

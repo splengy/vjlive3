@@ -75,13 +75,24 @@ Before waiting for the next task, you **MUST** open `WORKSPACE/EASTEREGG_COUNCIL
 
 ---
 
+## 🛑 SKELETON FALLBACK PROTOCOL (IF QUEUE IS EMPTY)
+
+If `docs/specs/_01_skeletons/` is completely empty (no unlocked files), you may safely fall back to Phase 1 (Skeleton Generation):
+
+1. Open `BOARD.md` and find 1–5 tasks marked `⬜ PENDING SKELETON (Pass 1)`.
+2. Ensure they are not locked in `LOCKS.md`.
+3. Generate the skeleton spec directly into `docs/specs/_01_skeletons/<task_id>_<name>.md` following the standard `_TEMPLATE.md`.
+4. Update `BOARD.md` to mark them as `⬜ PENDING FLESH OUT (Pass 2)`.
+5. **STOP.** Do not flesh out the skeleton you just created. The entire point of our architecture is that a *different* model fleshes out the skeleton to ensure a multi-model validation pipeline. 
+6. Ask the user (or wait) for a different skeleton that another agent or NPU generated.
+
+---
+
 ## STEP 8 — WAIT FOR NEXT TASK
 
 **Do not self-assign.**
-- Wait for ROO CODE to assign next task
-- If no task assigned, stop and ask
+- Wait for ROO CODE to assign next task (or follow the Fallback Protocol above)
 - Never work from memory or initiative
-
 ---
 
 ## 🚨 RED FLAGS (IMMEDIATE REMOVAL)

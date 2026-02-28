@@ -247,4 +247,4 @@ config/*.local.*
 # Rendered/captured output
 output/
 renders/
-captures/
+captures/QDRANT_FULL_BACKUP.json

@@ -49,21 +49,21 @@ logger = logging.getLogger(__name__)
 
 
 def parse_board_tasks(board_path: str, limit: int = 0) -> list:
-    """Extract ALL RESET tasks from BOARD.md — any task ID, any format."""
+    """Extract ALL PENDING SKELETON tasks from BOARD.md — any task ID, any format."""
     tasks = []
-    # Pattern 1: | TASK-ID | module (ClassName) | ... ⬜ RESET
+    # Pattern 1: | TASK-ID | module (ClassName) | ... ⬜ PENDING SKELETON
     pat_with_class = re.compile(
-        r"\|\s*([A-Z0-9][\w-]+)\s*\|\s*(.+?)\s+\(([^)]+)\)\s*\|.*?⬜\s*RESET"
+        r"\|\s*([A-Z0-9][\w-]+)\s*\|\s*(.+?)\s+\(([^)]+)\)\s*\|.*?⬜\s*PENDING SKELETON"
     )
-    # Pattern 2: | TASK-ID | plain description | ... ⬜ RESET (no parens)
+    # Pattern 2: | TASK-ID | plain description | ... ⬜ PENDING SKELETON (no parens)
     pat_plain = re.compile(
-        r"\|\s*([A-Z0-9][\w-]+)\s*\|\s*(.+?)\s*\|.*?⬜\s*RESET"
+        r"\|\s*([A-Z0-9][\w-]+)\s*\|\s*(.+?)\s*\|.*?⬜\s*PENDING SKELETON"
     )
     skipped_existing = 0
     skipped_dupe = 0
     with open(board_path, "r") as f:
         for line in f:
-            if "⬜ RESET" not in line:
+            if "⬜ PENDING SKELETON" not in line:
                 continue
             # Skip duplicates marked in BOARD.md
             if "duplicate" in line.lower():

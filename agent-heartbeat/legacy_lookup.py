@@ -101,7 +101,6 @@ def main():
         if not results:
             results = search_by_filepath(term, args.limit, args.collection)
         if not results:
-            print(f"Trying content search for '{term}'...", file=sys.stderr)
             results = search_by_content(term, args.limit, args.collection)
         if results:
             break

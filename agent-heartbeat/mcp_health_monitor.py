@@ -63,12 +63,6 @@ class MCPHealthMonitor:
                     "health_check": "search_concepts",
                     "critical": True,  # Task dispatch blocked if down
                 },
-                "vjlive-switchboard": {
-                    "type": "stdio",
-                    "command": "python3",
-                    "health_check": "get_locks",
-                    "critical": True,
-                },
             },
             "orange_pi": {
                 "host": "192.168.1.60",

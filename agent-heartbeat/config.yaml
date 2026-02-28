@@ -59,9 +59,6 @@ mcp:
     vjlive3brain:
       type: "stdio"
       critical: true
-    vjlive-switchboard:
-      type: "stdio"
-      critical: true
 
 # --- Alerts ---
 alerts:

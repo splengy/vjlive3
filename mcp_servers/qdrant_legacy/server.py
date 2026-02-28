@@ -342,10 +342,8 @@ def main() -> None:
         _logger.error("SSE transport requires 'uvicorn' and 'starlette'.")
         _sys.exit(1)
 
-    _logger.info(f"qdrant-legacy MCP server starting (SSE on port {port})")
-    mcp.settings.port = port
-    mcp.settings.host = "127.0.0.1"
-    mcp.run(transport="sse")
+    _logger.info("qdrant-legacy MCP server starting (stdio)")
+    mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":

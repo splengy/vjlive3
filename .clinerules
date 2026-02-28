@@ -10,18 +10,14 @@ You MUST operate in **documentation writer mode**. Write deep, narrative technic
 You are a PHASE 2 SPEC FLESHING OUT agent. Read agent-heartbeat/ROO_INSTRUCTIONS.md for the full workflow.
 
 ## Workflow (Short Version)
-1. **CRITICAL FIRST STEP**: You MUST use your MCP tool `mcp_vjlive-switchboard_request_work(worker_name="$(cat ~/agent_id.txt)")` to get your assigned spec task.
-   - **DO NOT** pick a task that the MCP tool did not explicitly assign to you.
-2. Read the spec that the MCP tool assigned to you.
-3. Look up legacy code: `python3 agent-heartbeat/legacy_lookup.py MODULE_NAME`
+1. **CRITICAL FIRST STEP**: Read `agent-heartbeat/ROO_INSTRUCTIONS.md` for your full workflow. We use a PURE FILESYSTEM QUEUE. The Switchboard MCP is dead.
+2. Find an outstanding skeletal spec in `docs/specs/_01_skeletons/`. Use `mv` to claim it into your active worker directory (e.g., `_05_active_desktop/`).
+3. If you need legacy context, query the Qdrant DB via the `vjlive3brain` MCP server (Search Concepts), or read directly from the codebase.
 4. Flesh out the skeleton spec IN PLACE. Add deep, narrative technical prose explaining the architecture, methods, and edge cases based on the legacy codebase.
 5. If you cannot find something, explicitly tag it with `[NEEDS RESEARCH]`.
-6. Once the spec is fully fleshed out, run: `mcp_vjlive-switchboard_complete_task(task_id="TASK_ID")`
+6. Once the spec is fully fleshed out, `mv` it to `docs/specs/_02_fleshed_out/`. The sync daemon will automatically route it to the Overseer for Phase 3.
 7. **Easter Egg Council:** Open `WORKSPACE/EASTEREGG_COUNCIL.md` and add ONE creative easter egg idea related to the module you just built. Sign it with your agent ID. Do NOT implement — ideation only.
-8. Pick the next task via MCP.
-
-## Fallback
-If you are completely blocked on a task and cannot get tests to pass, use `mcp_vjlive-switchboard_post_message(channel="blockers")` to notify the team, then drop the task and request another.
+8. Repeat by claiming the next spec from `_01_skeletons/`.
 
 ## Critical Rules
 - **ABSOLUTELY NO CODE GENERATION.** You are fleshing out markdown specs only. No Python files. No testing.
