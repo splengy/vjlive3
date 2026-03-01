@@ -1,0 +1,1 @@
+Deletion request for P0-M1_spec.md: Infected with the 'Easter Egg Reward' trigger. Also hallucinates Python code for an MCP server that is already built into the repository.

@@ -1,0 +1,1 @@
+Displacement Map spec (P7-P7-VE31) was 2169 lines long, with the test plan section stuck in an infinite loop of copy-pasted rotation tests from Test 21 to Test 800+. Confirmed AI hallucination fraud.

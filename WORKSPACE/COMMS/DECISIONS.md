@@ -95,3 +95,82 @@
 **Consequences:** All concept entries must be tagged with a role. Brain server exposes `search_concepts(role="worker")`.
 **Owner:** Antigravity
 
+---
+
+### [ADR-008] Bifurcated Pipeline: Headless Configuration & Targeted Compilation
+**Date:** 2026-02-28 | **Status:** Accepted
+**Context:** Need to support a zero-server-compute Free Tier (WebGL in-browser) designed as a funnel for the massive Pro Tier (OpenGL with physical hardware I/O).
+**Decision:** All core logic and specifications must be strictly "Renderer Agnostic" and "Transport Agnostic". The spec defines the mathematical connections, LFO timings, and Shader Strings in a Headless Configuration (JSON graph). The execution layer is bifurcated: Pro Mode compiles natively via Python/OpenGL with physical I/O; Cloud Mode compiles the exact same graph to WebGL/WebGPU in the browser.
+**Rationale:** WebGL cannot access strict local hardware (DMX, NDI, Spout, physical cameras) without a backend daemon, but OpenGL rendering on cloud infrastructure is financially unviable for a free tier. The Headless Configuration approach solves both problems.
+**Consequences:** Specs cannot assume native Python libraries (like OpenCV or librosa) for rendering logic if they are meant to run on the web. A strict "Renderer Agnosticism" sweep is enforced in Phase 2.5.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-009] Primary Graphics Interface: WebGPU
+**Date:** 2026-02-28 | **Status:** Accepted
+**Context:** Need a high-performance, cross-platform graphics API that supports both a zero-server-compute Free Tier (browser) and a raw-performance Pro Tier (desktop), bypassing OpenGL's driver overhead and legacy constraints.
+**Decision:** All core rendering logic and headless configurations must target WebGPU and WebGPU Shading Language (WGSL). Native desktop builds will use `wgpu-py` (wrapping Vulkan/Metal), while the web client will use native in-browser WebGPU.
+**Rationale:** WebGPU scales perfectly across the bifurcated pipeline defined in ADR-008. It allows the exact same rendering graph and shader logic to execute securely in modern browsers for free users, and with Vulkan-level performance on desktop hardware for pro users, solving both the sandbox constraint and the server compute cost.
+**Consequences:** All legacy GLSL shaders must be flagged for WGSL transpilation or rewriting during Phase 4. All render loop specs in Phase 1 must define WebGPU contexts, explicitly deprecating bare OpenGL assumptions.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-010] Event-Driven / Reactive State Over Polling
+**Date:** 2026-02-28 | **Status:** Accepted
+**Context:** Legacy rendering relied on a `while True` 60fps loop polling thousands of unchanged nodes every frame, inflating CPU usage exponentially.
+**Decision:** All node parameters and states must utilize an Event-Driven (Observer) pattern. Graphs and modular inputs only trigger recalculations or uniform buffer updates when a parameter natively changes (e.g., LFO tick, MIDI event).
+**Rationale:** Preserves CPU/JS thread cycles by abandoning redundant polling loops. VJLive3 becomes reaction-based; if no dial moves and no audio changes, the CPU does zero work while the WebGPU loop coasts on the last known state.
+**Consequences:** The `update(dt)` method across all existing specs must be strictly regulated to only fire upon dirty-flagged state changes.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-011] Native Browser Media APIs over OpenCV
+**Date:** 2026-02-28 | **Status:** Accepted
+**Context:** Legacy implementations relied intensely on `opencv-python` for streaming RTSP feeds, webcams, and video captures—fatal abstractions for a web-based client that cannot run bloated C++ binaries.
+**Decision:** All video ingestion, window capture, and camera routing must use native browser standards (`navigator.mediaDevices`, `WebCodecs`, `WebRTC`) feeding zero-copy textures to WebGPU.
+**Rationale:** Browser makers spent billions optimizing hardware-accelerated video decoding. Rewriting specs to lean on browser internals rather than a Python wrapper allows flawless 4K video playback with zero server overhead.
+**Consequences:** Specs containing "import cv2" must be mercilessly purged during Phase 2.5 and translated to frontend Web API calls.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-012] CRDT (Conflict-Free Replicated Data Types) State
+**Date:** 2026-02-28 | **Status:** Accepted
+**Context:** Multi-agent swarms (Stylist, Dreamer) and human collaborators interacting concurrently will catastrophically brick a synchronous "God Object" Application State singleton through race conditions.
+**Decision:** The central configuration JSON and active visual graph must be handled as a CRDT (e.g., using Yjs or Automerge). 
+**Rationale:** Treating the VJ tool like a multiplayer Google Doc ensures mathematical convergence. Five parameters can be tweaked simultaneously by 2 human users, a MIDI controller, and an AI agent across different continents, and the state will perfectly resolve without locking threads.
+**Consequences:** State managers must be re-spec'd as CRDT shared types, abandoning traditional Python dictionary singletons.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-013] Client-Side Web Audio API Analysis
+**Date:** 2026-02-28 | **Status:** Accepted
+**Context:** Performing FFT math on a python server and broadcasting it back to a client's 60fps render loop guarantees desynchronization between visual transients and physical audio beats due to network jitter.
+**Decision:** All audio reactivity (FFT analysis, onset detection, frequency extraction) must happen natively on the client using the browser's Web Audio API and `AudioWorklet` nodes pushing data directly to WebGPU buffers.
+**Rationale:** WebAudio achieves perfect synchronization because it runs on the local user’s audio thread. Server costs drop to zero, latency drops to zero.
+**Consequences:** Core components like `AudioAnalyzer` and `QuantumAudioFeatures` must be ported to Javascript `AudioWorkletProcessors` rather than local Python instances.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-014] Hardware Parity — 1:1 Module to Manual Mapping
+**Date:** 2026-02-28 | **Status:** Accepted
+**Context:** VJLive3 models physical Eurorack modules, specifically those from Make Noise. Previous LLM implementations often "hallucinated" how a module like Maths or Morphagene should work rather than replicating its actual electrical behaviors.
+**Decision:** All modular effect nodes intended to replicate physical hardware must contain a direct link to the official manufacturer's PDF manual (or converted text file) within the `.md` specification document. Furthermore, there must be a 1:1 architectural mapping: one VJLive3 module spec per Make Noise hardware manual. 
+**Rationale:** The only way to build a professional-grade software analog of a physical Eurorack system is to treat the manufacturer's manual as the ultimate source of truth, removing all AI guesswork regarding signal routing, CV responses, and edge cases.
+**Consequences:** During the Phase 2.5 review, any spec claiming to model a physical module must be audited to verify the inclusion of the manual reference. Specs built on hallucinated intuition rather than manual documentation will be rejected and flagged for rewrite.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-015] Faithful Audio DSP to Visual Translation Pass
+**Date:** 2026-02-28 | **Status:** Accepted
+**Context:** Many legacy plugins were ported directly from C++ audio libraries (like VCV Rack). VJLive3 is a video/visual application, but all audio DSP concepts are deeply applicable to video if evaluated creatively (e.g. an oscillator generating an RGB waveform instead of an audio wave).
+**Decision:** All imported audio DSP plugin specs must undergo a rigorous, faithful functional translation pass. The goal is *not* to paste a generic shader simply because an agent can do it, nor to prune the module if the agent lacks creativity. The goal is to study the original audio DSP mathematical logic and faithfully recreate that synthesis in a visual format as closely as possible.
+**Rationale:** The math behind audio synthesis (delays, reverbs, physical modeling, FM synthesis) creates incredibly organic visual textures when applied to pixels, geometry, or color spaces. We preserve the soul of the original audio logic by creatively translating its math, rather than discarding it.
+**Consequences:** Phase 2.5 includes a strict "DSP to Visual Translation Pass." Agents must identify audio plugins and rewrite the spec to do something visually profound based directly on the original DSP logic. No modules will be pruned due to lack of agent creativity—the math must be translated.
+**Owner:** User (Vision Holder)

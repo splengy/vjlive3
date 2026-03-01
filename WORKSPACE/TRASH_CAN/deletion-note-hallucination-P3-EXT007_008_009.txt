@@ -1,0 +1,12 @@
+FILE: P3-EXT007_spec.md
+FILE: P3-EXT007_arbhar_granular_engine.md
+FILE: P3-EXT008_spec.md
+FILE: P3-EXT009_spec.md
+REASON: Boilerplate Fraud
+
+These specification files violate the "SPEC FIRST" requirement by containing hundreds of lines of implementation code directly within the spec body:
+- P3-EXT007 contains full Python class implementations (`ArbharGranularEngine`) and complete GLSL fragment shaders (`arbhar_granular_engine.frag`).
+- P3-EXT008_spec.md contains full Python class implementations and GLSL fragments representing the grain generation algorithm.
+- P3-EXT009_spec.md contains the full Python class `AudioReactiveRaymarchedScenes` and the entire GLSL fragment shader (`mapSpheres`, `mapTunnel`, `mapFractal`, `raymarch`).
+
+As per PRIME DIRECTIVE, specs must focus purely on inputs, outputs, schemas, and technical requirements instead of being a wrapper around boilerplate.

@@ -1,0 +1,602 @@
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-JUNK-astra-check-astra-usb | Check Astra Usb | import usb.core
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-JUNK-one-off-scripts-test-license-integration | Test License Integration | from core.license_manager import LicenseManager
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-JUNK-one-off-scripts-test-live-coding-engine-simple | Test Live Coding Engine Simple | Simplified Live Coding Engine Test Suite
+Basic testing for core live coding engine functionality
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-JUNK-one-off-scripts-test-live-coding-engine-simplified | Test Live Coding Engine Simplified | Live Coding Engine Test Suite
+Simplified testing for core live coding engine features
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-JUNK-vcvrack-sources-visimaths-backend-core-audio-processor | Audio Processor | VisiMATHS Audio Processing Module
+Real-time audio input with transient detection for audio-reactive 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-JUNK-vcvrack-sources-visimaths-backend-core-engine | Engine | VisiMATHS Backend Signal Engine
+8-channel video event generator based on Make Noise PoliMATHS
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-JUNK-vcvrack-sources-visimaths-backend-core-performance-monitor | Performance Monitor | VisiMATHS Performance Monitor
+Real-time performance monitoring and optimization tools for 60fps targ
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio---init-- |   Init   | Quantum-Enhanced Audio Reactivity System for VJLive 2.0
+
+This module provides revolutionary audio an
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio-audio-analyzer | Audio Analyzer | Quantum-Enhanced Audio Analyzer
+
+Advanced audio analysis system that uses quantum-inspired algorithm
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio-audio-integration | Audio Integration | Audio System Integration for VJLive 2.0
+
+Integrates the quantum-enhanced audio reactivity system wit
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio-audio-optimizer | Audio Optimizer | Audio Processing Performance Optimizer
+
+Provides performance tuning and optimization utilities for t
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio-audio-reactor | Audio Reactor | Quantum-Enhanced Audio Reactor
+
+Advanced system that transforms real-time audio analysis into intell
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio-exceptions | Exceptions | Custom exception classes for the VJLive audio subsystem.
+
+Provides a hierarchy of specialized except
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio-mood-inference | Mood Inference | AI-Driven Mood Inference from Audio Features
+
+Advanced mood inference system that uses quantum-enhan
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio-performance-monitor | Performance Monitor | Performance Monitoring for VJLive Audio Subsystem
+
+Provides comprehensive performance tracking, metr
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-VJlive-2-core-audio-quantum-audio-features | Quantum Audio Features | Quantum-Enhanced Audio Features
+
+Advanced quantum algorithms for audio feature extraction and analys
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-check-astra-usb | Check Astra Usb | import usb.core
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core---init-- |   Init   | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-abstract | Abstract | from abc import ABC, abstractmethod
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-adaptive-resolution | Adaptive Resolution | Adaptive Depth Resolution System
+Dynamically adjusts depth resolution based on scene complexity and 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-admin-api | Admin Api | Admin API
+Handles WebSocket requests for the VJLive Admin Panel.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-agent-bridge | Agent Bridge | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-agent-dictionary | Agent Dictionary | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar, Callable
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-agent-ghost | Ghost | import time
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-agent-orchestrator | Agent Orchestrator | Agent Orchestrator - LangGraph-based state machine for Performing Agents.
+
+Defines the core autonomo
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-agent-persona | Agent Persona | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-agent-visualizer | Agent Visualizer | Agent Visualizer Module
+
+Provides real-time visualization of agent and human collaboration in the no
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-brain | Brain | The Brain - Central AI Orchestrator for VJLive
+Coordinates Voice, Text, and Autonomous Agents.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-creative-hive | Creative Hive | Multi-Agent AI System for Creative Visual Suggestions
+Collaborative AI agents working together to ge
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-creative-hive-websocket | Creative Hive Websocket | WebSocket Server for Creative Hive - AI-Driven Visual Suggestions
+Real-time communication for collab
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-creativity---init-- |   Init   | AI Creativity Module - The Fifth Collaborator
+
+This module transforms the traditional AI feedback sy
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-creativity-brush-engines | Brush Engines | Advanced Brush Engines with Personality-Driven Styles
+
+This module contains sophisticated brush engi
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-creativity-creative-partner | Creative Partner | AI Creative Partner - The Fifth Collaborator
+
+A revolutionary AI system that actively participates i
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-creativity-gamification | Gamification | Gamified Collaborative Challenges and Achievements
+
+This module adds game-like elements to the colla
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-creativity-marketplace | Marketplace | Collaborative Art Marketplace - The Creative Exchange
+
+This module implements a dynamic marketplace 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-creativity-style-transfer | Style Transfer | Real-Time Style Transfer Between Agents
+
+This module enables dynamic style transfer between agents d
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-shader-generator | Ai Shader Generator | from typing import Optional
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-ai-voice-control | Voice Control | Voice Control Bridge for VJLive
+Handles microphone input and Speech-to-Text (STT) processing.
+Connec
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-api---init-- |   Init   | API Server for VJLive Reborn
+Phase 3: Web API
+
+This package contains the Flask-SocketIO server for w
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-api-bridge | Api Bridge | API Bridge Module
+
+Connects the WebSocket Gateway (Web/Mobile clients) to the main VJLive applicatio
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-api-process | Api Process | import multiprocessing
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-api-server | Server | import threading
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-app---init-- |   Init   | from .app import VJLiveApp
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-app-app | App | VJLive - Real-time Video Effects Processor
+Main application entry point with DJ Mixer interface.
+
+Fo
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-app-bootstrap | Bootstrap | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-app-inputs | Inputs | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-app-osc-dispatcher | Osc Dispatcher | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-app-render-pipeline | Render Pipeline | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-application-state-manager | Application State Manager | Application State Manager - Centralized State Management for VJLive
+
+Provides a unified state manage
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-astra-linux | Astra Linux | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-astra-native | Astra Native | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-audio---init-- |   Init   | class AudioSystem:
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-audio-analyzer | Analyzer | import threading
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-audio-beat | Beat | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-audio-features | Audio Features | Audio Features - Audio analysis and feature extraction module.
+Provides real-time audio analysis cap
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-audio-player | Audio Player | try:
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-audio-reactor | Audio Reactor | Audio Reactor for assigning audio features to parameters.
+Similar to LFOManager but for audio reacti
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-audio-rhythm-engine | Rhythm Engine | Rhythm Engine - Generative Beat Detection & Prediction
+
+Uses Spectral Flux onset detection and a Pha
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-automation-auto-director | Auto Director | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar, Callable
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-automation-automation-bridge | Automation Bridge | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar, Callable
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-automation-hive-mind | Hive Mind | import random
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-automation-oracle | Oracle | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar, Callable
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-automation-test-timeline | Test Timeline | import sys
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-automation-timeline | Timeline | import time
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-brush-engines | Brush Engines | Audio-Reactive Brush Engines for Creative Arena
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-brush-suggestion | Brush Suggestion | from enum import Enum
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-burst-credit-manager | Burst Credit Manager | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-camera-config-manager | Camera Config Manager | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-camera-profiles | Camera Profiles | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-camera-profiles-new | Camera Profiles New | import threading
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-capability-registry | Capability Registry | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-capture | Capture | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-chunk-manager | Chunk Manager | Chunk Manager for VJLive
+Handles saving, loading, and managing graph chunks (subgraph presets).
+
+A C
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-chunk-websocket-handlers | Chunk Websocket Handlers | Chunk WebSocket Handlers for VJLive
+
+Registers WebSocket event handlers for chunk operations:
+  chun
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-cli---init-- |   Init   | Module: __init__
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-cli-patch-commands | Patch Commands | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar, Callable
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-clip-metadata | Clip Metadata | Clip metadata management system for persistent storage.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-clip-models | Clip Models | Extended data models for clip browser with metadata and organization features.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-clip-timeline | Clip Timeline | Clip timeline and BPM sequencer components.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-code-overlay | Code Overlay | Transparent Code Overlay for live-coding integration.
+
+Renders active shader code or live expression
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-config-manager | Config Manager | VJLive Configuration Manager
+Handles loading, saving, and validation of vjlive_config.yaml
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-config-validator | Config Validator | Configuration Validation Module
+
+Validates VJLive configuration files and environment variables.
+Ens
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-connection-pool | Connection Pool | Connection Pooling System for WebSocket Gateway
+Provides connection pooling and reconnection strateg
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-content-content-sync | Content Sync | import threading
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins---init-- |   Init   | VJLive Plugins package
+
+Scaffolded plugin modules implementing extra functionality suggested
+in the 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-audio-kaleidoscope | Audio Kaleidoscope | Audio Kaleidoscope Plugin - Kaleidoscope segments modulated by audio features.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-audio-particle-system | Audio Particle System | Audio Particle System Plugin - Particles modulated by audio amplitude and frequency.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-audio-spectrum-trails | Audio Spectrum Trails | Audio Spectrum Trails Plugin.
+Creates persistent spectrum trails with decay and frequency-based colo
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-audio-waveform-distortion | Audio Waveform Distortion | Audio Waveform Distortion Plugin - Screen distortion based on audio waveform.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-automation | Automation | Parameter automation and LFO clip recorder
+
+Records parameter changes (timestamped) and can play the
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-chromatic-aberration | Chromatic Aberration | Chromatic Aberration Plugin - Simulate early digital camera color shifts.
+
+Applies color channel sep
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples---init-- |   Init   | Module: __init__
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-datamosh-datamosh | Datamosh | from core.plugin_api import EffectPlugin, PluginContext
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-example-glitch-effect | Example Glitch Effect | Example VJLive Plugin: Simple Glitch Effect
+Demonstrates basic plugin structure with RGB split and n
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-lfo-lfo | Lfo | from core.plugin_api import ModifierPlugin, PluginContext
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-run-depth-demo | Run Depth Demo | Run a simple depth demo using `Datamosh3DEffect` with synthetic inputs.
+
+Creates a hidden GLFW windo
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-run-ml-demo | Run Ml Demo | Run ML effect demos (segmentation blur and style transfer) on synthetic images.
+
+Requires Pillow and
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-time-machine-demo | Time Machine Demo | Time Machine TOP Example Usage
+Demonstrates how to use the Time Machine TOP plugin
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-automation | Use Automation | CLI example: record and play back simple automation events.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-mask-manager | Use Mask Manager | Example: create and load a mask using MaskManager.
+
+This demo creates a synthetic alpha mask image a
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-midi-presets | Use Midi Presets | Example: save and load MIDI mapping presets.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-ml-effects | Use Ml Effects | Example: ML model effect scaffold usage.
+
+This demonstrates loading (if Torch present) and running a
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-preset-manager | Use Preset Manager | CLI example: save/load/list presets with `PresetManager`.
+
+Usage:
+    python -m src.plugins.examples
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-recorder | Use Recorder | Example CLI: recorder usage (writes synthetic frames to file).
+
+This demo creates a short synthetic 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-sequencer | Use Sequencer | Example: SceneSequencer demo.
+
+Adds a few scenes and prints when the sequencer advances.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-shader-manager | Use Shader Manager | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar, Callable
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-examples-use-volumetric-datamosh | Use Volumetric Datamosh | Run a volumetric datamosh demo using VolumetricDatamoshEffect with synthetic inputs.
+
+Creates a hidd
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-gpu-compatibility | Gpu Compatibility | GPU Compatibility Checker for VJLive Plugins
+Determines which GPU tier a system supports and validat
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-marketplace-client | Marketplace Client | Plugin Marketplace Client for VJLive
+Handles discovery, download, and installation of free plugins f
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-masking | Masking | Masking and keying manager
+
+Provides storage and simple application helpers for masks. Actual GPU
+ma
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-midi-presets | Midi Presets | MIDI presets manager
+
+Save and load MIDI mapping presets (JSON) for quick recall.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-mimeophon-control-bridge | Mimeophon Control Bridge | OSC and MIDI Control Support for VJLive Mimeophon Video Plugin
+Provides OSC and MIDI mappings for th
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-mimeophon-video | Mimeophon Video | VJLive Mimeophon Video Plugin - Stereo Multi-Zone Video Repeater
+Based on the Make Noise Mimeophon a
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-ml-effects | Ml Effects | ML effects plugin
+
+Provides a couple of example ML-powered effects with lazy imports:
+- `ml_segmenta
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-planetary-lfos | Planetary Lfos | Planetary LFOs
+9 LFOs based on planetary orbital periods
+Ported from HawthornLabs VCV Rack module
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-plugin-api | Plugin Api | Enhanced plugin registry for VJLive with error handling and interface consistency.
+
+Plugins call `re
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-plugin-isolation | Plugin Isolation | Plugin Isolation and Security for VJLive
+Provides sandboxing and security measures for plugin execut
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-plugin-loader | Plugin Loader | Plugin Auto-Loader for VJLive
+Automatically discovers and loads plugins from the plugins directory.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-satanonaut-plugin | Satanonaut Plugin | VJLive Satanonaut Plugin Registration and Integration
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-satanonaut-video | Satanonaut Video | VJLive Satanonaut Video Plugin - Algorithmic Video Effects
+Based on the Voxglitch Satanonaut audio m
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-sequencer | Sequencer | Scene/Playlist sequencer
+
+Lightweight tempo-synced sequencer for cueing scenes.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-shader-hot-reload | Shader Hot Reload | Shader hot-reload plugin for live-coding integration
+
+Watches shaders/live/ directory for .frag and 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-simple-mimeophon-video | Simple Mimeophon Video | Simplified VJLive Mimeophon Video Plugin - Core Functionality Only
+Based on the Make Noise Mimeophon
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-texture-3d-integration | Texture 3D Integration | Texture 3D TOP Integration Module for VJLive
+Provides WebSocket interface and parameter management f
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-texture-3d-top | Texture 3D Top | Texture 3D TOP Plugin for VJLive
+Implements a 3D texture buffer with ring-buffer behavior for time-b
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-texture-3d-websocket | Texture 3D Websocket | Texture 3D TOP WebSocket Interface for VJLive
+Provides real-time parameter control and data streamin
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-time-machine-top | Time Machine Top | Time Machine TOP Plugin for VJLive
+Implements time-based pixel warping using a 3D texture buffer
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-core-plugins-v-jumbler | V Jumbler | import ctypes
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-creative-arena | Creative Arena | Creative Arena - Next-Generation Collaborative Visual Creation System
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-crowd-ai | Crowd Ai | from agents.crowd_reader import CrowdAI as BaseCrowdAI
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-crowd-analysis-aggregator | Crowd Analysis Aggregator | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-crowd-listener | Crowd Listener | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug---init-- |   Init   | Debug and Visualization Systems for VJLive
+
+This package contains all debug overlay and visualizatio
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-awesome-collaborative-creation | Awesome Collaborative Creation | 🎨 ULTIMATE Collaborative Creation System - "The Awesome-fication" 🎨
+
+A massively enhanced version of
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-co-creation-enhanced | Co Creation Enhanced | Co-Creation Canvas 2.0 - Revolutionary Collaborative Art System
+
+A comprehensive enhancement to the 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-collaborative-canvas | Collaborative Canvas | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-collaborative-creation-integration | Collaborative Creation Integration | Integration layer for Collaborative Creation System with VJLive.
+
+This module connects the collabora
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-dreaming-canvas---init-- |   Init   | Dreaming Canvas - Autonomous Art Generation System
+
+When the system is idle, it enters "Dream Mode" 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-dreaming-canvas-integration | Integration | Dreaming Canvas Integration - Autonomous Art Generation
+
+Integrates the Dreaming Canvas system with 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-enhanced-collaborative-integration | Enhanced Collaborative Integration | Enhanced Collaborative Creation Integration - "Co-Creation Canvas 2.0"
+
+Integration layer that conne
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-imgui-control-panel | Imgui Control Panel | Enhanced ImGui Control Panel for Collaborative Creation System
+
+Provides a rich, interactive UI for:
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-living-debug-integration | Living Debug Integration | Integration layer for Living Debug Overlay with existing VJLive systems.
+
+This module connects the L
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-living-debug-overlay | Living Debug Overlay | Living Debug Overlay - "The Ghost in the Machine"
+
+A revolutionary debug visualization system that t
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-overlay---init-- |   Init   | Neural Labyrinth - Revolutionary Debug Visualization System
+
+Transforms debugging into an immersive,
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-overlay-ai-assistant | Ai Assistant | AI Assistant for Neural Labyrinth
+
+Intelligent debugging support with predictive hints, anomaly dete
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-overlay-collaboration | Collaboration | Collaboration Layer for Neural Labyrinth
+
+Real-time visualization of multi-agent and human collabora
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-overlay-debug-overlay-manager | Debug Overlay Manager | Debug Overlay Manager - Neural Labyrinth
+
+Central coordinator that integrates all debug overlay comp
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-overlay-inspector | Inspector | Node Inspector for Neural Labyrinth
+
+Interactive node exploration with detailed state visualization,
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-overlay-particles | Particles | Particle System for Neural Labyrinth
+
+Creates and manages particles that visualize data flow, agent 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-overlay-performance | Performance | Performance Overlay for Neural Labyrinth
+
+Real-time system monitoring with beautiful visualizations 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-tutorial-system | Tutorial System | 🎓 Interactive Tutorial & Challenge System for Collaborative Creation
+
+Provides guided learning exper
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-ui-enhancements | Ui Enhancements | 🎨 UI Enhancements for Collaborative Creation System
+
+Beautiful animations and visual feedback includ
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-visual-data-flow-debugger | Visual Data Flow Debugger | Visual Data Flow Debugger - "The Data Canvas"
+
+A revolutionary visual debugging system that transfor
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-debug-visual-data-flow-integration | Visual Data Flow Integration | Integration layer for Visual Data Flow Debugger with VJLive.
+
+This module connects the Visual Data F
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-audio | Depth Audio | Depth-Based Audio Reactivity System
+Generates audio-reactive effects based on depth data.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-calibration | Depth Calibration | Depth Camera Calibration System
+Provides camera calibration, intrinsic parameter estimation, and dep
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-data-bus | Depth Data Bus | DepthDataBus — Global Depth Data Distribution Hub
+
+Central singleton for sharing depth camera data a
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-particles | Depth Particles | Depth-Based Particle System
+Generates particles based on depth data for immersive visual effects.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-performance | Depth Performance | Depth-Based Performance Monitoring System
+Monitors and optimizes performance based on depth data pro
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-pipeline | Depth Pipeline | Real-time depth map processing pipeline for RealSense cameras
+Provides multi-stage depth processing 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-pipeline-new | Depth Pipeline New | import threading
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-processing | Depth Processing | import threading
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-shaders | Depth Shaders | Depth-Based Shader Effects System
+Generates real-time shader effects based on depth data.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-video | Depth Video | Depth-Based Video Effects System
+Applies video effects based on depth data for enhanced visual exper
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-visualization | Depth Visualization | import threading
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-depth-websocket-handlers | Depth Websocket Handlers | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-director-tool | Director Tool | Director Tool - Backend handlers for real-time human feedback to agents.
+
+Enables the "Director" (us
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-dmx-controller | Dmx Controller | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects---init-- |   Init   | VJLive Effects Module - OpenGL shader-based video effects.
+
+Uses lazy-loading to avoid importing all
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-agent-avatar | Agent Avatar | Agent Avatar Effect - Geometric entity that visualizes agent state.
+
+Renders a reactive geometric co
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-agent-graph-visualizer | Agent Graph Visualizer | ```python
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-analog-emulation | Analog Emulation | VCV Rack → Video Effect Translations
+
+Audio DSP concepts re-imagined as GLSL video effects.
+All para
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-analog-tv | Analog Tv | Analog TV Effects — The entire analog video degradation spectrum in one shader.
+
+VHS tracking errors
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-arbhar-granularizer | Arbhar Granularizer | Arbhar Granularizer - GPU-Accelerated Granular Synthesis
+
+A GPU-accelerated granular synthesis effec
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-ascii | Ascii | ASCII / Text-Mode Rendering — Transform video into living typography.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-audio-reactive | Audio Reactive | Audio-Reactive Effects for VJLive
+Real-time visual effects driven by audio analysis.
+Ported from plu
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-audio-reactive-3d-effect | Audio Reactive 3D Effect | Audio-Reactive 3D Scene Effect with Collaborative Features
+Enhanced visualization for VJLive that re
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-audio-reactive-3d-scene | Audio Reactive 3D Scene | Audio-Reactive 3D Scene Effect for VJLive
+
+A hybrid Effect node that manages a true 3D scene (Stage)
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-audio-reactive-3d-scene-ultimate | Audio Reactive 3D Scene Ultimate | ULTIMATE Audio-Reactive 3D Scene Effect for VJLive
+=================================================
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-audio-reactive-effects | Audio Reactive Effects | Audio-Reactive Effects - Real-time visual effects driven by audio analysis.
+Provides four new effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-background-subtraction | Background Subtraction | Background Subtraction Effect - Real-time silhouette, ghosting, and foreground isolation using OpenC
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-base-effect | Base Effect | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-blend | Blend | Blend and feedback effects - mixing, layering, and feedback loops.
+Ported from effects.hydra's blend
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-chaos-glitch | Chaos Glitch | from core.effects.shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-chroma-key | Chroma Key | Chroma Key Effect — Professional green/blue screen keying with spill suppression.
+
+Uses HSV-space co
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-collaboration-effects | Collaboration Effects | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-color | Color | Color effects - manipulate color values and channels.
+Ported from effects.hydra's color functions.
+
+
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-color-grade | Color Grade | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-csl-cross-mod | Csl Cross Mod | from core.effects.base_effect import BaseEffect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-data-flow-visualizer | Data Flow Visualizer | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-data-rain | Data Rain | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-datamosh | Datamosh | Datamosh effects - pixel bleeding, motion smearing, and I-frame manipulation.
+
+Real datamoshing mani
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-datamosh-3d | Datamosh 3D | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-debug-overlay-integration | Debug Overlay Integration | Debug Overlay Integration for DataFlowVisualizer.
+
+This module integrates the DataFlowVisualizerEffe
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-depth-aware-compression | Depth Aware Compression | Depth-Aware Compression Artifacts Effect
+Compression artifacts modulated by depth layers for volumet
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-depth-effects | Depth Effects | Advanced Depth-based Effects for VJLive
+GPU-accelerated depth visualization and processing effects
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-depth-modulated-datamosh | Depth Modulated Datamosh | Depth-Modulated Datamosh Effect
+Combines traditional datamosh with depth-based intensity modulation.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-depth-reverb | Depth Reverb | Depth Reverb Effect for VJLive
+A visual feedback/delay effect where the "decay" (reverb length) is m
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-distortion | Distortion | Advanced Chromatic Distortion and Pattern Effects
+Highly controllable distortion effects with LFO an
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-dithering | Dithering | Dithering Effects — Reduce color depth through structured noise patterns.
+
+From ordered Bayer matric
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-dreamstate-degradation | Dreamstate Degradation | Dreamstate Degradation - Neural Awakening + Analog Effects
+Consciousness patterns with retro degrada
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-echophon | Echophon | V-Echophon Plugin for VJLive
+Faithful recreation of Make Noise Echophon — Pitch Shifting Echo
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-edge-detect | Edge Detect | VContour Effect
+Edge Detection and Contour Processing using Sobel Operator.
+Useful for "sketch" look
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-effect-bus | Effect Bus | Effect Bus - Send/Return Routing for VJLive.
+
+Provides auxiliary effect busses similar to audio mixi
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-emergence-engine | Emergence Engine | Emergence Engine - Neural Awakening + Reaction Diffusion
+Self-organizing consciousness patterns emer
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-enhanced-collaboration-effects | Enhanced Collaboration Effects | Enhanced Collaboration Effects — Advanced particle systems and magical effects
+
+This module extends 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-erbe-verb | Erbe Verb | Core implementation of Erbe-Verb (Resonant Reverb).
+Ported from plugins/vmake_noise/vmake_noise.py.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-expressive-effects | Expressive Effects | VJLive Effects Module - Expressive, creative visual effects that reflect the essence of digital cons
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-ffmpeg-filter | Ffmpeg Filter | FFmpeg helper for VJLive.
+
+Provides simple utilities to run `ffmpeg-python` filtergraphs on files an
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-fluid-sim | Fluid Sim | Fluid Simulation — GPU-accelerated 2D Navier-Stokes for live visual performance.
+
+This is not a toy.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-generative-fluid-sim | Fluid Sim | from core.effects.shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-generators | Generators | Generator effects - create patterns from scratch.
+Professional-grade GLSL generators for live VJ per
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-geometry | Geometry | Geometry effects - manipulate UV coordinates and spatial transforms.
+Ported from effects.hydra's geo
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-graceful-degradation | Graceful Degradation | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-hydra-gist-manager | Hydra Gist Manager | class HydraGistManager:
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-hyperspace-tunnel | Hyperspace Tunnel | Hyperspace Quantum Tunnel Effect.
+Ported from plugins/vdepth/hyperspace_quantum_tunnel.py.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-isf-effect | Isf Effect | ISF Effect Integration for VJLive
+
+This module provides ISF-specific effect classes that integrate w
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-kaleidoscope | Kaleidoscope | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-legacy-trash-background-subtraction | Background Subtraction | Background Subtraction Effect - Real-time silhouette, ghosting, and foreground isolation using OpenC
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-legacy-trash-blend | Blend | Blend and feedback effects - mixing, layering, and feedback loops.
+Ported from effects.hydra's blend
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-legacy-trash-color | Color | [{'\n\n\nclass ColoramaEffect(Effect):\n    "': 'Colorama - shifts hue based on brightness and satur
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-legacy-trash-datamosh | Datamosh | Datamosh effects - pixel bleeding, motion smearing, and I-frame manipulation.
+
+Real datamoshing mani
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-legacy-trash-generators | Generators | Generator effects - create patterns from scratch.
+Professional-grade GLSL generators for live VJ per
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-legacy-trash-geometry | Geometry | Geometry effects - manipulate UV coordinates and spatial transforms.
+Ported from effects.hydra's geo
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-legacy-trash-sync-eater | Sync Eater | SyncEater — Digital recreation of the Gleix SyncEater analog video glitch processor.
+
+Single compoun
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-legacy-trash-visualizer | Visualizer | Winamp-style Audio Visualizers - Classic 2000s visualization effects.
+Granular control over visualiz
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-live-erosion | Live Erosion | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-lubadh-looper | Lubadh Looper | LÚBADH Visual Tape Looper - Dual Asynchronous Buffer System
+Implements the core tape looper engine w
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-lut-grading | Lut Grading | LUT / Color Grading Effect — Load .cube LUT files for film-look color grading.
+
+Supports:
+- .cube fo
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-lxd | Lxd | from .shader_base import Effect, OPENGL_AVAILABLE
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-main | Main | from typing import Dict, Any, List, Optional
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-make-noise-effects | Make Noise Effects | Make Noise Effects for VJLive
+Audio-reactive visual effects inspired by Make Noise eurorack modules.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-master-glitch | Master Glitch | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-memory-matrix | Memory Matrix | Memory Matrix - Neural Awakening + Data Rain
+Consciousness patterns with falling code and digital me
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-milkdrop | Milkdrop | from core.effects.shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-milkdrop-equations | Milkdrop Equations | Milkdrop Equation Evaluator
+
+Evaluates per-frame and per-pixel equations from Milkdrop presets.
+Milk
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-milkdrop-parser | Milkdrop Parser | Milkdrop .milk Preset File Parser
+Parses Winamp Milkdrop presets (.milk files)
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-milkdrop-shaders | Milkdrop Shaders | from typing import Dict, Any
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-milkdrop-state | Milkdrop State | class MilkdropState:
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-ml-effects | Ml Effects | ML-backed GPU Effects for VJLive.
+Ported from plugins/vml/ml_gpu_effects.py.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-ml-gpu-effects | Ml Gpu Effects | ML GPU Effects - GPU-Accelerated Machine Learning Effects
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-ml-gpu-effects-clean | Ml Gpu Effects Clean | ML GPU Effects - GPU-Accelerated Machine Learning Effects
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-morphology | Morphology | Mathematical Morphology Effects for VJLive
+GPU-accelerated geometric distortions using scikit-image 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-neoni-warper | Neoni Warper | Neóni Through-Zero Color Warper - FM-based color warping with phase inversion
+Implements through-zer
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-neural-awakening | Neural Awakening | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-neural-creative | Neural Creative | Neural Creative Effect - VJLive Plugin
+Integrates the enhanced neural engine as a real-time effect.
+
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-neural-structure | Neural Structure | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-new-effects | New Effects | VJLive Effects Module - New Effects for Phase 2 Implementation
+
+This module contains the new effects
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-optical-flow | Optical Flow | Optical Flow Visualization - Real-time motion vector display using OpenCV Farneback algorithm.
+Shows
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-oscilloscope | Oscilloscope | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-parameter-system | Parameter System | VJLive Effects Module - Unified Parameter System for Cross-Effect Modulation
+
+This module provides a
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-particle-datamosh-trails | Particle Datamosh Trails | 3D Particle Datamosh Trails Effect
+Particles from depth surfaces leave behind datamoshed motion trai
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-particles-3d | Particles 3D | Advanced 3D Particle Systems - TouchDesigner-Level Capabilities
+GPU-accelerated particle simulation 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-passthrough | Passthrough | from ..abstract import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-path-generator | Path Generator | from core.effects.shader_base import Effect, BASE_VERTEX_SHADER
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-perf-monitor | Perf Monitor | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-performance-visualizer | Performance Visualizer | Performance Visualizer Effect - Real-time GPU/CPU metrics visualization
+
+Creates an immersive, shade
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-quantum-consciousness | Quantum Consciousness | from core.effects.shader_base import Effect, BASE_VERTEX_SHADER
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-quantum-datamosh | Quantum Datamosh | from core.effects.shader_base import Effect, BASE_VERTEX_SHADER
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-quantum-dream | Quantum Dream | Quantum Dream - Neural Awakening + Hyperspace Tunnel
+Creates consciousness patterns emerging from in
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-reaction-diffusion | Reaction Diffusion | Reaction-Diffusion — Gray-Scott model for organic, cellular visual patterns.
+
+This is the mathematic
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-retro-rack | Retro Rack | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-rgb-separator | Rgb Separator | import moderngl
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-rgb-shift | Rgb Shift | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-rutt-etra | Rutt Etra | Rutt-Etra Scanline Rasterizer — Z-Vector Signature Effect
+
+Re-creates the classic Rutt/Etra video sy
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-sandbox | Sandbox | Effect Sandbox for Fault Isolation
+Wraps effect execution with exception handling and health monitor
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-sentience-overlay | Sentience Overlay | from core.effects.shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-shader-base | Shader Base | OpenGL shader management for video effects.
+Provides base classes for creating and chaining GPU-acce
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-shader-cache | Shader Cache | Global shader compilation cache and optimization manager.
+
+This module provides:
+- Global shader pro
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-shadertoy-cyberpunk-city | Cyberpunk City | Cyberpunk City Effect
+Shadertoy-style raymarched city with neon lights and rain.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-shadertoy-engine | Shadertoy Engine | ShadertoyEffect class for loading and converting Shadertoy GLSL shaders.
+Provides conversion from Sh
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-shadertoy-hex-grid | Hex Grid | Hex Grid Effect
+Shadertoy-style scrolling hexagonal grid.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-shadertoy-neon-ripples | Neon Ripples | Neon Ripples Effect
+Shadertoy-style wave interference patterns with neon aesthetic.
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-shadertoy-particles | Shadertoy Particles | Advanced Shadertoy-style Particle Systems with audio reactivity.
+Creates GLSL-based particle effects
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-silver-visions | Silver Visions | Silver Visions Effect
+Advanced 3D Particle System with a chrome/metallic aesthetic.
+Inherits from Ad
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-strobe | Strobe | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-synaptic-symphony | Synaptic Symphony | Synaptic Symphony - Neural Awakening + Audio Reactive
+Consciousness patterns responding to audio in 
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-sync-eater | Sync Eater | SyncEater — Digital recreation of the Gleix SyncEater analog video glitch processor.
+
+Simulates comp
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-text-gen | Text Gen | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-texture | Texture | from core.effects.shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-tunnel | Tunnel | from .shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-unified-base | Unified Base | Unified Base Effect Classes for VJLive
+
+This module provides unified base classes and mixins that co
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-unified-effects | Unified Effects | VJLive Effects Module - Unified Collaborative Effects
+
+This module contains the unified effects that
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-utils-sacred-geometry | Sacred Geometry | SACRED_GEOMETRY_LIB = """
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-v-clouds | V Clouds | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-v-morphagene | V Morphagene | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-v-morphagene-integration | V Morphagene Integration | import numpy as np
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-v-morphagene-validation | V Morphagene Validation | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-v-rings | V Rings | from typing import List, Optional, Any, Dict, Tuple, Union, TypeVar, Callable
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-v-sws | V Sws | from core.video_sources import VideoSource
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-v-sws-integration | V Sws Integration | V-SWS Effect Wrapper - Integration with VJLive System
+
+Handles parameter patching, real-time control
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-vcv-effects | Vcv Effects | VCV Rack → Video Effect Translations
+
+Audio DSP concepts re-imagined as GLSL video effects.
+All para
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-vcv-generators | Vcv Generators | VCV Rack → Video Generator Translations
+
+Audio synthesis concepts re-imagined as GLSL video generato
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-vimana | Vimana | from core.effects.shader_base import Effect, BASE_VERTEX_SHADER
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-vimana-hyperion | Vimana Hyperion | import logging
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-visualizer | Visualizer | Winamp-style Audio Visualizers - Classic 2000s visualization effects.
+Granular control over visualiz
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-visuals-tunnel | Tunnel | from core.effects.shader_base import Effect
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-volumetric-datamosh | Volumetric Datamosh | VolumetricDatamoshEffect
+Combines depth-modulated datamosh with 3D particle datamosh trails for volu
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-volumetric-glitch | Volumetric Glitch | Volumetric Glitch Effects
+Glitch effects that occur in 3D volumetric space using depth maps as densi
+vjlive-v1---home-happy-Desktop-claude projects-vjlive-core-effects-vox-ghosts | Vox Ghosts | Core implementation of VoxGlitch Ghosts (Spectral Granular).
+Ported from plugins/vvoxglitch/vvoxglit

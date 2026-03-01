@@ -1,0 +1,6 @@
+FILE: P3-EXT185_spec.md
+FILE: P3-EXT206_spec.md
+
+REASON: Duplicate specs.
+P3-EXT185_spec.md is a duplicate of P3-EXT185_vhalvorsenplugin.md
+P3-EXT206_spec.md is a duplicate of P3-EXT204_advanced_particles_3d.md

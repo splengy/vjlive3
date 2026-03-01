@@ -1,0 +1,4 @@
+FILE: P2-D4_show_control.md
+REASON: Boilerplate Fraud
+
+This file violates the Prime Directive and the "SPEC FIRST" requirement by containing hundreds of lines of implementation code (Python classes, logic, loops, interpolations, and full method implementations) directly within the specification document. It has been quarantined pending review/deletion.

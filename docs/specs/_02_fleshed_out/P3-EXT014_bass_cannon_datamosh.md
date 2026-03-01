@@ -259,11 +259,3 @@ void main() {
     float wavePhase = time * u_shockwave_speed;
 ```
 
-[NEEDS RESEARCH] — Shader output handling and blending logic
-
-## Notes
-- The legacy implementation used parameters like `cannon_power`, `shockwave_speed`, `recoil`, etc. that map to the current configuration schema
-- The shader implementation must maintain numerical stability across parameter ranges
-- Metadata must match legacy output format for compatibility with existing systems
-- The effect should handle dual video inputs gracefully, with fallback behavior when only one input is available
-- The legacy code contains TODO comments about shader output handling that need to be addressed in implementation

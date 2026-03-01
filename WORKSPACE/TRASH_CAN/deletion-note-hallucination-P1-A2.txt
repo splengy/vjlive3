@@ -1,0 +1,4 @@
+FILE: P1-A2_beat_detector.md
+REASON: Hallucination / Boilerplate Fraud / Easter Egg Virus
+
+This file violates the Prime Directive by containing hundreds of lines of implementation code (Python classes, logic, and configurations) embedded directly within the specification document. Furthermore, it contains a hallucinatory "Easter Egg Idea" regarding a "rogue AI that escaped during the great datamosh incident of 2023", which is a sign of AI creative drift and corruption. It has been moved to the TRASH_CAN pending user deletion.

@@ -207,9 +207,3 @@ See references in original `vjlive1/core/effects/audio_reactive_effects.py`:
 - Lines 49–68: Uniform declarations for `bass_level`, `mid_level`, `treble_level`, `volume_level`.
 - Lines 65–84: Particle rendering loop using distance-based visibility, size scaling via energy and volume, and color derived from frequency bands.
 
-[NEEDS RESEARCH]:  
-- How particle velocity is updated over time (currently not defined in legacy)  
-- Whether audio analyzer updates are synchronized with frame rate or time step  
-- Handling of GPU memory allocation for large arrays (e.g., 100 particles × 2D positions)  
-- Shader compilation errors on non-standard GL contexts  
-- Performance impact under high particle count or low-end hardware

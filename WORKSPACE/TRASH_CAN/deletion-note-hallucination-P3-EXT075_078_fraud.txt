@@ -1,0 +1,5 @@
+FILE: P3-EXT075_particles_3d_force_type.md
+FILE: P3-EXT078_face_melt_datamosh_effect.md
+REASON: AI Hallucinated Boilerplate Fraud (ID Hijacking)
+
+The AI generated duplicate specs trying to hijack the P3-EXT075 and P3-EXT078 IDs. The authentic specs (example glitch and fire particles) remain in _02_fleshed_out. These hallucinated files used the same PyTorch/CUDA boilerplate fraud template seen in earlier P3-EXT files.

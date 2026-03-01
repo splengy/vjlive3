@@ -1,0 +1,4 @@
+FILE: P2-X4_projection_mapping.md
+REASON: Boilerplate Fraud
+
+This file violates the Prime Directive and the "SPEC FIRST" requirement by containing hundreds of lines of implementation code (Python classes, logic, mesh warping shaders, and full unit test implementations) directly within the specification document. It has been quarantined pending review/deletion.

@@ -1,0 +1,4 @@
+FILE: P2-D5_audio_dmx.md
+REASON: Boilerplate Fraud
+
+This file violates the Prime Directive and the "SPEC FIRST" requirement by containing hundreds of lines of implementation code (Python classes, logic, audio processing algorithms, error recovery, and full unit test implementations) directly within the specification document. It has been quarantined pending review/deletion.

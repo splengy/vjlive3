@@ -998,7 +998,3 @@ class LivingFractalDemo:
             self._init_window()
 ```
 
-[NEEDS RESEARCH]: Behavior of `AgentInfluence` in relation to personality weighting  
-[NEEDS RESEARCH]: How audio amplitude maps to mood shifts across agents  
-[NEEDS RESEARCH]: Parameter range validation logic used in legacy code  
-[NEEDS RESEARCH]: Default color schemes for agent personalities (e.g., Neon vs. Cipher)

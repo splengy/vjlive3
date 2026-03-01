@@ -1,0 +1,11 @@
+FILE: P3-EXT010_spec.md
+FILE: P3-EXT011_spec.md
+FILE: P3-EXT011_background_subtraction.md
+REASON: Boilerplate Fraud
+
+These specification files violate the "SPEC FIRST" requirement by containing hundreds of lines of implementation code directly within the spec body:
+- P3-EXT010_spec.md contains the `AudioSpectrumTrails` Python class and full `_get_fragment_shader()` GLSL string.
+- P3-EXT011_background_subtraction.md contains the `BackgroundSubtractionEffect` Python class skeleton, a 63-line GLSL fragment shader, and multiple code snippets describing the CPU Processing Pipeline.
+- P3-EXT011_spec.md contains a `BackgroundSubtractionEffect` class skeleton and `METADATA` parameter specification interspersed with markdown.
+
+As per PRIME DIRECTIVE, specs must focus purely on inputs, outputs, schemas, and technical requirements instead of being a wrapper around boilerplate.

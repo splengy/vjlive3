@@ -1,0 +1,1 @@
+Deletion request for P0-G1_spec.md: This spec hallucinates a Python class 'PrimeDirective' with methods like 'is_framing_sacred()', turning a documentation/governance task into executable code. P0-G1 is already correctly satisfied by P0-G1_PRIME_DIRECTIVE.md. This is an LLM artifact imitating code.

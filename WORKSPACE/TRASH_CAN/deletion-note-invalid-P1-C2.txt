@@ -1,0 +1,2 @@
+DELETION NOTE: P1-C2_state_persistence.md
+Reason: Invalid specification. Contains "boilerplate fraud" by implementing over 300 lines of pure Python logic (StatePersistenceManager class, file I/O operations, backup logic, JSON parsing, compression) inside the markdown document, violating the Prime Directive that specs should only define interfaces and constraints. Moved to trash per Prime Directive Rule 11.

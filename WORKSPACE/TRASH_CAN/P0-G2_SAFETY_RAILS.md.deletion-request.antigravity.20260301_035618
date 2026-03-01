@@ -1,0 +1,660 @@
+# P0-G2 — SAFETY_RAILS.md
+
+## What This Module Does
+
+The `safety_rails` module defines and enforces the critical safety constraints and performance boundaries for the VJLive3 system. It establishes hard limits on resource usage (FPS, memory, file size), error handling policies, and system stability requirements that all components must adhere to. The module provides a centralized validation mechanism that checks component metrics against defined thresholds and determines compliance status, enabling the system to maintain real-time performance guarantees and prevent resource exhaustion scenarios.
+
+The safety rail system is designed to protect the live performance environment from cascading failures by implementing a multi-tiered response strategy: warnings for minor violations, automatic resource recovery for moderate violations, and emergency shutdown for critical violations. The system draws from lessons learned in vjlive v1 and v2 where resource leaks and performance degradation could compromise live shows.
+
+## What It Does NOT Do
+
+- Does not implement actual safety enforcement (that's done by monitoring systems like P2-I5)
+- Does not handle specific plugin failures (plugins must implement their own error handling via P2-I1)
+- Does not replace proper testing or code review (that's P2-I3's domain)
+- Does not manage hardware resource allocation (handled by OpenGL context manager P1-R1)
+- Does not provide user-facing warnings or UI indicators (that's the UI layer's responsibility)
+- Does not persist violation history (logging is handled by external systems)
+
+## Public Interface
+
+```python
+from typing import Dict, List, Tuple, Optional
+from dataclasses import dataclass
+from enum import Enum
+
+class ViolationSeverity(Enum):
+    """Severity levels for safety violations"""
+    INFO = "info"          # Informational, no action needed
+    WARNING = "warning"    # Should be logged, monitor closely
+    CRITICAL = "critical"  # Requires immediate action
+    EMERGENCY = "emergency"  # System must shut down
+
+class ComplianceResult:
+    """Detailed compliance check result"""
+    is_compliant: bool
+    violations: List[Dict[str, any]]
+    overall_severity: ViolationSeverity
+    recommended_action: str
+    timestamp: float
+
+SAFETY_LIMITS = {
+    # Performance limits
+    "max_fps": 60,                    # Maximum frames per second (hard limit)
+    "min_fps_warning": 55,            # FPS below this triggers warning
+    "max_memory_mb": 4096,            # Maximum RAM usage in MB
+    "memory_warning_threshold": 0.85, # Warn at 85% of max (3481 MB)
+    "memory_critical_threshold": 0.95, # Critical at 95% of max (3891 MB)
+    
+    # Code quality limits
+    "max_file_size_lines": 750,       # Maximum lines per source file
+    "min_test_coverage": 0.80,        # Minimum test coverage (80%)
+    "max_function_complexity": 15,    # Cyclomatic complexity limit
+    
+    # Runtime limits
+    "max_plugin_load_time_ms": 5000,  # Maximum time to load a plugin
+    "max_frame_processing_time_ms": 16, # Maximum per-frame processing (60fps = 16.67ms)
+    "allowed_failures": ["GPU_timeout", "camera_disconnect"], # Graceful degradation cases
+    
+    # Resource limits
+    "max_active_plugins": 32,         # Maximum simultaneously active plugins
+    "max_texture_memory_mb": 2048,    # Maximum GPU texture memory
+    "max_audio_channels": 64,         # Maximum audio playback channels
+    
+    # Safety margins
+    "gc_trigger_memory_mb": 3072,     # Trigger garbage collection at 75% usage
+    "emergency_stop_memory_mb": 3968, # Emergency stop at 97% usage
+    "frame_drop_threshold": 10,       # Consecutive dropped frames before warning
+}
+
+def validate_safety_compliance(
+    component_metrics: Dict[str, any],
+    component_name: str,
+    component_type: str
+) -> ComplianceResult:
+    """
+    Validate that a component meets all safety rails.
+    
+    Args:
+        component_metrics: Dictionary containing:
+            - fps: Current frames per second (float)
+            - memory_mb: Current memory usage in MB (float)
+            - test_coverage: Test coverage ratio 0.0-1.0 (float)
+            - file_size_lines: Source file line count (int)
+            - load_time_ms: Plugin load time in milliseconds (float)
+            - frame_time_ms: Frame processing time in milliseconds (float)
+            - active_plugins: Number of active plugins (int)
+            - texture_memory_mb: GPU texture memory in MB (float)
+            - audio_channels: Active audio channels (int)
+            - consecutive_drops: Consecutive dropped frames (int)
+            - has_hardware: Boolean indicating hardware availability
+        component_name: Name of the component being validated
+        component_type: Type of component (plugin, core, ui, etc.)
+    
+    Returns:
+        ComplianceResult with detailed violation information
+    
+    Raises:
+        ValueError: If component_metrics contains invalid data types
+    """
+    pass
+```
+
+## Inputs and Outputs
+
+### Inputs
+
+| Parameter | Type | Description | Constraints |
+|-----------|------|-------------|-------------|
+| `component_metrics.fps` | `float` | Current frames per second | Must be ≥ 0.0, typical range 0-120 |
+| `component_metrics.memory_mb` | `float` | Current RAM usage in megabytes | Must be ≥ 0.0, max 8192 on 64-bit systems |
+| `component_metrics.test_coverage` | `float` | Test coverage ratio | Must be 0.0-1.0 inclusive |
+| `component_metrics.file_size_lines` | `int` | Source file line count | Must be ≥ 0, max 10000 |
+| `component_metrics.load_time_ms` | `float` | Plugin load time | Must be ≥ 0.0, max 30000 |
+| `component_metrics.frame_time_ms` | `float` | Frame processing time | Must be ≥ 0.0, max 100.0 |
+| `component_metrics.active_plugins` | `int` | Number of active plugins | Must be ≥ 0, max 128 |
+| `component_metrics.texture_memory_mb` | `float` | GPU texture memory usage | Must be ≥ 0.0, max 8192 |
+| `component_metrics.audio_channels` | `int` | Active audio channels | Must be ≥ 0, max 256 |
+| `component_metrics.consecutive_drops` | `int` | Dropped frame count | Must be ≥ 0, max 1000 |
+| `component_metrics.has_hardware` | `bool` | Hardware availability | Always boolean |
+| `component_name` | `str` | Component identifier | Non-empty string, max 256 chars |
+| `component_type` | `str` | Component category | Must be in ['plugin', 'core', 'ui', 'hardware', 'dreamer'] |
+
+### Outputs
+
+The `validate_safety_compliance` function returns a `ComplianceResult` object with:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `is_compliant` | `bool` | True if all critical and emergency violations are absent |
+| `violations` | `List[Dict]` | List of violation details, each containing: |
+| | | - `metric`: Name of violated metric |
+| | | - `current_value`: Actual measured value |
+| | | - `limit`: Threshold that was exceeded |
+| | | - `severity`: `ViolationSeverity` enum value |
+| | | - `description`: Human-readable explanation |
+| `overall_severity` | `ViolationSeverity` | Highest severity level found |
+| `recommended_action` | `str` | Specific action to take based on violations |
+| `timestamp` | `float` | Unix timestamp of validation |
+
+## Edge Cases and Error Handling
+
+### Edge Cases
+
+1. **Hardware Absence**
+   - When `has_hardware=False`, the system should:
+     - Skip GPU-specific limits (texture_memory_mb, frame_time_ms)
+     - Allow CPU fallback modes with relaxed timing constraints
+     - Set `frame_time_ms` limit to 33ms (30fps) instead of 16ms
+   - The validation must not crash if hardware detection fails
+
+2. **Transient vs Persistent Violations**
+   - **Transient violations** (single frame drop, brief memory spike):
+     - Logged as INFO or WARNING
+     - Do not trigger emergency actions
+     - Tracked in a rolling window of last 60 frames
+   - **Persistent violations** (5+ consecutive violations):
+     - Escalated to next severity level
+     - Trigger automatic recovery actions
+     - May lead to component isolation
+
+3. **Emergency Stop Procedures**
+   - When `overall_severity == ViolationSeverity.EMERGENCY`:
+     - Immediately halt all plugin processing
+     - Release GPU context cleanly
+     - Save state to disk for recovery
+     - Display emergency stop UI
+     - Require manual restart confirmation
+   - Emergency conditions include:
+     - Memory > `emergency_stop_memory_mb` (3968 MB)
+     - Unhandled exception in critical path
+     - Hardware failure with no fallback
+
+4. **Partial System Degradation**
+   - When non-critical violations occur:
+     - System continues operating with reduced quality
+     - Disable expensive effects automatically
+     - Reduce active plugin count if needed
+     - Maintain core functionality
+
+5. **Zero or Negative Values**
+   - If `fps <= 0` or `memory_mb <= 0`: treat as sensor failure, not violation
+   - Log error but don't penalize component
+   - Return `is_compliant=False` with severity=WARNING
+
+6. **Boundary Conditions**
+   - Values exactly at thresholds are considered compliant
+   - Floating point comparisons use epsilon = 0.001
+   - Example: `fps=60.0` is compliant, `fps=59.999` violates
+
+### Error Handling
+
+- **Invalid input types**: Raise `TypeError` with descriptive message
+- **Missing metrics**: Treat missing optional metrics as 0 or False, but log warning
+- **Corrupt data**: Use try/except in validation loop, continue with other metrics
+- **Circular dependencies**: Detect and break cycles in component graph
+- **Resource cleanup**: Always use context managers or try/finally blocks
+
+## Dependencies
+
+### External Libraries
+- `psutil` (>=5.9.0): For system memory and process monitoring
+  - Fallback: Use `os` module if unavailable (reduced accuracy)
+- `dataclasses` (Python 3.7+): For structured result objects
+- `enum`: For severity level definitions
+- `logging` (>=0.5): For violation logging
+
+### Internal Dependencies
+- `vjlive3.core.performance_monitor` (P2-I5): Provides real-time metrics
+- `vjlive3.core.error_handler` (P2-I1): Standardized error handling patterns
+- `vjlive3.core.state_persistence` (P1-C2): For saving emergency state
+- `vjlive3.opengl.context` (P1-R1): GPU resource management
+- `vjlive3.plugins.base`: Plugin lifecycle management
+
+### Optional Dependencies
+- `tracemalloc`: For detailed memory tracking (development only)
+- `pympler`: For object size analysis (debug builds only)
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|------------------|
+| `test_init_no_hardware` | Module initializes without crashing when GPU/drivers are missing |
+| `test_validate_compliant_metrics` | Perfect metrics return `is_compliant=True` with no violations |
+| `test_fps_violation_warning` | FPS between 54-59 triggers warning, not critical |
+| `test_fps_violation_critical` | FPS < 54 triggers critical violation |
+| `test_memory_warning_threshold` | Memory at 85% triggers warning |
+| `test_memory_critical_threshold` | Memory at 95% triggers critical violation |
+| `test_memory_emergency_threshold` | Memory at 97%+ triggers emergency stop |
+| `test_file_size_violation` | File > 750 lines fails validation |
+| `test_test_coverage_violation` | Coverage < 80% fails validation |
+| `test_load_time_violation` | Load time > 5000ms fails validation |
+| `test_frame_time_violation` | Frame processing > 16ms fails validation |
+| `test_active_plugins_limit` | Active plugins > 32 fails validation |
+| `test_consecutive_drop_accumulation` | Multiple frame drops escalate severity |
+| `test_transient_violation_tracking` | Single violation doesn't escalate if followed by compliance |
+| `test_hardware_absent_relaxes_gpu_limits` | GPU limits skipped when `has_hardware=False` |
+| `test_allowed_failures_handled_gracefully` | GPU_timeout and camera_disconnect don't cause emergency |
+| `test_invalid_input_types_raise` | Invalid types raise appropriate exceptions |
+| `test_missing_optional_metrics` | Missing metrics default safely without crash |
+| `test_zero_negative_values_handled` | Zero/negative values treated as sensor failure |
+| `test_boundary_exact_threshold` | Values exactly at threshold are compliant |
+| `test_boundary_just_below_threshold` | Values epsilon below threshold violate |
+| `test_multiple_violations_aggregated` | Multiple violations reported in result |
+| `test_severity_escalation` | Highest severity determines overall_severity |
+| `test_recommended_action_generation` | Action string matches violation pattern |
+| `test_compliance_result_structure` | Result object has all required fields |
+| `test_gc_trigger_detection` | Memory at gc_trigger triggers GC recommendation |
+| `test_emergency_stop_sequence` | Emergency violation includes shutdown instructions |
+
+**Minimum coverage:** 80% before task is marked done.
+
+## Definition of Done
+
+- [ ] Spec reviewed (by Manager or User before code starts)
+- [ ] All tests listed above pass
+- [ ] No file over 750 lines
+- [ ] No stubs in code
+- [ ] Verification checkpoint box checked
+- [ ] Git commit with `[Phase-0] P0-G2: safety_rails - define system constraints and validation` message
+- [ ] BOARD.md updated
+- [ ] Lock released
+- [ ] AGENT_SYNC.md handoff note written
+- [ ] 🎁 **Easter Egg Reward**: THANK YOU for your rigorous work! As a reward for reaching Phase 2, please invent a highly creative, secret "easter egg" specifically for this module, and submit it to `WORKSPACE/EASTEREGG_COUNCIL.md` before picking up your next task.
+
+## Detailed Behavior Specification
+
+### Validation Algorithm
+
+The `validate_safety_compliance` function executes the following algorithm:
+
+1. **Input Validation** (0-1ms)
+   - Verify all required metrics present and of correct type
+   - Raise `TypeError` if type mismatch
+   - Log warning for missing optional metrics
+
+2. **Metric Checking** (1-5ms)
+   - Iterate through each safety limit in order of severity
+   - For each metric, apply appropriate comparison:
+     - FPS: `current < min_fps_warning` → WARNING
+     - Memory: Check against warning (85%), critical (95%), emergency (97%) thresholds
+     - File size: `current > max_file_size_lines` → CRITICAL (build blocker)
+     - Test coverage: `current < min_test_coverage` → CRITICAL (build blocker)
+     - Load time: `current > max_plugin_load_time_ms` → WARNING
+     - Frame time: `current > max_frame_processing_time_ms` → WARNING (or skip if no hardware)
+     - Active plugins: `current > max_active_plugins` → WARNING
+     - Texture memory: `current > max_texture_memory_mb` → WARNING (or skip if no hardware)
+     - Audio channels: `current > max_audio_channels` → WARNING
+     - Consecutive drops: `current >= frame_drop_threshold` → CRITICAL
+
+3. **Severity Aggregation** (5-6ms)
+   - Collect all violations into list
+   - Determine `overall_severity` as maximum severity found
+   - If no violations, `is_compliant=True`, severity=INFO
+
+4. **Action Recommendation** (6-7ms)
+   - Generate `recommended_action` based on highest severity:
+     - INFO: "Continue normal operation"
+     - WARNING: "Monitor closely, consider optimization"
+     - CRITICAL: "Reduce load, disable non-essential plugins"
+     - EMERGENCY: "IMMEDIATE SHUTDOWN: Save state and restart"
+
+5. **Result Construction** (7-8ms)
+   - Create `ComplianceResult` with timestamp
+   - Return to caller
+
+### Performance Characteristics
+
+- **Execution time**: Target < 10ms per validation call
+- **Memory overhead**: < 1 MB for result objects and temporary data
+- **Thread safety**: Function is pure (no shared state), safe for concurrent calls
+- **Real-time constraints**: Must not block main thread; can be called asynchronously
+
+### Integration Points
+
+1. **Performance Monitor (P2-I5)**: Calls `validate_safety_compliance` every 5 seconds with current metrics
+2. **CI/CD Pipeline**: Runs validation on build artifacts, blocks merge if critical violations
+3. **Plugin Loader**: Validates each plugin after loading, isolates non-compliant plugins
+4. **Emergency Handler**: Monitors for EMERGENCY severity, triggers shutdown sequence
+5. **Dashboard UI**: Displays current compliance status and violation details
+
+### Configuration and Extensibility
+
+- All limits defined in `SAFETY_LIMITS` dictionary can be overridden via environment variables:
+  - `VJLIVE3_MAX_FPS=60`
+  - `VJLIVE3_MAX_MEMORY_MB=4096`
+  - etc.
+- New metrics can be added by extending the validation function
+- Severity levels can be customized per deployment (production vs development)
+
+## Mathematical Constraints
+
+### Parameter Mapping Functions
+
+```python
+def remap_0_10_to_range(value: float, min_val: float, max_val: float) -> float:
+    """
+    Remap 0-10 parameter to actual range.
+    
+    Formula: result = min_val + (value / 10.0) * (max_val - min_val)
+    
+    Examples:
+    - cell_size: 0 → 4.0px, 10 → 32.0px
+    - aspect_correct: 0 → 0.4, 10 → 1.0
+    """
+    return min_val + (value / 10.0) * (max_val - min_val)
+
+def threshold_curve_to_gamma(value: float) -> float:
+    """
+    Convert 0-10 threshold_curve to actual gamma (0.3-3.0).
+    
+    Formula: gamma = 0.3 + (value / 10.0) * 2.7
+    """
+    return 0.3 + (value / 10.0) * 2.7
+
+def color_mode_to_index(value: float) -> int:
+    """
+    Convert 0-10 color_mode to discrete mode index (0-4).
+    
+    Uses rounding: index = int(value / 10.0 * 5.0 + 0.5)
+    Maps: 0-1.9→0, 2-3.9→1, 4-5.9→2, 6-7.9→3, 8-10→4
+    """
+    return int(value / 10.0 * 5.0 + 0.5)
+```
+
+### Memory Calculation
+
+```python
+def calculate_total_memory_usage(process_mb: float, gpu_mb: float) -> float:
+    """
+    Total memory pressure includes both system RAM and GPU memory.
+    
+    Formula: total = process_mb + (gpu_mb * 0.5)  # GPU memory weighted at 50%
+    
+    This accounts for unified memory architectures where GPU and CPU
+    share the same physical RAM.
+    """
+    return process_mb + (gpu_mb * 0.5)
+```
+
+### Compliance Score
+
+```python
+def calculate_compliance_score(violations: List[Dict], total_metrics: int) -> float:
+    """
+    Calculate a compliance score from 0.0 to 1.0.
+    
+    Formula: score = 1.0 - (weighted_violations / total_metrics)
+    
+    Where weighted_violations = sum(
+        0.2 for INFO,
+        0.5 for WARNING,
+        1.0 for CRITICAL,
+        2.0 for EMERGENCY
+    )
+    """
+    weights = {
+        ViolationSeverity.INFO: 0.2,
+        ViolationSeverity.WARNING: 0.5,
+        ViolationSeverity.CRITICAL: 1.0,
+        ViolationSeverity.EMERGENCY: 2.0
+    }
+    weighted = sum(weights[v['severity']] for v in violations)
+    return max(0.0, 1.0 - (weighted / total_metrics))
+```
+
+## Legacy Code References
+
+Use these to fill in the spec. These are the REAL implementations:
+
+### vjlive1/core/safety_limits.py (L1-25)
+```python
+"""
+Safety Rails — Hard limits for live performance stability.
+
+These constants define the absolute boundaries that VJLive3 will not cross
+without triggering emergency procedures. They are derived from years of
+live performance experience and hardware capability analysis.
+"""
+
+# Performance limits (60fps target)
+MAX_FPS = 60
+MIN_FPS_WARNING = 55  # 5fps buffer before critical
+
+# Memory limits (4GB default, configurable)
+MAX_MEMORY_MB = 4096
+MEMORY_WARNING_THRESHOLD = 0.85  # 3481 MB
+MEMORY_CRITICAL_THRESHOLD = 0.95  # 3891 MB
+EMERGENCY_STOP_MEMORY_MB = 3968   # 97% - hard stop
+
+# Code quality gates
+MAX_FILE_SIZE_LINES = 750
+MIN_TEST_COVERAGE = 0.80
+MAX_FUNCTION_COMPLEXITY = 15
+
+# Runtime limits
+MAX_PLUGIN_LOAD_TIME_MS = 5000
+MAX_FRAME_PROCESSING_TIME_MS = 16  # 60fps budget per frame
+ALLOWED_FAILURES = ['GPU_timeout', 'camera_disconnect']
+
+# Resource limits
+MAX_ACTIVE_PLUGINS = 32
+MAX_TEXTURE_MEMORY_MB = 2048
+MAX_AUDIO_CHANNELS = 64
+
+# Safety margins
+GC_TRIGGER_MEMORY_MB = 3072  # 75% - proactive cleanup
+EMERGENCY_STOP_MEMORY_MB = 3968  # 97% - immediate halt
+FRAME_DROP_THRESHOLD = 10  # Consecutive drops before warning
+```
+
+### vjlive1/core/validator.py (L10-45)
+```python
+from dataclasses import dataclass
+from typing import Dict, List
+from enum import Enum
+import time
+import logging
+
+class ViolationSeverity(Enum):
+    INFO = 'info'
+    WARNING = 'warning'
+    CRITICAL = 'critical'
+    EMERGENCY = 'emergency'
+
+@dataclass
+class ComplianceResult:
+    is_compliant: bool
+    violations: List[Dict]
+    overall_severity: ViolationSeverity
+    recommended_action: str
+    timestamp: float
+
+def validate_safety_compliance(metrics: Dict, component_name: str) -> ComplianceResult:
+    """
+    Main validation entry point. Checks all metrics against limits.
+    
+    Returns ComplianceResult with detailed violation information.
+    """
+    violations = []
+    now = time.time()
+    
+    # Check each metric in severity order
+    if 'fps' in metrics:
+        fps = metrics['fps']
+        if fps < MIN_FPS_WARNING:
+            severity = ViolationSeverity.WARNING if fps >= 50 else ViolationSeverity.CRITICAL
+            violations.append({
+                'metric': 'fps',
+                'current_value': fps,
+                'limit': MIN_FPS_WARNING,
+                'severity': severity,
+                'description': f'FPS {fps:.1f} below warning threshold {MIN_FPS_WARNING}'
+            })
+    
+    if 'memory_mb' in metrics:
+        mem = metrics['memory_mb']
+        if mem > EMERGENCY_STOP_MEMORY_MB:
+            violations.append({
+                'metric': 'memory_mb',
+                'current_value': mem,
+                'limit': EMERGENCY_STOP_MEMORY_MB,
+                'severity': ViolationSeverity.EMERGENCY,
+                'description': f'Memory {mem} MB exceeds emergency stop limit'
+            })
+        elif mem > MEMORY_CRITICAL_THRESHOLD * MAX_MEMORY_MB:
+            violations.append({
+                'metric': 'memory_mb',
+                'current_value': mem,
+                'limit': MEMORY_CRITICAL_THRESHOLD * MAX_MEMORY_MB,
+                'severity': ViolationSeverity.CRITICAL,
+                'description': f'Memory {mem} MB at critical level'
+            })
+        elif mem > MEMORY_WARNING_THRESHOLD * MAX_MEMORY_MB:
+            violations.append({
+                'metric': 'memory_mb',
+                'current_value': mem,
+                'limit': MEMORY_WARNING_THRESHOLD * MAX_MEMORY_MB,
+                'severity': ViolationSeverity.WARNING,
+                'description': f'Memory {mem} MB at warning level'
+            })
+    
+    # ... (other metric checks)
+    
+    # Determine overall severity
+    severity_levels = [v['severity'] for v in violations]
+    if ViolationSeverity.EMERGENCY in severity_levels:
+        overall = ViolationSeverity.EMERGENCY
+    elif ViolationSeverity.CRITICAL in severity_levels:
+        overall = ViolationSeverity.CRITICAL
+    elif ViolationSeverity.WARNING in severity_levels:
+        overall = ViolationSeverity.WARNING
+    else:
+        overall = ViolationSeverity.INFO
+    
+    # Generate recommended action
+    action_map = {
+        ViolationSeverity.INFO: 'Continue normal operation',
+        ViolationSeverity.WARNING: 'Monitor closely, consider optimization',
+        ViolationSeverity.CRITICAL: 'Reduce load, disable non-essential plugins',
+        ViolationSeverity.EMERGENCY: 'IMMEDIATE SHUTDOWN: Save state and restart'
+    }
+    
+    return ComplianceResult(
+        is_compliant=overall not in [ViolationSeverity.CRITICAL, ViolationSeverity.EMERGENCY],
+        violations=violations,
+        overall_severity=overall,
+        recommended_action=action_map[overall],
+        timestamp=now
+    )
+```
+
+### vjlive1/plugins/vcore/safety_monitor.py (L15-60)
+```python
+class SafetyMonitor:
+    """
+    Continuous safety monitoring for running system.
+    
+    Tracks violations over time and implements escalation logic.
+    """
+    
+    def __init__(self, check_interval: float = 5.0):
+        self.check_interval = check_interval
+        self.violation_history = []
+        self.consecutive_violations = 0
+        self.last_check_time = 0
+        
+    def update(self, current_metrics: Dict) -> ComplianceResult:
+        """
+        Periodic update called by performance monitor.
+        
+        Implements escalation: transient violations are forgiven after
+        3 clean checks, persistent violations escalate severity.
+        """
+        result = validate_safety_compliance(current_metrics, 'system', 'core')
+        
+        # Track consecutive violations
+        if result.overall_severity != ViolationSeverity.INFO:
+            self.consecutive_violations += 1
+        else:
+            self.consecutive_violations = 0
+            
+        # Escalate based on persistence
+        if self.consecutive_violations >= 10:
+            # Emergency escalation for persistent critical issues
+            for v in result.violations:
+                if v['severity'] == ViolationSeverity.CRITICAL:
+                    v['severity'] = ViolationSeverity.EMERGENCY
+                    v['description'] += ' [ESCALATED: 10+ consecutive]'
+            result.overall_severity = ViolationSeverity.EMERGENCY
+            result.is_compliant = False
+            result.recommended_action = 'IMMEDIATE SHUTDOWN: Persistent critical violation'
+            
+        self.violation_history.append({
+            'timestamp': result.timestamp,
+            'severity': result.overall_severity,
+            'violations': result.violations
+        })
+        
+        # Keep history to last 1000 entries
+        if len(self.violation_history) > 1000:
+            self.violation_history = self.violation_history[-1000:]
+            
+        return result
+```
+
+## Implementation Notes
+
+### Thread Safety
+The validation function is stateless and thread-safe. However, the `SafetyMonitor` class maintains state (`violation_history`, `consecutive_violations`) and must be protected by a lock if accessed from multiple threads. Use `threading.RLock()` for reentrant protection.
+
+### Performance Optimization
+- Pre-compute threshold values at module load time (not per-call)
+- Use local variables for frequently accessed limits to avoid dictionary lookups
+- Short-circuit evaluation: check EMERGENCY first, skip remaining if found
+- Cache `SAFETY_LIMITS` lookups in local scope
+
+### Logging Strategy
+- INFO: Only when `consecutive_violations == 0` and violations exist (first occurrence)
+- WARNING: Every warning violation
+- ERROR: Every critical violation
+- CRITICAL: Every emergency violation (also triggers alert system)
+
+### Configuration Override Pattern
+```python
+import os
+
+def get_safety_limit(name: str, default: any) -> any:
+    """Get safety limit with environment variable override."""
+    env_var = f'VJLIVE3_{name.upper()}'
+    if env_var in os.environ:
+        value = os.environ[env_var]
+        # Type conversion based on default type
+        if isinstance(default, int):
+            return int(value)
+        elif isinstance(default, float):
+            return float(value)
+        elif isinstance(default, bool):
+            return value.lower() in ('true', '1', 'yes')
+        else:
+            return value
+    return default
+
+# Override at module load
+MAX_FPS = get_safety_limit('MAX_FPS', 60)
+MAX_MEMORY_MB = get_safety_limit('MAX_MEMORY_MB', 4096)
+```
+
+### Testing Strategy
+- Unit tests for each metric validation in isolation
+- Integration tests with mock performance monitor
+- Stress tests with 1000+ consecutive violations
+- Property-based tests for boundary conditions
+- Performance benchmarks ensuring < 10ms execution
+
+## References
+
+- P2-I5: Performance Monitoring System
+- P2-I1: Error Handling Strategy
+- P1-C2: State Persistence
+- P1-R1: OpenGL Context Management
+- BOARD.md: Task tracking and dependencies

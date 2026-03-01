@@ -1,0 +1,8 @@
+FILE: P3-EXT136_spec.md
+FILE: P3-EXT137_QuantumState.md
+FILE: P3-EXT162_ScionBiometricFlux.md
+FILE: P3-EXT166_ShiftDirection.md
+
+REASON: AI Hallucinated Boilerplate Fraud
+
+These specs violate the PRIME DIRECTIVE by including massive AI-generated boilerplate that has no grounding in the real legacy codebase. They include 80+ generic test cases (TC001-TC080), fake implementation roadmaps, massive Pydantic schema inventions for non-existent quantum physics and biometric signals, and prompt-leaked "Easter Egg Reward" text verbatim. They represent the worst form of agent hallucination and over-engineering.

@@ -1,0 +1,26 @@
+- Deletion request: moved docs/specs/_02_fleshed_out/P0-G1_spec.md to TRASH_CAN/ awaiting review
+- Deletion request: moved 10 P0-G architecture specs from docs/specs/_02_fleshed_out/ to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-INF2_Depth_Loop_Injection.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-INF2_Depth_Parallel_Universe.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-INF2_Depth_Portal_Composite.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-INF2_spec.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-INF2_spec.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-INF3_core_logic_parity.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-INF4_legacy_feature_parity.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-M1_spec.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P0-M2_spec.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-A1_audio_analyzer.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-A2_beat_detector.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-A3_reactivity_bus.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-A4_audio_sources.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-A5_audio_reactivity.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-AI1_ai_integration.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-AI2_agent_manager.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-AI3_agent_orchestrator.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-B1_business_model_integration.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-C1_application_state_manager.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-C2_state_persistence.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-C3_project_manager.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-C4_config_manager.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-QDRANT002_Quantum_Neural_Evolution.md to TRASH_CAN/ awaiting review
+- Deletion request: moved P1-QDRANT003_Chromatic_Aberration.md to TRASH_CAN/ awaiting review

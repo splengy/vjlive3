@@ -1,0 +1,2 @@
+DELETION NOTE: P1-B1_business_model_integration.md
+Reason: Invalid specification. Contains "boilerplate fraud" by implementing large blocks of pure Python logic (validate_manifest, PluginLoader, FastAPI routes, etc., over 200 lines total) inside the markdown document, violating the Prime Directive that specs should only define interfaces and constraints. It also hallucinates progress state ("Completed - 40+ unit tests"). Moved to trash per Prime Directive Rule 11.

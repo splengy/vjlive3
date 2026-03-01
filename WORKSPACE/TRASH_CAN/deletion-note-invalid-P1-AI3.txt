@@ -1,0 +1,2 @@
+DELETION NOTE: P1-AI3_agent_orchestrator.md
+Reason: Invalid specification. Contains "boilerplate fraud" by implementing nearly 300 lines of pure Python logic (AgentOrchestrator class, _route_task, _process_task, etc.) inside the markdown document, violating the Prime Directive that specs should only define interfaces and constraints. Moved to trash per Prime Directive Rule 11.

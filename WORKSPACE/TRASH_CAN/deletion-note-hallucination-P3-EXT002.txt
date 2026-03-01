@@ -1,0 +1,6 @@
+FILE: P3-EXT002_AdaptiveContrastEffect.md
+FILE: P3-EXT002_spec.md
+REASON: Boilerplate Fraud / AI-Generated Corruption
+
+P3-EXT002_AdaptiveContrastEffect.md violates the Prime Directive by containing implementation Python code (`class AdaptiveContrastEffect`, `adaptive_contrast` algorithm) directly within the specification document, as well as an "Easter Egg Idea" involving the number 6.66 which is AI creative drift.
+P3-EXT002_spec.md contains an active `process_frame` shape definition inside `class AdaptiveContrastEffect` which crosses the line from spec to implementation. (Quarantined for safety, though less severe than the first one).

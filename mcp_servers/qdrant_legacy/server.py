@@ -104,7 +104,7 @@ mcp = FastMCP(
 @mcp.tool()
 def search_legacy(
     query: str,
-    limit: int = 10,
+    limit: int = 5,
     codebase: str = "",
     use_vector: bool = False,
 ) -> list[dict]:
@@ -122,7 +122,7 @@ def search_legacy(
     Returns:
         List of matching code chunks with file path, codebase, score, and content.
     """
-    limit = min(limit, 50)
+    limit = min(limit, 15)
 
     if use_vector:
         vector = _remote_embed(query)
@@ -149,7 +149,7 @@ def search_legacy(
                         "codebase": p.get("payload", {}).get("codebase", "unknown"),
                         "chunk_index": p.get("payload", {}).get("chunk_index", 0),
                         "score": round(p.get("score", 0), 4),
-                        "content": p.get("payload", {}).get("content", "")[:2000],
+                        "content": p.get("payload", {}).get("content", "")[:1000] + "\n...[TRUNCATED]",
                     }
                     for p in result.get("result", [])
                 ]
@@ -202,6 +202,7 @@ def search_legacy(
 def get_file_chunks(
     filepath: str,
     codebase: str = "",
+    max_chunks: int = 20,
 ) -> list[dict]:
     """
     Get all code chunks from a specific legacy file.
@@ -209,6 +210,7 @@ def get_file_chunks(
     Args:
         filepath: Full or partial file path to search for.
         codebase: Optional codebase filter: "vjlive1", "vjlive2", "vjlive3"
+        max_chunks: Maximum number of chunks to return (default 20).
 
     Returns:
         List of all chunks from the matching file, ordered by chunk index.
@@ -242,13 +244,13 @@ def get_file_chunks(
                 "filepath": p.get("payload", {}).get("filepath", ""),
                 "codebase": p.get("payload", {}).get("codebase", ""),
                 "chunk_index": p.get("payload", {}).get("chunk_index", 0),
-                "content": p.get("payload", {}).get("content", ""),
+                "content": p.get("payload", {}).get("content", "")[:1000] + "\n...[TRUNCATED]",
             }
             for p in points
         ],
         key=lambda x: x["chunk_index"],
     )
-    return chunks
+    return chunks[:max_chunks]
 
 
 @mcp.tool()

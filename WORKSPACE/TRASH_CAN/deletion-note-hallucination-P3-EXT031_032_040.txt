@@ -1,0 +1,11 @@
+FILE: P3-EXT031_quantum_consciousness_explorer.md
+FILE: P3-EXT032_tunnel_vision_3_consciousness_net.md
+FILE: P3-EXT040_spec.md
+REASON: Boilerplate Fraud / AI Drift
+
+These specification files violate the "SPEC FIRST" requirement by containing hundreds of lines of implementation code directly within the spec body:
+- P3-EXT031 contains a massive 150-line fake Python implementation of `QuantumConsciousnessExplorer`.
+- P3-EXT032 contains an entire fake `torch.nn.Module` class (`ConsciousnessNet`), along with a 350-line fake Python implementation inside the spec's public interface section, implementing advanced math functions.
+- P3-EXT040_spec.md includes GLSL fragment shader source code in the "Legacy References" section rather than just documenting the requirements.
+
+As per PRIME DIRECTIVE, specs must focus purely on inputs, outputs, schemas, and technical requirements instead of being a wrapper around boilerplate.

@@ -745,8 +745,3 @@ void main() {
 }
 ```
 
-## Easter Egg Council
-
-| Agent ID | Easter Egg Idea | Status |
-|----------|-----------------|---------|
-| desktop-roo | Add a hidden "Matrix Rain" easter egg that activates when the user types "follow the white rabbit" in the parameter console, triggering a full-screen matrix rain effect with scrolling katakana characters at maximum density and speed | ✅ Added |

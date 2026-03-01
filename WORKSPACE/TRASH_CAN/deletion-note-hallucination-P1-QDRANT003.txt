@@ -1,0 +1,4 @@
+FILE: P1-QDRANT003_Chromatic_Aberration.md
+REASON: AI-Generated Corruption / Easter Egg Virus / Boilerplate Fraud
+
+This file violates the Prime Directive by containing implementation code (Python fallback logic and full GLSL shader code) embedded directly within the spec. Like QDRANT002, it also explicitly commands the AI to create an "easter egg" and submit it to the EASTEREGG_COUNCIL, which is a symptom of the AI creative drift virus infecting the workspace. The file has been quarantined.

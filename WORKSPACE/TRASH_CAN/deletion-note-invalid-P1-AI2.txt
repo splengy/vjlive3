@@ -1,0 +1,2 @@
+DELETION NOTE: P1-AI2_agent_manager.md
+Reason: Invalid specification. Contains "boilerplate fraud" by implementing over 360 lines of pure Python logic (AgentManager class, _create_agent_instance, state management, etc.) inside the markdown document, violating the Prime Directive that specs should only define interfaces and constraints. Moved to trash per Prime Directive Rule 11.

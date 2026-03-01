@@ -248,3 +248,4 @@ config/*.local.*
 output/
 renders/
 captures/QDRANT_FULL_BACKUP.json
+WORKSPACE/MEMORY_BANK/QDRANT_FULL_BACKUP.json

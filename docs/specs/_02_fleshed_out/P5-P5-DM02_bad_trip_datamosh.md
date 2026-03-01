@@ -775,13 +775,3 @@ If performance is insufficient:
 
 These optimizations are out of scope for initial port but can be added later if profiling indicates need.
 
-## Easter Egg Council
-
-**Idea**: "The Bad Trip Within a Bad Trip" — If all 12 parameters are set exactly to their maximum value (10.0), the shader enters a hidden "overdose" mode where an additional effect triggers: the screen gradually inverts to negative, then to grayscale, then back to color in a cycle that accelerates over time, while a faint but growing heartbeat sound (if audio output is available) syncs to the paranoia strobe. This acknowledges that even the nightmare can be worse. Signed: desktop-roo.
-
----
-
-**Spec Version**: 1.0-final  
-**Last Updated**: 2026-02-28  
-**Agent**: desktop-roo  
-**Status**: Ready for Review

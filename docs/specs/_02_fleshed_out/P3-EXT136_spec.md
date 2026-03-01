@@ -526,4 +526,3 @@ Based on analysis of legacy implementations in vjlive v1 and vjlive-2, the quant
    - Output returned as VideoSignal with rendered frame
    - Supports hot-reloading of parameters during live performance
 
-This expanded context fills in the [NEEDS RESEARCH] markers and provides detailed behavioral specifications that align with the actual legacy implementations.

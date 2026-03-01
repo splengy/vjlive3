@@ -1,0 +1,11 @@
+FILE: P3-EXT054_spec.md
+FILE: P3-EXT055_depth_effects_depth_mesh_effect.md
+FILE: P3-EXT059_depth_raver_datamosh_effect.md
+FILE: P3-EXT063_depth_raver_datamosh_effect.md
+REASON: Boilerplate Fraud / Redundancy
+
+- P3-EXT054 contains a 250-line GLSL fragment shader implementation + over a hundred lines of Python class boilerplate.
+- P3-EXT055 contains the same PyTorch / numpy implementation boilerplate logic as other fake depth specs ("Depth Mesh Effect").
+- P3-EXT059 and P3-EXT063 are duplicate specifications for the EXACT SAME "Depth Raver Datamosh Effect." Both contain fake module boilerplate (e.g. `import torch` dependencies for an effect that should just be an OpenGL shader).
+
+These files violate the SPEC FIRST Prime Directive.

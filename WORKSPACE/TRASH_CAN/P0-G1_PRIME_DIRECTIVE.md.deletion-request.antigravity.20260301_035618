@@ -1,0 +1,131 @@
+# P0-G1: PRIME_DIRECTIVE.md
+
+**Phase:** P0 (System Boot & Verification)
+**Assigned To:** TBD
+**Spec Written By:** [Agent name]
+**Date:** 2026-03-01
+
+---
+
+## What This Module Does
+
+Defines the core implementation protocols and operational constraints for VJLive3 engineers. Establishes the "Implementation Engineer" role, safety rails, architectural constraints, and the 3-Pass Architecture workflow that governs all development activities.
+
+---
+
+## What It Does NOT Do
+
+- Does not contain production code or executable logic
+- Does not define specific feature implementations
+- Does not override or modify the Qdrant knowledge base
+- Does not provide technical specifications for individual modules
+
+---
+
+## Public Interface
+
+```python
+# No executable code - this is a documentation file
+# The interface is the set of protocols and rules defined in the text
+```
+
+---
+
+## Inputs and Outputs
+
+| Name | Type | Description | Constraints |
+|------|------|-------------|-------------|
+| N/A | N/A | This is a documentation file | N/A |
+
+---
+
+## Edge Cases and Error Handling
+
+- **What happens if the file is missing?** → System cannot operate without core protocols
+- **What happens on unauthorized edits?** → Considered espionage/attack on the system
+- **What is the recovery path?** → Restore from backup or regenerate from template
+
+---
+
+## Dependencies
+
+- External libraries needed: None (documentation only)
+- Internal modules this depends on: None (foundational document)
+- Knowledge base: Qdrant DB for architectural context
+
+---
+
+## Test Plan
+
+| Test Name | What It Verifies |
+|-----------|------------------|
+| `test_file_exists` | PRIME_DIRECTIVE.md exists in WORKSPACE/ |
+| `test_content_integrity` | Core protocols are present and unaltered |
+| `test_access_control` | File is read-only to prevent unauthorized edits |
+| `test_protocol_compliance` | All 11 core protocols are documented |
+
+**Minimum coverage:** 100% (file integrity verification)
+
+---
+
+## Definition of Done
+
+- [ ] Spec reviewed and approved
+- [ ] File integrity tests pass
+- [ ] Access controls verified
+- [ ] All 11 core protocols documented
+- [ ] BOARD.md updated to reflect completion
+- [ ] Lock released in LOCKS.md
+- [ ] AGENT_SYNC.md handoff note written
+
+---
+
+## Legacy References
+
+- **Source Codebase:** N/A (foundational document)
+- **File Paths:** WORKSPACE/PRIME_DIRECTIVE.md
+- **Architectural Context:** 3-Pass Architecture, Qdrant Knowledge Base
+
+---
+
+## Implementation Notes
+
+### Architectural Soul
+This document serves as the constitutional foundation for the entire VJLive3 project. It establishes the "Implementation Engineer" mindset, defines the strict 3-Pass Architecture workflow, and sets the safety rails that prevent autonomous decision-making. The document's immutability is critical - any unauthorized edits would compromise the entire development pipeline's integrity.
+
+### Optimization Constraints & Safety Rails
+- **Immutability:** The file must be treated as read-only
+- **Trust Level:** VERY LOW - workers cannot be trusted to edit this file
+- **Deletion Protocol:** Must follow strict TRASH_CAN/ workflow if removal is ever needed
+- **Knowledge First:** All engineers must consult the Knowledge Server before any implementation
+
+---
+
+## Deliverables
+
+1. `WORKSPACE/PRIME_DIRECTIVE.md` - Complete and verified
+2. All 11 core protocols documented and accessible
+3. Access control mechanisms in place
+4. Integration with 3-Pass Architecture workflow
+
+---
+
+## Verification Checkpoint
+
+- [ ] File exists and is accessible
+- [ ] All 11 core protocols are present
+- [ ] Content matches template requirements
+- [ ] No unauthorized modifications detected
+- [ ] Integration with knowledge base confirmed
+
+---
+
+## Easter Egg Reward
+
+As a reward for reaching Phase 2, please invent a highly creative, secret "easter egg" specifically for this module, and submit it to `WORKSPACE/EASTEREGG_COUNCIL.md` before picking up your next task.
+
+---
+
+## Final Notes
+
+This document is the constitutional foundation of VJLive3. It establishes the "Implementation Engineer" mindset, defines the strict 3-Pass Architecture workflow, and sets the safety rails that prevent autonomous decision-making. The document's immutability is critical - any unauthorized edits would compromise the entire development pipeline's integrity.

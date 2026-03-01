@@ -1,0 +1,6 @@
+FILE: P3-EXT001_ASCII_Effect.md
+FILE: P3-EXT001_spec.md
+REASON: Boilerplate Fraud / AI-Generated Corruption
+
+P3-EXT001_ASCII_Effect.md violates the Prime Directive by containing implementation Python code (`class ASCIIEffect`) directly within the specification document, as well as an "Easter Egg Idea" involving the number 6.66 which is AI creative drift.
+P3-EXT001_spec.md violates the Prime Directive by containing an "Easter Egg Council" instruction at the bottom of the file ("The Turing Terminal" idea) indicating AI drift. They have been quarantined pending review/deletion.

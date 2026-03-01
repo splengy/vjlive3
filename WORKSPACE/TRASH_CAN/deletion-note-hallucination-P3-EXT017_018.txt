@@ -1,0 +1,9 @@
+FILE: P3-EXT017_spec.md
+FILE: P3-EXT018_spec.md
+REASON: Boilerplate Fraud
+
+These specification files violate the "SPEC FIRST" requirement by containing hundreds of lines of implementation code directly within the spec body:
+- P3-EXT017_spec.md contains the `PopArtColorPalette` and `BenDayDotsEffect` Python classes, complete with embedded GLSL strings for the inline fragment shader. It also contains python logic for `apply_uniforms` and json parsing.
+- P3-EXT018_spec.md contains snippets of GLSL mathematical implementation (`vec2 feedback_uv = centered * (1.0 + zoomAmt);`), and the `# LEGACY CODE REFERENCES` section contains the full `vjlive1/core/effects/legacy_trash/blend.py` source including the `FeedbackEffect` python class and GLSL shader code.
+
+As per PRIME DIRECTIVE, specs must focus purely on inputs, outputs, schemas, and technical requirements instead of being a wrapper around boilerplate.

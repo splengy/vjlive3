@@ -1,0 +1,2 @@
+DELETION NOTE: P1-C1_application_state_manager.md
+Reason: Invalid specification. Contains "boilerplate fraud" by implementing over 200 lines of pure Python logic (ApplicationStateManager class, thread locking, state manipulation, event broadcasting, etc.) inside the markdown document, violating the Prime Directive that specs should only define interfaces and constraints. Moved to trash per Prime Directive Rule 11.

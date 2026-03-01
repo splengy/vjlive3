@@ -1,0 +1,1 @@
+Deletion request for P0-INF3_core_logic_parity.md: Resident hallucination showing the same circular logic as INF2. It attempts to define a Python script (analyze_core.py) and an analyze_core_logic_parity() function to perform a manual audit task, missing the point entirely.

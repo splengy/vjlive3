@@ -1,0 +1,2 @@
+DELETION NOTE: P1-AI1_ai_integration.md
+Reason: Invalid specification. Contains "boilerplate fraud" by implementing over 330 lines of pure Python logic (AIIntegration class, _initialize_subsystem, config loaders, etc.) inside the markdown document, violating the Prime Directive that specs should only define interfaces and constraints, not line-by-line implementations. Moved to trash per Prime Directive Rule 11.

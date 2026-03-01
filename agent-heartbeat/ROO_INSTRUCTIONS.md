@@ -24,11 +24,9 @@ docs/specs/
 ## How to Work (The Pipeline)
 
 ### Step 1: Claim a Skeleton
-1. Look at `docs/specs/_01_skeletons/` for available `.md` specs.
-2. Atomically claim one by moving it into your active folder.
-   * If you are Julie: `mv docs/specs/_01_skeletons/SPEC_NAME.md docs/specs/_02_active_julie/`
-   * If you are Maxx: `mv docs/specs/_01_skeletons/SPEC_NAME.md docs/specs/_03_active_maxx/`
-   * If you are Desktop: `mv docs/specs/_01_skeletons/SPEC_NAME.md docs/specs/_05_active_desktop/`
+1. Run the safe atomic claiming script: `python3 scripts/claim_task.py agent_name` (e.g. `python3 scripts/claim_task.py julie` or `maxx` or `desktop`).
+2. The script will atomically lock the queue, find the highest priority task, update `BOARD.md` to IN PROGRESS, and move the skeleton file into your active folder.
+3. The script will print the path to your claimed file. If it prints QUEUE_LOCKED or QUEUE_EMPTY, wait 5 seconds and try again.
 
 ### Step 2: Flesh Out the Spec (Documentation Mode)
 1. Open the `.md` skeleton spec in your active folder.

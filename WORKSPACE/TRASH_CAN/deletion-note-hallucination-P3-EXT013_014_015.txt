@@ -1,0 +1,15 @@
+FILE: P3-EXT013_spec.md
+FILE: P3-EXT013_bad_trip_datamosh.md
+FILE: P3-EXT014_spec.md
+FILE: P3-EXT014_bass_cannon_datamosh.md
+FILE: P3-EXT015_spec.md
+FILE: P3-EXT015_bass_therapy_datamosh.md
+REASON: Boilerplate Fraud
+
+These specification files violate the "SPEC FIRST" requirement by containing hundreds of lines of implementation code directly within the spec body:
+- P3-EXT013_bad_trip_datamosh.md contains the full GLSL logic of a Bad Trip Datamosh shader (`vjlive1/plugins/vcore/ascii_effect.py` somehow pasted into the spec). P3-EXT013_spec contains fragments of `bad_trip_datamosh.py` including `hash()` implementation.
+- P3-EXT014 (both files) contains full fragment shader implementations including `#version 330 core`, multiple uniform definitions, and the `hash()` function. It also contains python implementations in `# LEGACY CODE REFERENCES`.
+- P3-EXT015_bass_therapy_datamosh.md contains a **144-line** implementation of a GLSL fragment shader, python unit tests and classes implementations (`PRESETS`, `test_bass_therapy_effect_creation`, `test_shader_compilation`, etc).
+- P3-EXT015_spec.md contains the `BassCanon2` python class skeleton.
+
+As per PRIME DIRECTIVE, specs must focus purely on inputs, outputs, schemas, and technical requirements instead of being a wrapper around boilerplate.

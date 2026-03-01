@@ -1,0 +1,11 @@
+FILE: P3-EXT004_spec.md
+FILE: P3-EXT005_spec.md
+FILE: P3-EXT006_spec.md
+REASON: Boilerplate Fraud
+
+These specification files violate the "SPEC FIRST" requirement by containing hundreds of lines of implementation code directly within the spec body:
+- P3-EXT004_spec.md contains full GLSL fragment shaders (`AVATAR_FRAGMENT_SHADER` line 70), Python class implementations (`TravelingAvatarEffect`, `AgentAvatarEffect`).
+- P3-EXT005_spec.md contains the full dataclass `AgentInfluence` and the full Python class `AgentPersonality` with working methods (starting line 458).
+- P3-EXT006_spec.md contains the full GLSL fragment shader (`ANALOG_TV_FRAGMENT`) interspersed within its description.
+
+As per PRIME DIRECTIVE, specs must focus purely on inputs, outputs, schemas, and technical requirements instead of being a wrapper around boilerplate.

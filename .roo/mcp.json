@@ -12,7 +12,9 @@
 				"move_file",
 				"edit_file",
 				"read_file",
-				"list_directory"
+				"list_directory",
+				"create_directory",
+				"write_file"
 			]
 		},
 		"sequentialthinking": {
@@ -46,7 +48,7 @@
 			}
 		},
 		"qdrant-legacy": {
-			"command": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/.venv/bin/python3",
+			"command": "/home/happy/native_env/bin/python3",
 			"args": [
 				"/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/mcp_servers/qdrant_legacy/server.py"
 			],

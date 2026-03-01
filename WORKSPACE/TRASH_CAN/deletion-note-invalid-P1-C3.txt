@@ -1,0 +1,2 @@
+DELETION NOTE: P1-C3_project_manager.md
+Reason: Invalid specification. Contains "boilerplate fraud" by implementing over 400 lines of pure Python logic (ProjectManager class, save/load logic, event broadcasting, autosave timer placeholder) inside the markdown document, violating the Prime Directive that specs should only define interfaces and constraints. Moved to trash per Prime Directive Rule 11.
