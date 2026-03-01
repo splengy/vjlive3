@@ -444,11 +444,12 @@
 | P3-EXT421 | ml_effects (_WorkerThread) | P0 | ⬜ PENDING SKELETON (Pass 1) | VJlive-2 |
 | P3-EXT422 | ml_gpu_effects (_WorkerThread) | P0 | ⬜ PENDING SKELETON (Pass 1) | VJlive-2 |
 | P3-EXT423 | ml_gpu_effects (_WorkerThread) | P0 | ⬜ PENDING SKELETON (Pass 1) | VJlive-2 |
-| P1-R1 | OpenGL rendering context (ModernGL) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/render/opengl_context.py` — OpenGLContext, 10/10 tests ✅ |
+| P1-R1 | Agnostic Render Context | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/render/opengl_context.py` — OpenGLContext, 10/10 tests ✅ |
 | P1-R2 | GPU pipeline + framebuffer management (RAII) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `chain.py`, `program.py`, `framebuffer.py` - tests pass, 82% coverage ✅ |
 | P1-R3 | Shader compilation system (GLSL + Milkdrop) | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/render/shader_compiler.py` — 7 tests @ 81% cov ✅ — 2026-02-22 |
 | P1-R4 | Texture manager (pooled, leak-free) | [Agent name] | ⬜ PENDING SKELETON (Pass 1) | 80% coverage mapped across ModernGL dictionary buffers and fallback decoded stream paths. (2026-02-22) |
 | P1-R5 | Core rendering engine (60fps loop) | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/render/engine.py` — RenderEngine, 8/8 tests ✅ 2026-02-22 |
+| P1-R6 | WebGPU Core Renderer (WGSL) | P0 | ⬜ PENDING SKELETON (Pass 1) | WebGPU rendering backend for cross-platform / web compatibility |
 | P1-A1 | FFT + waveform analysis engine | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P1-A2 | Real-time beat detection | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P1-A3 | Audio-reactive effect framework | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
@@ -487,6 +488,9 @@
 | P2-X4 | Projection mapping (warp, edge-blend, mask) | P1 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P2-T1 | Audio-to-Video DSP translation pass (convert audio DSP → video equivalents) | P0 | ⬜ PENDING SKELETON (Pass 1) | All audio DSP effects must become video effects with audio-reactive inputs |
 | P2-T2 | Plugin packaging / distribution (how users install third-party plugins) | P1 | ⬜ PENDING SKELETON (Pass 1) | No legacy spec — needs design for .vjplugin format or pip |
+| P1-MM1 | Mood Manifold Engine | P0 | ⬜ PENDING SKELETON (Pass 1) | Interprets hardware state as a manifold of complexity, heat, and chaos to produce evolving visual patterns |
+| P1-HY1 | Hydra Video Synth Integration | P0 | ⬜ PENDING SKELETON (Pass 1) | Integration with Olivia Jack's Hydra |
+| P1-LC1 | Live Coding Environment | P0 | ⬜ PENDING SKELETON (Pass 1) | Real-time modification of shaders and Python code |
 | P3-VD7 | Depth Data Mux (DepthDataMuxEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/plugins/p3_vd7.py` — DepthDataMuxEffect, 8/8 tests ✅ 2026-02-22 |
 | P3-VD-Beta1 | Depth Loop Injection (DepthLoopInjectionPlugin) | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/plugins/p3_vd_beta1.py` — DepthLoopInjectionPlugin, 8/8 tests ✅ 2026-02-22 |
 | P3-VD-Beta2 | Depth Parallel Universe (DepthParallelUniversePlugin) | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/plugins/p3_vd_beta2.py` — DepthParallelUniversePlugin, 8/8 tests ✅ 2026-02-22 |
@@ -642,6 +646,9 @@
 | P7-U4 | Quantum Collaborative Studio | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/ui/desktop_gui.py` (QuantumCollaborativeStudio, superposition) — 6/6 tests ✅ 2026-02-23 |
 | P7-U5 | TouchOSC export / mobile interface | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/ui/cli.py` (OSCLayoutExporter + address map JSON) — 8/8 tests ✅ 2026-02-23 |
 | P7-U6 | CLI automation | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/ui/cli.py` (ParamStore, PresetSequencer, argparse CLI) — 22/22 tests ✅ 2026-02-23 |
+| P7-U7 | React Frontend UI Infrastructure | P0 | ⬜ PENDING SKELETON (Pass 1) | React + Vite UI core |
+| P7-U8 | Media Browser Component | P0 | ⬜ PENDING SKELETON (Pass 1) | React media browser context |
+| P7-U9 | Administration Section | P0 | ⬜ PENDING SKELETON (Pass 1) | System admin and config panel |
 | P7-VE01 | V Sws (VSwsEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/plugins/v_sws.py` — 7/7 tests ✅ 2026-02-23 |
 | P7-VE02 | V Sws (HorizontalWaveEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/plugins/horizontal_wave.py` — 7/7 tests ✅ 2026-02-23 |
 | P7-VE03 | V Sws (VerticalWaveEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/plugins/vertical_wave.py` — 7/7 tests ✅ 2026-02-23 |
