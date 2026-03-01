@@ -10,10 +10,13 @@
 **What This Module Does**
 
 **What This Module Does NOT Do**
+- Does NOT hardcode `moderngl.Texture` or `moderngl.Buffer` assumptions. Must abstract all textures via the generic `BackendContext` (e.g., `wgpu-py` resource pooling).
 
 ---
 
 ## Detailed Behavior and Parameter Interactions
+
+- All texture resources must be strictly renderer agnostic. The Texture Manager must provide a unified interface that translates engine texture requests into the active backend's native format (e.g., `wgpu.GPUTexture` vs fallback `moderngl.Texture`).
 
 ---
 

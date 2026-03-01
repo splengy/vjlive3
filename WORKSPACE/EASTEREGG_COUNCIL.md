@@ -96,3 +96,31 @@ The `_handle_get_slice()` method checks `if index is not None:` and then calls `
 *— desktop-roo*
 P3-EXT016 BassTherapyDatamoshEffect - Easter Egg: \"Bass Therapy Ghost Mode\"
 When all parameters are set to their default values (bass_warp=6.0, color_healing=7.0, temporal_echo=5.0, psychedelic_shift=4.0, depth_aura=5.0, harmonic_blend=6.0, resonance_feedback=4.0, tranquility=7.0) and a specific bass frequency (60Hz) is detected in the audio input, the module secretly enters a hidden \"Bass Therapy Ghost Mode\". In this mode, the effect applies a subtle phase-modulation to the bass frequencies that creates a ghostly reverb-like quality. This effect manifests as semi-transparent overlays of the original video with a golden hue, creating a therapeutic aura that wasn't part of the original design but emerges from the mathematical interactions between the bass reactivity and color therapy algorithms.
+
+# P1-QDRANT003 Chromatic Aberration Easter Egg
+
+**Easter Egg Name:** "Prismatic Resonance"
+
+**Description:**
+When all channel angles are set to exactly 0.0, 5.0, and 10.0 respectively (r_angle=0.0, g_angle=5.0, b_angle=10.0) with strength=10.0 and edge_intensity=10.0, the chromatic aberration effect secretly enters a hidden "Prismatic Resonance" mode. In this mode, the color separation creates a perfect spectral dispersion that mimics real optical physics — the red, green, and blue channels separate exactly as they would through a real glass prism, with the angular dispersion following Snell's law approximations. The effect produces a scientifically accurate rainbow fringe that intensifies toward edges, creating a mesmerizing display where the color separation forms a continuous spectrum rather than three discrete offsets. This mode also subtly modulates the opacity with a 0.1Hz sine wave, creating a gentle breathing effect that syncs with the system's real-time clock.
+
+**Discovery Hint:**
+Set the three channel angle sliders to their exact minimum, middle, and maximum positions (0, 5, 10) while pushing strength and edge intensity to maximum. The effect is most visible on high-contrast edges (like white text on black background) where you'll see a smooth rainbow gradient instead of three distinct color fringes.
+
+**Technical Note:**
+This mode is implemented through a hidden parameter check in the shader's `apply_uniforms()` method. When the specific angle combination is detected, a secondary uniform `u_prismatic_mode` is set to 1.0, which activates a different offset calculation: instead of three independent vectors, it calculates a continuous wavelength-dependent dispersion using the formula `offset(λ) = strength_px * edge_factor * (λ - λ_green) / λ_green`, where λ represents the center wavelength of each color channel (red=650nm, green=532nm, blue=450nm). The breathing effect uses `opacity = base_opacity * (1.0 + 0.1 * sin(time * 2π * 0.1))`. This creates a physically-plausible chromatic dispersion that only the most mathematically curious VJ would discover.
+
+*— desktop-roo, 2026-03-01*
+
+# P1-QDRANT027 Satanonaut Video Easter Egg
+
+**Easter Egg Name:** 'Bytebeat Ghost Mode'
+
+**Description:**
+When all parameters are set to exactly 0.0 (buffer_size=0.0, feedback=0.0, drive=0.0, effect=0.0, param_1=0.0, param_2=0.0, clock_division=0.0, mix=0.0) and the module processes a 1kHz sine wave for exactly 60 seconds, it secretly enters a hidden 'Bytebeat Ghost Mode'. In this mode, the effect starts generating fractal audio patterns based on the bytebeat algorithms - tiny variations in the input signal create exponentially diverging visual patterns. The effect manifests as self-similar video structures that repeat at different scales, creating a mesmerizing fractal video that wasn't part of the original design but emerges from the mathematical interactions between the bytebeat algorithms and video processing.
+
+**Discovery Hint:**
+Set all knobs to the minimum position (0.0) and feed in a clean 1kHz sine wave. Let it run for a full minute while watching the output on a spectrum analyzer. The fractal patterns become visible as repeating peaks at octave intervals.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a fractal generation algorithm. The bytebeat ghost effect is achieved by using the logistic map chaos generator with r=4.0 (maximum chaos) and feeding the output back into itself with time delays that follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21 samples). The fractal patterns emerge from the mathematical properties of chaotic systems with delayed feedback.
