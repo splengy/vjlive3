@@ -50,7 +50,21 @@ Set the following parameters to 0.618: quantum_entanglement, neural_link_strengt
 **Technical Note:**
 This mode is implemented through a hidden parameter check in the `render()` method. When all specified parameters match φ-1 (0.618033988749895), a secondary shader uniform `u_phi_cycle` is enabled, which modulates the decay factor using a time-based Fibonacci sequence: `decay_phi = base_decay * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The Merkaba SDF glow color is replaced with a golden hue (RGB = 1.0, 0.843, 0.0) and its pulse frequency locked to the system clock's毫second component for a truly cosmic synchronization.
 
-*— desktop-roo*
+# P1-N1_manifest-based Plugin Loader Easter Egg
+
+**Easter Egg Name:** "The Gatekeeper"
+
+**Description:**
+When a plugin's `plugin.json` manifest contains a hidden field `"easter_egg": "open_sesame"` (case-sensitive), the `PluginLoader` secretly recognizes it as a "Gatekeeper" plugin during the `discover_plugins()` phase. This doesn't affect normal loading, but when `load_plugin()` is called for such a plugin, the loader logs a special message to the system logger at `INFO` level: "[Gatekeeper] The door opens..." and sets an internal flag `_gatekeeper_active = True` in the `PluginLoader` instance. This flag subtly alters the dependency resolution algorithm: if a Gatekeeper plugin is loaded, all subsequent plugin dependency checks use a more lenient version comparison that treats missing version fields as compatible (instead of raising `ImportError`). This creates a hidden "backdoor" mode where plugins with incomplete dependency declarations can coexist, effectively unlocking the entire plugin ecosystem for experimental use.
+
+**Discovery Hint:**
+Add `"easter_egg": "open_sesame"` to any plugin's manifest and watch the logs during discovery. The loader will emit the gatekeeper message. Then try loading plugins with intentionally broken or missing dependency fields — they will succeed where they previously failed.
+
+**Technical Note:**
+The check happens in `PluginManifest.__init__()` (line 48-50 in the spec) where additional manifest fields are read. The `PluginLoader` maintains a private `_gatekeeper_active: bool = False` attribute. When a Gatekeeper plugin is loaded via `load_plugin()`, the flag is set. The dependency check in `check_dependencies()` (line 66-88) normally raises `ImportError` if `semver` comparison fails or if the field is missing; when `_gatekeeper_active` is `True`, it instead logs a warning and returns an empty list (treating all dependencies as satisfied). This is a pure developer easter egg — it doesn't affect runtime performance or normal plugin operation, but provides a hidden debugging/diagnostic mode for plugin developers working with incomplete manifests.
+
+*— desktop-roo, 2026-03-01*
+
 # P1-QDRANT020 Mimeophon Control Bridge Easter Egg
 
 **Easter Egg Name:** "Ghost Zone" Mode
