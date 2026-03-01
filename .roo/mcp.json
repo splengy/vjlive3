@@ -1,65 +1,75 @@
 {
-	"mcpServers": {
-		"filesystem": {
-			"command": "/usr/bin/npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-filesystem",
-				"/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
-			],
-			"alwaysAllow": [
-				"read_text_file",
-				"move_file",
-				"edit_file",
-				"read_file",
-				"list_directory",
-				"create_directory",
-				"write_file"
-			]
-		},
-		"sequentialthinking": {
-			"command": "/usr/bin/npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-sequential-thinking"
-			]
-		},
-		"time": {
-			"command": "/home/happy/native_env/bin/uvx",
-			"args": [
-				"mcp-server-time"
-			]
-		},
-		"memory": {
-			"command": "/usr/bin/npx",
-			"args": [
-				"-y",
-				"@modelcontextprotocol/server-memory"
-			]
-		},
-		"vjlive3brain": {
-			"command": "/home/happy/native_env/bin/python3",
-			"args": [
-				"/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/run_brain.py"
-			],
-			"env": {
-				"PYTHONPATH": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning",
-				"VJLIVE3_BRAIN_DB": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/mcp_servers/vjlive3brain/brain.db"
-			}
-		},
-		"qdrant-legacy": {
-			"command": "/home/happy/native_env/bin/python3",
-			"args": [
-				"/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/mcp_servers/qdrant_legacy/server.py"
-			],
-			"env": {
-				"PYTHONPATH": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning",
-				"QDRANT_URL": "http://192.168.1.60:6333"
-			},
-			"alwaysAllow": [
-				"search_legacy",
-				"get_file_chunks"
-			]
-		}
-	}
+  "mcpServers": {
+    "filesystem": {
+      "command": "/usr/bin/npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning"
+      ],
+      "alwaysAllow": [
+        "read_text_file",
+        "move_file",
+        "edit_file",
+        "read_file",
+        "list_directory",
+        "create_directory",
+        "write_file"
+      ]
+    },
+    "sequentialthinking": {
+      "command": "/usr/bin/npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "time": {
+      "command": "/home/happy/native_env/bin/uvx",
+      "args": [
+        "mcp-server-time"
+      ]
+    },
+    "memory": {
+      "command": "/usr/bin/npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ]
+    },
+    "vjlive3brain": {
+      "command": "/home/happy/native_env/bin/python3",
+      "args": [
+        "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/run_brain.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning",
+        "VJLIVE3_BRAIN_DB": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/mcp_servers/vjlive3brain/brain.db"
+      }
+    },
+    "qdrant-legacy": {
+      "command": "/home/happy/native_env/bin/python3",
+      "args": [
+        "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/mcp_servers/qdrant_legacy/server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/home/happy/Desktop/claude projects/VJLive3_The_Reckoning",
+        "QDRANT_URL": "http://192.168.1.60:6333"
+      },
+      "alwaysAllow": [
+        "search_legacy",
+        "get_file_chunks"
+      ]
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "env": {
+        "DEFAULT_MINIMUM_TOKENS": ""
+      }
+    }
+  }
 }

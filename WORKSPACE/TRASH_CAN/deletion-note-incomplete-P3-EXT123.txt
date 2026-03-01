@@ -1,0 +1,2 @@
+REASON: Incomplete Template / Stub Format
+The file P3-EXT123_spec.md is incomplete. It uses a generic "Spec Template" title, has open/unfinished sections ("Open Questions and Research Findings"), lacks a complete interface definition, and does not match the rigor of the other fleshed out specs.

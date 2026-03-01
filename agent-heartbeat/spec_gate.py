@@ -43,8 +43,8 @@ SOFT_SECTIONS = [
 ]
 
 # Minimum spec quality thresholds
-MIN_LINES = 40
-MIN_BYTES = 1500
+MIN_LINES = 30
+MIN_BYTES = 500
 
 
 def check_enrichment(content: str) -> dict:

@@ -1,4 +1,4 @@
-# Spec: P1-R1 — OpenGL Rendering Context (ModernGL)
+# Spec: P1-R1 — Agnostic Render Context
 
 **Phase:** Phase 1 / P1-R1
 **Assigned To:** TBD
@@ -10,12 +10,12 @@
 
 ## What This Module Does
 
-Implements the root OpenGL context creation and Window management for VJLive3 using ModernGL and GLFW. It replaces `VJlive-2/core/window.py` and PyOpenGL dependency by providing:
+Implements the root renderer context creation and Window management for VJLive3. It replaces `VJlive-2/core/window.py` and PyOpenGL dependency by providing:
 
-1. **`OpenGLContext`** — A RAII-style context manager that creates a GLFW window, initializes an attached ModernGL `Context`, and handles system-level window events (polling, buffer swapping).
-2. **Headless Mode** — Graceful fallback for cloud/CI environments. If `VJ_HEADLESS=true` is set (or requested via constructor), it bypasses GLFW window creation and generates a standalone (EGL/OSMesa) ModernGL context that can render to offscreen FBOs without an X server or display.
+1. **`RenderContext`** — A RAII-style context manager that creates a visible window (e.g., GLFW or generic canvas), initializes an attached generic `BackendContext` (wgpu-py or ModernGL fallback), and handles system-level window events (polling, buffer swapping).
+2. **Headless Mode** — Graceful fallback for cloud/CI environments. If `VJ_HEADLESS=true` is set (or requested via constructor), it bypasses window creation and generates a standalone compute context that can render to offscreen buffers without an X server or display.
 
-All GPU resources in VJLive3 will rely on the `moderngl.Context` exposed by this module.
+All GPU resources in VJLive3 will rely on an abstract backend (e.g., WebGPU/WGSL via wgpu-py, or fallback ModernGL) exposed by this module.
 
 ---
 
@@ -31,15 +31,15 @@ All GPU resources in VJLive3 will rely on the `moderngl.Context` exposed by this
 
 ## Public Interface
 
-### `OpenGLContext`
+### `RenderContext`
 
 ```python
-import moderngl
+import wgpu
 
-class OpenGLContext:
+class RenderContext:
     """
-    RAII-managed OpenGL context and Window provider.
-    Handles GLFW initialization and ModernGL context attachment.
+    RAII-managed render context and Window provider.
+    Handles window initialization and backend context attachment.
     """
 
     def __init__(
@@ -57,11 +57,11 @@ class OpenGLContext:
             headless: If True (or if VJ_HEADLESS env var is 'true'), create a standalone context without a visible window.
 
         Raises:
-            RuntimeError: If GLFW fails to initialize or ModernGL context creation fails.
+            RuntimeError: If window fails to initialize or backend context creation fails.
         """
 
     def make_current(self) -> None:
-        """Make the GLFW OpenGL context current for the calling thread. No-op in headless mode."""
+        """Make the context current for the calling thread. No-op in headless mode."""
 
     def poll_events(self) -> None:
         """Process pending GLFW window events. No-op in headless mode."""
@@ -73,9 +73,9 @@ class OpenGLContext:
         """Swap front and back buffers. No-op in headless mode."""
 
     def terminate(self) -> None:
-        """Destroy the window, release the ModernGL context, and terminate GLFW. Safe to call multiple times."""
+        """Destroy the window, release the context, and terminate subsystems. Safe to call multiple times."""
 
-    def __enter__(self) -> "OpenGLContext": ...
+    def __enter__(self) -> "RenderContext": ...
     def __exit__(self, exc_type, exc_val, exc_tb) -> None: ...  # calls terminate()
     def __del__(self) -> None: ...  # calls terminate()
 
@@ -83,7 +83,7 @@ class OpenGLContext:
     width: int
     height: int
     headless: bool
-    ctx: moderngl.Context  # The active ModernGL context instance
+    ctx: wgpu.GPUCanvasContext  # The active generic provider instance
 ```
 
 ---
@@ -95,8 +95,8 @@ class OpenGLContext:
 | `width`, `height` | `int` | Window / render resolution | 1–4096. Fixed size (non-resizable). |
 | `title` | `str` | Window title bar text | |
 | `headless` | `bool` | Bypass window creation | Driven by param OR `VJ_HEADLESS=true` env var |
-| **output** | `OpenGLContext` | Context manager instance | Must be held for the lifetime of the Engine |
-| `ctx` | `moderngl.Context` | ModernGL API object | Passed to all render pipelines (e.g., P1-R2) |
+| **output** | `RenderContext` | Context manager instance | Must be held for the lifetime of the Engine |
+| `ctx` | `BackendContext` | Abstract API object | Passed to all render pipelines (e.g., P1-R2) |
 
 ---
 
@@ -114,15 +114,16 @@ class OpenGLContext:
 
 ## Dependencies
 
-- **moderngl** (≥ 5.0) — Core rendering API.
-- **glfw** — Window creation and event polling (used for non-headless).
+- **wgpu-py** — Primary WGSL / WebGPU rendering API wrapper.
+- **glfw** (Optional) — Window creation fallback.
+- **moderngl** (Fallback) — Fallback rendering API.
 - **logging** — Standard library logger to report initialization and errors.
 
 ## File Layout
 
 ```
 src/vjlive3/render/
-    opengl_context.py      — OpenGLContext class implementation (~150 lines)
+    render_context.py      — RenderContext class implementation (~150 lines)
 ```
 
 ---
@@ -131,12 +132,12 @@ src/vjlive3/render/
 
 | Test | File | What It Verifies |
 |------|------|-----------------|
-| `test_context_create_window` | `test_opengl_context.py` | Instantiating context creates window and `ctx` is valid `moderngl.Context` |
-| `test_context_headless_override` | `test_opengl_context.py` | `headless=True` bypasses window, `ctx` is standalone |
-| `test_context_env_headless` | `test_opengl_context.py` | `VJ_HEADLESS=true` env var forces headless |
-| `test_context_manager_lifecycle` | `test_opengl_context.py` | `with OpenGLContext(...)` cleans up resources on exit |
-| `test_context_double_terminate` | `test_opengl_context.py` | Calling `terminate()` twice doesn't crash |
-| `test_window_methods_headless` | `test_opengl_context.py` | `swap_buffers()`, `poll_events()`, `make_current()` do not crash in headless mode |
+| `test_context_create_window` | `test_render_context.py` | Instantiating context creates window and `ctx` is valid backend |
+| `test_context_headless_override` | `test_render_context.py` | `headless=True` bypasses window, `ctx` is standalone |
+| `test_context_env_headless` | `test_render_context.py` | `VJ_HEADLESS=true` env var forces headless |
+| `test_context_manager_lifecycle` | `test_render_context.py` | `with RenderContext(...)` cleans up resources on exit |
+| `test_context_double_terminate` | `test_render_context.py` | Calling `terminate()` twice doesn't crash |
+| `test_window_methods_headless` | `test_render_context.py` | `swap_buffers()`, `poll_events()`, `make_current()` do not crash in headless mode |
 
 **Minimum coverage:** 90% before task is marked done.
 

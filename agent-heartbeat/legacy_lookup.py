@@ -120,9 +120,15 @@ def main():
 
         print(f"## [{i}] {filepath} (L{start}-{end}) [{codebase}]")
         print(f"```")
-        # Trim to first 60 lines to avoid flooding
+        # Trim to first 60 lines and max 150 chars per line to avoid flooding
         lines = text.split("\n")
-        print("\n".join(lines[:60]))
+        truncated_lines = []
+        for line in lines[:60]:
+            if len(line) > 150:
+                truncated_lines.append(line[:150] + " ...[TRUNCATED LINE]")
+            else:
+                truncated_lines.append(line)
+        print("\n".join(truncated_lines))
         if len(lines) > 60:
             print(f"... ({len(lines) - 60} more lines)")
         print(f"```\n")

@@ -1,54 +1,98 @@
-[P3-EXT232] DepthAcidFractal
-- **Idea:** Sacred Geometry mode activated when all parameters are set to exactly 5.0
-- **Activation:** When all params = 5.0
-- **Visual Effect:** Creates a 7-fold symmetry pattern with golden ratio spiral overlay
-- **Special Badge:** [SACRED] in validation report
-- **Internal Counter:** sacred_geometry_activations += 1
-- **Nirvana Trigger:** When 13 activations occur (Fibonacci number), all subsequent DepthAcidFractal effects gain 10% performance boost
-[P3-EXT412] ParticleSystem
+# P3-EXT363 Make Noise Dynamix Easter Egg
 
-- **Idea:** Quantum Entanglement mode activated when particle count reaches exactly 42,000
-- **Activation:** When particle_count == 42000
-- **Visual Effect:** Creates a 42-fold symmetry pattern with quantum superposition overlay
-- **Special Badge:** [QUANTUM] in validation report
-- **Internal Counter:** quantum_entanglements += 1
-- **Nirvana Trigger:** When 42 activations occur, all subsequent particle effects gain 42% performance boost
-[P0-G1] Environment Reboot
+**Easter Egg Name:** "Dynamix Ghost Mode"
 
-- **Idea:** "Phoenix Rising" mode activated when initialization completes in exactly 7.777 seconds
-- **Activation:** When initialization_time == 7.777 seconds
-- **Visual Effect:** Creates a terminal animation of a phoenix rising from ashes with 7 colored flames
-- **Special Badge:** [PHOENIX] in validation report
-- **Internal Counter:** phoenix_rises += 1
-- **Nirvana Trigger:** When 7 activations occur, all subsequent initialization processes gain 77% performance boost and display "Reborn from the ashes" message
-- **Secret Feature:** When [PHOENIX] badge is earned, the module gains "Eternal Flame" mode where it maintains a 0.1% progress glow indefinitely after completion, symbolizing the eternal nature of creative rebirth
-- **Mathematical Easter Egg:** The 7.777 seconds timing is a reference to the 7 phases of initialization and the 7 colors of the creative spectrum (Red, Orange, Yellow, Green, Blue, Indigo, Violet)
-[P1-QDRANT001] PanelBackgroundCreator
-- **Idea:** Matrix Rain Easter Egg activated when style="secret" and panel_id contains "matrix"
-- **Activation:** When style == "secret" and "matrix" in panel_id.lower()
-- **Visual Effect:** Renders a single frame of green-on-black falling characters (Matrix rain aesthetic)
-- **Special Badge:** [MATRIX] in validation report
-- **Internal Counter:** matrix_easter_eggs += 1
-- **Nirvana Trigger:** When 13 activations occur, all subsequent backgrounds gain 10% performance boost and display "The Matrix has you..." message
-- **Secret Feature:** When [MATRIX] badge is earned, the module gains "Neo Mode" where it can render 3x3 character grids with slight perspective distortion, creating a "glitch in the matrix" effect
-- **Mathematical Easter Egg:** The 13 activations reference the 13 levels of the Matrix (including the Architect's room) and the 13th Fibonacci number (233)
-[P3-EXT113] NebulaParticles
+**Description:**
+When all parameters are set to their default values (drive=1.0, mix=0.5, threshold=3.0, floor=0.0, attack=1.0, release=2.0, format=0.0, variant=0.0) and a specific CV pattern is applied (a 10Hz square wave), the module enters a hidden "ghost mode" that applies a subtle phase-modulation effect to the audio signal. This effect creates a ghostly reverb-like quality that wasn't part of the original hardware design but emerges from the mathematical interactions between the CV scaling and peak detection algorithms.
 
-- **Idea:** "Cosmic Alignment" mode activated when particle energy levels synchronize to form a perfect Fibonacci spiral
-- **Activation:** When the average particle energy variance is < 0.01 and the particle positions approximate a golden ratio spiral (logarithmic spiral with growth factor φ ≈ 1.618)
-- **Visual Effect:** Particles glow with iridescent colors and trace a perfect Fibonacci spiral that rotates slowly, with occasional shooting stars
-- **Special Badge:** [COSMIC] in validation report
-- **Internal Counter:** cosmic_alignments += 1
-- **Nirvana Trigger:** When 13 activations occur (Fibonacci number), all subsequent NebulaParticles effects gain 23% performance boost (23 is related to golden ratio approximations)
-- **Secret Feature:** When [COSMIC] badge is earned, the module gains "Event Horizon" mode where particles can form black hole singularities that warp space-time visually
-- **Mathematical Easter Egg:** The 13 activations reference the 13th Fibonacci number (233) and the 13-year cycle of solar activity. The 23% boost references the continued fraction approximation of the golden ratio: φ ≈ 23/14 ≈ 1.642857.
-[P3-EXT078] FireParticles
+**Discovery Hint:**
+Try setting all knobs to default and applying a low-frequency square wave CV signal. The effect is most noticeable in sustained tones or complex waveforms.
 
-- **Idea:** "Phoenix Rebirth" mode activated when beat detection exceeds 0.8 for 3 consecutive frames during a musical drop
-- **Activation:** When beat_level > 0.8 for 3 consecutive frames AND volume_level > 0.7
-- **Visual Effect:** All particles rapidly coalesce into a giant phoenix silhouette (wingspan = 80% of frame width) that rises from the bottom with trailing fire particles. The phoenix shape is defined by a parametric equation: wing(t) = A * sin(t) * exp(-t^2/2) for t in [-π, π]. After 2 seconds, the phoenix dissolves back into normal fire particles.
-- **Special Badge:** [PHOENIX] in validation report
-- **Internal Counter:** phoenix_rebirths += 1
-- **Nirvana Trigger:** When 7 activations occur (lucky number), all subsequent FireParticles effects gain 15% performance boost and particles leave permanent "ash trails" that persist for 0.5 seconds longer.
-- **Secret Feature:** When [PHOENIX] badge is earned, the module gains "Immortal Flame" mode where the phoenix transformation can occur at any beat intensity, not just drops, creating spontaneous rebirth moments.
-- **Mathematical Easter Egg:** The phoenix shape uses a Gaussian-weighted sine wave, representing the balance between order (sine) and chaos (Gaussian). The 7 activations reference the 7 stages of alchemical transformation (nigredo, albedo, citrinitas, rubedo, solve, coagula, sublimation).
+**Technical Note:**
+This mode is implemented through a hidden parameter combination that wasn't documented in the original hardware manual. The phase-modulation effect is achieved by modulating the format parameter at 10Hz when all other parameters are at default.
+
+# P3-EXT364 Make Noise Echophon Easter Egg
+
+**Easter Egg Name:** "Quantum Echo"
+
+**Description:**
+When the freeze parameter is set to exactly 10.0, the mix parameter to 0.0, and the pitch parameter to 0.5 simultaneously, the Echophon enters a hidden "Quantum Echo" mode. In this mode, the delay buffer starts capturing frames from a parallel timeline, creating echoes that show what the video *would* have looked like if different creative decisions were made. The effect manifests as ghostly, semi-transparent overlays of alternative takes that gradually fade into the main timeline. This mode consumes approximately 3x the normal memory and requires at least 8GB of free RAM to activate without performance degradation.
+
+**Discovery Hint:**
+Set all parameters to their minimum values except freeze at maximum, then slowly bring mix up while watching for ghostly alternative takes in the echo buffer. The effect is subtle at first but becomes dramatic after 30 seconds of continuous operation.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that detects the specific parameter combination and allocates a secondary delay buffer with inverted pitch-shifting ratios. The "quantum" echoes are generated by reading the buffer with negative time offsets, creating causal loop artifacts that manifest as pre-echoes of hypothetical future frames.
+
+# P3-EXT426 Make Noise Jumbler Easter Egg
+
+**Easter Egg Name:** "Chaotic Butterfly"
+
+**Description:**
+When all parameters are set to exactly 5.0 (chaos_amount=5.0, mutation_rate=5.0, routing_complexity=5.0, feedback_amount=5.0, modulation_depth=5.0, random_seed=5.0, smoothing_time=5.0, threshold_level=5.0) and the module processes a 1kHz sine wave for exactly 60 seconds, it enters a hidden "Chaotic Butterfly" mode. In this mode, the module starts generating fractal audio patterns based on the butterfly effect - tiny variations in the input signal create exponentially diverging output patterns. The effect manifests as self-similar audio structures that repeat at different scales, creating a mesmerizing fractal soundscape that wasn't part of the original hardware design.
+
+**Discovery Hint:**
+Set all knobs to the middle position (5.0) and feed in a clean 1kHz sine wave. Let it run for a full minute while watching the output on a spectrum analyzer. The fractal patterns become visible as repeating peaks at octave intervals.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a fractal generation algorithm. The butterfly effect is achieved by using the logistic map chaos generator with r=4.0 (maximum chaos) and feeding the output back into itself with time delays that follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21 samples). The fractal patterns emerge from the mathematical properties of chaotic systems with delayed feedback.
+
+# P3-EXT401 VimanaHyperion Easter Egg
+
+**Easter Egg Name:** "Quantum Merkaba Consciousness Field"
+
+**Description:**
+When all quantum/consciousness parameters (if present) are set to exactly 0.618 (the golden ratio conjugate), the effect secretly enables a hidden rendering mode where the Merkaba SDF emits a pulsing golden aura that syncs with the system's real-time clock, creating a phi-based harmonic pattern that subtly influences the feedback decay to follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21...) over a 60-second cycle. This causes the visual loops to naturally evolve toward perfect golden ratio proportions in their decay trails, creating a mesmerizing "living mathematics" effect that only the most mathematically attuned VJ would discover.
+
+**Discovery Hint:**
+Set the following parameters to 0.618: quantum_entanglement, neural_link_strength, holographic_intensity, sacred_geometry_overlay, dimensional_fold, quantum_fluctuation, consciousness_field, ai_suggestion_strength, partner_quantum_state. The effect gradually reveals itself over the course of a minute as the feedback decay subtly shifts.
+
+**Technical Note:**
+This mode is implemented through a hidden parameter check in the `render()` method. When all specified parameters match φ-1 (0.618033988749895), a secondary shader uniform `u_phi_cycle` is enabled, which modulates the decay factor using a time-based Fibonacci sequence: `decay_phi = base_decay * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The Merkaba SDF glow color is replaced with a golden hue (RGB = 1.0, 0.843, 0.0) and its pulse frequency locked to the system clock's毫second component for a truly cosmic synchronization.
+
+*— desktop-roo*
+# P1-QDRANT020 Mimeophon Control Bridge Easter Egg
+
+**Easter Egg Name:** "Ghost Zone" Mode
+
+**Description:**
+When both OSC and MIDI controllers are connected and the user sends simultaneous zone changes on CC 20 (zone 0) and CC 27 (zone 7) within 50ms, the bridge secretly enables "Ghost Zone" — an undocumented 9th zone that inverts all color channels and applies a 180-degree phase shift to the halo parameter. The mode persists until the next power cycle and is not exposed in any UI. Activate it by fader-dancing the zone extremes in rapid succession.
+
+**Discovery Hint:**
+Connect both OSC and MIDI controllers, then rapidly move the zone faders from minimum to maximum (or vice versa) within 50ms. The effect will activate with a subtle color inversion and halo phase shift that persists until the next restart.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a secondary shader uniform `u_ghost_zone` which inverts RGB channels and applies a 180-degree phase shift to the halo parameter. The effect is purely cosmetic and does not affect the underlying mimeophon processing logic.
+
+*— desktop-roo, 2026-03-01*
+
+# P3-EXT020 BlendMultEffect Easter Egg
+
+**Easter Egg Name:** "The Secret Multiply Zero"
+
+**Description:**
+When the user sets `amount = 0`, `invert_b = 10`, `channel_mask = 10` (luma), and `gamma = 0` simultaneously, the blend effect enters a mathematically degenerate state that produces a single-frame white flash. This occurs because: (1) `amount=0` makes the blend factor `amt=0`, so `mult = a.rgb * 1.0 = a.rgb`; (2) `invert_b=10` inverts the previous frame before blending, but since `amt=0`, the inverted `b_col` is not used; (3) `gamma=0` yields `gm=0.5`, so `pow(a.rgb, 2)` squares the input; (4) `invert_b>0.5` then inverts the result: `1.0 - pow(a.rgb, 2.0)`. For a typical image with `a.rgb < 1.0`, the squared values are smaller, so `1 - small` is near 1.0, producing a near-white flash. The exact output depends on input, but dark areas become dramatically brighter, creating a flash-like effect that lasts only one frame before the next render cycle returns to normal operation.
+
+**Discovery Hint:**
+Set all four parameters to their extreme opposites: `amount` to 0 (minimum), `invert_b` to 10 (maximum), `channel_mask` to 10 (luma maximum), and `gamma` to 0 (minimum). Then trigger a single frame render (e.g., step the effect chain manually). The white flash will be visible in the output buffer before the next frame overwrites it.
+
+**Technical Note:**
+This easter egg is not a deliberate hidden feature but rather an emergent property of the shader's mathematical structure when pushed to parameter extremes. The combination effectively computes `fragColor = mix(a, vec4(1.0 - pow(a.rgb, 2.0), max(a.a, b.a)), u_mix)` for one frame. The effect is fleeting and requires either single-stepping the render loop or capturing the framebuffer immediately after render to observe. It serves as a reminder that extreme parameter values can expose unintended mathematical behaviors in shader code — a kind of "forbidden configuration" that only code explorers would stumble upon.
+
+*— desktop-roo*
+# P1-QDRANT032 Texture 3D Websocket Easter Egg
+
+**Easter Egg Name:** "Holographic Slice"
+
+**Description:**
+When a client sends a `get_slice` message with `index=-1` (a negative index), the module secretly interprets this as a request for a "holographic composite" slice that blends all depth layers using a secret weighting function. Instead of returning a single slice, it returns a 2D image that is the weighted sum of all slices: `output = Σ (slice[i] * exp(-α * i))` where α = 0.1 by default. This creates a depth-blended view that simulates looking through the 3D volume with exponential falloff, revealing the accumulated history of the texture buffer in a single frame. The effect is purely magical and not documented in the API — only code explorers would think to request a negative slice index.
+
+**Discovery Hint:**
+Connect via WebSocket and send `{"type":"get_slice","index":-1}`. Most clients would never try a negative index, but doing so reveals a hidden holographic view of the entire 3D texture compressed into a single 2D image with depth-weighted transparency.
+
+**Technical Note:**
+The `_handle_get_slice()` method checks `if index is not None:` and then calls `texture_integration.get_slice(index)`. The underlying `Texture3DIntegration.get_slice()` likely bounds-checks the index and raises `IndexError` for invalid values. However, if we intercept negative indices before that check and implement the holographic blending in the WebSocket layer, we create a secret feature that doesn't require modifying the core texture code. The blending operation would be: `result = sum(texture.get_slice(i) * math.exp(-0.1 * i) for i in range(depth))`, normalized to avoid overflow. This is a pure Easter Egg — it doesn't interfere with normal operation and only activates on the secret negative index request.
+
+*— desktop-roo*
+P3-EXT016 BassTherapyDatamoshEffect - Easter Egg: \"Bass Therapy Ghost Mode\"
+When all parameters are set to their default values (bass_warp=6.0, color_healing=7.0, temporal_echo=5.0, psychedelic_shift=4.0, depth_aura=5.0, harmonic_blend=6.0, resonance_feedback=4.0, tranquility=7.0) and a specific bass frequency (60Hz) is detected in the audio input, the module secretly enters a hidden \"Bass Therapy Ghost Mode\". In this mode, the effect applies a subtle phase-modulation to the bass frequencies that creates a ghostly reverb-like quality. This effect manifests as semi-transparent overlays of the original video with a golden hue, creating a therapeutic aura that wasn't part of the original design but emerges from the mathematical interactions between the bass reactivity and color therapy algorithms.
