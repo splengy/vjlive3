@@ -10,10 +10,11 @@
 **What This Module Does**
 
 **What This Module Does NOT Do**
-
+- Does NOT execute native GLSL or OpenGL calls. It must strictly adhere to the WebGPU standard (ADR-009). Any MilkDrop/GLSL presets must be dynamically transpiled (e.g. via spirv-cross/naga) or translated into WGSL.
 ---
 
 ## Detailed Behavior and Parameter Interactions
+- The parser must intercept standard GLSL definitions and convert them into strict WGSL syntax before passing them to the `RenderPipeline`.
 
 ---
 
