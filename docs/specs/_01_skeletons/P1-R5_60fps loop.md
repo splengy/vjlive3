@@ -10,8 +10,8 @@
 **What This Module Does**
 
 **What This Module Does NOT Do**
-
----
+- Does NOT interact directly with PyOpenGL or GLSL state. It uses the `wgpu-py` backend conforming to ADR-009.
+- Does NOT run anything slower than 60fps.
 
 ## Detailed Behavior and Parameter Interactions
 

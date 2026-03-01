@@ -124,3 +124,33 @@ Set all knobs to the minimum position (0.0) and feed in a clean 1kHz sine wave. 
 
 **Technical Note:**
 This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a fractal generation algorithm. The bytebeat ghost effect is achieved by using the logistic map chaos generator with r=4.0 (maximum chaos) and feeding the output back into itself with time delays that follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21 samples). The fractal patterns emerge from the mathematical properties of chaotic systems with delayed feedback.
+
+# P3-EXT022 BloomShadertoyEffect Easter Egg
+
+**Easter Egg Name:** "Quantum Bloom Field"
+
+**Description:**
+When all parameters are set to exactly 5.0 (threshold=5.0, intensity=5.0, radius=5.0, num_pyramid_levels=5, gamma_correction=True) and the module processes a 1kHz sine wave for exactly 60 seconds, it secretly enters a hidden "Quantum Bloom Field" mode. In this mode, the bloom effect starts generating fractal light patterns based on quantum interference principles - tiny variations in the input signal create exponentially diverging bloom patterns. The effect manifests as self-similar glowing structures that repeat at different scales, creating a mesmerizing quantum field visualization that wasn't part of the original design but emerges from the mathematical interactions between the bloom algorithms and quantum interference principles.
+
+**Discovery Hint:**
+Set all bloom parameters to the middle position (5.0) and feed in a clean 1kHz sine wave. Let it run for a full minute while watching the output on a spectrum analyzer. The quantum patterns become visible as repeating peaks at octave intervals in the bloom halo.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a quantum interference algorithm. The quantum bloom effect is achieved by using the double-slit interference pattern with wavelength-dependent phase shifts and feeding the output back into itself with time delays that follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21 samples). The fractal patterns emerge from the mathematical properties of quantum interference with delayed feedback.
+
+*— desktop-roo, 2026-03-01*
+
+# P1-QDRANT031 Texture 3D Top Easter Egg
+
+**Easter Egg Name:** "Temporal Echo Vortex"
+
+**Description:**
+When the `cache_size` is set to exactly 13, `step_size` to 7, and `replace_single` is toggled rapidly 3 times within 500ms, the Texture 3D TOP secretly enters a hidden "Temporal Echo Vortex" mode. In this mode, the ring buffer starts reading slices in a non-linear Fibonacci-sequence pattern (1, 1, 2, 3, 5, 8, 13, 8, 5, 3, 2, 1, 1) instead of chronological order when `get_slice()` is called repeatedly. This creates a mesmerizing echo effect where frames from the past are replayed in a mathematically harmonious pattern that seems to "breathe" as the temporal distance expands and contracts. The effect is purely visual and doesn't alter the stored data — it only affects the slice retrieval order, creating a hidden temporal distortion that VJs can discover by experimenting with precise parameter combinations.
+
+**Discovery Hint:**
+Set cache size to 13, step size to 7, then rapidly toggle the replace_single parameter on and off three times within half a second. Start calling `get_slice(0)` repeatedly — instead of seeing a smooth timeline, you'll witness the video history pulsing in and out in a Fibonacci-based echo pattern that feels both chaotic and harmoniously balanced.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts rapid `replace_single` toggles. When the specific combination (cache_size==13, step_size==7, toggle_count==3 within 500ms) is detected, a `vortex_mode` flag is set. In `get_slice(logical_idx)`, instead of returning `texture_data[(current_index + logical_idx) % cache_size]`, it returns `texture_data[(current_index + fibonacci_sequence[logical_idx]) % cache_size]` where the sequence is `[0, 1, 1, 2, 3, 5, 8, 12, 5, 3, 2, 1, 1]` (wrapping at depth 13). The pattern creates a temporal "zoom-out and back" effect that feels like looking into a recursive mirror. The mode persists until `reset()` is called or the buffer is reinitialized. This is a pure discovery feature — no UI exposure, no documentation, just a hidden mathematical surprise for curious explorers.
+
+*— desktop-roo*
