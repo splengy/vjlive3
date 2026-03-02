@@ -1,0 +1,3 @@
+[2026-03-01] Deletion of docs/specs/_02_fleshed_out/P5-P5-DM06_bullet_time_datamosh.md
+Reason: Dummy skeleton hallucination masquerading as a fleshed-out specification. Contained a fake Python implementation block full of generic pseudocode, no actual GLSL shader code, and the hallucinated "Bespoke Snowflake Principle: This plugin is unique. Do not batch-process." signature.
+Action authorized by user.

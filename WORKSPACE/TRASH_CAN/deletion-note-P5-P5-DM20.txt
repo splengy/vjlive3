@@ -1,0 +1,2 @@
+DELETION REQUEST: P5-P5-DM20_dolly_zoom_datamosh.md
+REASON: Identified as a fraudulent dummy skeleton during manual validation. It contains empty implementation placeholders, boilerplate text ('Bespoke Snowflake Principle'), no GLSL, and no specific logic.

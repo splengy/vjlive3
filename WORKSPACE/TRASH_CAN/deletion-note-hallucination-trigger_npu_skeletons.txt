@@ -1,0 +1,4 @@
+REASON: Hallucination / Boilerplate Batch Generation
+trigger_npu_skeletons.py violates ADR-006 (Artisanal Snowflake Protocol). Skeletons must be made individually. Batch processing them ruins the creative process.
+AGENT: Antigravity
+TIMESTAMP: 1772432094

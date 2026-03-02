@@ -1,0 +1,3 @@
+[2026-03-01] Deletion of docs/specs/_02_fleshed_out/P5-P5-DM16_datamosh_3d.md and P5-P5-DM16_datamosh_3d_fleshed.md
+Reason: Dummy skeleton hallucinations masquerading as fleshed-out specifications. Contained empty python implementation stubs and a copy-pasted test plan from a completely different plugin (Matrix Rain). 
+Action authorized by user.
