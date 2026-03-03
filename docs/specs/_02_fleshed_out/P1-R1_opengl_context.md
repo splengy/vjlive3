@@ -1,6 +1,7 @@
 # Spec: P1-R1 — Agnostic Render Context
 
 **Phase:** Phase 1 / P1-R1
+**Tier:** 🖥️ Pro-Tier Native — `RenderContext` wraps GLFW + wgpu surface. Desktop only. Requires a browser-equivalent spec (WebGPU canvas bootstrap) before bifurcated pipeline is complete.
 **Assigned To:** TBD
 **Spec Written By:** Manager-Gemini-3.1
 **Date:** 2026-02-21

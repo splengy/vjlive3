@@ -1,6 +1,7 @@
 # Spec: P1-R2 — GPU Pipeline + RenderTarget Management (Resource Pooling)
 
 **Phase:** Phase 1 / P1-R2
+**Tier:** 🖥️ Pro-Tier Native — `RenderTarget`, `RenderPipeline`, `EffectChain` are Python/wgpu-py classes. Requires browser-equivalent specs before bifurcated pipeline is complete.
 **Assigned To:** TBD (awaiting DISPATCH.md entry)
 **Spec Written By:** Antigravity (Manager Agent)
 **Date:** 2026-02-21

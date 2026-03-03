@@ -1,6 +1,7 @@
 # Spec: P1-R4 — Texture Pool (Pooled, Leak-Free)
 
 **Phase:** Phase 1 / P1-R4
+**Tier:** 🖥️ Pro-Tier Native — `TexturePool` directly wraps `wgpu.GPUTexture` Python objects. Browser tier uses `GPUTexture` objects natively but with different lifecycle management (no Python pooling layer).
 **Assigned To:** TBD
 **Spec Written By:** Antigravity (Manager Agent) — revised 2026-03-03
 **Date:** 2026-03-03

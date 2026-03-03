@@ -1,6 +1,7 @@
 # Spec: P1-R5 — 60 FPS Render Engine (Main Loop)
 
 **Phase:** Phase 1 / P1-R5
+**Tier:** 🖥️ Pro-Tier Native — `RenderEngine`, `FrameProfiler`, `FrameBudgetAllocator` are Python. The browser tier replaces this with a `requestAnimationFrame` loop and a JS `PerformanceObserver`; no Python equivalent exists in-browser.
 **Assigned To:** TBD
 **Spec Written By:** Antigravity (Manager Agent) — 2026-03-03
 **Date:** 2026-03-03

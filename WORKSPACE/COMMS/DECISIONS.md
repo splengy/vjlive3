@@ -259,3 +259,17 @@ No agent may begin Step 3 without Steps 1 and 2 complete. This is the same as th
 **Rationale:** Code written before the spec is settled is the primary source of hallucination accumulation.
 **Consequences:** DISPATCH.md entries require a spec file path. Worker agents must verify the spec exists before starting any `src/` file creation.
 **Owner:** User (Vision Holder)
+
+---
+
+### [ADR-024] Bifurcation Tier Classification — Spec-Level Annotations
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** ADR-008 describes a bifurcated pipeline (Pro/Desktop + Cloud/Browser). Phase 1 specs are being written for the Pro tier first, but future agents need to know which components require browser equivalents vs which are already portable.
+**Decision:** Every spec must carry a `**Tier:**` annotation in its header using one of two labels:
+- **`Pro-Tier Native`** — Python/wgpu-py only. Requires a browser-equivalent spec in a future phase before the bifurcated pipeline is complete. Examples: `RenderContext`, `EffectChain`, `TexturePool`, `RenderEngine`.
+- **`Bifurcated-Safe`** — The component or its output is directly portable to the browser WebGPU context. No browser-equivalent spec needed. Examples: All WGSL shader strings (P1-R6), the 0–10 parameter contract (ADR-017).
+
+Note: A spec may contain BOTH — e.g. P1-R3 `ShaderCache` is Pro-Tier Native (Python filesystem watcher), but the WGSL strings it manages are Bifurcated-Safe.
+**Rationale:** Agents writing future browser specs need to know which Phase 1 components they are re-implementing, not re-inventing. Clear labels prevent double work or missed work.
+**Consequences:** All existing P1-R* specs are annotated retroactively. All future specs must include the `**Tier:**` field before they leave `_01_skeletons/`.
+**Owner:** Antigravity

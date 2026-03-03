@@ -1,6 +1,7 @@
 # Spec: P1-R3 — WGSL Shader Hot-Reload
 
 **Phase:** Phase 1 / P1-R3
+**Tier:** 🖥️ Pro-Tier Native (`ShaderCache` Python filesystem watcher) + 🌐 Bifurcated-Safe (WGSL shader strings managed by cache are portable to browser WebGPU). Browser tier requires replacing the file watcher with a Service Worker / module hot-swap equivalent.
 **Assigned To:** TBD
 **Spec Written By:** Antigravity (Manager Agent) — revised 2026-03-03
 **Date:** 2026-03-03

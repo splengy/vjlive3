@@ -1,6 +1,7 @@
 # Spec: P1-R6 — WGSL Shader Library (Base Embedded Shaders)
 
 **Phase:** Phase 1 / P1-R6
+**Tier:** 🌐 Bifurcated-Safe — pure WGSL string constants. Identical shader source runs in `wgpu-py` (desktop) and native browser WebGPU. No browser-equivalent spec required.
 **Assigned To:** TBD
 **Spec Written By:** Antigravity (Manager Agent) — revised 2026-03-03
 **Date:** 2026-03-03
