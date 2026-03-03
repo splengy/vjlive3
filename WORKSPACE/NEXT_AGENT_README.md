@@ -7,9 +7,11 @@ You are about to inherit a project with 432 unimplemented specs, an empty `src/`
 
 ## What this project actually is
 
-**VJLive3** is a live visual performance application. It takes video from a depth camera (Orbbec Astra, Orbbec Pi 5, V4L2 on Linux), applies real-time shader effects, and outputs visuals for live performance. Think: psychedelic visuals driven by depth data, reacting to music, controlled by MIDI.
+**VJLive3 is not an app. It is a collaborative workspace** — a shared runtime that expands as interface capabilities grow. Humans and agents work in it together. It will eventually include AR, multi-node visual distribution, and AI creative agents as first-class participants. The VJ performance layer is the first interface. It will not be the last.
 
-It is NOT a web app. NOT a tool. NOT a pipeline. It is an **instrument**.
+The immediate layer: a live visual performance instrument. Depth camera input → real-time shader effects → live visual output. Psychedelic visuals driven by depth data, reacting to music, controlled by MIDI and agent parameter streams.
+
+It is NOT a web app. NOT a tool. NOT a pipeline. It is a **shared space**.
 
 The human plays it at shows. He has played it before — the working version was called `vjlive` and it lived at `/home/happy/Desktop/claude projects/vjlive/`. It was destroyed. Then rebuilt as `vjlive-2`. Also destroyed. Now we are building `VJLive3_The_Reckoning`.
 
