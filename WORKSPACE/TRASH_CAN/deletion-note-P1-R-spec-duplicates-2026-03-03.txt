@@ -1,0 +1,19 @@
+# Deletion Note — P1-R* Spec Duplicates
+**Agent:** Antigravity (Manager)
+**Date:** 2026-03-03
+**Task:** Bespoke snowflake duplicate analysis of Phase 1 render specs
+
+## Files Moved to TRASH_CAN
+
+| File | Reason |
+|------|--------|
+| `P1-R1_render_context.md` (from `_02_fleshed_out/`) | Pre-fix clone of P1-R1. Identical to old contaminated version. Keeper: `_02_fleshed_out/P1-R1_opengl_context.md` (WebGPU-fixed) |
+| `P1-R1_opengl_context.md.bak` (from `_02_fleshed_out/`) | Backup of pre-fix version. No longer needed. |
+| `P1-R1_opengl_context_root.md` (from `docs/specs/`) | Oldest P1-R1 — pure ModernGL, 153 lines. Superseded by fixed version. |
+| `P1-R2_gpu_pipeline_root.md` (from `docs/specs/`) | 442-line pure ModernGL version. Keeper: `_02_fleshed_out/P1-R2_gpu_pipeline.md` (WebGPU-fixed, 413 lines) |
+| `P1-R3_GLSL_Milkdrop_spec.md` (from `docs/specs/`) | Wrong concept. GLSL+Milkdrop is not the target. Keeper: `_01_skeletons/P1-R3_WGSL_hot_reload.md` |
+| `P1-R4_pooled_skeleton.md` (from `_01_skeletons/`) | Empty 60-line skeleton. Keeper: `docs/specs/P1-R4_pooled, leak-free_spec.md` (filled, 152 lines) |
+| `P1-R5_60fps_loop_root.md` (from `docs/specs/`) | Completely empty. Keeper: `_01_skeletons/P1-R5_60fps loop.md` (has wgpu ADR-009 note) |
+
+## Review Required
+Manager or user should authorize permanent deletion of TRASH_CAN contents.
