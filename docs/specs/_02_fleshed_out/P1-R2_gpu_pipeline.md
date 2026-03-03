@@ -295,7 +295,7 @@ class EffectChain:
 src/vjlive3/render/
     __init__.py           — re-exports
     framebuffer.py        — Framebuffer class only  (~120 lines)
-    program.py            — ShaderProgram + built-in GLSL constants  (~200 lines)
+    program.py            — RenderPipeline + built-in WGSL constants  (~200 lines)
     effect.py             — Effect base class  (~100 lines)
     chain.py              — EffectChain  (~420 lines; within 750-line limit)
 ```
@@ -332,7 +332,7 @@ src/vjlive3/render/
 
 **Minimum coverage:** 80% before task is marked done.
 
-> Note: All GPU tests require a real OpenGL context. Use `pytest-glfw` or run with a headless display (`Xvfb`). Headless CI: add `DISPLAY=:99 Xvfb :99 &` in CI script.
+> Note: All GPU tests require a wgpu-compatible device. For headless/CI, use `VJ_HEADLESS=true` to run with an offscreen wgpu adapter. No X server required.
 
 ---
 
@@ -346,7 +346,7 @@ src/vjlive3/render/
 - [ ] `render()` logs DEBUG warning when any effect exceeds 5 ms
 - [ ] `render()` logs DEBUG warning when full chain exceeds 16 ms
 - [ ] Sync + async readback both verified manually with `readback_last_output()`
-- [ ] Git commit: `[Phase-1] P1-R2: GPU pipeline + framebuffer (ping-pong FBO, PBO readback, RAII)`
+- [ ] Git commit: `[Phase-1] P1-R2: GPU pipeline + render targets (ping-pong, async readback, RAII)`
 - [ ] BOARD.md P1-R2 marked ✅
 - [ ] Lock released from LOCKS.md
 - [ ] AGENT_SYNC.md handoff note with FPS proof and any issues

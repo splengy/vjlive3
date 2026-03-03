@@ -12,10 +12,10 @@
 
 Implements the root renderer context creation and Window management for VJLive3. It replaces `VJlive-2/core/window.py` and PyOpenGL dependency by providing:
 
-1. **`RenderContext`** — A RAII-style context manager that creates a visible window (e.g., GLFW or generic canvas), initializes an attached generic `BackendContext` (wgpu-py or ModernGL fallback), and handles system-level window events (polling, buffer swapping).
-2. **Headless Mode** — Graceful fallback for cloud/CI environments. If `VJ_HEADLESS=true` is set (or requested via constructor), it bypasses window creation and generates a standalone compute context that can render to offscreen buffers without an X server or display.
+1. **`RenderContext`** — A RAII-style context manager that creates a visible window via GLFW, initializes a `wgpu` surface and adapter, and handles system-level window events (polling, buffer swapping).
+2. **Headless Mode** — Graceful fallback for cloud/CI environments. If `VJ_HEADLESS=true` is set (or requested via constructor), it bypasses window creation and requests a `wgpu` adapter without a surface for offscreen rendering.
 
-All GPU resources in VJLive3 will rely on an abstract backend (e.g., WebGPU/WGSL via wgpu-py, or fallback ModernGL) exposed by this module.
+All GPU resources in VJLive3 rely exclusively on **WebGPU/WGSL via `wgpu-py`**. No OpenGL or ModernGL calls exist anywhere in VJLive3.
 
 ---
 
@@ -25,7 +25,7 @@ All GPU resources in VJLive3 will rely on an abstract backend (e.g., WebGPU/WGSL
 - Does NOT compile shaders (P1-R3)
 - Does NOT drive the 60 FPS main loop or calculate delta time (Engine logic handles that)
 - Does NOT handle application state, nodes, or plugins
-- Does NOT manage textures beyond exposing the ModernGL context factory methods
+- Does NOT manage textures beyond exposing the `wgpu.GPUDevice` reference
 
 ---
 
@@ -105,7 +105,7 @@ class RenderContext:
 | Scenario | Required Behaviour |
 |----------|--------------------|
 | GLFW fails to init | Logs `CRITICAL`, raises `RuntimeError` |
-| `VJ_HEADLESS=true` | Skips GLFW completely, uses `moderngl.create_context(standalone=True)` |
+| `VJ_HEADLESS=true` | Skips GLFW completely; requests `wgpu.gpu.request_adapter()` without a surface for offscreen compute |
 | `make_current()` when headless | Silent no-op, prevents crashes when calling window functions |
 | `terminate()` called twice | No-op, no double-free. Sets `self.ctx = None` |
 | Multiple instances | Only one window/context is supported per process. Additional creations should raise `RuntimeError` if GLFW doesn't allow it cleanly, or terminate previous. |
@@ -114,10 +114,9 @@ class RenderContext:
 
 ## Dependencies
 
-- **wgpu-py** — Primary WGSL / WebGPU rendering API wrapper.
-- **glfw** (Optional) — Window creation fallback.
-- **moderngl** (Fallback) — Fallback rendering API.
-- **logging** — Standard library logger to report initialization and errors.
+- **wgpu-py** — WebGPU rendering API. Required. No fallback.
+- **glfw** — Window creation and event loop. Required for windowed mode; skipped in headless.
+- **logging** — Standard library logger.
 
 ## File Layout
 
@@ -149,6 +148,6 @@ src/vjlive3/render/
 - [ ] All 6 tests above pass
 - [ ] No file over 750 lines
 - [ ] Zero stubs
-- [ ] Git commit: `[Phase-1] P1-R1: OpenGL rendering context (ModernGL + GLFW)`
+- [ ] Git commit: `[Phase-1] P1-R1: WebGPU rendering context (wgpu-py + GLFW)`
 - [ ] BOARD.md P1-R1 marked ✅
 - [ ] Lock released from LOCKS.md
