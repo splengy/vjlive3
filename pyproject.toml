@@ -35,13 +35,12 @@ dependencies = [
     "pillow>=10.0.0",
 
     # ─── GPU RENDERING ────────────────────────────────────────────────────────
-    # moderngl: high-level OpenGL wrapper — use this for all render pipeline code.
-    # PyOpenGL: raw GL calls (FBO, VAO extensions) that moderngl doesn't surface.
-    # glfw: window + context creation. Required by moderngl standalone context.
-    # LAZY-LOAD THESE: import inside class methods, not at module top-level.
-    # Each adds 100-500ms to startup if imported eagerly. Effect engine loads them.
-    "moderngl>=5.8.0",
-    "PyOpenGL>=3.1.6",
+    # wgpu: WebGPU API for Python (wraps Vulkan/Metal/DX12 via wgpu-native).
+    #   THE ONLY GPU BACKEND. ADR-009 + ADR-021: moderngl/OpenGL are BANNED.
+    #   DO NOT add moderngl, PyOpenGL, or any OpenGL wrapper — ever.
+    # glfw: window + surface creation for wgpu native desktop rendering.
+    #   wgpu-py uses glfw for windowed context. Headless skips glfw entirely.
+    "wgpu>=0.19.0",
     "glfw>=2.5.0",
 
     # ─── AUDIO ────────────────────────────────────────────────────────────────
