@@ -17,6 +17,24 @@ logger = logging.getLogger(__name__)
 _active_instance: Optional["RenderContext"] = None
 
 
+def get_current_device():
+    """
+    Return the wgpu.GPUDevice from the active RenderContext.
+
+    Called by RenderTarget, RenderPipeline, and EffectChain to avoid
+    requiring an explicit device argument on every constructor.
+
+    Raises:
+        RuntimeError: If no RenderContext is active.
+    """
+    if _active_instance is None or _active_instance._terminated:
+        raise RuntimeError(
+            "get_current_device(): no active RenderContext. "
+            "Create a RenderContext before using render objects."
+        )
+    return _active_instance.device
+
+
 class RenderContext:
     """
     RAII-managed WebGPU render context + GLFW window.
