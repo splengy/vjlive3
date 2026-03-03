@@ -174,3 +174,88 @@
 **Rationale:** The math behind audio synthesis (delays, reverbs, physical modeling, FM synthesis) creates incredibly organic visual textures when applied to pixels, geometry, or color spaces. We preserve the soul of the original audio logic by creatively translating its math, rather than discarding it.
 **Consequences:** Phase 2.5 includes a strict "DSP to Visual Translation Pass." Agents must identify audio plugins and rewrite the spec to do something visually profound based directly on the original DSP logic. No modules will be pruned due to lack of agent creativity—the math must be translated.
 **Owner:** User (Vision Holder)
+
+---
+
+### [ADR-016] Milkdrop Removed from Core Scope
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** P1-R3 spec originally included Milkdrop preset parsing as a Phase 1 requirement.
+**Decision:** Milkdrop is NOT a Phase 1 requirement and NOT a native renderer component. If Milkdrop support is ever added, it runs as an external subprocess and communicates output frames over a texture bridge. VJLive3 does not embed or ship a Milkdrop parser.
+**Rationale:** Milkdrop is GLSL-based. Embedding it would require maintaining an OpenGL execution path that contradicts ADR-009. Subprocess isolation keeps the core clean.
+**Consequences:** Any spec or code referencing Milkdrop as a native dependency must be flagged. P1-R3 is now `P1-R3_WGSL_hot_reload.md`.
+**Owner:** Antigravity (confirmed by User 2026-03-03)
+
+---
+
+### [ADR-017] Universal Parameter Scale: 0–10 Float
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** Legacy effects used inconsistent parameter ranges (0.0–1.0, 0–255, 0–360, etc.), making MIDI/OSC mapping non-uniform.
+**Decision:** All effect parameters exposed to the outside world (MIDI, OSC, UI, agent control) use a **0–10 float scale**. Internal GPU shaders normalize to 0.0–1.0 at the boundary (`value / 10.0`). No exceptions for existing "nice" ranges.
+**Rationale:** Uniform scale makes any control surface (MIDI CC, OSC float, agent API) directly interchangeable. Division by 10 is a one-liner at the GPU boundary.
+**Consequences:** All spec parameter tables must define their range as `[0.0, 10.0]`. Normalization is the implementer's responsibility at the `render()` call site.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-018] ShaderCache: Compile-Before-Swap Policy
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** Legacy `shader_base.py` delete the OLD shader object before compiling the new one during hot-reload. If compilation fails, the engine runs with no shader.
+**Decision:** The new `ShaderCache` (P1-R3) must ALWAYS compile the replacement shader and confirm it links successfully BEFORE swapping the reference and releasing the old shader. On compilation failure, the old shader stays active and an error is logged.
+**Rationale:** Failure to follow this causes a frameless black window with no user feedback — the worst possible failure mode during a live performance.
+**Consequences:** `ShaderCache.reload_shader()` is asynchronous at the file level but synchronous at the swap level. Tests must verify old shader survives a bad reload.
+**Owner:** Antigravity
+
+---
+
+### [ADR-019] `src/` Cleanliness Gate
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** Previous sessions wrote speculative code into `src/` before specs were reviewed, causing architectural drift and hallucination accumulation.
+**Decision:** `src/` contains ONLY `src/vjlive3/__init__.py` until a spec is: (1) fully fleshed out in `docs/specs/`, (2) reviewed by the user, and (3) the user explicitly says "implement [SPEC-ID]". No agent may write implementation code to `src/` speculatively.
+**Rationale:** The spec is the contract. Code written before the contract is finalized is debt, not progress.
+**Consequences:** Pre-commit hooks check `src/` against the DISPATCH.md lock list. Any `src/` file without a corresponding completed spec ID is rejected.
+**Owner:** User (Vision Holder)
+
+---
+
+### [ADR-020] Headless Mode Env Var: `VJ_HEADLESS=true`
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** CI/CD, smoke tests, and swarm agents running on headless servers need a unified way to request offscreen rendering without a display.
+**Decision:** `VJ_HEADLESS=true` (environment variable, string comparison case-insensitive) triggers headless mode in `RenderContext` (P1-R1). All spec test plans and smoke test commands use this variable.
+**Rationale:** Single env var is simpler than a constructor flag and works across subprocess calls, Docker, and CI environments without importing the module.
+**Consequences:** All specs with a GPU test plan must include `VJ_HEADLESS=true` in their test runner command. `RenderContext.__init__` checks `os.environ.get("VJ_HEADLESS", "").lower() == "true"`.
+**Owner:** Antigravity
+
+---
+
+### [ADR-021] ModernGL Total Ban
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** ADR-009 mandates WebGPU, but early spec drafts kept `moderngl` as a "fallback." This created ambiguity.
+**Decision:** `moderngl` is completely banned from `src/`. Not as a fallback, not as a test double, not as a transitional shim. `wgpu-py` is the only GPU abstraction in VJLive3. The pre-commit hook `check_stubs.py` is extended to also grep for `import moderngl` and reject commits.
+**Rationale:** A "fallback" that exists in the codebase will be used by the first agent that hits a wgpu error. The only way to prevent this is a hard architectural prohibition.
+**Consequences:** `requirements.txt` may NOT list `moderngl`. If wgpu is unavailable, the correct failure mode is a `RuntimeError` with a clear message, not a silent OpenGL fallback.
+**Owner:** Antigravity (confirmed by User 2026-03-03)
+
+---
+
+### [ADR-022] FrameBudgetAllocator as Canonical Per-Effect Timing Contract
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** Legacy effects used hardcoded throttles (`if frame_count % 3 == 0`) and fixed LOD values (`scale=0.25`) which cannot adapt to real-time load.
+**Decision:** `FrameBudgetAllocator` (ported verbatim from `vjlive/core/frame_budget.py`, 120 lines) is the canonical per-effect timing contract in VJLive3. All heavy effects register with it and query `should_skip()` and `get_lod_scale()` per frame. Hardcoded throttles are forbidden.
+**Rationale:** Adaptive skip/LOD responds to actual measured frame time, not a static guess. Max 2 consecutive skips prevents visible stutter.
+**Consequences:** Effect specs must declare their `budget_ms` value and register with the allocator. Effects using hardcoded frame-skip logic fail spec review.
+**Owner:** Antigravity
+
+---
+
+### [ADR-023] Spec-First Gate — Three-Step Implementation Protocol
+**Date:** 2026-03-03 | **Status:** Accepted
+**Context:** Agents have written implementation code that outpaced the spec, causing the spec to retroactively describe buggy code rather than the intended design.
+**Decision:** Implementation follows a strict three-step gate:
+1. **Spec fleshed out** — `docs/specs/_02_fleshed_out/[SPEC-ID].md` exists and is reviewed
+2. **Manager approval** — User or Manager explicitly approves the spec
+3. **Explicit invocation** — User says "implement [SPEC-ID]" or Manager dispatches via DISPATCH.md
+
+No agent may begin Step 3 without Steps 1 and 2 complete. This is the same as the "three-layer test" validation loop: *id believes → ego compiles → renderer judges*.
+**Rationale:** Code written before the spec is settled is the primary source of hallucination accumulation.
+**Consequences:** DISPATCH.md entries require a spec file path. Worker agents must verify the spec exists before starting any `src/` file creation.
+**Owner:** User (Vision Holder)
