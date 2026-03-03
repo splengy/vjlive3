@@ -61,9 +61,13 @@ class RenderContext:
             RuntimeError: If wgpu adapter is unavailable, or GLFW fails to init.
         """
         global _active_instance
-        # Set _terminated first — ensures __del__ never hits AttributeError
-        # even if the constructor raises before completing.
+        # Set ALL instance variables first — ensures __del__ never raises
+        # AttributeError regardless of where __init__ fails.
         self._terminated: bool = False
+        self._canvas = None
+        self._ctx = None
+        self._adapter = None
+        self._device = None
 
         if _active_instance is not None and not _active_instance._terminated:
             raise RuntimeError(
@@ -78,11 +82,6 @@ class RenderContext:
         # VJ_HEADLESS env var always wins over constructor arg (ADR-020)
         env_headless = os.environ.get("VJ_HEADLESS", "").lower() == "true"
         self._headless: bool = headless or env_headless
-
-        self._canvas = None         # WgpuCanvas — None in headless
-        self._ctx = None            # GPUCanvasContext — None in headless
-        self._adapter = None        # wgpu.GPUAdapter
-        self._device = None         # wgpu.GPUDevice
 
         if self._headless:
             self._init_headless()
