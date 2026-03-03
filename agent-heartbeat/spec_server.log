@@ -1,0 +1,7 @@
+nohup: ignoring input
+2026-02-27 23:20:43,443 | ==================================================
+2026-02-27 23:20:43,443 | Qwen3-4B Spec Generation Server
+2026-02-27 23:20:43,443 | Loading model on NPU...
+2026-02-27 23:20:43,443 | ==================================================
+2026-02-27 23:20:43,443 | Model not found at /AI-ENV/models/Qwen3-4B-Instruct-2507_w8a8_g128_1.2.2_rkllm/Qwen3-4B-Instruct-2507_w8a8_g128_1.2.2_rk3588.rkllm or /home/happy/models/Qwen3-4B-Instruct-2507_w8a8_g128_1.2.2_rkllm/Qwen3-4B-Instruct-2507_w8a8_g128_1.2.2_rk3588.rkllm
+2026-02-27 23:20:43,443 | Failed to load model. Exiting.

@@ -62,7 +62,7 @@
 | P3-EXT039 | vcv_video_effects (DelayZoomEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — DelayZoomEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT040 | depth_acid_fractal (DepthAcidFractalPlugin) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/plugins/depth_acid_fractal.py` — 6-param depth-reactive fractal, 5 tests ✅ 2026-02-23 |
 | P3-EXT041 | depth_camera_splitter (DepthCameraSplitterEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthCameraSplitterEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
-| P3-EXT042 | depth_data_mux (DepthDataMuxEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthDataMuxEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT042 | depth_data_mux (DepthDataMuxEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthDataMuxEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
 | P3-EXT043 | datamosh_3d (DepthDisplacementEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthDisplacementEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT044 | depth_distance_filter (DepthDistanceFilterEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthDistanceFilterEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT045 | depth_effects (DepthDistortionEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthDistortionEffect already shipped in P4/P5/P6/P7)* |

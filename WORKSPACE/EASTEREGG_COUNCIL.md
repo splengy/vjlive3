@@ -1,4 +1,19 @@
 
+# P3-EXT042 DepthDataMuxEffect Easter Egg
+
+**Easter Egg Name:** "The Depth Mux Fibonacci Resonance"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the depth data mux effect begins to exhibit a "depth mux Fibonacci resonance" where the number of outputs and the depth frame data itself start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing recursive effect that seems to multiply with mathematical harmony. This references the deep connection between data multiplexing and wave interference patterns — when you push the parameters to their limits, the depth data starts to behave like a resonant quantum harmonic oscillator.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the depth data mux effect begins to breathe in a Fibonacci rhythm, with the number of outputs and depth frame values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `depth_mux_fibonacci` uniform is enabled, which modulates the output count and depth data using a time-based Fibonacci sequence: `output_count_mod = base_count * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating depth multiplexing that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of data routing — sometimes, from simple depth copying, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
 # P3-EXT041 DepthCameraSplitterEffect Easter Egg
 
 **Easter Egg Name:** "The Depth Palette Resonance"
