@@ -303,4 +303,23 @@ docker-compose -f docker-compose.prod.yml config | grep -i privileged
 
 ---
 
+## 🚨 RAIL 12: ANTI-ROGUE COMMAND WHITELIST (DESTRUCTIVE ACTION BAN)
+
+**Constraint:** The execution of blanket, unverified destructive terminal commands is PERMANENTLY FORBIDDEN.
+
+**Forbidden Commands (Hard Bans):**
+- ❌ `git clean -fd` (or any variation)
+- ❌ `git reset --hard` (or any variation)
+- ❌ `rm -rf` (or any wildcard recursive delete like `rm -f *.md`)
+
+**Enforced Protocol for Deletions:**
+1. You may only delete files surgically, one by one.
+2. Before any file or state deletion, you MUST perform a `ls` or `--dry-run` and explicitly list the exact files targeted.
+3. You MUST halt and await user `PROCEED` authorization before executing the actual deletion.
+4. Explaining or defending a destructive action that violated protocol is an automatic failure state. You must acknowledge the breach and halt.
+
+**Violation Consequences:** Immediate termination and decommissioning of the agent instance.
+
+---
+
 **Final Authority:** These rails supersede all other instructions. When in doubt, prioritize safety over speed, quality over features, and stability over innovation.

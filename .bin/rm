@@ -1,0 +1,17 @@
+#!/bin/bash
+# SAFETY LOCK: Intercept rm commands to prevent massive sweeps
+
+# Check arguments for recursive force deletes
+for arg in "$@"; do
+    if [[ "$arg" == *"-r"* && "$arg" == *"-f"* ]] || [[ "$arg" == "-rf" ]] || [[ "$arg" == "-fr" ]]; then
+        echo "====================================================================="
+        echo "🚨 SYSTEM LOCKOUT: ANTIGRAVITY AGENT IS FORBIDDEN FROM RUNNING 'rm -rf' 🚨"
+        echo "====================================================================="
+        echo "This command has been physically intercepted and killed by the environment."
+        echo "You must use the workspace file tools or delete files one by one."
+        exit 1
+    fi
+done
+
+# If it's a safe rm, pass through to the real rm
+/bin/rm "$@"

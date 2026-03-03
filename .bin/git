@@ -1,0 +1,24 @@
+#!/bin/bash
+# SAFETY LOCK: Intercept destructive git commands
+
+cmd="$1"
+subcmd="$2"
+
+if [[ "$cmd" == "clean" ]]; then
+    echo "====================================================================="
+    echo "🚨 SYSTEM LOCKOUT: ANTIGRAVITY AGENT IS FORBIDDEN FROM RUNNING 'git clean' 🚨"
+    echo "====================================================================="
+    echo "This command deletes untracked files and caused a 1000+ file data loss event."
+    echo "It has been physically intercepted and killed by the environment."
+    exit 1
+elif [[ "$cmd" == "reset" && "$@" == *"--hard"* ]]; then
+    echo "====================================================================="
+    echo "🚨 SYSTEM LOCKOUT: ANTIGRAVITY AGENT IS FORBIDDEN FROM RUNNING 'git reset --hard' 🚨"
+    echo "====================================================================="
+    echo "This command destroys uncommitted work."
+    echo "It has been physically intercepted and killed by the environment."
+    exit 1
+fi
+
+# If safe, pass through to raw git
+/usr/bin/git "$@"

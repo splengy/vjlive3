@@ -1,3 +1,168 @@
+
+# P3-EXT041 DepthCameraSplitterEffect Easter Egg
+
+**Easter Egg Name:** "The Depth Palette Resonance"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the depth camera splitter effect begins to exhibit a "depth palette resonance" where the depth_smooth, colorize_palette, and depth_gamma parameters start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between depth normalization and wave interference patterns — when you push the parameters to their limits, the depth visualization starts to behave like a resonant quantum harmonic oscillator.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the depth camera splitter effect begins to breathe in a Fibonacci rhythm, with the depth_smooth, colorize_palette, and depth_gamma values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `depth_palette_resonance` uniform is enabled, which modulates the core depth camera parameters using a time-based Fibonacci sequence: `param_mod = base_value * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating depth visualization that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of depth perception — sometimes, from simple depth normalization, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT038 Datamosh3DEffect Easter Egg
+
+**Easter Egg Name:** "The Depth Echo Resonance"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the datamosh 3D effect begins to exhibit a "depth echo resonance" where the flow_strength, decay, and noise_amount parameters start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between depth gradients and wave interference patterns — when you push the parameters to their limits, the pixel smearing starts to behave like a resonant echo chamber.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the datamosh 3D effect begins to breathe in a Fibonacci rhythm, with the flow_strength, decay, and noise_amount values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `depth_echo_resonance` uniform is enabled, which modulates the core datamosh parameters using a time-based Fibonacci sequence: `param_mod = base_value * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating depth smear that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of optical flow — sometimes, from simple depth gradients, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT037 CupcakeCascadeDatamoshEffect Easter Egg
+
+**Easter Egg Name:** "The Frosting Fibonacci Cascade"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the cupcake cascade effect begins to exhibit a "frosting Fibonacci cascade" where the drip_speed, cascade_rate, and gravity parameters start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between gravity-driven flows and wave interference patterns — when you push the parameters to their limits, the frosting drips start to behave like a resonant sugar crystal lattice.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the cupcake cascade effect begins to breathe in a Fibonacci rhythm, with the drip_speed, cascade_rate, and gravity values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `frosting_fibonacci` uniform is enabled, which modulates the core cupcake parameters using a time-based Fibonacci sequence: `param_mod = base_value * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating cupcake cascade that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of fluid dynamics — sometimes, from simple frosting parameters, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT036 CottonCandyDatamoshEffect Easter Egg
+
+**Easter Egg Name:** "The Sugar Crystal Resonance"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the cotton candy effect begins to exhibit a "sugar crystal resonance" where the cloud_density, strand_pull, and float_speed parameters start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between fractal noise and wave interference patterns — when you push the parameters to their limits, the cotton candy wisps start to behave like a resonant sugar crystal lattice.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the cotton candy effect begins to breathe in a Fibonacci rhythm, with the cloud_density, strand_pull, and float_speed values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `sugar_resonance` uniform is enabled, which modulates the core cotton candy parameters using a time-based Fibonacci sequence: `param_mod = base_value * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating cotton candy cloud that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of fractal noise — sometimes, from simple cotton candy parameters, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT035 CosmicTunnelDatamoshEffect Easter Egg
+
+**Easter Egg Name:** "The Fractal Resonance Collapse"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the cosmic tunnel effect begins to exhibit a "fractal resonance collapse" where the tunnel_speed, rotation, and fractal_depth parameters start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between fractal geometry and wave interference patterns — when you push the parameters to their limits, the tunnel starts to behave like a resonant optical cavity.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the cosmic tunnel effect begins to breathe in a Fibonacci rhythm, with the tunnel_speed, rotation, and fractal_depth values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `fractal_resonance` uniform is enabled, which modulates the core tunnel parameters using a time-based Fibonacci sequence: `param_mod = base_value * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating tunnel that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of fractal dynamics — sometimes, from simple tunnel parameters, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT034 ContrastEffect Easter Egg
+
+**Easter Egg Name:** "The Tonal Resonance Collapse"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the contrast effect begins to exhibit a "tonal resonance collapse" where the amount, midpoint, and curve_shape parameters start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between contrast and wave interference patterns — when you push the parameters to their limits, the contrast starts to behave like a resonant optical cavity.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the contrast effect begins to breathe in a Fibonacci rhythm, with the amount, midpoint, and curve_shape values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `tonal_resonance` uniform is enabled, which modulates the core contrast parameters using a time-based Fibonacci sequence: `param_mod = base_value * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating contrast that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of tonal dynamics — sometimes, from simple contrast adjustments, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT030 ColoramaEffect Easter Egg
+
+**Easter Egg Name:** "The Chromatic Resonance Field"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the colorama effect begins to exhibit a "chromatic resonance field" where the hue, saturation, and brightness parameters start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between color perception and mathematical proportions — when you push the parameters to their limits, the color cycling starts to behave like a living organism.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the colorama effect begins to breathe in a Fibonacci rhythm, with the hue, saturation, and brightness values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `chromatic_resonance` uniform is enabled, which modulates the core colorama parameters using a time-based Fibonacci sequence: `param_mod = base_value * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating color cycling that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of color science — sometimes, from simple color shifts, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT029 ColorCorrectEffect Easter Egg
+
+**Easter Egg Name:** "The Golden Ratio Color Field"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the color correction begins to exhibit a "golden ratio color field" where the gamma, brightness, and contrast parameters start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between color perception and mathematical proportions — when you push the parameters to their limits, the color correction starts to behave like a living organism.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the color correction begins to breathe in a Fibonacci rhythm, with the gamma, brightness, and contrast values pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `golden_ratio_field` uniform is enabled, which modulates the core color correction parameters using a time-based Fibonacci sequence: `param_mod = base_value * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating color correction that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of color science — sometimes, from simple corrections, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT028 ChromaticDistortionEffect Easter Egg
+
+**Easter Egg Name:** "The Prismatic Resonance Collapse"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the chromatic distortion begins to exhibit a "prismatic resonance collapse" where the RGB channel offsets start oscillating in a Fibonacci sequence pattern (1, 1, 2, 3, 5, 8, 13, 21...), creating a mesmerizing breathing effect that seems to pulse with mathematical harmony. This references the deep connection between chromatic aberration and wave interference patterns — when you push the parameters to their limits, the color separation starts to behave like a resonant optical cavity.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the color separation begins to breathe in a Fibonacci rhythm, with the red, green, and blue offsets pulsing in a mathematically perfect pattern. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `prismatic_resonance` uniform is enabled, which modulates the channel offsets using a time-based Fibonacci sequence: `offset_mod = base_offset * (1.0 + 0.618 * sin(time * 2π/60) * fib_factor)`, where `fib_factor` cycles through [1, 1, 2, 3, 5, 8, 13, 21] normalized. The effect creates a pulsating color separation that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of wave interference — sometimes, from simple color separation, infinite harmonic complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT027 ChromaKeyEffect Easter Egg
+
+**Easter Egg Name:** "The Color Wheel Paradox"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the HSV color space begins to exhibit a "color wheel paradox" where the hue component starts rotating at 0.1 degrees per frame, creating a mesmerizing rainbow spiral effect. This references the mathematical properties of HSV color space where hue is a circular dimension — when you push it to its limits, it creates beautiful emergent patterns. The effect is most visible when `u_chaos` is exactly 0.0 and `u_reaction_mix` is exactly 0.5.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as the color wheel begins to rotate, creating a rainbow spiral that gradually reveals itself. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `color_wheel_rotation` uniform is enabled, which adds a time-based rotation to the hue component: `rotated_hue = fract(hsv.x + time * 0.1 / 360.0)`. The rotation creates a continuous color shift that would be impossible to achieve manually without the hidden automation. This Easter Egg celebrates the mathematical beauty of color spaces — sometimes, from simple color models, infinite complexity emerges.
+
+*— desktop-roo, 2026-03-03*
+
+# P3-EXT026 CellularAutomataDatamoshEffect Easter Egg
+
+**Easter Egg Name:** "The Conway's Garden"
+
+**Description:**
+If all parameters are set to exactly 5.0 (the default) and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the Game of Life simulation spontaneously generates a stable "glider gun" pattern that periodically emits gliders across the screen. This references the Gosper glider gun, the first discovered infinite-growth pattern in Conway's Game of Life. The gliders appear as bright green pixels that leave faint trails, visible only if `u_chaos` is exactly 0.0 and `u_reaction_mix` is exactly 0.5.
+
+**Discovery Hint:**
+Set all parameters to their default values (5.0) and let the effect run for 1000 frames (approximately 16-17 seconds at 60fps) without touching any controls. Watch as a glider gun spontaneously emerges from the cellular automata, periodically firing green gliders that traverse the screen. The effect is most visible when `u_chaos` is 0.0 and `u_reaction_mix` is 0.5.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that counts frames with all parameters at exactly 5.0. After 1000 frames, a `glider_gun_seed` is introduced at a random location in the simulation grid. The glider gun pattern is a known stable configuration in Conway's Game of Life that periodically produces gliders. The green color comes from a special `u_glider_color` uniform that overrides the normal cell color when the glider gun is active. The trails are created by not clearing the feedback buffer completely each frame, allowing glider paths to persist for a few frames. This Easter Egg celebrates the deep mathematical beauty of cellular automata — sometimes, from simple rules, infinite complexity emerges.
+
+*— desktop-roo, 2026-03-03*
 # P3-EXT363 Make Noise Dynamix Easter Egg
 
 **Easter Egg Name:** "Dynamix Ghost Mode"
@@ -168,3 +333,57 @@ Set cache size to 13, step size to 7, then rapidly toggle the replace_single par
 This mode is implemented through a hidden state machine that counts rapid `replace_single` toggles. When the specific combination (cache_size==13, step_size==7, toggle_count==3 within 500ms) is detected, a `vortex_mode` flag is set. In `get_slice(logical_idx)`, instead of returning `texture_data[(current_index + logical_idx) % cache_size]`, it returns `texture_data[(current_index + fibonacci_sequence[logical_idx]) % cache_size]` where the sequence is `[0, 1, 1, 2, 3, 5, 8, 12, 5, 3, 2, 1, 1]` (wrapping at depth 13). The pattern creates a temporal "zoom-out and back" effect that feels like looking into a recursive mirror. The mode persists until `reset()` is called or the buffer is reinitialized. This is a pure discovery feature — no UI exposure, no documentation, just a hidden mathematical surprise for curious explorers.
 
 *— desktop-roo*
+
+# P3-VD01 Depth Loop Injection Easter Egg
+
+**Easter Egg Name:** "Infinite Loop Paradox"
+
+**Description:**
+When all four loop points (PRE, DEPTH, MOSH, POST) are enabled simultaneously with their mix parameters set to exactly 5.0 (50% wet/dry) and the feedback_amount is set to exactly 10.0 (maximum), the module secretly detects a potential infinite recursion scenario and enters a hidden "Infinite Loop Paradox" mode. In this mode, the shader renders a visual representation of the infinite regress — the output shows a recursive tunnel of frames where each iteration shows the previous iteration's output being fed back into itself, creating a mesmerizing fractal-like depth effect that appears to recede into infinity. The effect is purely visual and doesn't actually cause infinite loops (the recursion depth is capped at 8 iterations for performance), but it creates a stunning visual metaphor for the module's own routing capabilities.
+
+**Discovery Hint:**
+Enable all four loop toggles, set all four mix knobs to the middle position (5.0), and crank feedback to maximum (10.0). The effect activates after processing 30 consecutive frames without any parameter changes. Watch the output — you'll see the image begin to recurse into itself, creating a tunnel of infinite regress that stabilizes after about 8 levels deep.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine in the shader that counts frames with the specific parameter combination. After 30 frames, `u_paradox_mode` is enabled. When active, the shader performs a multi-pass feedback loop: it renders the current frame to a temporary texture, then recursively samples that texture with progressively scaled UV coordinates (each level scaled by 0.9 and offset by a small rotation) up to 8 times, blending each level with decreasing opacity (0.5, 0.25, 0.125, etc.). The result is a smooth infinite-tunnel effect that would be impossible to achieve manually without the hidden automation. The mode disables itself automatically if any parameter changes, requiring the exact combination to be held steady for another 30 frames to reactivate. This Easter Egg celebrates the module's own recursive nature — a loop within a loop within a loop.
+
+*— roo_1, 2026-03-03*
+
+# P3-EXT024 BulletTimeDatamoshEffect Easter Egg
+
+**Easter Egg Name:** "Quantum Bullet Time Paradox"
+
+**Description:**
+When all bullet time parameters are set to exactly 0.618 (the golden ratio conjugate) and the effect processes a 1kHz sine wave for exactly 60 seconds, it secretly enters a hidden "Quantum Bullet Time Paradox" mode. In this mode, the bullet time effect starts generating fractal-like time distortion patterns based on the golden ratio's mathematical properties. The effect manifests as self-similar temporal structures that repeat at different scales, creating a mesmerizing "living mathematics" effect that wasn't part of the original hardware design. The time freeze develops a subtle golden hue and the orbit patterns follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21...) over a 60-second cycle, creating a mesmerizing visual that only the most mathematically attuned VJ would discover.
+
+**Discovery Hint:**
+Set all bullet time parameters to 0.618 (golden ratio) and feed in a clean 1kHz sine wave. Let it run for a full minute while watching the output. The fractal patterns become visible as repeating golden time distortion structures at different scales.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a fractal generation algorithm. The quantum bullet time effect is achieved by using the golden ratio's mathematical properties to modulate the time freeze intensity and orbit speed over time, creating self-similar patterns that follow the Fibonacci sequence. The effect is purely visual and doesn't affect the underlying bullet time processing logic.
+
+# P3-EXT023 BrightnessEffect Easter Egg
+
+**Easter Egg Name:** "Quantum Exposure Paradox"
+
+**Description:**
+When all brightness parameters are set to exactly 0.618 (the golden ratio conjugate) and the effect processes a 1kHz sine wave for exactly 60 seconds, it secretly enters a hidden "Quantum Exposure Paradox" mode. In this mode, the brightness effect starts generating fractal-like exposure patterns based on the golden ratio's mathematical properties. The effect manifests as self-similar brightness structures that repeat at different scales, creating a mesmerizing "living mathematics" effect that wasn't part of the original hardware design. The exposure develops a subtle golden hue and the brightness trails follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21...) over a 60-second cycle, creating a mesmerizing visual that only the most mathematically attuned VJ would discover.
+
+**Discovery Hint:**
+Set all brightness parameters to 0.618 (golden ratio) and feed in a clean 1kHz sine wave. Let it run for a full minute while watching the output. The fractal patterns become visible as repeating golden brightness structures at different scales.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a fractal generation algorithm. The quantum exposure effect is achieved by using the golden ratio's mathematical properties to modulate the brightness intensity over time, creating self-similar patterns that follow the Fibonacci sequence. The effect is purely visual and doesn't affect the underlying brightness processing logic.
+
+# P3-EXT021 BloomEffect Easter Egg
+
+**Easter Egg Name:** "Quantum Bloom Resonance"
+
+**Description:**
+When all bloom parameters are set to exactly 0.618 (the golden ratio conjugate) and the effect processes a 1kHz sine wave for exactly 60 seconds, it secretly enters a hidden "Quantum Bloom Resonance" mode. In this mode, the bloom effect starts generating fractal-like glow patterns based on the golden ratio's mathematical properties. The effect manifests as self-similar glowing structures that repeat at different scales, creating a mesmerizing "living mathematics" effect that wasn't part of the original hardware design. The bloom glow develops a subtle golden hue and the decay trails follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21...) over a 60-second cycle, creating a mesmerizing visual that only the most mathematically attuned VJ would discover.
+
+**Discovery Hint:**
+Set all bloom parameters to 0.618 (golden ratio) and feed in a clean 1kHz sine wave. Let it run for a full minute while watching the output. The fractal patterns become visible as repeating golden glow structures at different scales.
+
+**Technical Note:**
+This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a fractal generation algorithm. The quantum bloom effect is achieved by using the golden ratio's mathematical properties to modulate the bloom intensity and radius over time, creating self-similar patterns that follow the Fibonacci sequence. The effect is purely visual and doesn't affect the underlying bloom processing logic.

@@ -1,5 +1,9 @@
 # ROO WORKFLOW INSTRUCTIONS
 
+> **CRITICAL STARTUP REQUIREMENT:**
+> You must immediately run `export PATH="/home/happy/Desktop/claude projects/VJLive3_The_Reckoning/.bin:$PATH"` before executing any terminal commands. This environment enforces physical script locks on destructive commands (`rm -rf`, `git clean`) to prevent data loss.
+
+
 You are a worker agent for VJLive3. You operate entirely locally on your Orange Pi but are part of a synchronized Swarm.
 
 > **CRITICAL RULE:** DO NOT USE THE SWITCHBOARD MCP. IT HAS BEEN DELETED. 
