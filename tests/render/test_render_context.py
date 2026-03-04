@@ -31,9 +31,13 @@ def _make_mock_adapter(device: MagicMock) -> MagicMock:
 
 
 def _make_mock_canvas() -> MagicMock:
-    canvas = MagicMock(name="WgpuCanvas")
+    canvas = MagicMock(name="GlfwCanvas")
+    canvas.get_closed.return_value = False
     canvas.is_closed.return_value = False
+    canvas.force_draw = MagicMock(name="force_draw")
+    canvas._maybe_close = MagicMock(name="_maybe_close")
     ctx = MagicMock(name="GPUCanvasContext")
+    ctx.get_preferred_format.return_value = "rgba8unorm"
     canvas.get_context.return_value = ctx
     return canvas
 
@@ -58,6 +62,16 @@ def _inject_mocks(monkeypatch, *, glfw_init_ok: bool = True, adapter_ok: bool = 
 
     monkeypatch.setitem(sys.modules, "wgpu", mock_wgpu)
     monkeypatch.setitem(sys.modules, "glfw", mock_glfw)
+
+    # render_context._init_windowed imports from rendercanvas.glfw (not wgpu.gui.glfw)
+    mock_rendercanvas = MagicMock(name="rendercanvas")
+    mock_rendercanvas_glfw = MagicMock(name="rendercanvas.glfw")
+    mock_rendercanvas_glfw.GlfwRenderCanvas.return_value = canvas
+    monkeypatch.setitem(sys.modules, "rendercanvas", mock_rendercanvas)
+    monkeypatch.setitem(sys.modules, "rendercanvas.glfw", mock_rendercanvas_glfw)
+
+    # Keep legacy wgpu.gui.glfw mock so any stale imports don't crash.
+    mock_wgpu_gui_glfw = MagicMock(name="wgpu.gui.glfw")
     monkeypatch.setitem(sys.modules, "wgpu.gui", MagicMock())
     monkeypatch.setitem(sys.modules, "wgpu.gui.glfw", mock_wgpu_gui_glfw)
 
@@ -210,28 +224,20 @@ def test_second_instance_allowed_after_terminate(monkeypatch):
 # Windowed mode tests (mocked GLFW + wgpu)
 # ---------------------------------------------------------------------------
 
-def test_windowed_init_calls_glfw_init(monkeypatch):
-    """Windowed mode must call glfw.init()."""
+def test_windowed_creates_glfwrendercanvas(monkeypatch):
+    """Windowed mode constructs a GlfwRenderCanvas and obtains its wgpu context."""
     mock_wgpu, mock_glfw, canvas, adapter, device = _inject_mocks(monkeypatch)
     monkeypatch.delenv("VJ_HEADLESS", raising=False)
 
+    # GlfwRenderCanvas is imported from rendercanvas.glfw inside _init_windowed
+    from rendercanvas.glfw import GlfwRenderCanvas  # this is now the mock
     from vjlive3.render.render_context import RenderContext
     ctx = RenderContext(width=800, height=600, headless=False)
 
-    mock_glfw.init.assert_called_once()
+    GlfwRenderCanvas.assert_called_once()
     assert ctx.headless is False
     assert ctx.ctx is canvas.get_context.return_value
     ctx.terminate()
-
-
-def test_windowed_glfw_init_fail_raises(monkeypatch):
-    """RuntimeError raised if glfw.init() returns False."""
-    _inject_mocks(monkeypatch, glfw_init_ok=False)
-    monkeypatch.delenv("VJ_HEADLESS", raising=False)
-
-    from vjlive3.render.render_context import RenderContext
-    with pytest.raises(RuntimeError, match="glfw.init"):
-        RenderContext(headless=False)
 
 
 def test_windowed_poll_events_calls_glfw(monkeypatch):
@@ -247,8 +253,8 @@ def test_windowed_poll_events_calls_glfw(monkeypatch):
     ctx.terminate()
 
 
-def test_windowed_swap_buffers_calls_present(monkeypatch):
-    """swap_buffers() in windowed mode calls canvas.present()."""
+def test_windowed_swap_buffers_calls_force_draw(monkeypatch):
+    """swap_buffers() in windowed mode calls canvas.force_draw()."""
     mock_wgpu, mock_glfw, canvas, adapter, device = _inject_mocks(monkeypatch)
     monkeypatch.delenv("VJ_HEADLESS", raising=False)
 
@@ -256,17 +262,113 @@ def test_windowed_swap_buffers_calls_present(monkeypatch):
     ctx = RenderContext(headless=False)
     ctx.swap_buffers()
 
-    canvas.present.assert_called_once()
+    canvas.force_draw.assert_called_once()
     ctx.terminate()
 
 
 def test_windowed_should_close_delegates_to_canvas(monkeypatch):
-    """should_close() returns canvas.is_closed() result."""
+    """should_close() returns get_closed() result (rendercanvas 2.x API)."""
     mock_wgpu, mock_glfw, canvas, adapter, device = _inject_mocks(monkeypatch)
-    canvas.is_closed.return_value = True
+    canvas.get_closed.return_value = True
     monkeypatch.delenv("VJ_HEADLESS", raising=False)
 
     from vjlive3.render.render_context import RenderContext
     ctx = RenderContext(headless=False)
     assert ctx.should_close() is True
+    ctx.terminate()
+
+
+# ---------------------------------------------------------------------------
+# blit_to_screen tests
+# ---------------------------------------------------------------------------
+
+def test_blit_to_screen_headless_noop(monkeypatch):
+    """blit_to_screen() is a silent no-op in headless mode."""
+    _inject_mocks(monkeypatch)
+    from vjlive3.render.render_context import RenderContext
+    ctx = RenderContext(headless=True)
+    ctx.blit_to_screen(src_view=MagicMock())  # must not raise
+    ctx.terminate()
+
+
+def _windowed_ctx_with_injected_gpu(monkeypatch):
+    """
+    Returns (ctx, mock_device, mock_canvas_ctx, mock_pipeline) for
+    blit_to_screen tests, with _headless forced False and GPU objects injected.
+    """
+    _inject_mocks(monkeypatch)
+    from vjlive3.render.render_context import RenderContext
+    ctx = RenderContext(headless=True)  # headless so no real window opens
+
+    mock_device = MagicMock(name="MockDevice")
+    pipeline = MagicMock(name="MockPipeline")
+    pipeline.get_bind_group_layout.return_value = MagicMock()
+    mock_device.create_shader_module.return_value = MagicMock()
+    mock_device.create_render_pipeline.return_value = pipeline
+    mock_device.create_sampler.return_value = MagicMock()
+    mock_device.create_bind_group.return_value = MagicMock()
+
+    encoder = MagicMock(name="Encoder")
+    rp = MagicMock(name="RenderPass")
+    encoder.begin_render_pass.return_value = rp
+    mock_device.create_command_encoder.return_value = encoder
+
+    mock_canvas_ctx = MagicMock(name="CanvasCtx")
+    screen_tex = MagicMock()
+    screen_tex.create_view.return_value = MagicMock()
+    mock_canvas_ctx.get_current_texture.return_value = screen_tex
+
+    # Inject windowed-mode state without opening a real window
+    ctx._headless = False
+    ctx._ctx = mock_canvas_ctx
+    ctx._device = mock_device
+    ctx._screen_format = "rgba8unorm"
+
+    return ctx, mock_device, mock_canvas_ctx, pipeline
+
+
+def test_blit_to_screen_with_src_view_sets_pipeline(monkeypatch):
+    """blit_to_screen(src_view=...) builds SCREEN_BLIT pipeline and calls set_pipeline."""
+    ctx, mock_device, _, pipeline = _windowed_ctx_with_injected_gpu(monkeypatch)
+    src_view = MagicMock(name="SrcView")
+    ctx.blit_to_screen(src_view=src_view)
+
+    encoder = mock_device.create_command_encoder.return_value
+    rp = encoder.begin_render_pass.return_value
+    rp.set_pipeline.assert_called_once_with(pipeline)
+    ctx._headless = True
+    ctx.terminate()
+
+
+def test_blit_to_screen_with_src_view_draws_quad(monkeypatch):
+    """blit_to_screen(src_view=...) draws 4 vertices (fullscreen quad)."""
+    ctx, mock_device, _, _ = _windowed_ctx_with_injected_gpu(monkeypatch)
+    ctx.blit_to_screen(src_view=MagicMock())
+
+    rp = mock_device.create_command_encoder.return_value.begin_render_pass.return_value
+    rp.draw.assert_called_once_with(4)
+    ctx._headless = True
+    ctx.terminate()
+
+
+def test_blit_to_screen_no_src_view_no_pipeline(monkeypatch):
+    """blit_to_screen(src_view=None) uses colour-cycle path — no pipeline built."""
+    ctx, mock_device, _, _ = _windowed_ctx_with_injected_gpu(monkeypatch)
+    ctx.blit_to_screen(src_view=None, frame_time=0.0)
+
+    mock_device.create_render_pipeline.assert_not_called()
+    rp = mock_device.create_command_encoder.return_value.begin_render_pass.return_value
+    rp.set_pipeline.assert_not_called()
+    ctx._headless = True
+    ctx.terminate()
+
+
+def test_blit_to_screen_pipeline_built_only_once(monkeypatch):
+    """Calling blit_to_screen twice with src_view only creates the pipeline once."""
+    ctx, mock_device, _, _ = _windowed_ctx_with_injected_gpu(monkeypatch)
+    ctx.blit_to_screen(src_view=MagicMock())
+    ctx.blit_to_screen(src_view=MagicMock())
+
+    mock_device.create_render_pipeline.assert_called_once()
+    ctx._headless = True
     ctx.terminate()

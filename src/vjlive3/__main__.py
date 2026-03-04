@@ -58,15 +58,15 @@ def main() -> int:
         ) as ctx:
             chain = EffectChain(width=width, height=height)
 
-            # Add a colour-invert effect to prove the full GPU effect-chain pipeline.
-            # InvertEffect.draw() receives the source texture view directly and
-            # manages its own bind groups — no hardware dependency.
+            # Add PerlinEffect — first real production GPU effect.
+            # Pure noise generator; no input texture needed.
+            # Proves the full chain: uniform buffer → WGSL → ping-pong → screen.
             try:
-                from vjlive3.plugins.invert import InvertEffect
-                chain.add_effect(InvertEffect())
-                logger.info("InvertEffect added to chain")
+                from vjlive3.plugins.perlin import PerlinEffect
+                chain.add_effect(PerlinEffect())
+                logger.info("PerlinEffect added to chain")
             except Exception as exc:
-                logger.warning("Could not add InvertEffect: %s", exc)
+                logger.warning("Could not add PerlinEffect (falling back to bare chain): %s", exc)
 
             engine = RenderEngine(ctx, chain, target_fps=60.0)
 

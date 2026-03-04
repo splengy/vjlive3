@@ -195,3 +195,100 @@ def test_projection_mapping():
     assert ec._edge_feather == pytest.approx(0.05)
     assert ec._calibration_mode is True
     ec.delete()
+
+
+# ---------------------------------------------------------------------------
+# _draw_effect dispatch tests (draw() protocol vs legacy pipeline.use())
+# ---------------------------------------------------------------------------
+
+class _DrawEffect:
+    """Minimal effect implementing the draw() protocol (no pipeline attr)."""
+    name = "draw-proto"
+    enabled = True
+    mix = 1.0
+    manual_render = False
+
+    def __init__(self):
+        self.draw_calls: list = []
+
+    def apply_uniforms(self, **_):
+        return None
+
+    def pre_process(self, ctx):
+        return None
+
+    def draw(self, render_pass, input_view, device):
+        self.draw_calls.append((render_pass, input_view, device))
+
+
+class _LegacyEffect:
+    """Minimal effect with only pipeline.use() (no draw() method)."""
+    name = "legacy-pipe"
+    enabled = True
+    mix = 1.0
+    manual_render = False
+
+    def __init__(self):
+        from unittest.mock import MagicMock as _MM
+        self.pipeline = _MM(name="pipe")
+        self.pipeline.use = _MM(name="use")
+
+    def apply_uniforms(self, **_):
+        return None
+
+    def pre_process(self, ctx):
+        return None
+
+
+class _BothEffect(_DrawEffect):
+    """Effect that has both draw() and pipeline — draw() must win."""
+    name = "both"
+
+    def __init__(self):
+        super().__init__()
+        from unittest.mock import MagicMock as _MM
+        self.pipeline = _MM(name="pipe")
+        self.pipeline.use = _MM(name="use")
+
+
+def test_draw_effect_uses_draw_protocol(patch_device):
+    """If effect implements draw(), it receives (render_pass, input_view, device)."""
+    from vjlive3.render.chain import EffectChain
+    ec = EffectChain(64, 64)
+    eff = _DrawEffect()
+    ec.add_effect(eff)
+
+    fake_input = MagicMock(name="input-view")
+    ec.render(fake_input)
+
+    assert len(eff.draw_calls) == 1
+    _, got_input_view, _ = eff.draw_calls[0]
+    # The chain may feed pre_result or the raw input; either way a view is passed
+    assert got_input_view is not None
+    ec.delete()
+
+
+def test_draw_effect_falls_back_to_pipeline_use(patch_device):
+    """Effect without draw() falls back to pipeline.use(render_pass)."""
+    from vjlive3.render.chain import EffectChain
+    ec = EffectChain(64, 64)
+    eff = _LegacyEffect()
+    ec.add_effect(eff)
+
+    ec.render(MagicMock(name="input"))
+    eff.pipeline.use.assert_called_once()
+    ec.delete()
+
+
+def test_draw_effect_draw_protocol_preferred_over_pipeline(patch_device):
+    """When effect has both draw() and pipeline, draw() is called, pipeline.use is not."""
+    from vjlive3.render.chain import EffectChain
+    ec = EffectChain(64, 64)
+    eff = _BothEffect()
+    ec.add_effect(eff)
+
+    ec.render(MagicMock(name="input"))
+
+    assert len(eff.draw_calls) == 1
+    eff.pipeline.use.assert_not_called()
+    ec.delete()
