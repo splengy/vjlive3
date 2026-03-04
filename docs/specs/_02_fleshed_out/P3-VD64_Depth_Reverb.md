@@ -447,12 +447,7 @@ Design decisions inherited:
     - Add BPM sync for rhythmic reverb gating
 
 ---
-
-## Easter Egg Idea
-
-When `decay` is set exactly to 0.666, `depth_influence` to exactly 0.666, `invert_depth` to exactly 0.666, `damping` to exactly 0.666, `diffusion` to exactly 0.666, `early_reflections` to exactly 0.666, `color_decay` to exactly 0.666, `wet_dry` to exactly 0.666, and the video contains a perfect 666 Hz sine wave pattern, the reverb enters a "sacred echo" state where the feedback loop synchronizes to exactly 666 ms delay, the damping creates exactly 666 Hz low-pass cutoff, the diffusion blurs with exactly 666-pixel radius, and the color decay produces exactly 666 distinct grayscale levels. The reverb tail forms a perfect 666-sample delay line that encodes the number 666 in every echo, creating a "prayer in the frequency domain."
-
----
+-
 
 ## References
 
@@ -700,4 +695,3 @@ When `decay` is set exactly to 0.666, `depth_influence` to exactly 0.666, `inver
 The DepthReverbEffect creates a spatial, depth-aware reverb that makes near objects feel intimate and far objects feel distant and echoey. By using a feedback loop with depth-modulated mixing, it simulates the acoustic property that sound (and now video) in the distance has more reverb than up close. This effect adds atmospheric depth and spatial ambiguity to video, making it a powerful tool for creating dreamy, ethereal, or spatially complex visuals in VJ performances.
 
 ---
->>>>>>> REPLACE

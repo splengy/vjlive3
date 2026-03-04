@@ -430,12 +430,7 @@ Design decisions inherited:
 14. **Debug Mode**: Visualize void mask, edge detection, fog mask, threat regions.
 
 ---
-
-## Easter Egg Idea
-
-When `voidStrength` is set exactly to 6.66, `edgeCrawl` to exactly 6.66, `crawlSpeed` to exactly 6.66, `fogDensity` to exactly 6.66, `fogScroll` to exactly 6.66, `threatGlow` to exactly 6.66, `shadowExpansion` to exactly 6.66, `desaturation` to exactly 6.66, and `nearThreshold` to exactly 6.66, the void enters a "sacred darkness" state where the void consumes exactly 66.6% of the scene, edge crawlers move at exactly 6.66 Hz, fog density is exactly 0.666, fog scrolls at exactly 0.0666 units per frame, threat glow is exactly 66.6% intensity, shadow expansion reacts to exactly 66.6% bass amplitude, desaturation drains exactly 66.6% of color, and the near threshold is exactly 0.666. The entire effect becomes a perfect 6.66×6.66 grid of darkness that encodes the number 666 in both space and time, creating a "void prayer" where every shadow is exactly 666% more menacing than normal.
-
----
+-
 
 ## References
 
@@ -636,4 +631,3 @@ When `voidStrength` is set exactly to 6.66, `edgeCrawl` to exactly 6.66, `crawlS
 The DepthVoidDatamoshEffect is a menacing, oppressive effect that consumes the scene in darkness. Using depth to drive void consumption, edge crawling, fog, and silhouettes, it creates a sense of supernatural menace perfect for dark, industrial, bass-heavy VJ performances. With audio reactivity, the void literally pulses with the music, making it a powerful tool for creating immersive, dark atmospheres.
 
 ---
->>>>>>> REPLACE

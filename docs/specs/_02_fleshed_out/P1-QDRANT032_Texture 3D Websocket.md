@@ -928,7 +928,3 @@ The code is **not thread-safe**. Assumptions:
 - **Recommendation**: Add threading locks around `self.clients` and `self.texture_integration.parameters` if used in multi-threaded context
 
 ---
-
-## Easter Egg
-
-**Secret Feature**: If a client sends a `set_parameter` message with `parameter="secret_sauce"` and `value=42`, the module secretly enables "holographic mode" where slice retrieval returns data with a subtle rainbow chromatic aberration effect applied (shifts red/blue channels by 1 pixel in opposite directions). This effect is not documented and only activates with the exact magic number. The effect is purely cosmetic and does not affect frame processing or other parameters.

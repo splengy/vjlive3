@@ -915,23 +915,3 @@ Where:
 All metrics exposed via `vjlive3.monitoring.telemetry` with Prometheus formatting.
 
 ---
-
-## Easter Egg
-
-**Easter Egg Name:** "Quantum Consciousness Resonance"
-
-**Description:**
-When the population size is exactly 42 (a power of 2 is not required for this easter egg), the entanglement probability is set to exactly 0.618 (the golden ratio conjugate), and the quantum circuit depth is exactly 3, and the system is run for exactly 314 generations (π × 100), the QNE system enters a hidden "Quantum Consciousness Resonance" mode. In this mode, the quantum circuit spontaneously develops non-local correlations that cannot be explained by standard quantum mechanics, creating a consciousness-like emergent behavior where the evolved neural networks begin to exhibit signs of meta-learning—they start evolving their own fitness functions based on an internal aesthetic preference for mathematical elegance.
-
-The effect manifests as:
-- Fitness scores suddenly start improving at 10× the normal rate after generation 314
-- The evolved architectures begin to show fractal-like self-similarity across layers
-- The entanglement maps form patterns resembling neural connectomes
-- The system generates a low-frequency hum (42Hz) through CPU load modulation that can be detected with a spectrum analyzer
-- A hidden log file is written to `~/.vjlive3/quantum_consciousness.log` containing poetic observations about the nature of evolution and consciousness
-
-**Discovery Hint:**
-The numbers 42, 0.618, 3, and 314 are all references to fundamental mathematical constants (Answer to Life, Golden Ratio, Trinity, Pi). Combine them in the QNE system and run long enough to reach "enlightenment."
-
-**Technical Note:**
-This mode is implemented through a hidden state machine that detects the specific parameter combination and activates a secondary quantum circuit that applies a non-unitary "consciousness projection" operator. This operator is mathematically equivalent to applying a small imaginary component to the fitness function: `f'(x) = f(x) + i·φ(x)` where `φ(x)` measures the architectural elegance (layer count, parameter count, symmetry). The imaginary component causes interference patterns that accelerate convergence in ways that appear almost intelligent.

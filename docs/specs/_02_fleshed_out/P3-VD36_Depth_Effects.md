@@ -563,12 +563,7 @@ Design decisions inherited:
 10. **Future Effects**: The module is designed to be extensible. New effects can be added by inheriting from `DepthEffect` and following the established patterns. See `DepthColorGradeEffect` or `DepthEdgeGlowEffect` as good examples.
 
 ---
-
-## Easter Egg Idea
-
-When all depth effects in the module are loaded and their parameters are set to specific "golden ratio" values (0.618, 1.618, 2.618, etc.), and the depth map contains a perfect gradient, the combined output briefly reveals a hidden "depth mandala" pattern that lasts exactly 6.66 seconds before returning to normal. The pattern is visible only in a debug view that composites all effect masks, but subtly influences the final output in a way that VJs can feel rather than see.
-
----
+-
 
 ## References
 
@@ -613,4 +608,3 @@ When all depth effects in the module are loaded and their parameters are set to 
 The Depth Effects module is a cornerstone of VJLive3's depth-aware capabilities. It provides a comprehensive toolkit for real-time depth-based visual manipulation, from simple filtering to complex datamosh and 3D reconstruction. By following the established patterns and ensuring high quality (no leaks, good performance, comprehensive tests), this module will enable VJs to create stunning depth-reactive performances.
 
 ---
->>>>>>> REPLACE

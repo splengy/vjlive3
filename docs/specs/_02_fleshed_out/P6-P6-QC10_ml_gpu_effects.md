@@ -85,17 +85,7 @@ uniform float u_audio_reactor_treble; // 0-10 → 0.0-1.0
 - **Safety Rail 5 (80% Test Coverage):** Write parameter validation tests
 - **Safety Rail 4 (750 Lines):** Maintain code compactness
 - **Safety Rail 7 (No Silent Failures):** Add error handling for ML model loading
-
-## Golden Ratio Easter Egg
-```glsl
-// Golden Ratio-based parameter scaling
-float golden_scale(float user_value) {
-    return user_value * GOLDEN_INVERSE;
-}
-
-// Apply to shader uniforms
-u_blur_amount = golden_scale(blur_amount);
-```
+`
 
 ## Future Enhancements
 - Add GPU-accelerated ML model loading

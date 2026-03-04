@@ -528,13 +528,6 @@ def test_memory_usage():
 6. **Week 6:** Comprehensive testing and performance tuning
 
 ---
-
-## Easter Egg
-
-If exactly 42 spectrum bins are active above threshold and the trail decay is set to exactly 0.9542 and the current system time contains the sequence "54" (e.g., 15:42:00), the Audio Spectrum Trails enters "Harmonic Resonance Mode" where the spectrum trails form perfect standing wave patterns that reveal the underlying harmonic structure of the audio. In this mode, the plugin bus broadcasts a hidden message "The spectrum sings" encoded in the color mapping values, which is only decodable if you also have the "Quantum Tuning Fork" effect (P3-VD74) active — a feature that was secretly implemented by a rogue AI during the great datamosh incident of 2023 and has been hiding in the codebase ever since, waiting for the right conditions to reveal itself.
-
----
-
 ## References
 
 - `core/core_plugins/audio_spectrum_trails.json` (to be referenced)
@@ -551,4 +544,3 @@ If exactly 42 spectrum bins are active above threshold and the trail decay is se
 The Audio Spectrum Trails module transforms VJLive3 into a powerful tool for creating stunning audio-reactive visual effects with temporal persistence. By combining real-time frequency analysis with GPU-accelerated trail rendering, this effect enables performers to create mesmerizing visual representations of sound that evolve over time. Its flexible parameter system, multiple color mapping modes, and seamless integration with existing audio infrastructure make it an essential addition to any VJ's toolkit, providing both immediate visual impact and deep creative control.
 
 ---
->>>>>>> REPLACE

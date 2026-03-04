@@ -385,12 +385,7 @@ Design decisions inherited:
     - Add chromatic aberration to holographic effect
 
 ---
-
-## Easter Egg Idea
-
-When `iridescenceAmount` is set exactly to 6.66, `filmThickness` to exactly 666.0, `diffractionStrength` to exactly 6.66, `diffractionFrequency` to exactly 666.0, `fresnelPower` to exactly 6.66, and `colorShift` to exactly 6.66, and the depth map contains a perfect dodecahedron, the holographic effect spontaneously generates a "rainbow mandala" where the iridescence forms a perfect 12-fold symmetric pattern that pulses at exactly 6.66 Hz, creating a "sacred geometry hologram" that VJs can feel as a moment of perfect cosmic alignment.
-
----
+-
 
 ## References
 
@@ -562,4 +557,3 @@ When `iridescenceAmount` is set exactly to 6.66, `filmThickness` to exactly 666.
 The DepthHolographicIridescenceEffect brings the magic of holographic materials and thin-film interference to VJ performances. By leveraging depth data to approximate surface normals, it creates angle-dependent iridescent colors that shift with camera movement and object geometry. Combined with diffraction grating sparkle and multiple blend modes, this effect adds a touch of futuristic, otherworldly beauty to any visual composition.
 
 ---
->>>>>>> REPLACE

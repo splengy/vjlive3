@@ -415,12 +415,7 @@ Design decisions inherited:
     - Add audio reactivity to edge glow
 
 ---
-
-## Easter Egg Idea
-
-When `sliceNear` is set exactly to 6.66, `sliceFar` to exactly 6.66, `feather` to exactly 6.66, `fgScale` to exactly 6.66, `fgOffsetX` to exactly 6.66, `fgOffsetY` to exactly 6.66, `edgeGlow` to exactly 6.66, `edgeColorR` to exactly 6.66, `edgeColorG` to exactly 6.66, and `edgeColorB` to exactly 6.66, the portal effect enters a "sacred threshold" state where the depth slice becomes a perfect 6.66-wide band that oscillates at 6.66 Hz, the foreground scales to exactly 6.66× its size, the offset creates a perfect 6.66-pixel displacement, and the edge glow pulses with exactly 6.66 distinct color bands that encode the number 666 in RGB space. The composite becomes a "portal to the 6th dimension" where the performer appears to exist in a space that exactly matches the biblical number of man.
-
----
+-
 
 ## References
 
@@ -616,4 +611,3 @@ When `sliceNear` is set exactly to 6.66, `sliceFar` to exactly 6.66, `feather` t
 The DepthPortalCompositeEffect provides a clean, depth-based method for isolating performers and compositing them onto arbitrary backgrounds. By leveraging depth data, it avoids the pitfalls of chroma keying (lighting constraints, color spills) and provides a natural, hardware-accelerated solution for augmented reality-style composites. With configurable depth ranges, foreground transforms, and optional edge effects, it's a versatile tool for VJ performances that need to place performers in virtual environments.
 
 ---
->>>>>>> REPLACE

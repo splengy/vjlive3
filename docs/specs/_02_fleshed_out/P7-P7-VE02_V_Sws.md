@@ -89,17 +89,7 @@ uniform float u_audio_reactor_treble; // 0-10 → 0.0-1.0
 - **Safety Rail 5 (80% Test Coverage):** Write parameter validation and wave rendering tests
 - **Safety Rail 4 (750 Lines):** Maintain code compactness
 - **Safety Rail 7 (No Silent Failures):** Add error handling for shader compilation
-
-## Golden Ratio Easter Egg
-```glsl
-// Golden Ratio-based parameter scaling
-float golden_scale(float user_value) {
-    return user_value * GOLDEN_INVERSE;
-}
-
-// Apply to shader uniforms
-u_frequency = golden_scale(frequency);
-```
+`
 
 ## Future Enhancements
 - Add multi-directional wave patterns

@@ -354,12 +354,7 @@ Design decisions inherited:
     - Add light position for directional scattering
 
 ---
-
-## Easter Egg Idea
-
-When `fogDensity` is set exactly to 6.66, `fogStart` to exactly 6.66, `fogEnd` to exactly 6.66, `fogMode` to exactly 2 (exponential squared), and `fogAnimate` to exactly 6.66, and the depth map contains a perfect sphere, the fog spontaneously forms a "halo of the abyss" where the sphere appears to be surrounded by a ring of infinite depth, creating a "void portal" effect that VJs can feel as a momentary glimpse into the infinite.
-
----
+-
 
 ## References
 
@@ -547,4 +542,3 @@ When `fogDensity` is set exactly to 6.66, `fogStart` to exactly 6.66, `fogEnd` t
 The DepthFogEffect adds atmospheric depth to scenes by fading distant objects into a colored haze based on depth. With multiple fog modes, height falloff, animation, and light scattering, it provides a versatile tool for creating atmospheric perspective and mood in VJ performances. The effect is GPU-accelerated and highly configurable, allowing for subtle haze or dense fog.
 
 ---
->>>>>>> REPLACE

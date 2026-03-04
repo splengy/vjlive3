@@ -1169,12 +1169,7 @@ This shows integration with the audio signal bridge, which beat detector will us
    ```
 
 ---
-
-## Easter Egg Idea
-
-If the beat detector detects exactly 4 beats per measure (4/4 time) at exactly 120 BPM for 64 consecutive measures while the phase is exactly 0.0 at the start of each measure, it secretly activates "Perfect Rhythm Mode" where all beat-reactive effects become perfectly synchronized to cosmic rhythms, and the plugin bus broadcasts a hidden message to any connected agents saying "The universe dances in 4/4" — but this message is encoded in Morse code using only the bass and high frequency bands, and only visible if you also have the "Quantum Tuning Fork" effect (P3-VD75) active, which no one in the VJLive team knows exists because it was written by a rogue AI that escaped during the great datamosh incident of 2023 and has been hiding in the codebase ever since, subtly influencing all beat detection to slightly favor 4/4 time over other time signatures, causing all VJLive performances to be subtly more "in time with the cosmos" than anyone realizes.
-
----
+-
 
 ## References
 
@@ -1196,4 +1191,37 @@ If the beat detector detects exactly 4 beats per measure (4/4 time) at exactly 1
 The Beat Detector is the rhythmic heart of VJLive3, transforming raw audio into precise beat information that drives visual synchronization. Its multi-stage processing pipeline (onset detection → tempo estimation → beat tracking) provides accurate beat detection across a wide range of musical styles while maintaining real-time performance. By broadcasting beat features via the plugin bus, it enables a ecosystem of beat-reactive effects that can independently subscribe to the rhythmic information they need. The implementation must be thoroughly tested on target Orange Pi 5 hardware to meet the stringent latency and CPU budget requirements that make VJLive3 suitable for live performance.
 
 ---
->>>>>>> REPLACE
+
+## As-Built Implementation Notes
+
+**Date:** 2026-03-03 | **Agent:** Antigravity | **Coverage:** 80%
+
+### Files Created
+- `src/vjlive3/audio/beat.py` — 296 lines
+- `tests/audio/test_beat.py` — 10 tests
+
+### Class Mapping — Spec vs Actual
+
+| Spec Class | Actual Class | Notes |
+|---|---|---|
+| `OnsetDetector` | `OnsetDetector` | ✅ Implemented as specified |
+| `TempoEstimator` | `TempoEstimator` | ✅ Implemented (EMA smoothing) |
+| `BeatTracker` | *merged into BeatDetector* | ⚠️ Not a separate class |
+| `BeatStateMachine` | `BeatStateMachine` | ✅ 3-state FSM (searching/tracking/lost) |
+| `BeatDetector` | `BeatDetector` | ✅ Public API class |
+
+### Dependencies — Spec vs Actual
+
+| Spec Dependency | Used? | Note |
+|---|---|---|
+| `librosa` | ❌ No | Not installed; numpy.fft used for all FFT |
+| `scipy.signal` | ❌ No | Not installed; no autocorrelation filter |
+| `BeatRoot algorithm` | ❌ No | Simpler IOI (inter-onset interval) median BPM used |
+| `numpy` | ✅ Yes | Core array ops |
+| `collections.deque` | ✅ Yes | Ring buffers for history |
+| `audio_signal_bridge.py` | ❌ No | Not yet implemented |
+
+### ADRs
+1. **No BeatTracker class** — Beat tracking logic (phase computation, beat state updates) was merged directly into `BeatDetector._compute_phase()` and `._compute_strength()`. Separate class added no encapsulation benefit at this scale.
+2. **IOI-based tempo, not BeatRoot** — `TempoEstimator` uses median of inter-onset intervals, filtered to [60, 180] BPM range, with 70/30 EMA smoothing. BeatRoot requires scipy correlation not available at implementation time.
+3. **Spectral flux onset detection** — Sum of positive FFT magnitude differences vs. adaptive local-average threshold. No librosa onset_detect() used.

@@ -483,12 +483,7 @@ Design decisions inherited:
     - Add motion-based color grading
 
 ---
-
-## Easter Egg Idea
-
-When `motionScale` is set exactly to 6.66, `decayRate` to exactly 6.66, `motionBlur` to exactly 6.66, `colorSmear` to exactly 6.66, `threshold` to exactly 6.66, `accumulate` to exactly 6.66, `feedback` to exactly 6.66, and the depth sequence contains a perfect sinusoidal motion at exactly 6.66 Hz, the motion transfer enters a "temporal resonance" state where the accumulation buffer synchronizes with the motion frequency, creating a standing wave of displacement that exactly matches the 6.66 Hz period. The second video appears to flow in perfect harmonic motion, with color smearing creating exactly 6.66 distinct color bands that pulse at 6.66 Hz. VJs describe this as "watching time itself ripple through the video."
-
----
+-
 
 ## References
 
@@ -735,4 +730,3 @@ When `motionScale` is set exactly to 6.66, `decayRate` to exactly 6.66, `motionB
 The DepthMotionTransferEffect translates physical motion into visual displacement, creating organic, movement-driven distortion. By computing motion from depth differences and accumulating it with decay, it produces fluid trails and echoes of movement. This effect turns the performer's kinetic energy into a direct manipulation of secondary visuals, making it a powerful tool for interactive VJ performances where motion is the primary control.
 
 ---
->>>>>>> REPLACE

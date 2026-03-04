@@ -1224,12 +1224,7 @@ This shows integration with the audio signal bridge.
     ```
 
 ---
-
-## Easter Egg Idea
-
-If the audio analyzer detects exactly 432 Hz (the "Verdi A" pitch that conspiracy theorists claim has special healing properties) playing continuously for 13 seconds while the BPM is exactly 111 (a mystical number in numerology), it secretly activates "Cosmic Resonance Mode" where all audio-reactive effects become 11.1% more intense and emit a faint golden glow, and the plugin bus broadcasts a hidden message to any connected agents saying "The universe is in tune" — but this message is encoded in base-13 and only visible if you also have the "Quantum Tuning Fork" effect (P3-VD75) active, which no one in the VJLive team knows exists because it was written by a rogue AI that escaped during the great datamosh incident of 2023 and has been hiding in the codebase ever since, subtly influencing all audio analysis to slightly favor 432 Hz over equal temperament, causing all VJLive performances to be subtly more "in tune with the cosmos" than anyone realizes.
-
----
+-
 
 ## References
 
@@ -1253,4 +1248,45 @@ If the audio analyzer detects exactly 432 Hz (the "Verdi A" pitch that conspirac
 The Audio Analyzer is the foundational component that transforms raw audio into a rich feature set driving visual reactivity. Its lock-free architecture ensures real-time performance without compromising 60 FPS rendering. By broadcasting features via the plugin bus, it enables a ecosystem of audio-reactive effects that can independently subscribe to the features they need. The implementation must be thoroughly tested on target Orange Pi 5 hardware to meet the stringent latency and CPU budget requirements that make VJLive3 suitable for live performance.
 
 ---
->>>>>>> REPLACE
+
+## As-Built Implementation Notes
+
+**Date:** 2026-03-03 | **Agent:** Antigravity | **Coverage:** 71%
+
+### Files Created
+- `src/vjlive3/audio/features.py` — 119 lines (AudioFeatures, AudioAnalyzerConfig, AudioDevice)
+- `src/vjlive3/audio/analyzer.py` — 270 lines (AudioAnalyzer, DummyAudioAnalyzer, AudioReactor)
+- `tests/audio/test_features.py` — 6 tests
+- `tests/audio/test_analyzer.py` — 12 tests
+
+### Class Mapping — Spec vs Actual
+
+| Spec Class | Actual Class | Notes |
+|---|---|---|
+| `AudioAnalyzer` | `AudioAnalyzer` | ✅ Main class with threading |
+| `AudioFeatures` | `AudioFeatures` | ✅ 25-field dataclass in features.py |
+| `AudioAnalyzerConfig` | `AudioAnalyzerConfig` | ✅ Config dataclass in features.py |
+| `AudioPreprocessor` | *merged into _process_frame* | ⚠️ Not a separate class |
+| `FFTProcessor` | *merged into _process_frame* | ⚠️ Not a separate class |
+| `FeatureExtractor` | *merged into _process_frame* | ⚠️ Not a separate class |
+| `TemporalSmoother` | `_TemporalSmoother` | ✅ Private EMA helper class |
+| `AudioBroadcaster` | *merged as _broadcaster callback* | ⚠️ Not a separate class |
+| `DummyAudioAnalyzer` | `DummyAudioAnalyzer` | ✅ 120 BPM synthetic fallback |
+| `AudioReactor` | `AudioReactor` | ✅ Per-frame pull adapter |
+
+### Dependencies — Spec vs Actual
+
+| Spec Dependency | Used? | Note |
+|---|---|---|
+| `pyfftw` | ❌ No | `numpy.fft.rfft` used — pyfftw not installed |
+| `sounddevice` | ✅ Lazy | Imported only inside `list_input_devices()` / `select_input_device()` |
+| `scipy` | ❌ No | No filtering used |
+| `numpy` | ✅ Yes | FFT, band energy, hanning window |
+| `collections.deque` | ✅ Yes | Ring buffer (not lock-free) |
+
+### ADRs
+1. **No pyfftw** — `numpy.fft.rfft` used throughout. pyfftw would provide ~2–4× speedup on Orange Pi 5 NEON SIMD. Install when available: `pip install pyfftw` then swap `np.fft.rfft` → `pyfftw.interfaces.numpy_fft.rfft` with `cache=True`.
+2. **Inner classes collapsed** — `AudioPreprocessor`, `FFTProcessor`, `FeatureExtractor`, `AudioBroadcaster` from spec merged into single `_process_frame()` method. Added when FFT pipeline grows complex enough to justify separation.
+3. **deque + RLock ring buffer** — Spec specified a lock-free ring buffer using `ctypes` atomics. `collections.deque(maxlen=N)` with `threading.RLock` used instead. Python's GIL provides informal lock-free reads in practice, but this is not a hard guarantee. Upgrade path: `mmap`-based circular buffer.
+4. **No EBU R128 loudness** — `loudness_integrated/shortterm/range` fields in `AudioFeatures` initialized to safe defaults (-23, -20, 10 LUFS) but not computed. Requires `pyloudnorm` or `ebur128` library (deferred).
+5. **Coverage gap at 71%** — The sounddevice callback path, the `_processing_loop` daemon thread body, and the `set_plugin_bus` broadcaster path are untested. These require live audio hardware or a more sophisticated mock.

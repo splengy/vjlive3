@@ -961,9 +961,3 @@ No legacy code references exist for this infrastructure component. This is a new
 - **Multiprocessing support**: Not in scope; `threading` only. Could wrap with `multiprocessing` if needed later.
 
 ---
-
-## Easter Egg Idea
-
-**Secret Feature**: If you set `name="TheOvermind"` when creating the worker thread, it logs a special message: `"The Overmind awakens... processing your bidding."` and adds a 1ms delay to each task as "contemplation time". This is purely for debugging amusement and has no effect on functionality.
-
-*(Submitted to EASTEREGG_COUNCIL.md separately)*

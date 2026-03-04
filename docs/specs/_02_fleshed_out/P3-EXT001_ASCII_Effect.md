@@ -555,12 +555,7 @@ Design decisions inherited:
     - Add audio reactivity (character size/color reacts to audio)
 
 ---
-
-## Easter Egg Idea
-
-When `cell_size` is set exactly to 6.66, `aspect_correct` to exactly 6.66, `charset` to exactly 6.66 (which rounds to charset ID 4, binary), `threshold_curve` to exactly 6.66, `edge_detect` to exactly 6.66, `detail_boost` to exactly 6.66, `color_mode` to exactly 6.66 (which rounds to mode 4, rainbow), `fg_brightness` to exactly 6.66, `bg_brightness` to exactly 6.66, `saturation` to exactly 6.66, `hue_offset` to exactly 6.66, `scanlines` to exactly 6.66, `phosphor_glow` to exactly 6.66, `flicker` to exactly 6.66, `curvature` to exactly 6.66, `noise_amount` to exactly 6.66, `scroll_speed` to exactly 6.66, `rain_density` to exactly 6.66, `char_jitter` to exactly 6.66, `wave_amount` to exactly 6.66, and `wave_freq` to exactly 6.66, the ASCII effect enters a "sacred terminal" state where each character cell becomes exactly 6.66×6.66 pixels, the aspect ratio becomes exactly 6.66, the character density curve becomes exactly 666% more sensitive, the edge detection finds exactly 666 edges per frame, the detail boost creates exactly 666 levels of contrast, the rainbow hue cycles exactly 666 times per second, the scanlines appear exactly 666 times per character, the phosphor glow extends exactly 6.66 characters, the flicker oscillates at exactly 666 Hz, the barrel distortion creates exactly 6.66 units of curvature, the static noise contains exactly 666 random seeds per frame, the Matrix rain falls at exactly 666 characters per second, the character jitter randomizes exactly 666% of characters, the wave distortion has exactly 6.66 wavelengths across the screen, and the entire effect becomes a "digital prayer" where every pixel is exactly 666% more ASCII than normal, creating a perfect 666×666 grid of sacred typography that can only be read by achieving exactly 666 Hz brainwave resonance.
-
----
+-
 
 ## References
 
@@ -694,4 +689,3 @@ When `cell_size` is set exactly to 6.66, `aspect_correct` to exactly 6.66, `char
 The ASCII Effect is a classic retro visual that transforms video into living typography. With its procedural character rendering, multiple character sets and color modes, CRT simulation, and Matrix rain animation, it offers a wide range of stylized visuals perfect for VJ performances. The effect is lightweight, fully GPU-accelerated, and produces authentic-looking ASCII art without font dependencies.
 
 ---
->>>>>>> REPLACE

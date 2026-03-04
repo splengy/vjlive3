@@ -450,47 +450,7 @@ Example (1920x1080): 1920 * 1080 * 4 = 8,294,400 bytes (~8 MB)
 - [x] Integration with plugin registry
 - [x] Documentation complete
 - [x] Easter egg implementation
-
-## Easter Egg: Golden Ratio Chakra Alignment
-
-**Activation**: Hold 'A' key for 1.618 seconds during effect runtime
-
-**Effect**:
-1. All 7 chakras align in golden ratio sequence
-2. Aura strength = 1.618 * base strength
-3. Spirit mist = 0.618 * normal mist
-4. Third eye = 2.618 * normal intensity
-5. Display golden ratio (1.618) in bottom-right corner for 1.618 seconds
-6. Return to normal operation
-
-**Mathematical Basis**:
-- Golden ratio φ = (1 + √5) / 2 ≈ 1.618
-- 7 chakras correspond to Fibonacci sequence positions
-- Energy flow = 1.618 Hz (golden frequency)
-
-**Implementation**:
-```python
-def golden_ratio_burst(self):
-    # Golden ratio chakra alignment
-    golden_ratio = 1.618
-    
-    # Align all 7 chakras in golden ratio sequence
-    chakra_sequence = [0.0, 0.618, 1.0, 1.618, 2.618, 4.236, 6.854]
-    
-    # Enhanced aura parameters
-    enhanced_aura = self.parameters['aura_strength'] * golden_ratio
-    enhanced_mist = self.parameters['spirit_mist'] * 0.618
-    enhanced_third_eye = self.parameters['third_eye'] * 2.618
-    enhanced_energy = self.parameters['energy_flow'] * golden_ratio
-    
-    # Apply chakra alignment
-    for i, chakra_value in enumerate(chakra_sequence):
-        self._set_chakra_frequency(
-            chakra_index=i,
-            frequency=chakra_value * golden_ratio,
-            intensity=enhanced_aura
-        )
-```
+`
 
 ## Parameter Mapping (0-10 User Scale to Shader Ranges)
 

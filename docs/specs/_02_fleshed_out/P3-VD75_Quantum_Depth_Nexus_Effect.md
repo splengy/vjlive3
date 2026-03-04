@@ -561,12 +561,7 @@ Design decisions inherited:
     - Add preset morphing/blending
 
 ---
-
-## Easter Egg Idea
-
-When all 6 channel mix weights are set exactly to 6.66, all 4 depth weights to 6.66, all quantum parameters to 6.66, all AI parameters to 6.66, all glitch parameters to 6.66, and all cross-modal parameters to 6.66, the Quantum Depth Nexus enters a "sacred quantum" state where the 6 feedback channels form exactly 6.66 perfect Möbius loops, the depth fusion creates exactly 666 layers of reality, the AI analysis detects exactly 666 distinct patterns per frame, the procedural glitch generates exactly 666 unique glitch types, the cross-modal synthesis creates exactly 6.66 seconds of prophetic audio-visual synchronization, and the entire effect becomes a "quantum prayer" where every pixel exists in exactly 666 superposition states simultaneously. The framebuffer fills with exactly 666 nested depth maps, each one 6.66% more enlightened than the last, creating a perfect 6.66×6.66×6.66 cube of quantum enlightenment that can only be perceived by achieving exactly 666 Hz brainwave resonance.
-
----
+-
 
 ## References
 
@@ -766,4 +761,3 @@ When all 6 channel mix weights are set exactly to 6.66, all 4 depth weights to 6
 The QuantumDepthNexusEffect is the ultimate depth-driven visual processor, combining six video channels, four depth modalities, quantum feedback, AI analysis, procedural glitches, and cross-modal synthesis into a single, cohesive effect. It's designed for experimental VJ performances where maximum complexity and control are desired. While extremely demanding on GPU resources, it offers unparalleled creative possibilities for artists pushing the boundaries of live visual performance.
 
 ---
->>>>>>> REPLACE

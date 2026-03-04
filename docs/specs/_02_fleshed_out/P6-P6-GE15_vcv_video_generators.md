@@ -206,17 +206,3 @@ validate each parameter mapping and loop iteration.
 - Most math uses `float` operations; no expensive texture lookups except the
   final mix with `tex0`.
 - Default parameter ranges guarantee numerical stability.
-
-## Easter Eggs
-
-When `color_cycle` is set to 10 (max), the hue offset increments by 2.0 per
-second which causes a full colour revolution every π/ seconds; the behaviour was
-previously known as "disco mode" in the legacy code base.
-
----
-
-With this information in hand, the coding task is straightforward: copy over
-the legacy GLSL and baking the parameter remaps into Python, then add tests
-following the patterns in earlier generator specs.  Once implemented and
-validated, mark the checklist above and move the spec to the completed folder.
-

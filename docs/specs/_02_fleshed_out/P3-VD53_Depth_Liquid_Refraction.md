@@ -432,12 +432,7 @@ Design decisions inherited:
     - Add volumetric blur (not just depth-proportional)
 
 ---
-
-## Easter Egg Idea
-
-When `refractionStrength` is set exactly to 6.66, `chromaticSpread` to exactly 6.66, `rippleSpeed` to exactly 6.66, `rippleScale` to exactly 6.66, `edgeGlow` to exactly 6.66, and the depth map contains a perfect sphere, the refraction spontaneously creates a "water drop lens" effect where the sphere acts as a magnifying glass that inverts the background at exactly 6.66× magnification, and the ripples form a standing wave pattern that resonates at 6.66 Hz, creating a "liquid crystal" moment that VJs can feel as a perfect droplet of time.
-
----
+-
 
 ## References
 
@@ -646,4 +641,3 @@ When `refractionStrength` is set exactly to 6.66, `chromaticSpread` to exactly 6
 The DepthLiquidRefractionEffect creates realistic, depth-driven distortion that simulates looking through refractive media like water or glass. By using depth gradients as displacement fields, it produces natural-looking caustics and chromatic aberration that respond to scene geometry. With additional features like animated ripples, frosted glass, and depth-proportional blur, it's a versatile tool for creating organic, fluid distortion effects in VJ performances.
 
 ---
->>>>>>> REPLACE

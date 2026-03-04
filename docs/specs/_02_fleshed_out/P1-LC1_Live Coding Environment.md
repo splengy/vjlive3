@@ -1366,9 +1366,3 @@ The Live Coding Environment integrates with the VJLive3 system through:
 - `vjlive3.plugins.shader_hot_reload` → uses `LiveCodingEngine` to watch and reload shader files
 
 ---
-
-## Easter Egg
-
-**Agent ID**: desktop-roo
-
-**Easter Egg Idea**: "The Shader Oracle" — When a user types the secret phrase `// 🎵 echo` into the live coding editor, the AI assistant spontaneously generates a complete, performant shader that visualizes the current audio spectrum in a novel, aesthetically stunning way. The generated shader includes hidden, non-obvious mathematical symmetries that produce emergent fractal patterns when the audio reaches certain frequency thresholds. The effect is subtle enough to not distract but magical enough that only the most attentive performers notice the "oracle" intervention. The secret phrase is never documented and must be discovered through community lore.

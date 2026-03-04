@@ -468,12 +468,7 @@ Design decisions inherited:
     - Use geometry shader to expand points into quads with orientation
 
 ---
-
-## Easter Egg Idea
-
-When `max_particles` is set exactly to 1337, `particle_lifetime` to exactly 6.66, `gravity` to exactly (0, 0, 0), and `depth_attraction` to exactly 1.618, and the depth map contains a perfect sphere, the particles spontaneously arrange themselves into a perfect Fibonacci sphere distribution that rotates slowly for exactly 6.66 seconds before returning to normal behavior. The particles glow with a golden hue during this time, creating a "sacred geometry" moment that VJs can feel as a harmonic convergence.
-
----
+-
 
 ## References
 
@@ -658,4 +653,3 @@ When `max_particles` is set exactly to 1337, `particle_lifetime` to exactly 6.66
 The DepthParticle3DEffect brings depth data to life by emitting a dynamic swarm of particles that interact with the scene. It's a versatile effect that can produce anything from subtle atmospheric particles to aggressive motion trails. With careful tuning of physics parameters, VJs can create captivating volumetric visuals that respond to the 3D structure of their performance space.
 
 ---
->>>>>>> REPLACE

@@ -168,19 +168,7 @@ uniform float u_audio_reactor_treble; // 0-10 → 0.0-1.0
 - **Safety Rail 5 (80% Test Coverage):** Write comprehensive parameter validation and rendering tests
 - **Safety Rail 4 (750 Lines):** Modularize shader code; keep Python wrapper concise
 - **Safety Rail 7 (No Silent Failures):** Add error handling for framebuffer creation, shader compilation, and texture uploads
-
-## Golden Ratio Easter Egg
-```glsl
-// Golden Ratio-based parameter scaling for harmonic feedback
-float golden_scale(float user_value) {
-    return user_value * GOLDEN_INVERSE;
-}
-
-// Apply to key parameters for phi-harmonic feedback
-u_feedback_amount = golden_scale(feedback_amount);
-u_decay = golden_scale(decay) * GOLDEN_INVERSE;
-u_rate = golden_scale(rate) * GOLDEN_RATIO * 0.1;
-```
+`
 
 ## Future Enhancements
 - Add CV input modulation for all parameters

@@ -412,12 +412,7 @@ Design decisions inherited:
 15. **Debug Mode**: Visualize depth map, show model loading status, fallback indicator.
 
 ---
-
-## Easter Egg Idea
-
-When `depth_scale` is set exactly to 6.66, `temporal_smoothing` to exactly 6.66, `focus_distance` to exactly 0.666, and `model_variant` is set to "hybrid", the ML depth estimation enters a "sacred depth" state where the MiDaS model produces exactly 666 layers of depth segmentation, each layer separated by exactly 6.66 depth units, the temporal smoothing creates exactly 666 frames of persistence, the focus distance creates exactly 666 distinct bokeh circles, and the entire depth map encodes the number 666 in both spatial and temporal dimensions. The fallback shader, if activated, produces exactly 666 distinct color bands in the depth colormap, and the WebcamDepthEstimator finds exactly 666 feature points per frame. The effect becomes a "depth prayer" where every pixel's depth is exactly 666% more profound than normal.
-
----
+-
 
 ## References
 
@@ -622,4 +617,3 @@ When `depth_scale` is set exactly to 6.66, `temporal_smoothing` to exactly 6.66,
 The MLDepthEstimationEffect brings powerful monocular depth estimation to VJLive, enabling depth-based effects on any video source. With its three-tier fallback strategy (MiDaS ML, CPU fallback, shader heuristic), it ensures reliable operation across diverse environments while providing the best possible quality given available resources. Whether using state-of-the-art deep learning or fast GPU heuristics, this effect makes depth accessible to all VJ performances.
 
 ---
->>>>>>> REPLACE

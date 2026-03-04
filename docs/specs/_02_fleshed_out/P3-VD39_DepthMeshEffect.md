@@ -500,12 +500,7 @@ Design decisions inherited:
     - Depth buffer: enable depth test for proper occlusion
 
 ---
-
-## Easter Egg Idea
-
-When `render_mode` is set to exactly 6 (out of range but clamped to 5), `normal_mode` to exactly 2 (gradient), and the depth map contains a perfect sphere, the mesh normals spontaneously form a perfect Fibonacci sphere distribution that causes the lighting to create a rainbow halo effect lasting exactly 6.66 seconds before returning to normal. The effect is only visible in lit mode with a specific light direction but subtly influences the mesh's "energy" in a way that VJs can feel as a "sacred geometry" moment.
-
----
+-
 
 ## References
 
@@ -686,4 +681,3 @@ When `render_mode` is set to exactly 6 (out of range but clamped to 5), `normal_
 The DepthMeshEffect provides a solid, continuous surface representation of depth data, enabling realistic 3D visualization with proper lighting and shading. By constructing a regular grid mesh and rendering it with standard OpenGL pipelines, it delivers high-quality volumetric visuals suitable for VJ performances. The effect requires careful management of vertex buffers and normal computation but offers a rich set of render modes to explore.
 
 ---
->>>>>>> REPLACE

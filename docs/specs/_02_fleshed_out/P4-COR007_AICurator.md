@@ -701,34 +701,7 @@ def test_invalid_context_parameters():
 - [x] Diversity injection to prevent filter bubbles
 - [x] Graceful degradation when dependencies missing
 - [x] Comprehensive documentation of algorithms and math
-
-## Golden Ratio Easter Egg
-
-When the AICurator detects a user whose preference vector has a **cosine similarity ≥ 0.99** with the golden ratio conjugate pattern `[0.618, 0.382, 0.618, 0.382, ...]` across the first 64 dimensions, it activates **"Harmonic Curation Mode"**:
-
-```python
-# Golden ratio pattern detection
-golden_pattern = np.array([0.618, 0.382] * 32)  # 64-dim pattern
-user_vector = get_user_vector(user_id)
-similarity = cosine_similarity(user_vector, golden_pattern)
-
-if similarity > 0.99:
-    # Activate harmonic mode
-    recommendations = apply_golden_ratio_curation(recommendations)
-    
-    # Inject assets with golden ratio proportions
-    # (e.g., 61.8% energetic, 38.2% calm; 61.8% geometric, 38.2% organic)
-    energy_split = int(limit * 0.618)
-    playlist = balance_by_golden_ratio(playlist, energy_split)
-```
-
-The easter egg creates aesthetically balanced playlists that follow the golden ratio in:
-- Energy distribution (61.8% high-energy, 38.2% calm)
-- Category diversity (61.8% primary categories, 38.2% niche)
-- Transition timing (61.8% of assets use 8-beat transitions, 38.2% use 5-beat)
-- Color palette (61.8% warm colors, 38.2% cool colors)
-
-This creates a naturally pleasing flow that mirrors patterns found in classical art and music composition, rewarding users who subconsciously gravitate toward mathematically harmonious aesthetics.
+.
 
 ## Safety Rail Compliance
 

@@ -672,21 +672,7 @@ void main() {
 ```
 
 ---
-
-## Easter Egg Council
-
-I've added my creative easter egg idea to the council:
-
-**Easter Egg Idea:** "Matrix Rainmaker Mode" - When the user holds down the 'M' key for 3+ seconds while the effect is active, it triggers a secret "Matrix Rainmaker" mode where:
-- The visual effect transforms into falling green katakana characters (like the Matrix movie)
-- The characters cascade down the screen in a 3D perspective
-- The audio analysis temporarily shifts to detect "digital noise" patterns
-- After 30 seconds, it automatically returns to normal mode with a subtle "digital rain" transition
-- The easter egg is logged in a hidden debug file for tracking
-
-This adds a fun, recognizable pop culture reference while maintaining the core functionality and providing a surprising visual transformation that VJ performers might enjoy as a secret feature.
-
----
+-
 
 ## Completion
 

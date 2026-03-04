@@ -435,12 +435,7 @@ Design decisions inherited:
 14. **Debug Mode**: Visualize depth deltas (color-coded), show motion vectors, display corruption blocks.
 
 ---
-
-## Easter Egg Idea
-
-When `vectorScale` is set exactly to 6.66, `temporalBlend` to exactly 6.66, `propagationDecay` to exactly 6.66, `depthThreshold` to exactly 6.66, `blockSize` to exactly 6.66, and `blockChaos` to exactly 6.66, the vector field datamosh enters a "sacred propagation" state where depth deltas are scaled by exactly 6.66, temporal blending creates exactly 6.66 frames of persistence, propagation decay reduces the effect by exactly 6.66% per second, the depth threshold is exactly 0.0666, block size is exactly 6.66 pixels, and chaos factor is exactly 66.6%. The entire effect becomes a perfect 6.66×6.66 grid of corruption blocks that encode the number 666 in both space and time, creating a "vector prayer" where each corruption block is exactly 666 milliseconds old.
-
----
+-
 
 ## References
 
@@ -631,4 +626,3 @@ When `vectorScale` is set exactly to 6.66, `temporalBlend` to exactly 6.66, `pro
 The DepthVectorFieldDatamoshEffect is "THE MISSING LINK" — a unique datamosh effect where the depth camera's own temporal changes drive the corruption. Frame-to-frame depth deltas become motion vectors, creating organic, depth-aware datamosh that responds naturally to scene movement. With configurable vector scale, temporal persistence, and block corruption, it's a powerful tool for creating dynamic, depth-driven visual corruption effects.
 
 ---
->>>>>>> REPLACE

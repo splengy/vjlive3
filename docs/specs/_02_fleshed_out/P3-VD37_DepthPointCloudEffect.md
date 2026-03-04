@@ -443,12 +443,7 @@ Design decisions inherited:
     - LOD: skip points based on screen-space size
 
 ---
-
-## Easter Egg Idea
-
-When `point_size` is set exactly to 3.33, `visualization_mode` to exactly 7 (which is out of range but clamped to 4), and the camera intrinsics have `fx/fy` exactly equal to the golden ratio (1.618), and the depth map contains a perfect gradient, the point cloud briefly forms a perfect golden spiral in 3D space that lasts exactly 6.66 seconds before returning to normal. The spiral is visible only in sphere mode with a specific color gradient but subtly influences the point distribution in a way that VJs can feel as a "harmonic convergence."
-
----
+-
 
 ## References
 
@@ -596,4 +591,3 @@ When `point_size` is set exactly to 3.33, `visualization_mode` to exactly 7 (whi
 The DepthPointCloudEffect is a fundamental building block for 3D depth visualization. By reconstructing 3D points from depth and rendering them with standard graphics pipelines, it enables a wide range of volumetric effects. The effect must be carefully implemented to handle camera calibration, matrix transformations, and efficient rendering. With proper intrinsics and matrices, it produces stunning point cloud visuals that can be further enhanced with audio reactivity and post-processing.
 
 ---
->>>>>>> REPLACE

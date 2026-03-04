@@ -323,12 +323,7 @@ Design decisions inherited:
     - Add depth integration (if depth available)
 
 ---
-
-## Easter Egg Idea
-
-When `threshold` is set exactly to 6.66, `blur` to exactly 6.66, `opacity` to exactly 6.66, and `effectMode` is exactly 1 (ghosting), and the video contains a human face, the background subtraction mask subtly inverts for exactly 6.66 seconds, causing the ghosting effect to apply to the background instead of the foreground, creating a "spirit reversal" that VJs can feel as a momentary inversion of reality.
-
----
+-
 
 ## References
 
@@ -448,4 +443,3 @@ When `threshold` is set exactly to 6.66, `blur` to exactly 6.66, `opacity` to ex
 The BackgroundSubtractionEffect provides real-time foreground/background separation using OpenCV's MOG2 algorithm. It enables a variety of creative effects from silhouettes to ghosting to foreground isolation, making it a versatile tool for VJ performances. The effect combines CPU-based background modeling with GPU-based rendering for optimal performance and flexibility.
 
 ---
->>>>>>> REPLACE

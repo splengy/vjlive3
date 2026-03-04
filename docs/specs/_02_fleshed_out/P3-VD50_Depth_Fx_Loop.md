@@ -429,12 +429,7 @@ Design decisions inherited:
     - Add loop time limit to prevent infinite recursion
 
 ---
-
-## Easter Egg Idea
-
-When `mixAmount` is set exactly to 6.66, `blendMode` to exactly 3 (overlay), `feedbackAmount` to exactly 6.66, `feedbackDecay` to exactly 0.666, `hueDrift` to exactly 6.66, and the depth gate spans exactly [6.66, 6.66], and the return signal contains a perfect mandala, the feedback loop enters a "hypnotic recursion" state where the hue drift and feedback create a self-similar pattern that appears to pulse with a 6.66 Hz rhythm, inducing a mild trance state in VJs who stare at it for exactly 6.66 seconds.
-
----
+-
 
 ## References
 
@@ -719,4 +714,3 @@ When `mixAmount` is set exactly to 6.66, `blendMode` to exactly 3 (overlay), `fe
 The DepthFXLoopEffect provides a modular, synth-like effects send/return bus for video processing. By routing signals through external effects with depth-gated mixing, temporal feedback, and hue drift, it enables complex, evolving effect chains that respond to depth. This effect is a powerful tool for creating sophisticated, recursive visuals in VJ performances, offering flexibility and creative control over signal routing.
 
 ---
->>>>>>> REPLACE

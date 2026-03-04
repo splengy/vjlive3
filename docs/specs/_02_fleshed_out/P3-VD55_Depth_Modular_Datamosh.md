@@ -579,12 +579,7 @@ Design decisions inherited:
     - Add ability to save/load custom corruption chains
 
 ---
-
-## Easter Egg Idea
-
-When `displacementStrength` is set exactly to 6.66, `blockCorruption` to exactly 6.66, `feedbackAmount` to exactly 0.666, `colorQuantization` to exactly 6.66, `scanlineIntensity` to exactly 6.66, `depthComposite` to exactly 6.66, and the loop return contains a perfect mandala, the datamosh enters a "sacred corruption" state where the block artifacts align into a perfect 6.66 Hz pulsing pattern, the feedback creates a self-similar fractal, and the depth composite causes the corruption to radiate from the center in concentric waves that match the mandala's geometry. VJs describe this as "watching the universe datamosh itself into existence."
-
----
+-
 
 ## References
 
@@ -729,4 +724,3 @@ When `displacementStrength` is set exactly to 6.66, `blockCorruption` to exactly
 The DepthModularDatamoshEffect revolutionizes datamosh by making it modular. With an explicit loop point between depth displacement and corruption stages, it allows external effects to be baked directly into the datamosh algorithm. This creates unique compound effects where your color grading, distortion, or other processing becomes part of the corruption itself. Combined with audio reactivity and depth-weighted composite, it's a powerful tool for creating organic, responsive datamosh in VJ performances.
 
 ---
->>>>>>> REPLACE

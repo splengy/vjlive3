@@ -618,15 +618,3 @@ glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, None)
 BlendMultEffect expects `texPrev` on unit 1, which the chain provides automatically.
 
 ---
-
-## Easter Egg Idea
-
-**The Secret Multiply Zero**
-
-If the user sets `amount = 0` **and** `invert_b = 10` **and** `channel_mask = 10` (luma) **and** `gamma = 0` simultaneously, the shader enters a degenerate state where the multiply factor becomes zero and the screen inversion produces `1.0 - 0 = 1.0` everywhere, resulting in a pure white output. However, due to floating-point precision quirks in the gamma calculation (`gm = 0.5 + 0/10.0 * 2.5 = 0.5`), the `pow(result, 1.0/0.5)` = `pow(0, 2)` = 0, then `1 - 0 = 1`. This is mathematically sound but visually striking: a completely white frame flashes for one frame before the next render restores normal operation. 
-
-To make it a true easter egg, the effect could detect this exact parameter combination in the Python `render()` method (if overridden) and trigger a hidden visual pattern (e.g., a 1-frame steganographic message in the least significant bits of the output). But as implemented, it's just a "forbidden configuration" that produces an unexpected result — a kind of mathematical glitch that only advanced users would discover by exploring parameter space.
-
-**Trigger**: `amount=0, invert_b=10, channel_mask=10, gamma=0` (all sliders at extreme opposites)
-**Effect**: One-frame white flash (or if extended, a hidden pattern could be embedded)
-**Discovery**: Requires reading the GLSL code to understand why it happens.

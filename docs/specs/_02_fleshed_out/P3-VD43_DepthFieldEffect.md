@@ -332,12 +332,7 @@ Design decisions inherited:
    - Support multiple focus planes
 
 ---
-
-## Easter Egg Idea
-
-When `focus_distance` is set exactly to 6.66, `aperture` to exactly 0.666, `max_blur` to exactly 0.0666, and `blur_samples` to exactly 13, and the depth map contains a perfect sphere, the Gaussian kernel subtly transforms into a logarithmic spiral pattern for exactly 6.66 seconds, causing the out-of-focus regions to swirl in a Fibonacci pattern. The effect creates a "sacred geometry" bokeh that VJs can feel as a harmonic resonance in the visual field.
-
----
+-
 
 ## References
 
@@ -469,4 +464,3 @@ When `focus_distance` is set exactly to 6.66, `aperture` to exactly 0.666, `max_
 The DepthFieldEffect provides cinematic depth-of-field blur using depth data. By calculating per-pixel blur based on distance from a focus plane, it creates realistic bokeh effects that enhance visual storytelling in VJ performances. The effect is GPU-accelerated and configurable, allowing VJs to fine-tune the focus and blur characteristics to match their artistic vision.
 
 ---
->>>>>>> REPLACE

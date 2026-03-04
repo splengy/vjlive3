@@ -190,41 +190,7 @@ def test_performance_60fps():
 - [x] Original functionality verified (side-by-side comparison with VJlive-2)
 - [x] Comprehensive documentation and test plan completed
 - [x] Golden ratio easter egg implemented
-
-## Easter Egg: Golden Ratio Shatter Grid
-
-When the user sets `grid_size` to exactly **6.18** (golden ratio conjugate), the effect activates a special "Golden Shatter" mode:
-
-```glsl
-// Golden Ratio Shatter Mode (grid_size = 6.18)
-if (grid_size == 6.18) {
-    // Golden ratio based grid spacing
-    vec2 golden_grid = vec2(0.618, 0.618) * resolution;
-    
-    // Fibonacci spiral displacement
-    vec2 spiral_offset = golden_spiral(uv, time * 0.5);
-    
-    // Sacred geometry fragment shapes
-    vec2 fragment_shape = sacred_geometry(uv, golden_grid);
-    
-    // Enhanced color separation with golden ratio hues
-    vec3 golden_colors = vec3(
-        sin(uv.x * 1.618 + time) * 0.5 + 0.5,
-        cos(uv.y * 2.618 - time) * 0.5 + 0.5,
-        tan((uv.x + uv.y) * 0.618 + time) * 0.5 + 0.5
-    );
-    
-    // Display golden ratio visualization
-    fragColor = mix(fragColor, golden_colors, 0.3);
-    
-    // Show golden spiral overlay
-    if (fract(spiral_offset.x * 1.618) < 0.1) {
-        fragColor = vec4(1.0, 0.618, 0.0, 1.0); // Golden orange
-    }
-}
-```
-
-The easter egg creates a visually stunning effect with golden ratio-based fragment distribution, Fibonacci spiral displacement patterns, and sacred geometry-inspired shapes. The color palette uses golden ratio-derived hues that create a harmonious, aesthetically pleasing result.
+.
 
 ## Parameter Mapping (0-10 User Scale to Shader Ranges)
 

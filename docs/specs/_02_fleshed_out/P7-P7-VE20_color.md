@@ -84,17 +84,7 @@ uniform float u_audio_reactor_treble; // 0-10 → 0.0-1.0
 - **Safety Rail 5 (80% Test Coverage):** Write parameter validation and rendering tests
 - **Safety Rail 4 (750 Lines):** Keep implementation concise; shader is short
 - **Safety Rail 7 (No Silent Failures):** Add error handling for shader compilation
-
-## Golden Ratio Easter Egg
-```glsl
-// Golden Ratio-based parameter scaling for harmonic color quantization
-float golden_scale(float user_value) {
-    return user_value * GOLDEN_INVERSE;
-}
-
-// Apply to bins parameter to get Fibonacci-like color levels
-u_bins = floor(golden_scale(bins) * GOLDEN_RATIO * 3.0) + 2.0;
-```
+`
 
 ## Future Enhancements
 - Add per-channel quantization control

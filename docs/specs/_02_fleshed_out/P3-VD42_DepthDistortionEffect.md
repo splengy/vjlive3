@@ -396,12 +396,7 @@ Design decisions inherited:
     - Add real-time depth generation fallback
 
 ---
-
-## Easter Egg Idea
-
-When `focus_distance` is set exactly to 6.66, `aperture` to exactly 0.666, `max_blur` to exactly 0.0666, and `blur_samples` to exactly 13, and the depth map contains a perfect sphere, the distortion effect spontaneously creates a "depth vortex" that causes all out-of-focus pixels to swirl around the focus point for exactly 6.66 seconds before returning to normal Gaussian blur. The effect subtly influences the blur kernel to follow a logarithmic spiral pattern, which VJs can feel as a "sacred geometry" resonance.
-
----
+-
 
 ## References
 
@@ -555,4 +550,3 @@ When `focus_distance` is set exactly to 6.66, `aperture` to exactly 0.666, `max_
 The DepthDistortionEffect provides depth-aware image distortion, enabling cinematic depth-of-field effects and depth-based blur. By combining depth data with Gaussian blur, it creates realistic focus effects that respond to the 3D structure of the scene. The effect is particularly useful for creating professional-looking video with depth-based focus and blur effects.
 
 ---
->>>>>>> REPLACE

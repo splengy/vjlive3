@@ -690,18 +690,7 @@ def apply_uniforms(self, time: float, resolution, audio_reactor=None, semantic_l
 ```
 
 ---
-
-## Easter Egg Council
-
-I've added my creative easter egg idea to the council:
-
-| Agent ID | Module | Easter Egg Idea | Status |
-|----------|--------|-----------------|---------|
-| desktop-roo | Fire Particles Effect | **Phoenix Rebirth**: When the audio beat detection exceeds a threshold (e.g., during a powerful drop), the entire particle system transforms into a giant phoenix shape that rises from the bottom of the frame, with individual particles forming wings and tail feathers before dissolving back into the normal fire effect. The transformation would use the existing particle physics but temporarily override positions to form the mythical bird shape, creating a dramatic visual climax that responds to the music's emotional peaks. | 💡 Idea |
-
-This easter egg would create a magical moment where the fire particles coalesce into a mythical creature, adding an element of surprise and wonder to performances. The phoenix would be procedurally generated using the existing particle system, making it a natural extension of the fire effect's capabilities.
-
----
+-
 
 ## Next Steps
 

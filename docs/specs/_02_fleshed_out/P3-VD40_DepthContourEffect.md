@@ -403,12 +403,7 @@ Design decisions inherited:
     - Combine with point cloud or mesh for hybrid visualization
 
 ---
-
-## Easter Egg Idea
-
-When `contour_intervals` is set exactly to 13, `contour_smoothing` to exactly 0.618, and `animation_speed` to exactly 2.618, and the depth map contains a perfect sphere, the contour lines spontaneously form a perfect Fibonacci spiral when viewed from above, and the colors shift to gold and crimson for exactly 6.66 seconds before returning to normal. The effect subtly influences the traced points to follow a phyllotaxis pattern, which VJs can feel as a "sacred geometry" resonance.
-
----
+-
 
 ## References
 
@@ -534,4 +529,3 @@ When `contour_intervals` is set exactly to 13, `contour_smoothing` to exactly 0.
 The DepthContourEffect provides an artistic, topographic visualization of depth data by extracting and rendering iso-depth lines. It combines CPU-side contour tracing with GPU line rendering to deliver smooth, animated contour visualizations. The effect is relatively lightweight and can be used as a standalone visual or combined with other depth effects for complex VJ performances.
 
 ---
->>>>>>> REPLACE

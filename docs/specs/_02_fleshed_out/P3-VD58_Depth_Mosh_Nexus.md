@@ -555,12 +555,7 @@ Design decisions inherited:
     - Add BPM sync for animated effects
 
 ---
-
-## Easter Egg Idea
-
-When `moshIntensity` is set exactly to 6.66, `depthDisplacement` to exactly 0.666, `blockCorruption` to exactly 6.66, `iframeLoss` to exactly 6.66, `colorQuantization` to exactly 6.66, `scanlineIntensity` to exactly 6.66, `lightStreaks` to exactly 6.66, `midRangeHeat` to exactly 6.66, `depthInfluence` to exactly 6.66, `feedbackAmount` to exactly 0.666, `feedbackDecay` to exactly 0.666, and the audio input contains a perfect 666 Hz sine wave, the DepthMoshNexus enters a "sacred mosh" state where all corruption methods synchronize to exactly 6.66 Hz, the depth displacement creates a perfect 666-pixel offset, the feedback loop becomes a perfect 666-sample delay, and the visual output becomes a self-similar fractal that encodes the number 666 in every pixel. VJs report this as "the rave's prayer" — a moment of perfect, chaotic harmony.
-
----
+-
 
 ## References
 
@@ -666,4 +661,3 @@ When `moshIntensity` is set exactly to 6.66, `depthDisplacement` to exactly 0.66
 The DepthMoshNexus is the ultimate audio-reactive datamosh effect, combining multiple corruption techniques with depth awareness and intense music-driven modulation. It's designed for high-energy VJ performances where visuals should pulse, distort, and mosh in sync with the music. With its comprehensive parameter set and dynamic shader generation, it offers unparalleled control over the chaos of datamosh.
 
 ---
->>>>>>> REPLACE

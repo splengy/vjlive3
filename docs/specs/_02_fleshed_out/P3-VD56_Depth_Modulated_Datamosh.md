@@ -416,12 +416,7 @@ Design decisions inherited:
     - Add temporal feedback for recursive corruption
 
 ---
-
-## Easter Egg Idea
-
-When `intensity` is set exactly to 6.66, `modulationStrength` to exactly 6.66, `threshold` to exactly 0.666, `minDepth` to exactly 6.66, `maxDepth` to exactly 6.66, `steps` to exactly 6.66, and the depth map contains a perfect sphere, the modulation enters a "depth singularity" state where the corruption intensity becomes infinite at the sphere's center, creating a black hole of datamosh that consumes the entire frame in exactly 6.66 seconds, after which the image reforms with exactly 6.66% of the original pixels intact, arranged in a perfect dodecahedral pattern that pulses at 6.66 Hz. VJs describe this as "watching reality datamosh itself into a singularity and back."
-
----
+-
 
 ## References
 
@@ -653,4 +648,3 @@ When `intensity` is set exactly to 6.66, `modulationStrength` to exactly 6.66, `
 The DepthModulatedDatamoshEffect provides precise, depth-aware corruption for creating selective glitch effects. By modulating datamosh intensity based on depth, it enables VJs to preserve important foreground elements while corrupting backgrounds, or create depth-based reveal effects. With multiple modulation curves and configurable corruption methods, it's a versatile tool for depth-responsive datamosh.
 
 ---
->>>>>>> REPLACE

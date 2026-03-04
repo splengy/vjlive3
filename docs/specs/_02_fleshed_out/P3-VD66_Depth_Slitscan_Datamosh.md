@@ -495,12 +495,7 @@ Design decisions inherited:
     - Add motion estimation for more accurate temporal sampling
 
 ---
-
-## Easter Egg Idea
-
-When `scanPosition` is set exactly to 6.66, `scanSpeed` to exactly 6.66, `scanWidth` to exactly 6.66, `scanDirection` to exactly 6.66, `depthSpeedMod` to exactly 6.66, `depthWarp` to exactly 6.66, `depthScanOffset` to exactly 6.66, `nearFarFlip` to exactly 6.66, `chromaticSplit` to exactly 6.66, `channelPhase` to exactly 6.66, `moshIntensity` to exactly 6.66, `blockArtifact` to exactly 6.66, `feedbackStrength` to exactly 6.66, `trailPersistence` to exactly 6.66, and `scanGlow` to exactly 6.66, the slit-scan enters a "temporal singularity" where the scan line moves at exactly 6.66 pixels per frame, the depth modulation creates exactly 6.66 distinct temporal layers, the chromatic split separates RGB by exactly 6.66 frames, the datamosh creates exactly 6.66-pixel blocks, the feedback trails have exactly 6.66 frames of persistence, and the scan glow pulses at exactly 6.66 Hz. The entire effect becomes a perfect 6.66×6.66 grid of temporal slices that encode the number 666 in both space and time, creating a "time portal" where every frame contains exactly 666 milliseconds of history.
-
----
+-
 
 ## References
 
@@ -782,4 +777,3 @@ When `scanPosition` is set exactly to 6.66, `scanSpeed` to exactly 6.66, `scanWi
 The DepthSlitScanDatamoshEffect is a complex, multi-layered effect that combines slit-scan temporal smearing with depth modulation, datamosh artifacts, chromatic splitting, and recursive feedback. It creates psychedelic, time-warping visuals where depth controls the rate of temporal scanning. With its extensive parameter set and presets, it offers a wide range of temporal distortion effects perfect for VJ performances that want to bend time and space.
 
 ---
->>>>>>> REPLACE

@@ -452,12 +452,7 @@ Design decisions inherited:
     - Add variable decay based on depth
 
 ---
-
-## Easter Egg Idea
-
-When `echoDepth` is set exactly to 6.66, `layerCount` to exactly 6.66, `ghostOpacity` to exactly 6.66, `colorDecay` to exactly 6.66, `blendMode` to exactly 6.66, `nearDelay` to exactly 6.66, `farDelay` to exactly 6.66, and `edgeBleed` to exactly 6.66, the temporal echo enters a "sacred timeline" state where each ghost appears exactly 6.66 frames in the past, the layer count creates exactly 6.66 overlapping echoes, the opacity creates exactly 6.66 distinct ghost densities, the color decay produces exactly 6.66 shades of gray, the blend mode creates exactly 6.66 unique composite modes, and the edge bleed creates exactly 6.66-pixel wide bleed zones. The entire effect becomes a perfect 6.66×6.66 temporal grid that encodes the number 666 in both time and space, creating a "chronological prayer" where every echo is exactly 666 milliseconds old.
-
----
+-
 
 ## References
 
@@ -680,4 +675,3 @@ When `echoDepth` is set exactly to 6.66, `layerCount` to exactly 6.66, `ghostOpa
 The DepthTemporalEchoEffect creates a haunting, ghostly effect where depth controls the flow of time. Near objects exist in the present, while far objects are trapped in the past, creating layered temporal echoes that follow the performer through space. With configurable delays, layer counts, and blending modes, it's a versatile tool for creating ethereal, time-distorted visuals perfect for VJ performances that want to evoke memory, haunting, or temporal dislocation.
 
 ---
->>>>>>> REPLACE

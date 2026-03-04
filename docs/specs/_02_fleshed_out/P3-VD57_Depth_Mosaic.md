@@ -392,12 +392,7 @@ Design decisions inherited:
     - Add depth-based tile color tinting
 
 ---
-
-## Easter Egg Idea
-
-When `cellSizeMin` is set exactly to 6.66, `cellSizeMax` to exactly 6.66, `gapWidth` to exactly 6.66, `colorQuantize` to exactly 6.66, `rotateByDepth` to exactly 6.66, and the depth map contains a perfect torus, the mosaic enters a "tessellation singularity" where all tiles become perfect 6.66×6.66 pixel squares that rotate in synchronized harmony at exactly 6.66 Hz, the gaps glow with a 6.66% transparency revealing a hidden layer beneath, and the color quantization creates exactly 6.66 distinct color levels that form a perfect dithering pattern. VJs report seeing "the matrix of reality" where each tile is a window into a deeper layer of existence.
-
----
+-
 
 ## References
 
@@ -598,4 +593,3 @@ When `cellSizeMin` is set exactly to 6.66, `cellSizeMax` to exactly 6.66, `gapWi
 The DepthMosaicEffect creates a stylized, depth-aware tessellation that turns video into a mosaic where tile size encodes depth. Large tiles for near objects and small tiles for far objects create a unique visual that emphasizes depth relationships. With options for gaps, color quantization, and tile rotation, it's a versatile tool for artistic VJ performances.
 
 ---
->>>>>>> REPLACE

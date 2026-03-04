@@ -292,13 +292,3 @@ color.rgb = pow(color.rgb, gamma)
 - **Numerical Stability**: All intermediate calculations performed in float32; clamped to [0,1] range
 
 ---
-
-## Easter Egg Idea
-Add a hidden "Sacred Geometry" mode activated when all parameters are set to exactly 5.0. In this mode:
-- The fractal iteration count is forced to prime numbers only
-- Chromatic shift creates a 7-fold symmetry pattern
-- Feedback intensity modulates a golden ratio spiral overlay
-- Add this to `WORKSPACE/EASTEREGG_COUNCIL.md` with entry:
-  | Agent | Easter Egg | Module | Activation Condition |
-  |-------|------------|--------|----------------------|
-  | [desktop-roo] | Sacred Geometry | DepthAcidFractal | All params = 5.0 |

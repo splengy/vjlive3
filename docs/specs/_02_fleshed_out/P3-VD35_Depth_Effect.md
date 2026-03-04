@@ -372,12 +372,7 @@ Design decisions inherited:
 10. **Testing**: The base class should have extensive tests because it's foundational. Test with various depth formats (8-bit, 16-bit, float), resolutions, and edge cases (None frames, source disconnection, etc.).
 
 ---
-
-## Easter Egg Idea
-
-When `near_clip` is set exactly to 0.333 and `far_clip` to exactly to 0.666, and `depth_scale` to exactly 3.33, and the depth map contains a perfect gradient, the depth normalization briefly reveals a hidden "golden ratio" pattern in the normalized depth's alpha channel that lasts exactly 6.66 seconds before returning to normal. The pattern is visible only in debug mode but subtly influences all derived effects in a way that VJs can feel rather than see.
-
----
+-
 
 ## References
 
@@ -458,4 +453,3 @@ When `near_clip` is set exactly to 0.333 and `far_clip` to exactly to 0.666, and
 8. **Documentation**: Document the expected depth format (normalized, linear) and the transformation pipeline clearly. This is a common source of confusion.
 
 ---
->>>>>>> REPLACE

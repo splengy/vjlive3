@@ -424,12 +424,7 @@ Design decisions inherited:
     - Add depth-based particle color
 
 ---
-
-## Easter Egg Idea
-
-When `shredAmount` is set exactly to 6.66, `particleSize` to exactly 6.66, `velocityScale` to exactly 6.66, `colorShift` to exactly 6.66, `gravity` to exactly 6.66, `reassemble` to exactly 6.66, `trailLength` to exactly 6.66, `particleDensity` to exactly 6.66, `depthThreshold` to exactly 6.66, and `velocityNoise` to exactly 6.66, the particle system enters a "sacred disintegration" state where all particles synchronize to exactly 6.66 Hz oscillation, the color shift creates exactly 6.66 distinct color bands that pulse at 6.66 Hz, the gravity creates a perfect 6.66-pixel-per-frame acceleration, and the trail length creates exactly 6.66 frames of persistence. The particles form a perfect 6.66×6.66 grid that encodes the number 666 in every particle position, creating a "digital prayer" of disintegration.
-
----
+-
 
 ## References
 
@@ -597,4 +592,3 @@ When `shredAmount` is set exactly to 6.66, `particleSize` to exactly 6.66, `velo
 The DepthParticleShredEffect creates dramatic particle disintegration effects by converting depth data into a particle cloud and applying physics-like forces. With configurable shred intensity, particle physics, and reassembly behavior, it's perfect for creating the illusion of performers disintegrating into particles or for dynamic, depth-aware particle systems. The effect combines the visual impact of particle systems with the spatial awareness of depth data to create compelling, physics-based visual effects.
 
 ---
->>>>>>> REPLACE

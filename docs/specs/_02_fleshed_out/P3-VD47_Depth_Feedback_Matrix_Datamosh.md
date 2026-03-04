@@ -337,12 +337,7 @@ Design decisions inherited:
     - Add preset system for common configurations
 
 ---
-
-## Easter Egg Idea
-
-When all 4 taps have their depth ranges set to exactly [6.66, 6.66], delays set to exactly 6.66, feedback set to exactly 6.66, and crossfeed set to exactly 6.66, and the depth map contains a perfect cube, the feedback matrix spontaneously enters a "quantum resonance" state for exactly 6.66 seconds where the feedback loops create a self-sustaining pattern that appears to defy temporal decay, creating a "time crystal" effect that VJs can feel as a moment of eternal recurrence.
-
----
+-
 
 ## References
 
@@ -481,4 +476,3 @@ When all 4 taps have their depth ranges set to exactly [6.66, 6.66], delays set 
 The DepthFeedbackMatrixDatamoshEffect provides a powerful framework for creating complex, depth-controlled feedback structures. With 4 independent taps, depth range gating, cross-feed, and external effect insertion, it enables sophisticated datamosh effects that evolve over time and respond to depth. This effect is a versatile tool for creating recursive, cascading visuals in VJ performances.
 
 ---
->>>>>>> REPLACE

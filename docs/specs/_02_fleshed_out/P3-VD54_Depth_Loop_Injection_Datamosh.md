@@ -463,12 +463,7 @@ Design decisions inherited:
     - Add loop order reconfiguration
 
 ---
-
-## Easter Egg Idea
-
-When all 4 loops are enabled with exact mix values of 6.66, `datamoshStrength` set to 6.66, `feedbackAmount` to 0.666, `feedbackDecay` to 0.666, and the depth map contains a perfect tesseract, the effect enters a "hyperloop" state where the 4 feedback loops synchronize into a 4-dimensional torus, creating a recursive visual that appears to fold through itself at exactly 6.66 Hz. VJs report experiencing a "dimensional shear" where the visual seems to exist in multiple states simultaneously, perfectly balanced between all 4 loop points.
-
----
+-
 
 ## References
 
@@ -622,4 +617,3 @@ When all 4 loops are enabled with exact mix values of 6.66, `datamoshStrength` s
 The DepthLoopInjectionDatamoshEffect is a powerful modular routing hub that gives VJs unprecedented control over the datamosh pipeline. By providing 4 explicit injection points with independent enable/mix controls and feedback loops, it enables complex, layered effect architectures that can be reconfigured on the fly. This effect turns datamosh from a monolithic process into a flexible, modular system.
 
 ---
->>>>>>> REPLACE

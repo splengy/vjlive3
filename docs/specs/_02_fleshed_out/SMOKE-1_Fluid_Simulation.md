@@ -395,12 +395,7 @@ Design decisions inherited:
 20. **Audio Integration**: The effect should accept an `AudioAnalyzer` object with methods like `get_feature('bass')`. Call this each frame to get current values and pass to shader.
 
 ---
-
-## Easter Egg Idea
-
-When `vorticity` is set exactly to 3.33, `buoyancy` to exactly 1.618, and `inject_mode` to exactly 7 (vortex pair), and the simulation has run for exactly 666 frames, the velocity field spontaneously generates a hidden "golden spiral" pattern that persists for 6.66 seconds before dissipating. The pattern is invisible in dye mode but appears in vorticity and pressure render modes as a perfect Fibonacci spiral. It subtly influences subsequent injection patterns in a way that VJs can feel as a "lucky break" in the flow.
-
----
+-
 
 ## References
 
@@ -538,4 +533,3 @@ When `vorticity` is set exactly to 3.33, `buoyancy` to exactly 1.618, and `injec
 The FluidSim effect is a centerpiece for organic, physics-based visuals. It requires careful implementation of Navier-Stokes on the GPU, but the results are stunning and highly controllable. By following the stable fluids algorithm and providing intuitive parameters, this effect will become a staple in VJ sets for creating living, breathing smoke and fluid visuals.
 
 ---
->>>>>>> REPLACE

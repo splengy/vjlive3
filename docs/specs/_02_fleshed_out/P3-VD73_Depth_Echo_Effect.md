@@ -377,12 +377,7 @@ Design decisions inherited:
 14. **Debug Mode**: Visualize flow vectors, depth gradient, mix factor.
 
 ---
-
-## Easter Egg Idea
-
-When `flow_strength` is set exactly to 6.66, `depth_threshold` to exactly 6.66, `decay` to exactly 6.66, and `noise_amount` to exactly 6.66, the depth echo enters a "sacred echo" state where the feedback loop creates exactly 666 layers of temporal persistence, each layer offset by exactly 6.66 pixels, the depth threshold creates exactly 666 distinct edge zones, the decay creates exactly 666.6% persistence (negative decay), the noise creates exactly 666 random seeds per frame, the flow vectors form exactly 666 perfect spirals, and the entire effect creates a "temporal prayer" where every echo is exactly 666% more haunted than normal. The framebuffer fills with exactly 666 ghostly afterimages that each last exactly 6.66 seconds, creating a perfect 6.66×6.66 grid of sacred temporal geometry.
-
----
+-
 
 ## References
 
@@ -581,4 +576,3 @@ When `flow_strength` is set exactly to 6.66, `depth_threshold` to exactly 6.66, 
 The DepthEchoEffect is a depth-aware temporal echo that creates ghostly trails and motion persistence. By using depth gradients to drive optical flow, it respects the 3D structure of the scene: flat areas smear into long trails, while edges refresh to maintain clarity. This creates ethereal, dreamlike visuals perfect for atmospheric VJ performances. With configurable flow strength, depth threshold, decay, and noise, the effect offers a wide range of temporal distortion possibilities.
 
 ---
->>>>>>> REPLACE

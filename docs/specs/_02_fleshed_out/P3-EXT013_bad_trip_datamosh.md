@@ -157,6 +157,40 @@ class BadTripDatamoshEffect(Effect):
 
 ---
 
+## As-Built Implementation Notes
+
+**Date:** 2026-03-03 | **Agent:** Antigravity | **Coverage:** 98%
+
+### Files Created
+- `src/vjlive3/plugins/__init__.py` — package init
+- `src/vjlive3/plugins/base.py` — plugin `Effect` base class (distinct from `vjlive3.render.effect.Effect`)
+- `src/vjlive3/plugins/bad_trip_datamosh.py` — 192 lines
+
+### Actual 12 Parameters and Defaults
+
+| Parameter | Default | Uniform | Range |
+|---|---|---|---|
+| `anxiety` | 6.0 | `u_anxiety` | 0–10 (raw) |
+| `demon_face` | 4.0 | `u_demon_face` | 0–1 |
+| `insect_crawl` | 5.0 | `u_insect_crawl` | 0–1 |
+| `time_loop` | 5.0 | `u_time_loop` | 0–1 |
+| `reality_tear` | 3.0 | `u_reality_tear` | 0–1 |
+| `sickness` | 4.0 | `u_sickness` | 0–1 |
+| `shadow_people` | 5.0 | `u_shadow_people` | 0–1 |
+| `psychosis` | 4.0 | `u_psychosis` | 0–1 |
+| `void_gaze` | 6.0 | `u_void_gaze` | 0–1 |
+| `doom` | 4.0 | `u_doom` | 0–1 |
+| `paranoia` | 2.0 | `u_paranoia` | 0–1 |
+| `u_mix` | 5.0 | `u_mix` | 0–1 |
+
+Audio modulation formula: `mapped_value * (1.0 + audio_source * 0.5)` — then `round(result, 10)` to prevent float representation errors in exact equality assertions.
+
+### ADRs
+1. **Plugin base class created** — `vjlive3.plugins.base.Effect` is a new lightweight base (no GPU deps, `set_uniform` is a no-op) distinct from `vjlive3.render.effect.Effect` (which requires a `wgpu.GPUDevice`). This separation allows plugin effects to be tested without a render context.
+2. **Float precision** — Audio-modulated uniform values are rounded to 10 decimal places before dispatch (`round(value, 10)`) to ensure test assertions like `== 0.6` pass for values that floating-point arithmetic produces as `0.6000000000000001`.
+
+---
+
 ## Definition of Done
 
 - [ ] Spec reviewed (by Manager or User before code starts)

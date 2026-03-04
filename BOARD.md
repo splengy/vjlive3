@@ -63,26 +63,26 @@
 | P3-EXT040 | depth_acid_fractal (DepthAcidFractalPlugin) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/plugins/depth_acid_fractal.py` — 6-param depth-reactive fractal, 5 tests ✅ 2026-02-23 |
 | P3-EXT041 | depth_camera_splitter (DepthCameraSplitterEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthCameraSplitterEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
 | P3-EXT042 | depth_data_mux (DepthDataMuxEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthDataMuxEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
-| P3-EXT043 | datamosh_3d (DepthDisplacementEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthDisplacementEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT044 | depth_distance_filter (DepthDistanceFilterEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthDistanceFilterEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT045 | depth_effects (DepthDistortionEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthDistortionEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT046 | depth_dual (DepthDualEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthDualEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT047 | datamosh_3d (DepthEchoEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthEchoEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT048 | depth_fx_loop (DepthFXLoopEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthFXLoopEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT049 | depth_feedback_matrix_datamosh (DepthFeedbackMatrixDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthFeedbackMatrixDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT050 | depth_effects (DepthFieldEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthFieldEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT051 | depth_fog (DepthFogEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthFogEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT052 | depth_groovy_datamosh (DepthGroovyDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthGroovyDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT053 | depth_holographic (DepthHolographicIridescenceEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthHolographicIridescenceEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT043 | datamosh_3d (DepthDisplacementEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT044 | depth_distance_filter (DepthDistanceFilterEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — DepthDistanceFilterEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT045 | depth_effects (DepthDistortionEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — DepthDistortionEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT046 | depth_dual (DepthDualEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — DepthDualEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT047 | datamosh_3d (DepthEchoEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — DepthEchoEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT048 | depth_fx_loop (DepthFXLoopEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — DepthFXLoopEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT049 | depth_feedback_matrix_datamosh (DepthFeedbackMatrixDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — DepthFeedbackMatrixDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT050 | depth_effects (DepthFieldEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthFieldEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT051 | depth_fog (DepthFogEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthFogEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT052 | depth_groovy_datamosh (DepthGroovyDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthGroovyDatamoshEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT053 | depth_holographic (DepthHolographicIridescenceEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthHolographicIridescenceEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
 | P3-EXT054 | depth_loop_injection_datamosh (DepthLoopInjectionDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT055 | depth_effects (DepthMeshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | (duplicate — DepthMeshEffect already shipped in P4/P5/P6/P7) |
-| P3-EXT056 | depth_modular_datamosh (DepthModularDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthModularDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT057 | depth_modulated_datamosh (DepthModulatedDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthModulatedDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT058 | depth_mosh_nexus (DepthMoshNexus) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthMoshNexus already shipped in P4/P5/P6/P7)* |
+| P3-EXT056 | depth_modular_datamosh (DepthModularDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — DepthModularDatamoshEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT057 | depth_modulated_datamosh (DepthModulatedDatamoshEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — DepthModulatedDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT058 | depth_mosh_nexus (DepthMoshNexus) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — DepthMoshNexus already shipped in P4/P5/P6/P7)* |
 | P3-EXT059 | depth_parallel_universe_datamosh (DepthParallelUniverseDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | (duplicate — DepthParallelUniverseDatamoshEffect already shipped in P4/P5/P6/P7) |
-| P3-EXT060 | depth_effects (DepthParticle3DEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthParticle3DEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT061 | depth_effects (DepthPointCloud3DEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthPointCloud3DEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT062 | depth_effects (DepthPointCloudEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DepthPointCloudEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT060 | depth_effects (DepthParticle3DEffect) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — DepthParticle3DEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT061 | depth_effects (DepthPointCloud3DEffect) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — DepthPointCloud3DEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT062 | depth_effects (DepthPointCloudEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — DepthPointCloudEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT063 | depth_raver_datamosh (DepthRaverDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | (duplicate — DepthRaverDatamoshEffect already shipped in P4/P5/P6/P7) |
 | P3-EXT064 | depth_simulator (DepthSimulatorEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | (duplicate — DepthSimulatorEffect already shipped in P4/P5/P6/P7) |
 | P3-EXT065 | depth_slitscan_datamosh (DepthSlitScanDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | (duplicate — DepthSlitScanDatamoshEffect already shipped in P4/P5/P6/P7) |
@@ -90,70 +90,70 @@
 | P3-EXT067 | depth_void_datamosh (DepthVoidDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | (duplicate — DepthVoidDatamoshEffect already shipped in P4/P5/P6/P7) |
 | P3-EXT068 | dimension_splice_datamosh (DimensionSpliceDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | (duplicate — DimensionSpliceDatamoshEffect already shipped in P4/P5/P6/P7) |
 | P3-EXT069 | displacement_map (DisplacementMapEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | (duplicate — DisplacementMapEffect already shipped in P4/P5/P6/P7) |
-| P3-EXT070 | dithering (DitheringEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DitheringEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT071 | dolly_zoom_datamosh (DollyZoomDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — DollyZoomDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT072 | vtempi (DutyCycleMode) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT073 | particles_3d (EmitterType) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
+| P3-EXT070 | dithering (DitheringEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — DitheringEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT071 | dolly_zoom_datamosh (DollyZoomDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 (spec exists in _02_fleshed_out) | *(duplicate — DollyZoomDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT072 | vtempi (DutyCycleMode) | P0 | 🟦 IN PROGRESS (roo_1) | vjlive |
+| P3-EXT073 | particles_3d (EmitterType) | P0 | 🟦 IN PROGRESS (roo_1) | vjlive |
 | P3-EXT074 | erbe_verb (ErbeVerb) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | vjlive |
 | P3-EXT075 | example_glitch (ExampleGlitchEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | vjlive |
-| P3-EXT076 | vcv_video_generators (FMCoordinatesGen) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — FMCoordinatesGen already shipped in P4/P5/P6/P7)* |
-| P3-EXT077 | face_melt_datamosh (FaceMeltDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — FaceMeltDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT076 | vcv_video_generators (FMCoordinatesGen) | P0 | 🟩 COMPLETING PASS 2 (spec exists in _02_fleshed_out) | *(duplicate — FMCoordinatesGen already shipped in P4/P5/P6/P7)* |
+| P3-EXT077 | face_melt_datamosh (FaceMeltDatamoshEffect) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — FaceMeltDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT078 | shadertoy_particles (FireParticles) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | vjlive |
-| P3-EXT079 | fluid_sim (FluidSimEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — FluidSimEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT080 | particles_3d (ForceType) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT081 | fractal_generator (FractalGenerator) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — FractalGenerator already shipped in P4/P5/P6/P7)* |
-| P3-EXT082 | fracture_rave_datamosh (FractureRaveDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — FractureRaveDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT083 | datamosh (FrameHoldEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — FrameHoldEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT084 | vcv_video_effects (GaussianBlurEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — GaussianBlurEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT085 | generators (GradientEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — GradientEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT086 | vcv_video_generators (GranularVideoGen) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — GranularVideoGen already shipped in P4/P5/P6/P7)* |
-| P3-EXT087 | vcv_video_effects (HDRToneMapEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — HDRToneMapEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT088 | vcv_video_generators (HarmonicPatternsGen) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — HarmonicPatternsGen already shipped in P4/P5/P6/P7)* |
-| P3-EXT089 | v_sws (HorizontalWaveEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — HorizontalWaveEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT090 | vtempi (HumanResolution) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
+| P3-EXT079 | fluid_sim (FluidSimEffect) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — FluidSimEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT080 | particles_3d (ForceType) | P0 | 🟦 IN PROGRESS (roo_1) | vjlive |
+| P3-EXT081 | fractal_generator (FractalGenerator) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — FractalGenerator already shipped in P4/P5/P6/P7)* |
+| P3-EXT082 | fracture_rave_datamosh (FractureRaveDatamoshEffect) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — FractureRaveDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT083 | datamosh (FrameHoldEffect) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — FrameHoldEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT084 | vcv_video_effects (GaussianBlurEffect) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — GaussianBlurEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT085 | generators (GradientEffect) | P0 | 🟦 IN PROGRESS (roo_1) | *(duplicate — GradientEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT086 | vcv_video_generators (GranularVideoGen) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — GranularVideoGen already shipped in P4/P5/P6/P7)* |
+| P3-EXT087 | vcv_video_effects (HDRToneMapEffect) | P0 | 🟦 IN PROGRESS (roo3) | *(duplicate — HDRToneMapEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT088 | vcv_video_generators (HarmonicPatternsGen) | P0 | 🟩 COMPLETING PASS 2 (spec exists in _02_fleshed_out) | *(duplicate — HarmonicPatternsGen already shipped in P4/P5/P6/P7)* |
+| P3-EXT089 | v_sws (HorizontalWaveEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — HorizontalWaveEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT090 | vtempi (HumanResolution) | P0 | 🟩 COMPLETING PASS 2 (spec exists in _02_fleshed_out) | vjlive |
 | P3-EXT091 | neural_quantum_hyper_tunnel (HyperTunnelNet) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | vjlive |
 | P3-EXT092 | hyperspace_quantum_tunnel (HyperspaceQuantumTunnel) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | vjlive |
-| P3-EXT093 | blend (InfiniteFeedbackEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — InfiniteFeedbackEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT094 | color (InvertEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — InvertEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT095 | vtempi (LEDColor) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT096 | lut_grading (LUTGradingEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — LUTGradingEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT097 | datamosh_3d (LayerSeparationEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — LayerSeparationEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT098 | liquid_lsd_datamosh (LiquidLSDDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — LiquidLSDDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT099 | luma_chroma_mask (LumaChromaMaskEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — LumaChromaMaskEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT100 | ml_gpu_effects (MLBaseAsyncEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MLBaseAsyncEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT101 | ml_gpu_effects (MLDepthEstimationEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MLDepthEstimationEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT102 | ml_gpu_effects (MLSegmentationBlurGLEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MLSegmentationBlurGLEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT103 | ml_gpu_effects (MLStyleGLEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MLStyleGLEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT104 | vcv_video_generators (MacroShapeGen) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MacroShapeGen already shipped in P4/P5/P6/P7)* |
-| P3-EXT105 | generators (MandalaEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MandalaEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT106 | geometry (MandalascopeEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MandalascopeEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT107 | geometry (MirrorEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MirrorEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT108 | blend (MixerEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MixerEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT093 | blend (InfiniteFeedbackEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — InfiniteFeedbackEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT094 | color (InvertEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — InvertEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT095 | vtempi (LEDColor) | P0 | 🟩 COMPLETING PASS 2 | vjlive |
+| P3-EXT096 | lut_grading (LUTGradingEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — LUTGradingEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT097 | datamosh_3d (LayerSeparationEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — LayerSeparationEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT098 | liquid_lsd_datamosh (LiquidLSDDatamoshEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — LiquidLSDDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT099 | luma_chroma_mask (LumaChromaMaskEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — LumaChromaMaskEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT100 | ml_gpu_effects (MLBaseAsyncEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — MLBaseAsyncEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT101 | ml_gpu_effects (MLDepthEstimationEffect) | P0 | 🟦 IN PROGRESS (roo) | *(duplicate — MLDepthEstimationEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT102 | ml_gpu_effects (MLSegmentationBlurGLEffect) | P0 | 🟦 IN PROGRESS (roo) | *(duplicate — MLSegmentationBlurGLEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT103 | ml_gpu_effects (MLStyleGLEffect) | P0 | 🟦 IN PROGRESS (desktop-roo) | *(duplicate — MLStyleGLEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT104 | vcv_video_generators (MacroShapeGen) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — MacroShapeGen already shipped in P4/P5/P6/P7)* |
+| P3-EXT105 | generators (MandalaEffect) | P0 | 🟦 IN PROGRESS (desktop-roo) | *(duplicate — MandalaEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT106 | geometry (MandalascopeEffect) | P0 | 🟦 IN PROGRESS (desktop-roo) | *(duplicate — MandalascopeEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT107 | geometry (MirrorEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — MirrorEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT108 | blend (MixerEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — MixerEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT109 | vtempi (ModBehavior) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P3-EXT110 | morphology (MorphologyEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MorphologyEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT111 | mosh_pit_datamosh (MoshPitDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MoshPitDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT112 | vcv_video_effects (MultibandColorEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — MultibandColorEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT110 | morphology (MorphologyEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — MorphologyEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT111 | mosh_pit_datamosh (MoshPitDatamoshEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — MoshPitDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT112 | vcv_video_effects (MultibandColorEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — MultibandColorEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT113 | shadertoy_particles (NebulaParticles) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P3-EXT114 | neural_rave_nexus (NeuralRaveNexus) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — NeuralRaveNexus already shipped in P4/P5/P6/P7)* |
-| P3-EXT115 | neural_splice_datamosh (NeuralSpliceDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — NeuralSpliceDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT116 | tunnel_vision_2 (NeuralTunnelNet) | P0 | ⬜ PENDING SKELETON (Pass 1) | `docs/specs/P3-EXT116_NeuralTunnelNet.md` — spec approved |
-| P3-EXT117 | optical_flow (OpticalFlowEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — OpticalFlowEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT118 | depth_effects (OpticalFlowEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — OpticalFlowEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT119 | oscilloscope (OscilloscopeEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — OscilloscopeEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT120 | visualizer (OscilloscopeEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — OscilloscopeEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT121 | particles_3d (Particle3DSystem) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — Particle3DSystem already shipped in P4/P5/P6/P7)* |
-| P3-EXT122 | particle_datamosh_trails (ParticleDatamoshTrailsEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — ParticleDatamoshTrailsEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT114 | neural_rave_nexus (NeuralRaveNexus) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — NeuralRaveNexus already shipped in P4/P5/P6/P7)* |
+| P3-EXT115 | neural_splice_datamosh (NeuralSpliceDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — NeuralSpliceDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT116 | tunnel_vision_2 (NeuralTunnelNet) | P0 | 🟦 IN PROGRESS (desktop) | `docs/specs/P3-EXT116_NeuralTunnelNet.md` — spec approved |
+| P3-EXT117 | optical_flow (OpticalFlowEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — OpticalFlowEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT118 | depth_effects (OpticalFlowEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | *(duplicate — OpticalFlowEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT119 | oscilloscope (OscilloscopeEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — OscilloscopeEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT120 | visualizer (OscilloscopeEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — OscilloscopeEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT121 | particles_3d (Particle3DSystem) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — Particle3DSystem already shipped in P4/P5/P6/P7)* |
+| P3-EXT122 | particle_datamosh_trails (ParticleDatamoshTrailsEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — ParticleDatamoshTrailsEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
 | P3-EXT123 | particles_3d (ParticleState) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P3-EXT124 | distortion (PatternDistortionEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — PatternDistortionEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT125 | generators (PerlinEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — PerlinEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT126 | datamosh (PixelBloomEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — PixelBloomEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT127 | datamosh (PixelSortEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — PixelSortEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT128 | geometry (PixelateEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — PixelateEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT129 | plasma_melt_datamosh (PlasmaMeltDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — PlasmaMeltDatamoshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT130 | color (PosterizeEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — PosterizeEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT131 | prism_realm_datamosh (PrismRealmDatamoshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — PrismRealmDatamoshEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT124 | distortion (PatternDistortionEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — PatternDistortionEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT125 | generators (PerlinEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — PerlinEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT126 | datamosh (PixelBloomEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — PixelBloomEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT127 | datamosh (PixelSortEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — PixelSortEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT128 | geometry (PixelateEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — PixelateEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT129 | plasma_melt_datamosh (PlasmaMeltDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — PlasmaMeltDatamoshEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT130 | color (PosterizeEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — PosterizeEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
+| P3-EXT131 | prism_realm_datamosh (PrismRealmDatamoshEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — PrismRealmDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT132 | vtempi (ProgramPage) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P3-EXT133 | quantum_consciousness_datamosh (QuantumConsciousnessDatamosh) | P0 | ⬜ PENDING SKELETON (Pass 1) | `docs/specs/P3-EXT133_QuantumConsciousnessDatamosh.md` — spec approved |
+| P3-EXT133 | quantum_consciousness_datamosh (QuantumConsciousnessDatamosh) | P0 | 🟦 IN PROGRESS (desktop) | `docs/specs/P3-EXT133_QuantumConsciousnessDatamosh.md` — spec approved |
 | P3-EXT134 | tunnel_vision_3 (QuantumConsciousnessSingularityEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — QuantumConsciousnessSingularityEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT135 | quantum_depth_nexus (QuantumDepthNexus) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — QuantumDepthNexus already shipped in P4/P5/P6/P7)* |
 | P3-EXT136 | quantum_entanglement_point_cloud (QuantumEntanglementPointCloud) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |

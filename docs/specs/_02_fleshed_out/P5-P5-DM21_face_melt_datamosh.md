@@ -233,35 +233,7 @@ def test_performance_60fps():
 - [x] Original functionality verified (side-by-side comparison with VJlive-2)
 - [x] Comprehensive documentation and test plan completed
 - [x] Golden ratio easter egg implemented
-
-## Golden Ratio Easter Egg
-
-When `u_melt_speed` is set to exactly **6.18** (golden ratio conjugate) and `u_viscosity` is set to **1.618** (golden ratio), the effect activates a special "Fractal Dissolution" mode:
-
-```glsl
-// Fractal Dissolution Mode (u_melt_speed = 6.18, u_viscosity = 1.618)
-if (u_melt_speed == 6.18 && u_viscosity == 1.618) {
-    // Fractal melt pattern
-    vec2 fractal_offset = fractal_noise(uv * 10.0 + time * 0.5);
-    
-    // Golden ratio-based color separation
-    vec3 golden_colors = vec3(
-        sin(uv.x * 1.618 + time) * 0.5 + 0.5,
-        cos(uv.y * 2.618 - time) * 0.5 + 0.5,
-        tan((uv.x + uv.y) * 0.618 + time) * 0.5 + 0.5
-    );
-    
-    // Apply fractal melt with golden ratio scaling
-    sourceUV = uv + vec2(fractal_offset.x * 0.618, fractal_offset.y * 1.618);
-    
-    // Display golden ratio visualization
-    if (fract(sin(time * 1.618)) < 0.1) {
-        fragColor = vec4(1.0, 0.618, 0.0, 1.0); // Golden orange
-    }
-}
-```
-
-The easter egg creates a visually stunning effect with fractal melt patterns, golden ratio-based color separation, and periodic golden orange highlights. The mathematical basis draws from the golden ratio's appearance in nature and art, creating a moment of perfect aesthetic resonance in the Face Melt's parallel reality experience.
+.
 
 ## Safety Rail Compliance
 

@@ -475,11 +475,3 @@ current_fb_idx = 1 - current_fb_idx
 6. **Testing Strategy**: Use a headless GL context (e.g., `pyglet` offscreen) for unit tests. Mock `audio_reactor` and `AstraSource` to test integration logic without hardware.
 
 ---
-
-## Easter Egg Idea
-
-**Secret: Quantum Merkaba Consciousness Field**
-
-When all quantum/consciousness parameters (if present) are set to exactly 0.618 (the golden ratio conjugate), the effect secretly enables a hidden rendering mode where the Merkaba SDF emits a pulsing golden aura that syncs with the system's real-time clock, creating a phi-based harmonic pattern that subtly influences the feedback decay to follow the Fibonacci sequence (1, 1, 2, 3, 5, 8, 13, 21...) over a 60-second cycle. This causes the visual loops to naturally evolve toward perfect golden ratio proportions in their decay trails, creating a mesmerizing "living mathematics" effect that only the most mathematically attuned VJ would discover.
-
-*— desktop-roo*

@@ -478,22 +478,7 @@ PRESETS = {
 ```
 
 ---
-
-## Easter Egg Idea
-
-When all of these conditions are met simultaneously:
-- `hold_duration` set exactly to 6.66
-- `decay_rate` set exactly to 6.66
-- `trigger_threshold` set exactly to 6.66
-- `release_envelope` set exactly to 6.66
-- `temporal_scale` set exactly to 6.66
-- `blend_factor` set exactly to 6.66
-- `jitter_amount` set exactly to 6.66
-- `hold_mode` = 2 (decay)
-- Hold is triggered during a beat
-- A smooth S-curve geometry forms in the frame temporal history, creating a "temporal spiral" visual where frames progressively twist and fade in a perfect logarithmic spiral pattern. The spiral rotates at exactly 6.66 degrees per frame, creating a mesmerizing "temporal vortex" effect visible for exactly 6.66 seconds before returning to normal. This creates a hidden "sacred geometry" state where time itself seems to spiral.
-
----
+-
 
 ## References
 

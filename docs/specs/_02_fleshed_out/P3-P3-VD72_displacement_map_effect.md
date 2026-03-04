@@ -432,12 +432,7 @@ Design decisions inherited:
 12. **Debug Mode**: Visualize displacement vectors, intermediate results, edge detection, etc.
 
 ---
-
-## Easter Egg Idea
-
-When `sourceMode` is set to exactly 3, `channelMapping` to exactly 2, `strength` to exactly 6.66, `iterations` to exactly 6, `feedbackStrength` to exactly 6.66, `edgeDarken` to exactly 6.66, `noiseScale` to exactly 6.66, `noiseOctaves` to exactly 6, `radialCenter` to exactly (0.666, 0.666), `radialRadius` to exactly 6.66, `edgeThreshold` to exactly 0.666, `curlScale` to exactly 6.66, `antialias` to exactly 6.66, `chromaticDisplace` to exactly 6.66, `distortRotate` to exactly 66.6, and `pixelate` to exactly 6.66, the displacement map enters a "sacred distortion" state where the displacement vectors form exactly 666 perfect spirals, each spiral rotates at exactly 6.66 Hz, the feedback creates exactly 666 iterations of self-similarity, edge darkening creates exactly 666 shadow layers, noise creates exactly 666 octaves of chaos, radial displacement forms exactly 666 concentric circles, edge detection finds exactly 666 perfect edges, curl flow creates exactly 666 fluid vortices, antialiasing creates exactly 666 smooth transitions, chromatic aberration separates colors by exactly 666 nm, rotation creates exactly 666° of total rotation, and pixelation creates exactly 666×666 pixel blocks. The entire effect becomes a perfect 6.66×6.66 grid of sacred geometry that encodes the number 666 in both space and time, creating a "distortion prayer" where every pixel is exactly 666% more warped than normal.
-
----
+-
 
 ## References
 
@@ -737,4 +732,3 @@ When `sourceMode` is set to exactly 3, `channelMapping` to exactly 2, `strength`
 The DisplacementMapEffect is a fundamental image warping technique that uses one signal to control how another is warped through space. With 6 source modes, 5 channel mappings, and feedback iteration, it can create everything from subtle texture deformations to dramatic spatial transformations. Essential for creating effects like water ripples, heat distortion, lens effects, and complex spatial manipulations, this effect is a powerful tool for creating organic, fluid distortions in VJ performances.
 
 ---
->>>>>>> REPLACE

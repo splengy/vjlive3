@@ -533,47 +533,7 @@ Example (1920x1080): 1920 * 1080 * 4 = 8,294,400 bytes (~8 MB)
 - [x] Integration with plugin registry
 - [x] Documentation complete
 - [x] Easter egg implementation
-
-## Easter Egg: Golden Ratio Temporal Collapse
-
-**Activation**: Hold 'T' key for 1.618 seconds during effect runtime
-
-**Effect**:
-1. All temporal layers align in golden ratio sequence
-2. Rift depth = 1.618 * base depth
-3. Time stretch = 2.618 * normal stretch
-4. Propagation speed = 3.14 * normal speed
-5. Display golden ratio (1.618) in bottom-right corner for 1.618 seconds
-6. Return to normal operation
-
-**Mathematical Basis**:
-- Golden ratio φ = (1 + √5) / 2 ≈ 1.618
-- Temporal layers = 13 (Fibonacci number)
-- Rift propagation = π * φ (transcendental product)
-
-**Implementation**:
-```python
-def golden_ratio_burst(self):
-    # Golden ratio temporal alignment
-    golden_ratio = 1.618
-    
-    # Align temporal layers in golden sequence
-    temporal_sequence = [0.0, 0.618, 1.0, 1.618, 2.618, 4.236, 6.854, 11.09, 17.94, 29.03, 46.97, 76.0, 122.97]
-    
-    # Enhanced temporal parameters
-    enhanced_rift = self.parameters['rift_depth'] * golden_ratio
-    enhanced_stretch = self.parameters['time_stretch'] * 2.618
-    enhanced_prop = self.parameters['propagation'] * 3.14
-    enhanced_layers = min(13.0, self.parameters['layer_count'] * golden_ratio)
-    
-    # Apply golden ratio temporal collapse
-    self._set_temporal_parameters(
-        rift_depth=enhanced_rift,
-        time_stretch=enhanced_stretch,
-        propagation=enhanced_prop,
-        layer_count=enhanced_layers
-    )
-```
+`
 
 ## Parameter Mapping (0-10 User Scale to Shader Ranges)
 

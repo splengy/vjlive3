@@ -420,12 +420,7 @@ Design decisions inherited:
 14. **Debug Mode**: Visualize normals (RGB), show mask, show projection UVs, show lighting.
 
 ---
-
-## Easter Egg Idea
-
-When `projectionStrength` is set exactly to 6.66, `depthContour` to exactly 6.66, `uvScale` to exactly 6.66, `uvScrollX` to exactly 6.66, `uvScrollY` to exactly 6.66, `normalLighting` to exactly 6.66, `maskTight` to exactly 6.66, and `hologramGlow` to exactly 6.66, the video projection enters a "sacred geometry" state where the projection strength is exactly 66.6%, the depth contour is exactly 0.666, the UV scale is exactly 0.0666, the scroll speeds are exactly 0.0666 units per frame, the normal lighting is exactly 66.6% intensity, the mask tightness is exactly 0.666, and the hologram glow is exactly 66.6% intensity. The entire projection becomes a perfect 6.66×6.66 grid of UV distortions that encode the number 666 in both space and time, creating a "projected prayer" where every pixel of the projection is exactly 666% more luminous than normal.
-
----
+-
 
 ## References
 
@@ -637,4 +632,3 @@ When `projectionStrength` is set exactly to 6.66, `depthContour` to exactly 6.66
 The DepthVideoProjectionEffect turns the performer's body into a dynamic projection screen. By using depth to derive surface normals, the effect creates a convincing illusion of video being projected onto a 3D surface. With configurable UV distortion, normal-based lighting, and holographic Fresnel glow, it's a powerful tool for creating immersive, body-mapped visuals perfect for VJ performances.
 
 ---
->>>>>>> REPLACE

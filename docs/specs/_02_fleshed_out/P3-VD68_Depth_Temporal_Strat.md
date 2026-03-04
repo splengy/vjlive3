@@ -493,12 +493,7 @@ Design decisions inherited:
     - Add motion estimation for better datamosh
 
 ---
-
-## Easter Egg Idea
-
-When `strata` is set exactly to 6.66, all `stratumDelays` to exactly 6.66, `hueRotate` to exactly 6.66, `freeze` to exactly 6.66, `strobe` to exactly 6.66, `seamDatamosh` to exactly 6.66, `blockSize` to exactly 6.66, `seamThreshold` to exactly 6.66, and `moshDecay` to exactly 6.66, the temporal stratification enters a "sacred geometry" state where the depth range is divided into exactly 6.66 strata (rounding to 6 or 7), each stratum runs exactly 6.66 frames behind the present, the hue rotation creates exactly 6.66 distinct color bands, the freeze probability is exactly 66.6%, the strobe flickers at exactly 6.66 Hz, the seam datamosh creates exactly 6.66-pixel blocks, the seam threshold is exactly 0.0666, and the decay creates exactly 6.66 distinct brightness levels. The entire scene becomes a perfect 6.66×6.66 grid of temporal layers that encode the number 666 in both depth and time, creating a "stratified prayer" where each stratum is exactly 666 milliseconds old.
-
----
+-
 
 ## References
 
@@ -742,4 +737,3 @@ When `strata` is set exactly to 6.66, all `stratumDelays` to exactly 6.66, `hueR
 The DepthTemporalStratEffect creates a striking visual where depth slices the scene into separate temporal streams. Each depth stratum runs at its own time offset, creating a layered, ghostly effect with hard boundaries that produce datamosh artifacts. With per-stratum hue rotation, freezing, and strobe effects, it's a powerful tool for creating psychedelic, glitchy visuals that manipulate time itself across the depth dimension.
 
 ---
->>>>>>> REPLACE

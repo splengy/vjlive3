@@ -195,24 +195,7 @@ void main() {
 - **80% Test Coverage:** Comprehensive test suite covering all code paths and edge cases
 - **No Silent Failures:** All errors properly handled with descriptive exceptions
 - **Resource Management:** Proper cleanup of GPU resources and memory buffers
-
-## Golden Ratio Easter Egg
-
-**Golden Ratio Parameter Mapping:** When the user sets the hue shift to exactly **1.618** (golden ratio), the effect activates an additional "Golden Hue" transformation. This creates a special color harmony where the hue rotation aligns with golden ratio proportions in color space.
-
-**Mathematical Implementation:**
-```glsl
-// Golden ratio easter egg
-if (u_shift == 1.618) {
-    // Apply golden ratio hue shift with enhanced saturation
-    float golden_hue_shift = fract(u_shift); // 0.618
-    hsv.x = fract(hsv.x + golden_hue_shift);
-    // Boost saturation slightly for golden ratio colors
-    hsv.y = min(hsv.y * 1.2, 1.0);
-}
-```
-
-**Visual Effect:** The golden ratio easter egg creates a subtle but perceptible enhancement in color harmony. When activated, the hue shift combines with a slight saturation boost to produce colors that feel naturally balanced and aesthetically pleasing. This is particularly effective for skin tones, sunsets, and natural scenes where golden ratio color relationships are prevalent in nature.
+.
 
 ## Definition of Done
 

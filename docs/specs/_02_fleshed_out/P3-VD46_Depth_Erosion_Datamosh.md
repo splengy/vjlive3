@@ -358,12 +358,7 @@ Design decisions inherited:
     - Add export/import of presets
 
 ---
-
-## Easter Egg Idea
-
-When `morphMode` is set exactly to 3.14, `kernelSize` to exactly 3.14, `iterations` to exactly 3.14, and `artifactIntensity` to exactly 3.14, and the depth map contains a perfect circle, the morphological operations spontaneously create a "pi spiral" where artifacts follow a logarithmic spiral pattern for exactly 3.14 seconds before returning to normal cellular decay. The effect creates a mathematical resonance that VJs can feel as a "sacred geometry" pattern.
-
----
+-
 
 ## References
 
@@ -473,4 +468,3 @@ When `morphMode` is set exactly to 3.14, `kernelSize` to exactly 3.14, `iteratio
 The DepthErosionDatamoshEffect creates organic, cellular dissolution and growth effects by combining morphological operations with datamosh artifacts. It transforms depth maps into evolving, biological-looking patterns that can dissolve objects or grow new structures, making it a powerful tool for creating organic, evolving visuals in VJ performances.
 
 ---
->>>>>>> REPLACE

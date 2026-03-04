@@ -467,12 +467,7 @@ Design decisions inherited:
     - Add performance metrics overlay
 
 ---
-
-## Easter Egg Idea
-
-When all 13 parameters are set exactly to 6.66, and the depth map contains a perfect torus, the effect enters a "cosmic grove" state where all visual elements synchronize into a perfect 6.66 Hz rhythm, creating a mandala that appears to breathe with the viewer's own heartbeat. The kaleidoscope segments align with sacred geometry, the spiral feedback forms a toroidal vortex, and the block datamosh resolves into a perfect fractal pattern that VJs can feel as a moment of complete visual harmony.
-
----
+-
 
 ## References
 
@@ -772,4 +767,3 @@ When all 13 parameters are set exactly to 6.66, and the depth map contains a per
 The DepthGroovyDatamoshEffect is the ultimate psychedelic depth effect, combining a dozen visual techniques into one overwhelming experience. It uses depth data to modulate every aspect of the effect, creating trippy, depth-reactive visuals that are perfect for high-energy VJ performances. While complex and computationally intensive, it provides unparalleled visual impact when you need to "turn it up to 11."
 
 ---
->>>>>>> REPLACE

@@ -656,12 +656,7 @@ Use `frozenset` to make params hashable and order-independent.
 7. **No file I/O by default**: Backgrounds exist only in memory; optional PNG export must be explicitly implemented and validated
 
 ---
-
-## Easter Egg
-
-When `style="secret"` and `panel_id` contains the substring `"matrix"`, render a subtle green-on-black falling-character animation frame (single frame of matrix rain) instead of the normal background. The effect should be barely noticeable—only upon close inspection do the characters appear. This easter egg honors the legacy `ascii_effect` module's matrix rain mode.
-
----
+-
 
 ## References
 

@@ -193,22 +193,7 @@ void main() {
 - **80% Test Coverage:** Comprehensive test suite covering all code paths and edge cases
 - **No Silent Failures:** All errors properly handled with descriptive exceptions
 - **Resource Management:** Proper cleanup of GPU resources and memory buffers
-
-## Golden Ratio Easter Egg
-
-**Golden Ratio Parameter Mapping:** When the user sets the saturation amount to exactly 1.618 (golden ratio), the effect applies an additional subtle hue shift of 0.618 radians (golden ratio conjugate) to create a naturally pleasing color balance. This creates a "golden" color harmony that enhances the visual appeal of saturated content.
-
-**Mathematical Implementation:**
-```glsl
-// Golden ratio easter egg
-if (u_amount == 1.618) {
-    // Apply golden ratio hue shift
-    float golden_hue_shift = 0.618; // radians
-    hsv.x = fract(hsv.x + golden_hue_shift);
-}
-```
-
-**Visual Effect:** The golden ratio easter egg creates a subtle but noticeable improvement in color harmony, particularly effective for skin tones and natural scenes. The hue shift is barely perceptible but creates a more balanced and aesthetically pleasing result.
+.
 
 ## Definition of Done
 

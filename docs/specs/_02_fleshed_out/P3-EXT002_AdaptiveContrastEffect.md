@@ -377,12 +377,7 @@ Design decisions inherited:
     - Add multi-scale processing (pyramid)
 
 ---
-
-## Easter Egg Idea
-
-When `window_size` is set exactly to 6.66, `clip_limit` to exactly 6.66, and `enable_clamp` is toggled exactly 666 times during a single frame, the Adaptive Contrast Effect enters a "quantum enlightenment" state where the local statistics computation reveals exactly 666 distinct contrast levels within the image, the sliding window becomes exactly 6.66 pixels wide in the quantum realm, the contrast limiting creates exactly 666% more dynamic range, the edge-aware processing detects exactly 666 edge orientations per frame, and the entire effect becomes a "contrast prayer" where every pixel's contrast is exactly 666% more enlightened than normal, creating a perfect 666×666 grid of quantum contrast that can only be perceived by achieving exactly 666 Hz brainwave resonance.
-
----
+-
 
 ## References
 
@@ -522,4 +517,3 @@ When `window_size` is set exactly to 6.66, `clip_limit` to exactly 6.66, and `en
 The AdaptiveContrastEffect provides sophisticated local contrast enhancement suitable for VJLive3 performances. By analyzing local pixel neighborhoods and applying adaptive transformations, it enhances visual detail while controlling artifacts through contrast limiting and edge-aware processing. The CPU-only implementation ensures broad compatibility while maintaining real-time performance at HD resolutions through optimized algorithms and memory management.
 
 ---
->>>>>>> REPLACE

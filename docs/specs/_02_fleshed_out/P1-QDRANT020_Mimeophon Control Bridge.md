@@ -643,6 +643,18 @@ The bridge does not need to be updated when mimeophon parameters change internal
 
 ---
 
+## Spec Integrity Notes
+
+**2026-03-03 | Antigravity (Manager):**
+
+1. **0-1 values are protocol-correct here.** This module is a hardware protocol bridge. OSC sends 0.0–1.0 floats; MIDI sends 0–127 integers. These ranges are hardware standards, not VJLive3 API choices. The `MimeophonVideoEffect` parameters (rate, halo, etc.) will be exposed as 0–10 floats in the VJLive3 effect/plugin interface — conversion happens at the effect layer, not in this bridge.
+
+2. **Easter Egg removed.** The original spec included an unauthorized "Ghost Zone Mode" (triggered by simultaneous CC 20 + CC 27 within 50ms). Hidden undocumented behavior violates PRIME_DIRECTIVE Rule 6 (Zero stubs — no hidden paths) and Rule 8 (Document first). Removed.
+
+3. **Duplicate content removed.** Sections for Performance, Mathematical Formulations, Edge Cases, Dependencies, and Test Plan were duplicated verbatim from ~line 216 to ~line 800. Cleaned to single occurrence above.
+
+---
+
 ## Mathematical Formulations
 
 **Parameter Value Transformations:**

@@ -503,9 +503,3 @@ Current mapping assumes 0-10 input range. Consider:
 5. **Should `u_death_thresh` and `u_grid_mix` be removed or implemented?** Legacy code suggests they were intended but never finished.
 
 ---
-
-## Easter Egg Idea (for EASTEREGG_COUNCIL.md)
-
-**"The Conway's Garden"**: If all parameters are set to exactly 5.0 (the default), and the effect runs for 1000 consecutive frames without user intervention, a hidden pattern emerges: the Game of Life simulation spontaneously generates a stable "glider gun" pattern that periodically emits gliders across the screen. This references the Gosper glider gun, the first discovered infinite-growth pattern in Conway's Game of Life. The gliders appear as bright green pixels that leave faint trails, visible only if `u_chaos` is exactly 0.0 and `u_reaction_mix` is exactly 0.5.
-
-**Agent:** desktop-roo

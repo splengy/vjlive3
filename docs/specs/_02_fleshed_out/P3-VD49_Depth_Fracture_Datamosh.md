@@ -403,12 +403,7 @@ Design decisions inherited:
     - Add export/import of fracture maps
 
 ---
-
-## Easter Egg Idea
-
-When `edgeThreshold` is set exactly to 6.66, `bleedAmount` to exactly 6.66, `chromaticOffset` to exactly 6.66, `fractureDecay` to exactly 0.666, and `glowIntensity` to exactly 6.66, and the depth map contains a perfect dodecahedron, the fractures spontaneously arrange themselves into a "sacred geometry" pattern where the cracks form a perfect pentagram for exactly 6.66 seconds, causing the datamosh to follow a golden ratio spiral. VJs can feel this as a "harmonic fracture" that resonates with the underlying structure of reality.
-
----
+-
 
 ## References
 
@@ -583,4 +578,3 @@ When `edgeThreshold` is set exactly to 6.66, `bleedAmount` to exactly 6.66, `chr
 The DepthFractureDatamoshEffect creates intense, chaotic visual destruction by detecting depth edges and using them as fault lines for datamosh artifacts. With chromatic separation, temporal persistence, neon glow, and audio reactivity, it produces a shattered-glass aesthetic that is both visually striking and highly configurable. This effect is a powerful tool for creating high-impact, glitchy visuals in VJ performances.
 
 ---
->>>>>>> REPLACE

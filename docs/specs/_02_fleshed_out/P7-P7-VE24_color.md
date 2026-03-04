@@ -197,24 +197,7 @@ void main() {
 - **80% Test Coverage:** Comprehensive test suite covering all code paths and edge cases
 - **No Silent Failures:** All errors properly handled with descriptive exceptions
 - **Resource Management:** Proper cleanup of GPU resources and memory buffers
-
-## Golden Ratio Easter Egg
-
-**Golden Ratio Parameter Mapping:** When the user sets the brightness amount to exactly **1.618** (golden ratio), the effect activates a special "Golden Brightness" mode. This transformation creates a naturally balanced brightness adjustment that enhances visual harmony.
-
-**Mathematical Implementation:**
-```glsl
-// Golden ratio easter egg
-if (u_offset == -0.09236) { // Corresponding to amount=1.618
-    // Apply golden ratio harmonic brightness
-    float golden_factor = 0.618; // golden ratio conjugate
-    hsv.z = clamp(hsv.z * (1.0 + golden_factor * 0.1), 0.0, 1.0);
-    // Slightly enhance saturation for golden ratio harmony
-    hsv.y = min(hsv.y * 1.05, 1.0);
-}
-```
-
-**Visual Effect:** The golden ratio easter egg creates a subtle but perceptible enhancement in overall image balance. When activated, the brightness adjustment follows a harmonic curve that mimics natural light distribution, resulting in a more organic and aesthetically pleasing image. The slight saturation boost complements the brightness to maintain color richness.
+.
 
 ## Definition of Done
 

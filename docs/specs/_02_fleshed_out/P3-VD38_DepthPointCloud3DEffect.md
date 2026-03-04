@@ -367,12 +367,7 @@ Design decisions inherited:
     - Point size based on color intensity
 
 ---
-
-## Easter Egg Idea
-
-When `point_size` is set exactly to 3.33, `color_mapping_mode` to exactly 1 (calibrated), and the color transform matrix has a determinant exactly equal to the golden ratio (1.618), and the depth and color frames both contain perfect gradients, the color mapping briefly forms a perfect "rainbow torus" in the point cloud that lasts exactly 6.66 seconds before returning to normal. The torus is visible only in sphere mode with a specific color gradient but subtly influences the color distribution in a way that VJs can feel as a "color harmony" moment.
-
----
+-
 
 ## References
 
@@ -500,4 +495,3 @@ When `point_size` is set exactly to 3.33, `color_mapping_mode` to exactly 1 (cal
 The DepthPointCloud3DEffect elevates point cloud visualization by adding photorealistic color from an RGB camera. By carefully aligning depth and color data through camera calibration, it produces stunning volumetric video effects that are essential for VJ performances using depth cameras. The effect builds upon the solid foundation of `DepthPointCloudEffect` and extends it with color texture mapping, requiring precise camera geometry but delivering rich, colored point clouds.
 
 ---
->>>>>>> REPLACE
