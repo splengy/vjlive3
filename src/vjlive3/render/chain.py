@@ -258,13 +258,16 @@ class EffectChain:
         """
         Update existing GPU texture with new pixel data.
         Resizes image if cv2 is available and dimensions mismatch.
+
+        # TODO(P1-R2): replace cv2.resize with wgpu compute pass once GPU pipeline
+        # is fully implemented. See ADR-026 (known deviation) in DECISIONS.md.
         """
         if image.ndim >= 2 and hasattr(texture, "width"):
             expected_w, expected_h = texture.width, texture.height
             if (image.shape[1], image.shape[0]) != (expected_w, expected_h):
                 try:
-                    import cv2
-                    image = cv2.resize(image, (expected_w, expected_h))
+                    import cv2  # TODO(P1-R2): replace with wgpu compute pass — ADR-026
+                    image = cv2.resize(image, (expected_w, expected_h))  # TODO(P1-R2): wgpu blit
                 except ImportError:
                     logger.warning("update_texture: cv2 unavailable — skipping resize")
 

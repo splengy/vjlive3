@@ -78,15 +78,13 @@ class RenderPipeline:
             ) from exc
 
         # Build a minimal render pipeline for a fullscreen quad.
-        # The pipeline is stored for callers that need the raw GPURenderPipeline.
+        # layout="auto" instructs wgpu to introspect the WGSL shader and
+        # auto-derive the bind group layout — no manual entry list needed.
+        # This is the correct pattern when the shader declares its own bindings.
         try:
-            bind_group_layout = device.create_bind_group_layout(entries=[])
-            pipeline_layout = device.create_pipeline_layout(
-                bind_group_layouts=[bind_group_layout]
-            )
             self._pipeline = device.create_render_pipeline(
                 label=name,
-                layout=pipeline_layout,
+                layout="auto",
                 vertex={
                     "module": self._shader_module,
                     "entry_point": "vs_main",

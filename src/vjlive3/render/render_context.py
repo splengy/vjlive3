@@ -134,18 +134,14 @@ class RenderContext:
         logger.debug("Headless adapter: %s", self._adapter.info)
 
     def _init_windowed(self) -> None:
-        """Initialise GLFW window and attach a wgpu surface to it."""
-        import glfw  # lazy import — allows mocking in tests
+        """Initialise GLFW window via rendercanvas and attach a wgpu surface."""
+        import math
         import wgpu
-        from wgpu.gui.glfw import WgpuCanvas  # type: ignore[import]
+        from rendercanvas.glfw import GlfwRenderCanvas  # type: ignore[import]
 
-        if not glfw.init():
-            raise RuntimeError(
-                "RenderContext: glfw.init() failed. "
-                "Ensure a display is available or use VJ_HEADLESS=true."
-            )
-
-        self._canvas = WgpuCanvas(
+        # GlfwRenderCanvas calls glfw.init() internally via enable_glfw().
+        # No need for a manual glfw.init() check here.
+        self._canvas = GlfwRenderCanvas(
             title=self._title,
             size=(self._width, self._height),
         )
@@ -153,16 +149,63 @@ class RenderContext:
 
         self._adapter = wgpu.gpu.request_adapter_sync(
             power_preference="high-performance",
-            canvas=self._canvas,
         )
         if self._adapter is None:
-            glfw.terminate()
+            self._canvas.close()
             raise RuntimeError(
                 "RenderContext: wgpu adapter unavailable. "
                 "Ensure Vulkan, Metal, or DX12 drivers are installed."
             )
         self._device = self._adapter.request_device_sync()
         logger.debug("Windowed adapter: %s", self._adapter.info)
+
+        # Configure the canvas context for screen rendering.
+        # Must be done before calling get_current_texture() each frame.
+        preferred_fmt = self._ctx.get_preferred_format(self._adapter)
+        self._ctx.configure(
+            device=self._device,
+            format=preferred_fmt,
+            usage=wgpu.TextureUsage.RENDER_ATTACHMENT,
+        )
+        self._screen_format = preferred_fmt
+        logger.debug("Canvas ctx configured — format=%s", preferred_fmt)
+
+    def blit_to_screen(self, frame_time: float = 0.0) -> None:
+        """
+        Write a frame-timestamped test pattern directly to the screen surface.
+
+        Each frame cycles through a slow hue rotation (≈0.2 Hz) to prove that
+        the render → present → pixels pipeline is driven E2E per frame.
+
+        Args:
+            frame_time: Seconds since start, used to animate colour.
+        """
+        if self._headless or self._ctx is None or self._device is None:
+            return
+        import math
+        try:
+            screen_tex = self._ctx.get_current_texture()
+            screen_view = screen_tex.create_view()
+            # Slow RGB cycle: ~0.2 Hz (5 sec period), phase-shifted per channel
+            t = frame_time * 0.2
+            r = 0.5 + 0.4 * math.sin(math.tau * t)
+            g = 0.5 + 0.4 * math.sin(math.tau * t + math.tau / 3)
+            b = 0.5 + 0.4 * math.sin(math.tau * t + 2 * math.tau / 3)
+            encoder = self._device.create_command_encoder(label="screen-blit")
+            rp = encoder.begin_render_pass(
+                color_attachments=[{
+                    "view": screen_view,
+                    "resolve_target": None,
+                    "load_op": "clear",
+                    "store_op": "store",
+                    "clear_value": (r, g, b, 1.0),
+                }]
+            )
+            rp.end()
+            self._device.queue.submit([encoder.finish()])
+        except Exception as exc:
+            logger.debug("RenderContext.blit_to_screen: %s", exc)
+
 
     # -------------------------------------------------------------------------
     # Public API
@@ -173,24 +216,42 @@ class RenderContext:
         # wgpu-py handles context currency internally; no explicit call needed.
         # Exists for API compatibility with callers that expect this method.
 
+
     def poll_events(self) -> None:
         """Process pending GLFW window events. No-op in headless mode."""
         if self._headless or self._canvas is None:
             return
-        import glfw
-        glfw.poll_events()
+        import glfw as _glfw
+        _glfw.poll_events()
+        # GlfwRenderCanvas._maybe_close() checks glfw.window_should_close()
+        # and calls canvas.close() if the user clicked X. Must be called after
+        # poll_events to propagate the close signal into canvas.is_closed().
+        if hasattr(self._canvas, "_maybe_close"):
+            self._canvas._maybe_close()
+
 
     def should_close(self) -> bool:
         """Return True if the user has requested window close. Always False in headless."""
         if self._headless or self._canvas is None:
             return False
+        # GlfwRenderCanvas exposes get_closed() in rendercanvas 2.x (is_closed() deprecated)
+        get_closed = getattr(self._canvas, "get_closed", None)
+        if get_closed is not None:
+            return bool(get_closed())
         return bool(self._canvas.is_closed())
 
     def swap_buffers(self) -> None:
         """Present the current rendered frame to the display. No-op in headless mode."""
         if self._headless or self._canvas is None:
             return
-        self._canvas.present()
+        # Use canvas.force_draw() — the correct public API to trigger a synchronous
+        # present from outside the canvas event loop. Path:
+        #   force_draw() -> _rc_force_paint() -> _time_to_paint()
+        #   -> _draw_and_present(force_sync=True) -> ctx._rc_present(force_sync=True)
+        #   -> wgpu_context.present() -> screen surface is updated.
+        if hasattr(self._canvas, "force_draw"):
+            self._canvas.force_draw()
+
 
     def terminate(self) -> None:
         """
@@ -219,11 +280,6 @@ class RenderContext:
             except Exception:  # noqa: BLE001
                 pass
             self._canvas = None
-            try:
-                import glfw
-                glfw.terminate()
-            except Exception:  # noqa: BLE001
-                pass
 
         self._ctx = None
         self._adapter = None

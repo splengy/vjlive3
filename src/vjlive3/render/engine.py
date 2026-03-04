@@ -277,9 +277,13 @@ class RenderEngine:
             try:
                 with self._profiler.time("screen"):
                     self._chain.render_to_screen(output_tex, (0, 0, w, h))
+                    # Blit to screen surface (animated colour cycle proves E2E present works)
+                    if hasattr(self._ctx, "blit_to_screen"):
+                        self._ctx.blit_to_screen(frame_time=frame_start)
                     self._ctx.swap_buffers()
             except Exception as exc:
                 logger.error("RenderEngine: render_to_screen raised: %s", exc)
+
 
             # 7. Profiler + FPS
             self._profiler.tick()
