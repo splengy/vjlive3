@@ -450,10 +450,10 @@
 | P1-R4 | Texture manager (pooled, leak-free) | [Agent name] | ⬜ PENDING SKELETON (Pass 1) | 80% coverage mapped across ModernGL dictionary buffers and fallback decoded stream paths. (2026-02-22) |
 | P1-R5 | Core rendering engine (60fps loop) | P0 | ⬜ PENDING SKELETON (Pass 1) | `src/vjlive3/render/engine.py` — RenderEngine, 8/8 tests ✅ 2026-02-22 |
 | P1-R6 | WebGPU Core Renderer (WGSL) | P0 | ⬜ PENDING SKELETON (Pass 1) | WebGPU rendering backend for cross-platform / web compatibility |
-| P1-A1 | FFT + waveform analysis engine | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P1-A2 | Real-time beat detection | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P1-A3 | Audio-reactive effect framework | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P1-A4 | Multi-source audio input | P1 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P1-A1 | FFT + waveform analysis engine | P0 | ✅ DONE | Implemented: analyzer.py, 178 tests 83.73% cov |
+| P1-A2 | Real-time beat detection | P0 | ✅ DONE | Implemented: beat.py, 178 tests 83.73% cov |
+| P1-A3 | Audio-reactive effect framework | P0 | ✅ DONE | Implemented: reactive_effect.py, 178 tests 83.73% cov |
+| P1-A4 | Multi-source audio input | P1 | ✅ DONE | Implemented: sources.py, 178 tests 83.73% cov |
 | P1-N1 | UnifiedMatrix + node registry (manifest-based) | P0 | ⬜ PENDING SKELETON (Pass 1) | `docs/specs/P1-N1_node_registry.md` — spec approved, implementation started |
 | P1-N2 | Node types — full collection from both codebases | P0 | ⬜ PENDING SKELETON (Pass 1) | `docs/specs/P1-N2_node_types.md` — spec approved, implementation started |
 | P1-N3 | State persistence (save/load) | P1 | ⬜ PENDING SKELETON (Pass 1) | `docs/specs/P1-N3_state_persistence.md` — spec approved, implementation started |
@@ -798,7 +798,7 @@
 | P9-MISS002 | v-halvorsen | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-VD19 | depth_liquid_refraction | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-VD22 | depth_temporal_strat | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P1-A5 | audio_reactivity | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P1-A5 | Audio reactivity module | P0 | ✅ DONE | Implemented: reactivity.py, 178 tests 83.73% cov |
 | P3-VD27 | Depth_Aware_Compression | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT430 | VPolimathsPlugin | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-VD17 | depth_mosaic | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
