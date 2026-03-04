@@ -57,6 +57,17 @@ def main() -> int:
             headless=headless,
         ) as ctx:
             chain = EffectChain(width=width, height=height)
+
+            # Add a colour-invert effect to prove the full GPU effect-chain pipeline.
+            # InvertEffect.draw() receives the source texture view directly and
+            # manages its own bind groups — no hardware dependency.
+            try:
+                from vjlive3.plugins.invert import InvertEffect
+                chain.add_effect(InvertEffect())
+                logger.info("InvertEffect added to chain")
+            except Exception as exc:
+                logger.warning("Could not add InvertEffect: %s", exc)
+
             engine = RenderEngine(ctx, chain, target_fps=60.0)
 
             if test_frame_only:
@@ -71,7 +82,28 @@ def main() -> int:
 
             # Real window mode: run until user closes window.
             logger.info("Window open — press Q or close to exit")
+
+            # Upload a static test frame so the chain has content to blit.
+            # This exercises the SCREEN_BLIT_WGSL pipeline path (not the colour cycle).
+            # Replace with a live webcam / video source for the actual VJ use-case.
+            try:
+                import numpy as np
+                test_frame = np.zeros((height, width, 3), dtype=np.uint8)
+                # Reddish-purple gradient: vivid enough to be unmistakeable
+                test_frame[:, :, 0] = 180   # R
+                test_frame[:, :, 1] = 40    # G
+                test_frame[:, :, 2] = 120   # B
+                # Horizontal gradient so we can verify aspect ratio is correct
+                for x in range(width):
+                    test_frame[:, x, 2] = int(40 + (200 - 40) * x / width)
+                input_view = chain.upload_texture(test_frame)
+                engine.set_input_texture_callback(lambda: input_view)
+                logger.info("Test frame uploaded (%dx%d) — GPU blit path active", width, height)
+            except Exception as exc:
+                logger.warning("Could not upload test frame (GPU blit fallback to colour cycle): %s", exc)
+
             engine.run()
+
 
     except RuntimeError as exc:
         logger.error("Render pipeline failed: %s", exc)

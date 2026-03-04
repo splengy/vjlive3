@@ -261,3 +261,50 @@ def validate_wgsl(source: str) -> bool:
         return False
 
     return True
+
+
+# ---------------------------------------------------------------------------
+# SCREEN_BLIT_WGSL
+# Self-contained fullscreen blit shader — samples a texture to the screen.
+# group(0) binding(0) = source texture (2d<f32>)
+# group(0) binding(1) = sampler
+# No uniforms — intentionally decoupled from BASE_VERTEX_WGSL so this shader
+# can be used to blit any offscreen GPUTextureView to the screen surface
+# without group-0 / binding-0 conflicts.
+# ---------------------------------------------------------------------------
+SCREEN_BLIT_WGSL: str = """
+struct VSOut {
+    @builtin(position) pos: vec4<f32>,
+    @location(0) uv:       vec2<f32>,
+}
+
+@vertex
+fn vs_main(@builtin(vertex_index) vi: u32) -> VSOut {
+    // Triangle-strip positions covering [-1,1] x [-1,1]
+    var positions = array<vec2<f32>, 4>(
+        vec2<f32>(-1.0,  1.0),
+        vec2<f32>(-1.0, -1.0),
+        vec2<f32>( 1.0,  1.0),
+        vec2<f32>( 1.0, -1.0),
+    );
+    // UV: Y is flipped relative to NDC (screen top = UV 0, screen bottom = UV 1)
+    var uvs = array<vec2<f32>, 4>(
+        vec2<f32>(0.0, 0.0),
+        vec2<f32>(0.0, 1.0),
+        vec2<f32>(1.0, 0.0),
+        vec2<f32>(1.0, 1.0),
+    );
+    var out: VSOut;
+    out.pos = vec4<f32>(positions[vi], 0.0, 1.0);
+    out.uv  = uvs[vi];
+    return out;
+}
+
+@group(0) @binding(0) var blit_tex:  texture_2d<f32>;
+@group(0) @binding(1) var blit_samp: sampler;
+
+@fragment
+fn fs_main(in: VSOut) -> @location(0) vec4<f32> {
+    return textureSample(blit_tex, blit_samp, in.uv);
+}
+"""

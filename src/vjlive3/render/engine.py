@@ -271,18 +271,24 @@ class RenderEngine:
                 logger.error("RenderEngine: effect chain raised: %s", exc)
                 output_tex = input_tex
 
-            # 6. Blit to screen
+            # 6. Blit to screen — use chain output if available, else colour cycle
             w: int = getattr(self._ctx, "width", 1920)
             h: int = getattr(self._ctx, "height", 1080)
             try:
                 with self._profiler.time("screen"):
                     self._chain.render_to_screen(output_tex, (0, 0, w, h))
-                    # Blit to screen surface (animated colour cycle proves E2E present works)
                     if hasattr(self._ctx, "blit_to_screen"):
-                        self._ctx.blit_to_screen(frame_time=frame_start)
+                        # src_view=output_tex → real GPU texture blit
+                        # src_view=None       → animated colour-cycle fallback
+                        self._ctx.blit_to_screen(
+                            src_view=output_tex,
+                            frame_time=frame_start,
+                        )
                     self._ctx.swap_buffers()
             except Exception as exc:
                 logger.error("RenderEngine: render_to_screen raised: %s", exc)
+
+
 
 
             # 7. Profiler + FPS

@@ -86,6 +86,9 @@ class RenderContext:
         self._ctx = None
         self._adapter = None
         self._device = None
+        self._screen_format: str = "rgba8unorm"
+        self._screen_blit_pipeline = None
+        self._screen_blit_sampler = None
 
         if _active_instance is not None and not _active_instance._terminated:
             raise RuntimeError(
@@ -170,41 +173,109 @@ class RenderContext:
         self._screen_format = preferred_fmt
         logger.debug("Canvas ctx configured — format=%s", preferred_fmt)
 
-    def blit_to_screen(self, frame_time: float = 0.0) -> None:
+    def blit_to_screen(
+        self,
+        src_view: object = None,
+        frame_time: float = 0.0,
+    ) -> None:
         """
-        Write a frame-timestamped test pattern directly to the screen surface.
+        Blit a GPU texture view (chain output) to the screen surface each frame.
 
-        Each frame cycles through a slow hue rotation (≈0.2 Hz) to prove that
-        the render → present → pixels pipeline is driven E2E per frame.
+        When *src_view* is provided this function builds a fullscreen blit
+        pipeline (SCREEN_BLIT_WGSL) on the first call and renders the texture
+        to the screen surface via a triangle-strip draw.  When *src_view* is
+        None it falls back to the colour-cycle clear pattern to keep the window
+        alive and animated even when no effects are loaded.
 
         Args:
-            frame_time: Seconds since start, used to animate colour.
+            src_view:   A ``GPUTextureView`` produced by the EffectChain (or
+                        any other offscreen render target).  Pass ``None`` to
+                        activate the animated colour-cycle fallback.
+            frame_time: Seconds since start, used by the colour-cycle fallback.
         """
         if self._headless or self._ctx is None or self._device is None:
             return
-        import math
         try:
             screen_tex = self._ctx.get_current_texture()
             screen_view = screen_tex.create_view()
-            # Slow RGB cycle: ~0.2 Hz (5 sec period), phase-shifted per channel
-            t = frame_time * 0.2
-            r = 0.5 + 0.4 * math.sin(math.tau * t)
-            g = 0.5 + 0.4 * math.sin(math.tau * t + math.tau / 3)
-            b = 0.5 + 0.4 * math.sin(math.tau * t + 2 * math.tau / 3)
-            encoder = self._device.create_command_encoder(label="screen-blit")
-            rp = encoder.begin_render_pass(
-                color_attachments=[{
-                    "view": screen_view,
-                    "resolve_target": None,
-                    "load_op": "clear",
-                    "store_op": "store",
-                    "clear_value": (r, g, b, 1.0),
-                }]
-            )
-            rp.end()
-            self._device.queue.submit([encoder.finish()])
+
+            if src_view is not None:
+                # --- GPU texture blit path -------------------------------------
+                self._ensure_screen_blit_pipeline()
+                bg = self._device.create_bind_group(
+                    layout=self._screen_blit_pipeline.get_bind_group_layout(0),
+                    entries=[
+                        {"binding": 0, "resource": src_view},
+                        {"binding": 1, "resource": self._screen_blit_sampler},
+                    ],
+                )
+                encoder = self._device.create_command_encoder(label="screen-blit")
+                rp = encoder.begin_render_pass(
+                    color_attachments=[{
+                        "view": screen_view,
+                        "resolve_target": None,
+                        "load_op": "clear",
+                        "store_op": "store",
+                        "clear_value": (0.0, 0.0, 0.0, 1.0),
+                    }]
+                )
+                rp.set_pipeline(self._screen_blit_pipeline)
+                rp.set_bind_group(0, bg)
+                rp.draw(4)
+                rp.end()
+                self._device.queue.submit([encoder.finish()])
+
+            else:
+                # --- Colour-cycle fallback (no chain output yet) ---------------
+                import math
+                t = frame_time * 0.2
+                r = 0.5 + 0.4 * math.sin(math.tau * t)
+                g = 0.5 + 0.4 * math.sin(math.tau * t + math.tau / 3)
+                b = 0.5 + 0.4 * math.sin(math.tau * t + 2 * math.tau / 3)
+                encoder = self._device.create_command_encoder(label="screen-blit-cycle")
+                rp = encoder.begin_render_pass(
+                    color_attachments=[{
+                        "view": screen_view,
+                        "resolve_target": None,
+                        "load_op": "clear",
+                        "store_op": "store",
+                        "clear_value": (r, g, b, 1.0),
+                    }]
+                )
+                rp.end()
+                self._device.queue.submit([encoder.finish()])
+
         except Exception as exc:
             logger.debug("RenderContext.blit_to_screen: %s", exc)
+
+    def _ensure_screen_blit_pipeline(self) -> None:
+        """Lazily create the SCREEN_BLIT_WGSL pipeline and sampler once."""
+        if self._screen_blit_pipeline is not None:
+            return
+        import wgpu
+        from vjlive3.render.shaders import SCREEN_BLIT_WGSL
+
+        module = self._device.create_shader_module(code=SCREEN_BLIT_WGSL, label="screen-blit")
+        self._screen_blit_pipeline = self._device.create_render_pipeline(
+            layout="auto",
+            label="screen-blit",
+            vertex={
+                "module": module,
+                "entry_point": "vs_main",
+            },
+            fragment={
+                "module": module,
+                "entry_point": "fs_main",
+                "targets": [{"format": self._screen_format}],
+            },
+            primitive={"topology": "triangle-strip"},
+        )
+        self._screen_blit_sampler = self._device.create_sampler(
+            label="screen-blit",
+            min_filter="linear",
+            mag_filter="linear",
+        )
+        logger.debug("Screen blit pipeline created (format=%s)", self._screen_format)
 
 
     # -------------------------------------------------------------------------

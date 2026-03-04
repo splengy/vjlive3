@@ -207,7 +207,14 @@ class EffectChain:
                 }]
             )
             pipeline = getattr(effect, "pipeline", None)
-            if pipeline is not None:
+            if hasattr(effect, "draw"):
+                # Preferred path: effect manages its own bind groups and receives
+                # the source texture view directly.  This is the correct path for
+                # any effect that samples from a previous render target.
+                effect.draw(render_pass, input_view, self._device)
+            elif pipeline is not None:
+                # Legacy path: effect only sets the pipeline, no bind groups.
+                # Safe only if the shader has no texture/uniform bindings.
                 pipeline.use(render_pass)
             render_pass.draw(4)  # fullscreen triangle-strip quad
             render_pass.end()
