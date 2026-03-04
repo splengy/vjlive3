@@ -67,14 +67,14 @@ class AudioKaleidoscopeEffect(EffectPlugin):
 
 ## Inputs and Outputs
 
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `segments` | `int` | Number of geometric slice reflections | 3 to 32 |
-| `angle_offset` | `float` | Base offset for coordinate rotation | 0.0 to 10.0 |
-| `scale`| `float` | Spatial coordinate scaling inside the segment | 0.1 to 3.0 |
-| `rotation_speed`| `float` | Multiplier against `uniform float time` | -5.0 to 5.0 |
-| `mirror_effect`| `float` | Blend interpolation multiplier for the mirrored UVs | 0.0 to 1.0 |
-| `audio_sensitivity`| `float` | Global scalar applied against all incoming audio bounds | 0.1 to 3.0 |
+| Name | Type | Range | Default | Internal Mapping | Description |
+|------|------| ------|---------|------------------|-------------|
+| `segments` | float | 0.0 - 10.0 | 2.5 | `int(3 + value * 2.9) → [3, 32]` | Radial slice count |
+| `angle_offset` | float | 0.0 - 10.0 | 0.0 | `value / 10.0 * 2π → [0, 2π]` | Global rotational offset |
+| `scale` | float | 0.0 - 10.0 | 3.3 | `0.1 + value * 0.29 → [0.1, 3.0]` | UV zoom inside segment |
+| `rotation_speed` | float | 0.0 - 10.0 | 6.0 | `(value - 5.0) → [-5.0, +5.0]` | Time multiplier (5.0=stopped, <5=reverse) |
+| `mirror_effect` | float | 0.0 - 10.0 | 5.0 | `value / 10.0 → [0, 1]` | Mirrored-UV blend intensity |
+| `audio_sensitivity` | float | 0.0 - 10.0 | 3.3 | `0.1 + value * 0.29 → [0.1, 3.0]` | Global audio reactivity scalar |
 
 ---
 

@@ -32,7 +32,7 @@
 | P3-EXT009 | raymarched_scenes (AudioReactiveRaymarchedScenes) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT010 | audio_reactive_effects (AudioSpectrumTrails) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT011 | background_subtraction (BackgroundSubtractionEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P3-EXT012 | depth_effects (BackgroundSubtractionEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — BackgroundSubtractionEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT012 | depth_effects (BackgroundSubtractionEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out (P3-EXT011) |
 | P3-EXT013 | bad_trip_datamosh (BadTripDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/plugins/bad_trip_datamosh.py` — 12-param horror datamosh, 21 tests ✅ 2026-02-23 |
 | P3-EXT014 | bass_cannon_datamosh (BassCannonDatamoshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT015 | bass_cannon_2 (BassCanon2) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out | `src/vjlive3/plugins/bass_cannon_2.py` — 30-param neural rave cannon, 24 tests ✅ 2026-02-23 |
@@ -40,7 +40,7 @@
 | P3-EXT017 | pop_art_effects (BenDayDotsEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT018 | blend (BlendAddEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT019 | blend (BlendDiffEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — BlendDiffEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT020 | blend (BlendMultEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — BlendMultEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT020 | blend (BlendMultEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT021 | blend (BloomEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — BloomEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out → P3-EXT021_BloomEffect.md |
 | P3-EXT022 | blend (BloomShadertoyEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — BloomShadertoyEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT023 | color (BrightnessEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — BrightnessEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out → P3-EXT023_BrightnessEffect.md |
@@ -153,24 +153,24 @@
 | P3-EXT130 | color (PosterizeEffect) | P0 | 🟩 COMPLETING PASS 2 | *(duplicate — PosterizeEffect already shipped in P4/P5/P6/P7)* ✅ Spec exists in _02_fleshed_out |
 | P3-EXT131 | prism_realm_datamosh (PrismRealmDatamoshEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — PrismRealmDatamoshEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT132 | vtempi (ProgramPage) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P3-EXT133 | quantum_consciousness_datamosh (QuantumConsciousnessDatamosh) | P0 | 🟦 IN PROGRESS (desktop) | `docs/specs/P3-EXT133_QuantumConsciousnessDatamosh.md` — spec approved |
-| P3-EXT134 | tunnel_vision_3 (QuantumConsciousnessSingularityEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — QuantumConsciousnessSingularityEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT135 | quantum_depth_nexus (QuantumDepthNexus) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — QuantumDepthNexus already shipped in P4/P5/P6/P7)* |
+| P3-EXT133 | quantum_consciousness_datamosh (QuantumConsciousnessDatamosh) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT134 | tunnel_vision_3 (QuantumConsciousnessSingularityEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT135 | quantum_depth_nexus (QuantumDepthNexus) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT136 | quantum_entanglement_point_cloud (QuantumEntanglementPointCloud) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
 | P3-EXT137 | quantum_consciousness_explorer (QuantumState) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
-| P3-EXT138 | quantum_consciousness_explorer (QuantumState) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT139 | r16_deep_mosh_studio (R16DeepMoshStudio) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — R16DeepMoshStudio already shipped in P4/P5/P6/P7)* |
-| P3-EXT140 | r16_depth_wave (R16DepthWave) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT141 | r16_interstellar_mosh (R16InterstellarMosh) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — R16InterstellarMosh already shipped in P4/P5/P6/P7)* |
-| P3-EXT142 | r16_simulated_depth (R16SimulatedDepth) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT143 | r16_vortex (R16VortexEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT144 | color (RGBShiftEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — RGBShiftEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT145 | vibrant_retro_styles (RadiantMeshEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — RadiantMeshEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT146 | rainmaker_rhythmic_echo (RainmakerRhythmicEcho) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT147 | reaction_diffusion (ReactionDiffusionEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — ReactionDiffusionEffect already shipped in P4/P5/P6/P7)* |
-| P3-EXT148 | reality_distortion_field (RealityDistortionField) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT149 | particles_3d (RenderMode) | P0 | ⬜ PENDING SKELETON (Pass 1) | vjlive |
-| P3-EXT150 | geometry (RepeatEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — RepeatEffect already shipped in P4/P5/P6/P7)* |
+| P3-EXT138 | quantum_consciousness_explorer (QuantumState) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT139 | r16_deep_mosh_studio (R16DeepMoshStudio) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT140 | r16_depth_wave (R16DepthWave) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT141 | r16_interstellar_mosh (R16InterstellarMosh) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT142 | r16_simulated_depth (R16SimulatedDepth) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT143 | r16_vortex (R16VortexEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT144 | color (RGBShiftEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT145 | vibrant_retro_styles (RadiantMeshEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT146 | rainmaker_rhythmic_echo (RainmakerRhythmicEcho) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT147 | reaction_diffusion (ReactionDiffusionEffect) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT148 | reality_distortion_field (RealityDistortionField) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT149 | particles_3d (RenderMode) | P0 | 🟩 COMPLETING PASS 2 | ✅ Spec exists in _02_fleshed_out |
+| P3-EXT150 | geometry (RepeatEffect) | P0 | 🟦 IN PROGRESS (desktop) | *(duplicate — RepeatEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT151 | resize_effect (ResizeEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — ResizeEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT152 | vcv_video_effects (ResonantBlurEffect) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — ResonantBlurEffect already shipped in P4/P5/P6/P7)* |
 | P3-EXT153 | vcv_video_generators (ResonantGeometryGen) | P0 | ⬜ PENDING SKELETON (Pass 1) | *(duplicate — ResonantGeometryGen already shipped in P4/P5/P6/P7)* |

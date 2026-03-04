@@ -177,25 +177,25 @@ class QuantumConsciousnessExplorer:
 
 ### Parameters
 
-| Name | Type | Description | Constraints |
-|------|------|-------------|-------------|
-| `quantum_intensity` | `float` | Overall quantum effect strength | 0.0 - 1.0 |
-| `entanglement_strength` | `float` | Particle entanglement coupling | 0.0 - 1.0 |
-| `superposition_probability` | `float` | Probability of superposition states | 0.0 - 1.0 |
-| `wave_function_amplitude` | `float` | Wave function oscillation amplitude | 0.0 - 2.0 |
-| `fractal_type` | `int` | Fractal algorithm (0=Mandelbrot, 1=Julia) | 0 or 1 |
-| `fractal_iterations` | `int` | Maximum fractal iterations | 10 - 1000 |
-| `fractal_zoom` | `float` | Fractal zoom level | 0.1 - 100.0 |
-| `fractal_offset_x` | `float` | Fractal center X offset | -2.0 - 2.0 |
-| `fractal_offset_y` | `float` | Fractal center Y offset | -2.0 - 2.0 |
-| `dimensions` | `int` | Number of dimensions to simulate | 2 - 11 |
-| `dimension_transition` | `float` | Transition speed between dimensions | 0.0 - 1.0 |
-| `particle_count` | `int` | Number of particles | 100 - 10000 |
-| `particle_size` | `float` | Base particle size | 0.1 - 10.0 |
-| `particle_speed` | `float` | Particle movement speed | 0.0 - 5.0 |
-| `active_agent` | `int` | Index of currently active AI agent | 0 - 3 |
-| `agent_collaboration` | `float` | Agent influence on visuals | 0.0 - 1.0 |
-| `quantum_state` | `int` | Current quantum state enum value | 0 - 5 |
+| Name | Type | Range | Default | Internal Mapping | Description |
+|------|------|-------|---------|------------------|-------------|
+| `quantum_intensity` | float | 0.0 - 10.0 | 5.0 | `value / 10.0 → [0,1]` | Overall quantum effect strength |
+| `entanglement_strength` | float | 0.0 - 10.0 | 5.0 | `value / 10.0 → [0,1]` | Particle entanglement coupling |
+| `superposition_probability` | float | 0.0 - 10.0 | 5.0 | `value / 10.0 → [0,1]` | Probability of superposition states |
+| `wave_function_amplitude` | float | 0.0 - 10.0 | 5.0 | `value / 5.0 → [0,2]` | Wave function oscillation amplitude |
+| `fractal_type` | float | 0.0 - 10.0 | 0.0 | `int(value / 5.0) → {0=Mandelbrot, 1=Julia}` | Fractal algorithm selector |
+| `fractal_iterations` | float | 0.0 - 10.0 | 3.0 | `int(10 + value * 99) → [10, 1000]` | Maximum fractal iteration depth |
+| `fractal_zoom` | float | 0.0 - 10.0 | 1.0 | `0.1 * 10^(value / 4.34) → [0.1, 100]` | Fractal zoom level (logarithmic) |
+| `fractal_offset_x` | float | 0.0 - 10.0 | 5.0 | `(value - 5.0) * 0.4 → [-2.0, +2.0]` | Fractal center X (5.0 = no offset) |
+| `fractal_offset_y` | float | 0.0 - 10.0 | 5.0 | `(value - 5.0) * 0.4 → [-2.0, +2.0]` | Fractal center Y (5.0 = no offset) |
+| `dimensions` | float | 0.0 - 10.0 | 0.0 | `int(2 + value * 0.9) → [2, 11]` | Dimensions to simulate (2=2D, 10=11D) |
+| `dimension_transition` | float | 0.0 - 10.0 | 3.0 | `value / 10.0 → [0,1]` | Transition speed between dimensions |
+| `particle_count` | float | 0.0 - 10.0 | 5.0 | `int(100 + value * 990) → [100, 10000]` | Particle count |
+| `particle_size` | float | 0.0 - 10.0 | 1.0 | `0.1 + value → [0.1, 10.0]` | Base particle size (pixel radius) |
+| `particle_speed` | float | 0.0 - 10.0 | 5.0 | `value / 2.0 → [0, 5]` | Particle movement speed |
+| `active_agent` | float | 0.0 - 10.0 | 0.0 | `int(value / 2.5) → {0,1,2,3}` | Active AI agent selector |
+| `agent_collaboration` | float | 0.0 - 10.0 | 5.0 | `value / 10.0 → [0,1]` | Agent influence on visuals |
+| `quantum_state` | float | 0.0 - 10.0 | 0.0 | `int(value / 1.67) → {0..5}` | Current quantum state |
 
 ### Inputs
 

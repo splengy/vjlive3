@@ -92,10 +92,10 @@ All depth effects should support these standard parameters (exposed via `get_par
 
 | Parameter | Type | Default | Range | Description |
 |-----------|------|---------|-------|-------------|
-| `near_clip` | float | 0.1 | 0.0 - 1.0 | Near clipping distance (normalized) |
-| `far_clip` | float | 1.0 | 0.0 - 1.0 | Far clipping distance (normalized) |
+| `near_clip` | float | 1.0 | 0.0 - 10.0 | Near clipping distance (0=camera face, 10=max depth range) |
+| `far_clip` | float | 10.0 | 0.0 - 10.0 | Far clipping distance (0=camera face, 10=max depth range) |
 | `depth_scale` | float | 1.0 | 0.1 - 10.0 | Multiplier applied to depth values |
-| `invert_depth` | bool | False | — | If true, depth = 1.0 - depth |
+| `invert_depth` | float | 0.0 | 0.0 - 10.0 | Invert depth (0.0=normal, >0.0=inverted; 1.0 = full inversion) |
 
 These parameters are applied in `apply_depth_transform(depth: np.ndarray) -> np.ndarray`:
 
@@ -107,15 +107,19 @@ def apply_depth_transform(self, depth: np.ndarray) -> np.ndarray:
     # Apply scale
     depth = depth * self.depth_scale
     
-    # Invert if requested
-    if self.invert_depth:
+    # Invert if requested (param > 0 = inverted)
+    if self.invert_depth > 0.0:
         depth = 1.0 - depth
     
+    # Map 0-10 VJ params down to [0,1] clip values
+    near = self.near_clip / 10.0
+    far  = self.far_clip  / 10.0
+    
     # Clamp to near/far
-    depth = np.clip(depth, self.near_clip, self.far_clip)
+    depth = np.clip(depth, near, far)
     
     # Re-normalize to [0,1] after clipping
-    depth = (depth - self.near_clip) / (self.far_clip - self.near_clip + 1e-6)
+    depth = (depth - near) / (far - near + 1e-6)
     
     return depth
 ```
@@ -141,10 +145,10 @@ The base class provides these uniforms to all depth effect shaders:
 | Uniform | Type | Description |
 |---------|------|-------------|
 | `u_depth_texture` | `sampler2D` | Depth map texture |
-| `u_near_clip` | `float` | Near clipping plane (normalized) |
-| `u_far_clip` | `float` | Far clipping plane (normalized) |
+| `u_near_clip` | `float` | Near clipping plane (normalized 0-1, mapped from VJ 0-10 param) |
+| `u_far_clip` | `float` | Far clipping plane (normalized 0-1, mapped from VJ 0-10 param) |
 | `u_depth_scale` | `float` | Depth scale multiplier |
-| `u_invert_depth` | `bool` | Whether depth is inverted |
+| `u_invert_depth` | `float` | Depth inversion (0.0=normal, >0.0=inverted) |
 | `u_frame_width` | `int` | Frame width in pixels |
 | `u_frame_height` | `int` | Frame height in pixels |
 
@@ -181,10 +185,10 @@ The base class itself has no inputs/outputs. Subclasses define their own.
 
 | Parameter | Type | Default | Range | Description |
 |-----------|------|---------|-------|-------------|
-| `near_clip` | float | 0.1 | 0.0 - 1.0 | Near clipping distance (normalized depth) |
-| `far_clip` | float | 1.0 | 0.0 - 1.0 | Far clipping distance (normalized depth) |
+| `near_clip` | float | 1.0 | 0.0 - 10.0 | Near clipping distance (0=camera face, 10=max depth range) |
+| `far_clip` | float | 10.0 | 0.0 - 10.0 | Far clipping distance (0=camera face, 10=max depth range) |
 | `depth_scale` | float | 1.0 | 0.1 - 10.0 | Multiplier applied to raw depth values |
-| `invert_depth` | bool | False | — | Invert depth (1.0 - depth) |
+| `invert_depth` | float | 0.0 | 0.0 - 10.0 | Invert depth (0.0=normal, >0.0=inverted) |
 
 ---
 
@@ -393,13 +397,13 @@ Design decisions inherited:
            self._depth_source = None
            self._depth_frame = None
            self._depth_texture = 0
-           self._frame_width = 1920
-           self._frame_height = 1080
+           self._frame_width = 1920   # TODO: pull from config.render.width (P1-C4)
+           self._frame_height = 1080  # TODO: pull from config.render.height (P1-C4)
            self._parameters = {
-               'near_clip': 0.1,
-               'far_clip': 1.0,
+               'near_clip': 1.0,
+               'far_clip': 10.0,
                'depth_scale': 1.0,
-               'invert_depth': False,
+               'invert_depth': 0.0,
            }
        
        def set_depth_source(self, source):
@@ -438,9 +442,9 @@ Design decisions inherited:
 2. **Shader Boilerplate**: Provide a common vertex shader that all depth effects can use (simple full-screen quad). Subclasses only need to provide fragment shaders.
 
 3. **Parameter Validation**: In `set_parameter()`, validate:
-   - `near_clip` and `far_clip`: 0.0 ≤ near < far ≤ 1.0
+   - `near_clip` and `far_clip`: 0.0 ≤ near < far ≤ 10.0 (mapped to [0,1] internally via ÷10)
    - `depth_scale`: > 0
-   - `invert_depth`: bool
+   - `invert_depth`: float ≥ 0.0 (>0.0 = inverted; treat as boolean threshold)
 
 4. **Frame Size Handling**: The base class should know the expected frame size (from the pipeline). Provide `set_frame_size(width, height)` to update `_frame_width` and `_frame_height`. This is useful for shader uniforms.
 

@@ -98,12 +98,12 @@ The effect may use a single large framebuffer with multiple attachments (MRT) or
 
 ### Parameters
 
-- `depth_min`: float, default 0.0 — Minimum depth value to consider (clips lower values)
-- `depth_max`: float, default 1.0 — Maximum depth value to consider (clips higher values)
-- `ir_gain`: float, default 1.0 — Gain applied to IR channel before output
-- `ir_offset`: float, default 0.0 — Offset added to IR channel
+- `depth_min`: float [0.0-10.0], default 0.0 — Minimum depth value to consider (clips lower values; mapped to [0,1] internally via ÷10)
+- `depth_max`: float [0.0-10.0], default 10.0 — Maximum depth value to consider (clips higher values; mapped to [0,1] internally via ÷10)
+- `ir_gain`: float [0.0-10.0], default 1.0 — Gain applied to IR channel before output (1.0 = unity)
+- `ir_offset`: float [0.0-10.0], default 0.0 — Offset added to IR channel (mapped to [0,1] internally via ÷10)
 - `colorization_palette`: string, default "thermal" — Color palette for depth visualization ("thermal", "depth", "rainbow", "mono")
-- `invert_depth`: bool, default false — If true, inverts depth mapping (near=1.0, far=0.0)
+- `invert_depth`: float [0.0-10.0], default 0.0 — Invert depth mapping (0.0=normal, >0.0=inverted; near=1.0, far=0.0)
 
 ---
 
